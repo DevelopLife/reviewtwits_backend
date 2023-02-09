@@ -9,6 +9,6 @@ public class BasicController {
 
     @RequestMapping
     public String helloWorld(){
-        return "hello world!";
+        return "hello world! ";
     }
 }
