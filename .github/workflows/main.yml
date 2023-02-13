@@ -31,10 +31,8 @@ jobs:
     - name: Setup MySQL
       uses: samin/mysql-action@v1
       with:
-          character set server: 'utf8' 
           mysql database: 'reviewtwits' 
-          mysql user: 'root'
-          mysql password: 'rootroot' # github Secret 탭에서 설정하세요!
+          mysql root password: 'rootroot' # github Secret 탭에서 설정하세요!
     
     - name: Build with Gradle
       run: ./gradlew clean build
