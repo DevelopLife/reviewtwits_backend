@@ -49,6 +49,15 @@ jobs:
     - name: Copy Jar
       run: cp ./build/libs/*.jar ./deploy
 
+      # appspec.yml 파일 복사
+    - name: Copy appspec.yml
+      run: cp appspec.yml ./deploy
+
+
+      # script files 복사
+    - name: Copy script
+      run: cp ./scripts/*.sh ./deploy
+
     - name: Make zip file
       run: zip -r ./reviewtwits.zip ./deploy
       shell: bash
@@ -62,3 +71,16 @@ jobs:
 
     - name: Upload to S3
       run: aws s3 cp --region ap-northeast-2 ./reviewtwits.zip s3://$S3_BUCKET_NAME/
+
+      # Deploy
+    - name: Deploy
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        aws deploy create-deployment \
+        --application-name reviewtwits \
+        --deployment-group-name reviewtwits-group \
+        --file-exists-behavior OVERWRITE \
+        --s3-location bucket=reviewtwits,bundleType=zip,key=reviewtwits.zip \ 
+        --region ap-northeast-2
