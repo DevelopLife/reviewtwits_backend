@@ -28,23 +28,13 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: make application.properties via Git Action
+    - name: Make application.properties
       run: |
-        echo "ls -a . & pwd"
-        pwd
-        ls -a .
-        echo "mkdir & touch"
-        mkdir -p ./src/main/resources 
         cd ./src/main/resources
         touch ./application.properties
-        pwd
-        ls -a .
-        echo "copy properties"
-        echo $DEV_PROP >> ./application.properties
-        cat application.properties
+          
+        echo "${{ secrets.APPLICATION_PROPERTIES }}" >> ./application.properties
       shell: bash
-      env:
-        DEV_PROP: ${{ secrets.APPLICATION_PROPERTIES }}
 
     - name : Setup MariaDB
       uses: getong/mariadb-action@v1.1
