@@ -31,7 +31,6 @@ jobs:
     - name: Make application.properties
       run: |
         cd ./src/main/resources
-          
         echo "${{ secrets.APPLICATION_PROPERTIES }}" >> ./application.properties
       shell: bash
 
