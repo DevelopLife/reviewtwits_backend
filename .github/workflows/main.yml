@@ -31,7 +31,8 @@ jobs:
     - name: Make application.properties
       run: |
         cd ./src/main/resources
-        echo "${{ secrets.APPLICATION_PROPERTIES }}" >> ./application.properties
+        echo "${{ secrets.DB_SECRET_INFO }}" >> ./application.properties
+        cat ./application.properties
       shell: bash
 
     - name : Setup MariaDB
