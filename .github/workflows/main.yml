@@ -3,7 +3,7 @@ name: ReviewTwits Server CI/CD
 on:
   push:
     branches:
-      - feature/AWSCICDSettings
+      - feature/SecretSettings
       - main
   pull_request:
     branches: [ main ]
