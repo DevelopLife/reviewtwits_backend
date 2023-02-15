@@ -29,7 +29,6 @@ jobs:
       run: chmod +x gradlew
 
     - name: make application.properties via Git Action
-      if: contains(github.ref, 'main')
       run: |
         echo "ls -a . & pwd"
         pwd
