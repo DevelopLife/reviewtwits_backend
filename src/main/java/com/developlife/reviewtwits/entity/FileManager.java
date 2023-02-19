@@ -18,4 +18,13 @@ public class FileManager {
 
     @Column(name = "reference_type")
     private String referenceType;
+
+    public FileManager() {
+    }
+
+    public FileManager(Long fileStorageID, Long referenceID, String referenceType) {
+        this.fileStorageID = fileStorageID;
+        this.referenceID = referenceID;
+        this.referenceType = referenceType;
+    }
 }
