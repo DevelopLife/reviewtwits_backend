@@ -1,9 +1,10 @@
 package com.developlife.reviewtwits.controller;
 
+import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.message.request.FileUpdateRequest;
-import com.developlife.reviewtwits.repository.FileRepository;
+import com.developlife.reviewtwits.repository.FileManagerRepository;
+import com.developlife.reviewtwits.repository.FileInfoRepository;
 import com.developlife.reviewtwits.service.FileStoreService;
-import com.developlife.reviewtwits.type.UploadFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.UrlResource;
@@ -20,19 +21,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileController {
 
-    private final FileRepository fileRepository;
     private final FileStoreService fileStore;
 
     @PostMapping("/files/save")
     public ResponseEntity<String> saveFile(@ModelAttribute FileUpdateRequest request) throws IOException {
 
-        log.info("request = {}",request);
-        List<UploadFile> storeFiles = fileStore.storeFiles(request.getAttachedFiles());
+        String referenceType = request.getReferenceType();
+        Long id = request.getId();
+        List<FileInfo> storeFiles = fileStore.storeFiles(request.getAttachedFiles(),id,referenceType);
 
-        String storeFilename = storeFiles.get(0).getStoreFileName();
-        log.info("storeFilename = {}", storeFilename);
+        String storeFilename = storeFiles.get(0).getRealFilename();
         UrlResource resource = new UrlResource("file:" + fileStore.getFullPath(storeFilename));
-        log.info("resource in controller = {}",resource);
 
         return ResponseEntity.accepted().body(resource.toString());
     }
