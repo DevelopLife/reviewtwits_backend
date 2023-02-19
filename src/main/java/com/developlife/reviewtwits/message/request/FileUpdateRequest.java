@@ -9,7 +9,7 @@ import java.util.List;
 public class FileUpdateRequest {
 
     private Long id;
-    private String fileName;
+    private String referenceType;
     private List<MultipartFile> attachedFiles;
 
 }
