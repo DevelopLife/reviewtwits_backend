@@ -1,5 +1,8 @@
 package com.developlife.reviewtwits.type;
 
+import lombok.Getter;
+
+@Getter
 public class UploadFile {
 
     private String uploadFileName;
