@@ -63,4 +63,24 @@ public class UserService {
         Optional<User> user = userRepository.findByAccountId(accountId);
         return user.get();
     }
+
+    public User grantedAdminPermission(String accountId) {
+        User user = userRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new AccountIdAlreadyExistsException("사용자를 찾을 수 없습니다."));
+        Set<UserRole> roles = user.getRoles();
+        roles.add(UserRole.ADMIN);
+
+        user.setRoles(roles);
+        return userRepository.save(user);
+    }
+
+    public User confiscatedAdminPermission(String accountId) {
+        User user = userRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new AccountIdAlreadyExistsException("사용자를 찾을 수 없습니다."));
+        Set<UserRole> roles = user.getRoles();
+        roles.remove(UserRole.ADMIN);
+
+        user.setRoles(roles);
+        return userRepository.save(user);
+    }
 }

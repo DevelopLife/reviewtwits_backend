@@ -44,4 +44,24 @@ public class UserController {
         String id = authentication.getName();
         return userService.getUser(id);
     }
+
+    // admin권한 부여를 받을수 있는 테스트용 메소드
+    @PostMapping(value = "/permission", produces = "application/json")
+    public User addAdminPermission() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String accountId = authentication.getName();
+        return userService.grantedAdminPermission(accountId);
+    }
+
+    @DeleteMapping(value = "/permission", produces = "application/json")
+    public User deleteAdminPermission() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String accountId = authentication.getName();
+        return userService.confiscatedAdminPermission(accountId);
+    }
+
+    @GetMapping(value = "/admin", produces = "application/json")
+    public String admin() {
+        return "hello admin";
+    }
 }

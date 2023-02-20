@@ -37,6 +37,23 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.httpBasic().disable()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeRequests()
+                .antMatchers("/user/admin").hasRole("ADMIN")
+                .antMatchers("/user", "/user/login").permitAll()
+                .antMatchers("/user/**").hasRole("USER")
+                .anyRequest()
+                .permitAll()
+                .and()
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+    @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
