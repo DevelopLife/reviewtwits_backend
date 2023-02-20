@@ -2,8 +2,6 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.message.request.FileUpdateRequest;
-import com.developlife.reviewtwits.repository.FileManagerRepository;
-import com.developlife.reviewtwits.repository.FileInfoRepository;
 import com.developlife.reviewtwits.service.FileStoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
