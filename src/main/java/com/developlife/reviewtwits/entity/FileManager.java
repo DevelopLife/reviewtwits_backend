@@ -1,11 +1,15 @@
 package com.developlife.reviewtwits.entity;
 
+import lombok.Getter;
+
 import javax.persistence.*;
 
+@Getter
 @Entity
 public class FileManager {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "file_manager_id")
     private Long fileManagerID;
 

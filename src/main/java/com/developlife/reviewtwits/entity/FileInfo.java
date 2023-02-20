@@ -11,7 +11,7 @@ public class FileInfo {
 
     @Id
     @Column(name = "file_storage_id")
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long fileID;
 
     @Column(name = "file_path")
