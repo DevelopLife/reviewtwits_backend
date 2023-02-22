@@ -21,8 +21,10 @@ jobs:
     - name: Make application.properties
       run: |
         cd ./src/main/resources
-        echo "${{ secrets.DB_SECRET_INFO }}" >> ./application.properties
+        echo "${{ secrets.DB_SECRET_INFORMATION }}" >> ./application.properties
         cat ./application.properties
+        echo DB_SECRET_INFORMATION
+        echo ${{ secrets.DB_SECRET_INFORMATION }}
         echo Username
         echo ${{ secrets.MARIADB_USERNAME }}
         echo AWS_ACCESS_KEY_ID
