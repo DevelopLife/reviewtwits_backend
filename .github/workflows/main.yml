@@ -32,7 +32,7 @@ jobs:
       
     - name: Check All Secrets
       run : |
-        echo "${{ secrets.DB_SECRET_INFO }}"
+        echo "${{ secrets.DB_SECRET_INFORMATION }}"
         echo "${{ secrets.MARIADB_USERNAME }}"
         echo "${{ secrets.MARIADB_PASSWORD }}"
       shell : bash  
@@ -57,7 +57,7 @@ jobs:
     - name: Build with Gradle
       env:
         auto-ddl: create
-      run: ./gradlew clean build --scan
+      run: ./gradlew clean build
 
       # 디렉토리 생성
     - name: Make Directory
