@@ -41,6 +41,9 @@ public class FileStoreService {
     }
 
     public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, String referenceType) throws IOException {
+
+        checkFolder();
+
         List<FileInfo> storeFileResult = new ArrayList<>();
         List<FileManager> fileManagerList = new ArrayList<>();
         for (MultipartFile multipartFile : multipartFiles) {
@@ -69,5 +72,12 @@ public class FileStoreService {
     private String extractExt(String originalFilename) {
         int position = originalFilename.lastIndexOf(".");
         return originalFilename.substring(position + 1);
+    }
+
+    private void checkFolder(){
+        File folder = new File(fileDir);
+        if(!folder.exists()){
+            folder.mkdir();
+        }
     }
 }

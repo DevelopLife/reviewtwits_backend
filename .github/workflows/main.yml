@@ -4,8 +4,12 @@ on:
   push:
     branches:
       - main
+      - develop
+      - fix/AWSCICDSettings
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - develop
 
 env:
   S3_BUCKET_NAME: reviewtwits
@@ -26,11 +30,18 @@ jobs:
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+      
+    - name: Check All Secrets
+      run : |
+        echo "${{ secrets.DB_SECRET_INFO }}"
+        echo "${{ secrets.MARIADB_USERNAME }}"
+        echo "${{ secrets.MARIADB_PASSWORD }}"
+      shell : bash  
 
     - name: Make application.properties
       run: |
         cd ./src/main/resources
-        echo "${{ secrets.DB_SECRET_INFO }}" >> ./application.properties
+         echo "${{ secrets.DB_SECRET_INFORMATION }}" >> ./application.properties
         cat ./application.properties
       shell: bash
 
@@ -40,12 +51,14 @@ jobs:
         character set server: 'utf8mb4' # Optional, default value is 'utf8mb4'. The '--character-set-server' option for mysqld
         mariadb version: '10.6.8' # Optional, default value is "latest". The version of the MariaDB
         mysql database: 'reviewtwits' # Optional, default value is "test". The specified database which will be create
-        mysql root password: ${{ secrets.MARIADB_PASSWORD }} # Required if "mysql user" is empty, default is empty. The root superuser password
+        # mysql root password: ${{ secrets.MARIADB_PASSWORD }} # Required if "mysql user" is empty, default is empty. The root superuser password
         mysql user: ${{ secrets.MARIADB_USERNAME}} # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
         mysql password: ${{ secrets.MARIADB_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
-    
+
     - name: Build with Gradle
-      run: ./gradlew clean build
+      env:
+        auto-ddl: create
+      run: ./gradlew clean build --scan
 
       # 디렉토리 생성
     - name: Make Directory

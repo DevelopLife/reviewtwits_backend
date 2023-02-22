@@ -34,6 +34,7 @@ public class BasicFileUploadTest extends FileUploadTest {
         void checkFileUpload_existInDirectory(String inputContent,String filename, String suffix) throws IOException{
             ResponseEntity<String> response = fileUpload(inputContent,filename,suffix, 12L, "Test");
             // 검증
+            System.out.println("response.getStatusCode = " +  response.getStatusCode());
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
 
             String storedPath = getStoredFullPath(response);
