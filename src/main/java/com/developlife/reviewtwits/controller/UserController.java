@@ -113,7 +113,7 @@ public class UserController {
         HttpResponse response = client.send(request, HttpResponse.BodyHandlers.ofString());
         if(response.statusCode() != 200)
             return KakaoOauthResponse.builder().build();
- 
+
         String content = response.body().toString();
         ObjectMapper objectMapper = new ObjectMapper();
         Object objValue = objectMapper.readValue(content, Object.class);
