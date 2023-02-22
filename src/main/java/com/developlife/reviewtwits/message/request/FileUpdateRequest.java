@@ -8,7 +8,7 @@ import java.util.List;
 @RequiredArgsConstructor @Getter @Setter
 public class FileUpdateRequest {
 
-    private Long id; // userID 로 고쳐서 진행할 것.
+    private Long id;
     private String referenceType;
     private List<MultipartFile> attachedFiles;
 
