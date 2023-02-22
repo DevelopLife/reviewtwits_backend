@@ -35,7 +35,7 @@ public class BasicFileUploadTest extends FileUploadTest {
             ResponseEntity<String> response = fileUpload(inputContent,filename,suffix, 12L, "Test");
             // 검증
             System.out.println("response.getStatusCode = " +  response.getStatusCode());
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR); // 어떤 코드를 반환하는지 확인
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
 
             String storedPath = getStoredFullPath(response);
             String uploadedContent = new String(Files.readAllBytes(Path.of(storedPath)));
