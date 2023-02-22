@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.message.request.KakaoOauthRequest;
 import com.developlife.reviewtwits.message.request.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.RegisterUserRequest;
 import com.developlife.reviewtwits.service.UserService;
@@ -63,5 +64,11 @@ public class UserController {
     @GetMapping(value = "/admin", produces = "application/json")
     public String admin() {
         return "hello admin";
+    }
+
+    @PostMapping(value = "/kakao-oauth", consumes = "application/json")
+    public String kakaoOauth(@RequestBody KakaoOauthRequest kakaoOauthRequest) {
+        System.out.println(kakaoOauthRequest);
+        return "hello";
     }
 }
