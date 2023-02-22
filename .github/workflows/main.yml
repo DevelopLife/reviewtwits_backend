@@ -37,11 +37,6 @@ jobs:
         cat ./application.properties
       shell: bash
 
-    - name: Check directions
-      run : |
-        pwd
-        ls -al
-
     - name : Setup MariaDB
       uses: getong/mariadb-action@v1.1
       with:
