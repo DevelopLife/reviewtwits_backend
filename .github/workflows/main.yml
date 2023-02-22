@@ -32,15 +32,15 @@ jobs:
       
     - name: Check All Secrets
       run : |
-        echo ${{ secrets.DB_SECRET_INFO }}
-        echo ${{ secrets.MARIADB_USERNAME }}
-        echo ${{ secrets.MARIADB_PASSWORD }}
+        echo "${{ secrets.DB_SECRET_INFORMATION }}"
+        echo "${{ secrets.MARIADB_USERNAME }}"
+        echo "${{ secrets.MARIADB_PASSWORD }}"
       shell : bash  
 
     - name: Make application.properties
       run: |
         cd ./src/main/resources
-        echo ${{ secrets.DB_SECRET_INFO }} >> ./application.properties
+         echo "${{ secrets.DB_SECRET_INFORMATION }}" >> ./application.properties
         cat ./application.properties
       shell: bash
 
