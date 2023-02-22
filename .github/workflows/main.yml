@@ -48,7 +48,7 @@ jobs:
     - name: Build with Gradle
       env:
         auto-ddl: create
-      run: ./gradlew clean build --stacktrace
+      run: ./gradlew clean build --scan
 
       # 디렉토리 생성
     - name: Make Directory
