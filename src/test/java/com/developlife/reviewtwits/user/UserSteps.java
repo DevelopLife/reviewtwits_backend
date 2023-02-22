@@ -20,6 +20,6 @@ public class UserSteps {
     public static RegisterUserRequest 회원가입요청_생성() {
         final String username = "ghdic";
 
-        return new RegisterUserRequest(username);
+        return new RegisterUserRequest(username, "ghdic@naver.com", "wkd123");
     }
 }
