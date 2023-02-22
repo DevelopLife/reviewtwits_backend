@@ -44,7 +44,7 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/user/admin").hasRole("ADMIN")
-                .antMatchers("/user", "/user/login").permitAll()
+                .antMatchers("/user", "/user/login", "/user/kakao-oauth").permitAll()
                 .antMatchers("/user/**").hasRole("USER")
                 .anyRequest()
                 .permitAll()
