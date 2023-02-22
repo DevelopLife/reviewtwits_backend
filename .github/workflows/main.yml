@@ -29,6 +29,13 @@ jobs:
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+      
+    - name: Check All Secrets
+      run : |
+        echo "${{ secrets.DB_SECRET_INFO }}"
+        echo "${{ secrets.MARIADB_USERNAME }}"
+        echo "${{ secrets.MARIADB_PASSWORD }}"
+      shell : bash  
 
     - name: Make application.properties
       run: |
