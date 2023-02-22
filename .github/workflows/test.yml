@@ -1,0 +1,27 @@
+name: Test Action
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches: [ develop ]
+
+env:
+  S3_BUCKET_NAME: reviewtwits
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Make application.properties
+      run: |
+        cd ./src/main/resources
+        echo "${{ secrets.DB_SECRET_INFO }}" >> ./application.properties
+        cat ./application.properties
+        echo ${{ secrets.MARIADB_USERNAME }}
+      shell: bash
