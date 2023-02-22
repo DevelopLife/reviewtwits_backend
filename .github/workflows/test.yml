@@ -23,5 +23,10 @@ jobs:
         cd ./src/main/resources
         echo "${{ secrets.DB_SECRET_INFO }}" >> ./application.properties
         cat ./application.properties
+        echo Username
         echo ${{ secrets.MARIADB_USERNAME }}
+        echo AWS_ACCESS_KEY_ID
+        echo ${{ secrets.AWS_ACCESS_KEY_ID }}
+        echo AWS_ACCESS_KEY_ID_Test
+        echo "${{ secrets.AWS_ACCESS_KEY_ID }}"
       shell: bash
