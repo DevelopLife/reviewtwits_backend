@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
-      - fix/AWSCICDSettings
+      - develop
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - develop
 
 env:
   S3_BUCKET_NAME: reviewtwits
