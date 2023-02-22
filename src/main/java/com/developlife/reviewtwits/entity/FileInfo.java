@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @Getter
 @Entity
-@Table(name = "FileStorage")
+@Table(name = "file_storage")
 public class FileInfo {
 
     @Id
