@@ -35,13 +35,19 @@ jobs:
         cat ./application.properties
       shell: bash
 
-    - name: Set up MariaDB client
-      uses: einaregilsson/setup-mariadb@v1
-
-    - name: Connect to MariaDB
-      run: mysql --host=reviewtwits.c4ga4pm8tur2.ap-northeast-2.rds.amazonaws.com --user=root --password=rootroot reviewtwits -e "show tables;"
+    - name : Setup MariaDB
+      uses: getong/mariadb-action@v1.1
+      with:
+        character set server: 'utf8mb4' # Optional, default value is 'utf8mb4'. The '--character-set-server' option for mysqld
+        mariadb version: '10.6.8' # Optional, default value is "latest". The version of the MariaDB
+        mysql database: 'reviewtwits' # Optional, default value is "test". The specified database which will be create
+        mysql root password: ${{ secrets.MARIADB_PASSWORD }} # Required if "mysql user" is empty, default is empty. The root superuser password
+        mysql user: ${{ secrets.MARIADB_USERNAME}} # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
+        mysql password: ${{ secrets.MARIADB_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
 
     - name: Build with Gradle
+      env:
+        auto-ddl: create
       run: ./gradlew clean build
 
       # 디렉토리 생성
