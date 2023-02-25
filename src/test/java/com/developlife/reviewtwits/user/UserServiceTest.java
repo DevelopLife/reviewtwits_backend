@@ -3,8 +3,9 @@ package com.developlife.reviewtwits.user;
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.AccountIdAlreadyExistsException;
+import com.developlife.reviewtwits.exception.AccountIdNotFoundException;
+import com.developlife.reviewtwits.exception.AccountPasswordWrongException;
 import com.developlife.reviewtwits.exception.PasswordVerifyException;
-import com.developlife.reviewtwits.message.request.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.RegisterUserRequest;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.type.UserRole;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import java.util.Set;
 
 /**
  * @author ghdic
@@ -70,27 +70,29 @@ public class UserServiceTest extends ApiTest {
             assertThat(UserService.passwordVerify(password)).isTrue();
         });
         // 비밀번호 규칙 확인 - 알파벳 x
-
         // 비밀번호 규칙 확인 - 숫자 x
         // 비밀번호 규칙 확인 - 특수문자 x
         // 비밀번호 규칙 확인 - 알파벳 대소문자 구분
         // 비밀번호 규칙 확인 - 비밀번호 길이 경계테스트
+        UserSteps.규칙이틀린비밀번호들().stream().forEach(password -> {
+            assertThat(UserService.passwordVerify(password)).isFalse();
+        });
     }
 
     @Test
     void 로그인() {
-        final LoginUserRequest loginUserRequest = UserSteps.로그인요청_생성_성공();
-
-        final User user_success = userService.login(loginUserRequest);
-        final User user_password_failed = userService.login(UserSteps.로그인요청_생성_비밀번호불일치());
-        final User user_id_failed = userService.login(UserSteps.로그인요청_생성_아이디불일치());
+        final User user_success = userService.login(UserSteps.로그인요청_생성_성공());
 
         // 로그인 성공
         assertThat(user_success).isNotNull();
         // 로그인 실패 - 비밀번호 불일치
-        assertThat(user_password_failed).isNull();
-        // 로그인 실패 - 아이디 불일치
-        assertThat(user_id_failed).isNull();
+        assertThrows(AccountPasswordWrongException.class, () -> {
+            userService.login(UserSteps.로그인요청_생성_비밀번호불일치());
+        });
+        // 로그인 실패 - 아이디 존재x
+        assertThrows(AccountIdNotFoundException.class, () -> {
+            userService.login(UserSteps.로그인요청_생성_아이디불일치());
+        });
     }
 
     @Test

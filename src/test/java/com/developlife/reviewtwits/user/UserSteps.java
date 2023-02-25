@@ -83,4 +83,17 @@ public class UserSteps {
                 .nickname("pw_rule_failed_" + nickname)
                 .build();
     }
+
+    public static List<String> 규칙이틀린비밀번호들() {
+        // 비밀번호 규칙 확인 - 알파벳 x
+        // 비밀번호 규칙 확인 - 숫자 x
+        // 비밀번호 규칙 확인 - 특수문자 x
+        // 비밀번호 규칙 확인 - 알파벳 대소문자 구분
+        // 비밀번호 규칙 확인 - 비밀번호 길이 경계테스트
+        return List.of("1231231@@",
+                "testtest@@",
+                "test123123",
+                "TEST123123",
+                "a1@a3", "a1@");
+    }
 }
