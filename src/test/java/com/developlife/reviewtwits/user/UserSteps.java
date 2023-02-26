@@ -1,7 +1,7 @@
 package com.developlife.reviewtwits.user;
 
-import com.developlife.reviewtwits.message.request.LoginUserRequest;
-import com.developlife.reviewtwits.message.request.RegisterUserRequest;
+import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
+import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.type.UserRole;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -95,5 +95,14 @@ public class UserSteps {
                 "test123123",
                 "TEST123123",
                 "a1@a3", "a1@");
+    }
+
+    public static ExtractableResponse<Response> 자신정보요청() {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get("/user")
+                .then()
+                .log().all().extract();
     }
 }

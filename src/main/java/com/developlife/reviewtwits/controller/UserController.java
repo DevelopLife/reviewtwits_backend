@@ -2,15 +2,14 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.message.request.KakaoOauthReqeust;
+import com.developlife.reviewtwits.message.request.user.KakaoOauthReqeust;
 import com.developlife.reviewtwits.message.response.KakaoOauthResponse;
-import com.developlife.reviewtwits.message.request.LoginUserRequest;
-import com.developlife.reviewtwits.message.request.RegisterUserRequest;
+import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
+import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.type.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
