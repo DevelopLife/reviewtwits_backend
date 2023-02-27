@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.exception;
+package com.developlife.reviewtwits.exception.user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

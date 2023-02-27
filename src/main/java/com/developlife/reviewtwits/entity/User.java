@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class User implements UserDetails {
     @Id @GeneratedValue
     private long userId;
-    private String username;
+    private String nickname;
     private String accountId;
     private String accountPw;
 

@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.exception;
+package com.developlife.reviewtwits.exception.user;
 
 /**
  * @author ghdic

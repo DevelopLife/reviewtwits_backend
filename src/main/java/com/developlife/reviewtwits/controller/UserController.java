@@ -2,15 +2,15 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.message.request.KakaoOauthReqeust;
+import com.developlife.reviewtwits.message.request.user.KakaoOauthReqeust;
+import com.developlife.reviewtwits.message.response.JwtTokenResponse;
 import com.developlife.reviewtwits.message.response.KakaoOauthResponse;
-import com.developlife.reviewtwits.message.request.LoginUserRequest;
-import com.developlife.reviewtwits.message.request.RegisterUserRequest;
+import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
+import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.type.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,14 +42,21 @@ public class UserController {
     }
 
     @GetMapping(value = "/login", consumes = "application/json", produces = "application/json")
-    public String login(@RequestBody LoginUserRequest loginUserRequest) {
+    public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest) {
         User user = userService.login(loginUserRequest);
-        return jwtTokenProvider.createToken(user.getAccountId(), user.getRoles());
+        return JwtTokenResponse.builder()
+                .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
+                .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
+                .build();
     }
 
     @PostMapping(value = "", consumes = "application/json", produces = "application/json")
-    public User register(@RequestBody RegisterUserRequest registerUserRequest) {
-        return userService.register(registerUserRequest, Set.of(UserRole.USER));
+    public JwtTokenResponse register(@RequestBody RegisterUserRequest registerUserRequest) {
+        User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
+        return JwtTokenResponse.builder()
+                .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
+                .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
+                .build();
     }
 
     @GetMapping(value = "/me", produces = "application/json")
@@ -87,7 +94,6 @@ public class UserController {
 
     private KakaoOauthResponse requestKakaoJwtToken(KakaoOauthReqeust reqeust) throws IOException, URISyntaxException, InterruptedException {
         URI uri = new URI("https://kauth.kakao.com/oauth/token");
-        System.out.println(reqeust.code());
         Map<String, String> parameters = new HashMap<>();
         parameters.put("code", reqeust.code());
         parameters.put("grant_type", "authorization_code");

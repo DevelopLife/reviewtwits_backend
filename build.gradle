@@ -28,9 +28,11 @@ dependencies {
 	implementation 'com.google.guava:guava:31.1-jre'
 	implementation 'org.springframework.boot:spring-boot-starter-security:3.0.2'
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	modules {
 		module("org.codehaus.groovy:groovy") {

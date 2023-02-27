@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.message.request;
+package com.developlife.reviewtwits.message.request.user;
 
 import lombok.Data;
 
