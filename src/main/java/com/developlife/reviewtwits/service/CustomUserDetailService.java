@@ -1,6 +1,6 @@
 package com.developlife.reviewtwits.service;
 
-import com.developlife.reviewtwits.exception.AccountIdNotFoundException;
+import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
 import com.developlife.reviewtwits.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
