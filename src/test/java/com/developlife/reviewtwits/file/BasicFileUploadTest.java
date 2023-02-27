@@ -54,7 +54,7 @@ public class BasicFileUploadTest extends FileUploadTest {
     void checkFileUpload_existInFileTable() throws IOException {
         String inputContent = "test for DB";
         Long id = 23L;
-        String referenceType = "User";
+        String referenceType = "Test";
         ResponseEntity<String> response = fileUpload(inputContent,"testDB",".txt", id, referenceType);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
 
