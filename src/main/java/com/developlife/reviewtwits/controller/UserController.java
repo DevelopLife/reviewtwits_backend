@@ -3,8 +3,8 @@ package com.developlife.reviewtwits.controller;
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.KakaoOauthReqeust;
-import com.developlife.reviewtwits.message.response.JwtTokenResponse;
-import com.developlife.reviewtwits.message.response.KakaoOauthResponse;
+import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
+import com.developlife.reviewtwits.message.response.user.KakaoOauthResponse;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.service.UserService;
@@ -61,24 +61,20 @@ public class UserController {
 
     @GetMapping(value = "/me", produces = "application/json")
     public User me() {
-        // SecurityContext에서 인증받은 회원의 정보를 가져옴
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String id = authentication.getName();
-        return userService.getUser(id);
+        String accountId = getTokenOwner();
+        return userService.getUser(accountId);
     }
 
     // admin권한 부여를 받을수 있는 테스트용 메소드
     @PostMapping(value = "/permission", produces = "application/json")
     public User addAdminPermission() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String accountId = authentication.getName();
+        String accountId = getTokenOwner();
         return userService.grantedAdminPermission(accountId);
     }
 
     @DeleteMapping(value = "/permission", produces = "application/json")
     public User deleteAdminPermission() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String accountId = authentication.getName();
+        String accountId = getTokenOwner();
         return userService.confiscatedAdminPermission(accountId);
     }
 
@@ -125,5 +121,10 @@ public class UserController {
         Object objValue = objectMapper.readValue(content, Object.class);
         System.out.println(response.statusCode());
         return objectMapper.convertValue(objValue, KakaoOauthResponse.class);
+    }
+
+    private String getTokenOwner() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 }
