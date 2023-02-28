@@ -7,7 +7,7 @@ import lombok.Builder;
  * @since 2023/02/27
  */
 @Builder
-public record JwtTokenResponse(String accessToken, String refreshToken, String tokenType) {
+public record JwtTokenResponse(String accessToken, String tokenType, String provider) {
     public JwtTokenResponse {
     }
 }

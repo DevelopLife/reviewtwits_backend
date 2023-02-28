@@ -37,8 +37,8 @@ public class JwtTokenProvider {
     private final String prefix = "Bearer ";
     private String secretKey;
 
-    private long tokenValidTime = 60 * 60 * 1000L; // 1시간
-    private long refreshTokenValidTime = 30 * 60 * 60 * 24 * 1000L; // 30일
+    public static long tokenValidTime = 60 * 60 * 1000L; // 1시간
+    public static long refreshTokenValidTime = 30 * 60 * 60 * 24 * 1000L; // 30일
     private final UserDetailsService userDetailsService;
     private final RefreshTokenRepository refreshTokenRepository;
 

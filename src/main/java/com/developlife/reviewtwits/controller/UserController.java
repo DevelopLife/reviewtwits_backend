@@ -18,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -44,11 +46,22 @@ public class UserController {
     }
 
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
-    public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest) {
+    public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest, HttpServletResponse response) {
         User user = userService.login(loginUserRequest);
+        // Create a cookie
+        Cookie cookie = new Cookie("refreshToken", jwtTokenProvider.issueRefreshToken(user.getAccountId()));
+        cookie.setMaxAge((int) JwtTokenProvider.refreshTokenValidTime);
+        // 보안 설정
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
+
         return JwtTokenResponse.builder()
                 .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
-                .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
+                .tokenType("Bearer")
+                .provider("reviewtwits")
                 .build();
     }
 
@@ -57,7 +70,8 @@ public class UserController {
         User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
         return JwtTokenResponse.builder()
                 .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
-                .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
+                .tokenType("Bearer")
+                .provider("reviewtwits")
                 .build();
     }
 

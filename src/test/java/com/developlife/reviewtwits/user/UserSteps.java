@@ -18,7 +18,7 @@ public class UserSteps {
     final static String accountId = "test@naver.com";
     final static String accountPw = "test1122!";
     final static LocalDateTime birthday = LocalDateTime.now();
-    final static String phoneNumber = "010-1234-5678";
+    final static String phoneNumber = "01012345678";
     final static Gender gender = Gender.남자;
 
     public static ExtractableResponse<Response> 회원가입요청(final RegisterUserRequest request) {

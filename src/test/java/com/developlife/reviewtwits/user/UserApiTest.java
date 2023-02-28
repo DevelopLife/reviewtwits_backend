@@ -75,7 +75,6 @@ public class UserApiTest extends ApiTest {
         final JwtTokenResponse response = 로그인토큰정보();
 
         assertThat(response.accessToken()).isNotNull();
-        assertThat(response.refreshToken()).isNotNull();
     }
 
     @Test
