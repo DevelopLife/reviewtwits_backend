@@ -3,7 +3,7 @@ package com.developlife.reviewtwits.config.security;
 import com.developlife.reviewtwits.entity.RefreshToken;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
-import com.developlife.reviewtwits.exception.user.RefreshTokenInvalidException;
+import com.developlife.reviewtwits.exception.user.TokenInvalidException;
 import com.developlife.reviewtwits.repository.RefreshTokenRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.JwtCode;
@@ -20,10 +20,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.sql.Ref;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -113,7 +111,7 @@ public class JwtTokenProvider {
             return issueAccessToken(user.getAccountId(), user.getRoles());
         }
 
-        throw new RefreshTokenInvalidException("refresh token이 유효하지 않습니다.");
+        throw new TokenInvalidException("refresh token이 유효하지 않습니다.");
     }
 
     // JWT 토큰에서 인증 정보 조회
@@ -134,6 +132,10 @@ public class JwtTokenProvider {
 
     // 토큰의 유효성 + 만료일자 확인
     public JwtCode validateToken(String jwtToken) {
+        if (jwtToken == null) {
+            return JwtCode.DENIED;
+        }
+
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
             return JwtCode.ACCESS;

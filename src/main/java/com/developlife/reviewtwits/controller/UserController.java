@@ -7,6 +7,7 @@ import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.message.response.user.KakaoOauthResponse;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.type.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,6 +58,11 @@ public class UserController {
                 .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
                 .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
                 .build();
+    }
+
+    @GetMapping(value = "/info/{userId}", produces = "application/json")
+    public UserInfoResponse searchUser(@PathVariable long userId) {
+        return userService.getUser(userId);
     }
 
     @GetMapping(value = "/me", produces = "application/json")

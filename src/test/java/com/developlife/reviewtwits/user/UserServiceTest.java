@@ -2,11 +2,11 @@ package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.exception.AccountIdAlreadyExistsException;
-import com.developlife.reviewtwits.exception.AccountIdNotFoundException;
-import com.developlife.reviewtwits.exception.AccountPasswordWrongException;
-import com.developlife.reviewtwits.exception.PasswordVerifyException;
-import com.developlife.reviewtwits.message.request.RegisterUserRequest;
+import com.developlife.reviewtwits.exception.user.AccountIdAlreadyExistsException;
+import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
+import com.developlife.reviewtwits.exception.user.AccountPasswordWrongException;
+import com.developlife.reviewtwits.exception.user.PasswordVerifyException;
+import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.type.UserRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,8 +24,8 @@ public class UserServiceTest extends ApiTest {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final RegisterUserRequest registerUserRequest = UserSteps.회원가입요청_생성();
-    private final RegisterUserRequest registerAdminRequest = UserSteps.회원가입요청_어드민_생성();
+    private final RegisterUserRequest registerUserRequest = UserSteps.회원가입정보_생성();
+    private final RegisterUserRequest registerAdminRequest = UserSteps.회원가입정보_어드민_생성();
     @Autowired
     public UserServiceTest(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;

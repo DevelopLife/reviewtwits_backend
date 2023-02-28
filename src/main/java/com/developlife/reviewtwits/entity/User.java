@@ -46,7 +46,7 @@ public class User implements UserDetails {
 
     // TODO 파일업로드 구현 완료시 구현
      @Transient
-     String profile_image;
+     String profileImage;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

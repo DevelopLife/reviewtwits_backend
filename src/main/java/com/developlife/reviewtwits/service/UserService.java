@@ -5,8 +5,10 @@ import com.developlife.reviewtwits.exception.user.AccountIdAlreadyExistsExceptio
 import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
 import com.developlife.reviewtwits.exception.user.PasswordVerifyException;
 import com.developlife.reviewtwits.exception.user.AccountPasswordWrongException;
+import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.UserRole;
 import lombok.extern.log4j.Log4j2;
@@ -26,16 +28,17 @@ import java.util.Set;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     public User login(LoginUserRequest loginUserRequest) {
-        User user = userRepository.findByAccountId(loginUserRequest.accountId())
-                .orElseThrow(() -> new AccountIdNotFoundException(loginUserRequest.accountId() + " 사용자를 찾을 수 없습니다."));
+        User user = getUser(loginUserRequest.accountId());
         if (!passwordEncoder.matches(loginUserRequest.accountPw(), user.getAccountPw())) {
             throw new AccountPasswordWrongException("비밀번호가 일치하지 않습니다.");
         }
@@ -69,14 +72,19 @@ public class UserService {
         return password.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,}$");
     }
 
+    public UserInfoResponse getUser(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AccountIdNotFoundException("사용자를 찾을 수 없습니다."));
+        return userMapper.toDto(user);
+    }
+
     public User getUser(String accountId) {
-        Optional<User> user = userRepository.findByAccountId(accountId);
-        return user.get();
+        return userRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new AccountIdNotFoundException(accountId + " 사용자를 찾을 수 없습니다."));
     }
 
     public User grantedAdminPermission(String accountId) {
-        User user = userRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new AccountIdAlreadyExistsException("사용자를 찾을 수 없습니다."));
+        User user = getUser(accountId);
         Set<UserRole> roles = user.getRoles();
         roles.add(UserRole.ADMIN);
 
@@ -85,8 +93,7 @@ public class UserService {
     }
 
     public User confiscatedAdminPermission(String accountId) {
-        User user = userRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new AccountIdAlreadyExistsException("사용자를 찾을 수 없습니다."));
+        User user = getUser(accountId);
         Set<UserRole> roles = user.getRoles();
         roles.remove(UserRole.ADMIN);
 

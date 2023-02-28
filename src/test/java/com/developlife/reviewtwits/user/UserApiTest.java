@@ -2,25 +2,54 @@ package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.controller.UserController;
+import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class UserApiTest extends ApiTest {
 
+    @Autowired
     private UserController userController;
+    @Autowired
+    private UserService userService;
+
+    private final RegisterUserRequest registerUserRequest = UserSteps.회원가입정보_생성();
+    private final RegisterUserRequest registerAdminRequest = UserSteps.회원가입정보_어드민_생성();
 
 
+
+    @BeforeEach
+    void setting() {
+        // 일반유저, 어드민유저 회원가입 해두고 테스트 진행
+        userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
+        userService.register(registerAdminRequest, UserSteps.어드민유저권한_생성());
+    }
 
     @Test
     @DisplayName("특정유저조회")
     void 특정유저조회_유저정보확인_True() {
-        final var request = UserSteps.유저정보요청()
+        User user = userService.getUser(registerUserRequest.accountId());
+
+        final var response = UserSteps.특정유저조회요청(user.getUserId());
+
+        // 기본 정보 표시
+        assertThat(response.jsonPath().getString("nickname")).isEqualTo(registerUserRequest.nickname());
+        // 민감정보 노출x
+        assertThat(response.jsonPath().getString("phoneNumber")).isNull();
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("자신정보조회")
+    void 자신정보조회_유저정보확인_True() {
+
     }
 
     @Test
@@ -40,7 +69,7 @@ public class UserApiTest extends ApiTest {
     @Test
     @DisplayName("회원가입 성공")
     void 회원가입체크_회원가입정보저장확인_True() {
-        final var request = UserSteps.회원가입요청_생성();
+        final var request = UserSteps.회원가입정보_생성();
 
         final var response = UserSteps.회원가입요청(request);
 
