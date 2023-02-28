@@ -8,6 +8,7 @@ import com.developlife.reviewtwits.exception.user.AccountPasswordWrongException;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.UserRole;
@@ -62,6 +63,9 @@ public class UserService {
                 .accountId(registerUserRequest.accountId())
                 .accountPw(encodedPassword)
                 .roles(roles)
+                .birthday(registerUserRequest.birthday())
+                .phoneNumber(registerUserRequest.phoneNumber())
+                .gender(registerUserRequest.gender())
                 .build();
 
         return userRepository.save(registered_user);
@@ -72,13 +76,19 @@ public class UserService {
         return password.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,}$");
     }
 
-    public UserInfoResponse getUser(long userId) {
+    public UserDetailInfoResponse getDetailUserInfo(String accountId) {
+        User user = userRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new AccountIdNotFoundException("사용자를 찾을 수 없습니다."));
+        return userMapper.toDTO(user);
+    }
+
+    public UserInfoResponse getUserInfo(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AccountIdNotFoundException("사용자를 찾을 수 없습니다."));
         return userMapper.toDto(user);
     }
 
-    public User getUser(String accountId) {
+    private User getUser(String accountId) {
         return userRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new AccountIdNotFoundException(accountId + " 사용자를 찾을 수 없습니다."));
     }

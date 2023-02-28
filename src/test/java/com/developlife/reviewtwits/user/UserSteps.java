@@ -125,4 +125,31 @@ public class UserSteps {
                 .then()
                 .log().all().extract();
     }
+
+    public static LoginUserRequest 로그인요청생성() {
+        return LoginUserRequest.builder()
+                .accountId(accountId)
+                .accountPw(accountPw)
+                .build();
+    }
+
+    public static ExtractableResponse<Response> 로그인요청(LoginUserRequest loginUserRequest) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(loginUserRequest)
+                .when()
+                .post("/user/login")
+                .then()
+                .log().all().extract();
+    }
+
+    public static ExtractableResponse<Response> 자신정보조회요청(String token) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .when()
+                .get("/user/me")
+                .then()
+                .log().all().extract();
+    }
 }

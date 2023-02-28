@@ -7,6 +7,7 @@ import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.message.response.user.KakaoOauthResponse;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.type.UserRole;
@@ -42,7 +43,7 @@ public class UserController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @GetMapping(value = "/login", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
     public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest) {
         User user = userService.login(loginUserRequest);
         return JwtTokenResponse.builder()
@@ -62,13 +63,13 @@ public class UserController {
 
     @GetMapping(value = "/info/{userId}", produces = "application/json")
     public UserInfoResponse searchUser(@PathVariable long userId) {
-        return userService.getUser(userId);
+        return userService.getUserInfo(userId);
     }
 
     @GetMapping(value = "/me", produces = "application/json")
-    public User me() {
+    public UserDetailInfoResponse me() {
         String accountId = getTokenOwner();
-        return userService.getUser(accountId);
+        return userService.getDetailUserInfo(accountId);
     }
 
     // admin권한 부여를 받을수 있는 테스트용 메소드

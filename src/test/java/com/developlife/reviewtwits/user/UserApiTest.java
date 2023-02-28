@@ -3,8 +3,13 @@ package com.developlife.reviewtwits.user;
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.controller.UserController;
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
+import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +24,10 @@ public class UserApiTest extends ApiTest {
     private UserController userController;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private final RegisterUserRequest registerUserRequest = UserSteps.회원가입정보_생성();
     private final RegisterUserRequest registerAdminRequest = UserSteps.회원가입정보_어드민_생성();
@@ -35,7 +44,7 @@ public class UserApiTest extends ApiTest {
     @Test
     @DisplayName("특정유저조회")
     void 특정유저조회_유저정보확인_True() {
-        User user = userService.getUser(registerUserRequest.accountId());
+        User user = userRepository.findByAccountId(registerUserRequest.accountId()).get();
 
         final var response = UserSteps.특정유저조회요청(user.getUserId());
 
@@ -48,14 +57,25 @@ public class UserApiTest extends ApiTest {
 
     @Test
     @DisplayName("자신정보조회")
-    void 자신정보조회_유저정보확인_True() {
+    void 자신정보조회_유저정보확인_True() throws JsonProcessingException {
+        final String token = 로그인토큰정보().accessToken();
+        final var response = UserSteps.자신정보조회요청(token);
 
+        // 기본 정보 표시
+        assertThat(response.jsonPath().getString("nickname")).isEqualTo(registerUserRequest.nickname());
+        // 민감정보 노출o
+        assertThat(response.jsonPath().getString("phoneNumber")).isEqualTo(registerUserRequest.phoneNumber());
+        // 비밀번호는 예외
+        assertThat(response.jsonPath().getString("password")).isNull();
     }
 
     @Test
     @DisplayName("로그인성공")
-    void 로그인성공_로그인정보확인_True() {
+    void 로그인성공_로그인정보확인_True() throws JsonProcessingException {
+        final JwtTokenResponse response = 로그인토큰정보();
 
+        assertThat(response.accessToken()).isNotNull();
+        assertThat(response.refreshToken()).isNotNull();
     }
 
     @Test
@@ -108,5 +128,26 @@ public class UserApiTest extends ApiTest {
     @DisplayName("JWT토큰인증확인")
     void JWT토큰인증확인_인증여부_True() {
 
+    }
+
+    @Test
+    @DisplayName("토큰제공자별 응답확인")
+    void 토큰제공자별응답확인_응답확인_True() {
+
+    }
+
+    @Test
+    @DisplayName("이메일 인증번호 발급")
+    void 이메일인증번호발급_인증번호발급확인_True() {
+        // 따로 테스트 불가능 직접 확인
+    }
+
+    JwtTokenResponse 로그인토큰정보() throws JsonProcessingException {
+        final LoginUserRequest loginUserRequest = UserSteps.로그인요청생성();
+        final var loginResponse = UserSteps.로그인요청(loginUserRequest);
+        JwtTokenResponse jwtTokenResponse =  objectMapper.readValue(loginResponse.body().asString(), JwtTokenResponse.class);
+        // groovy에서 파싱을 못해서 에러남
+        // final JwtTokenResponse jwtTokenResponse = loginResponse.body().as(JwtTokenResponse.class);
+        return jwtTokenResponse;
     }
 }
