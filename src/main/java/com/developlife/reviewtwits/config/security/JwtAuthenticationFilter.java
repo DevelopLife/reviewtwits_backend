@@ -1,5 +1,8 @@
 package com.developlife.reviewtwits.config.security;
 
+import com.developlife.reviewtwits.exception.user.TokenExpiredException;
+import com.developlife.reviewtwits.exception.user.TokenInvalidException;
+import com.developlife.reviewtwits.type.JwtCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -32,11 +35,18 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
 //        token = jwtTokenProvider.removePrefix(token);
         // 유효한 토큰인지 확인합니다.
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            // 토큰이 유효하면 토큰으로부터 유저 정보를 받아옵니다.
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            // SecurityContext 에 Authentication 객체를 저장합니다.
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        JwtCode code = jwtTokenProvider.validateToken(token);
+        switch (code) {
+            case ACCESS:
+                // 토큰이 유효하면 토큰으로부터 유저 정보를 받아옵니다.
+                Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                // SecurityContext 에 Authentication 객체를 저장합니다.
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                break;
+//            case EXPIRED:
+//                throw new TokenExpiredException("토큰이 만료되었습니다.");
+//            case DENIED:
+//                throw new TokenInvalidException("토큰이 유효하지 않습니다.");
         }
 
         chain.doFilter(request, response);

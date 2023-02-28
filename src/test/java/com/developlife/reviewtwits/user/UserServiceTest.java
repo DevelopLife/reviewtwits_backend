@@ -2,11 +2,12 @@ package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.exception.AccountIdAlreadyExistsException;
-import com.developlife.reviewtwits.exception.AccountIdNotFoundException;
-import com.developlife.reviewtwits.exception.AccountPasswordWrongException;
-import com.developlife.reviewtwits.exception.PasswordVerifyException;
-import com.developlife.reviewtwits.message.request.RegisterUserRequest;
+import com.developlife.reviewtwits.exception.user.AccountIdAlreadyExistsException;
+import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
+import com.developlife.reviewtwits.exception.user.AccountPasswordWrongException;
+import com.developlife.reviewtwits.exception.user.PasswordVerifyException;
+import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.type.UserRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,12 +24,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class UserServiceTest extends ApiTest {
 
     private final UserService userService;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RegisterUserRequest registerUserRequest = UserSteps.회원가입요청_생성();
-    private final RegisterUserRequest registerAdminRequest = UserSteps.회원가입요청_어드민_생성();
+    private final RegisterUserRequest registerUserRequest = UserSteps.회원가입정보_생성();
+    private final RegisterUserRequest registerAdminRequest = UserSteps.회원가입정보_어드민_생성();
     @Autowired
-    public UserServiceTest(UserService userService, PasswordEncoder passwordEncoder) {
+    public UserServiceTest(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -41,7 +44,7 @@ public class UserServiceTest extends ApiTest {
 
     @Test
     void 회원등록_성공() {
-        final User user = userService.getUser(registerUserRequest.accountId());
+        final User user = userRepository.findByAccountId(registerUserRequest.accountId()).get();
 
         // 입력한 정보로 가입한 유저가 없는 경우 확인
         assertThat(user).isNotNull();
@@ -98,14 +101,14 @@ public class UserServiceTest extends ApiTest {
     @Test
     void 권한부여() {
         userService.grantedAdminPermission(registerUserRequest.accountId());
-        User user = userService.getUser(registerUserRequest.accountId());
+        final User user = userRepository.findByAccountId(registerUserRequest.accountId()).get();
         assertThat(user.getRoles().contains(UserRole.ADMIN)).isTrue();
     }
 
     @Test
     void 권한압수() {
         userService.confiscatedAdminPermission(registerAdminRequest.accountId());
-        User user = userService.getUser(registerAdminRequest.accountId());
+        final User user = userRepository.findByAccountId(registerUserRequest.accountId()).get();
         assertThat(user.getRoles().contains(UserRole.ADMIN)).isFalse();
     }
 }

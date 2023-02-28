@@ -2,12 +2,14 @@ package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.UserRole;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.springframework.http.MediaType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -15,6 +17,9 @@ public class UserSteps {
     final static String nickname = "test";
     final static String accountId = "test@naver.com";
     final static String accountPw = "test1122!";
+    final static LocalDateTime birthday = LocalDateTime.now();
+    final static String phoneNumber = "01012345678";
+    final static Gender gender = Gender.남자;
 
     public static ExtractableResponse<Response> 회원가입요청(final RegisterUserRequest request) {
         return RestAssured.given().log().all()
@@ -26,15 +31,19 @@ public class UserSteps {
                 .log().all().extract();
     }
 
-    public static RegisterUserRequest 회원가입요청_생성() {
-        return RegisterUserRequest.builder().
-                nickname(nickname)
+    public static RegisterUserRequest 회원가입정보_생성() {
+        return RegisterUserRequest.builder()
+                .nickname(nickname)
                 .accountId(accountId)
                 .accountPw(accountPw)
+                .birthday(birthday)
+                .gender(gender)
+                .phoneNumber(phoneNumber)
+                .authenticationCode("123456")
                 .build();
     }
 
-    public static RegisterUserRequest 회원가입요청_어드민_생성() {
+    public static RegisterUserRequest 회원가입정보_어드민_생성() {
         return RegisterUserRequest.builder().
                 nickname(nickname+"_admin")
                 .accountId("admin_" + accountId)
@@ -97,11 +106,49 @@ public class UserSteps {
                 "a1@a3", "a1@");
     }
 
-    public static ExtractableResponse<Response> 자신정보요청() {
+    public static ExtractableResponse<Response> 자신정보요청(String token) {
         return RestAssured.given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
                 .when()
-                .get("/user")
+                .get("/user/me")
+                .then()
+                .log().all().extract();
+    }
+
+    public static ExtractableResponse<Response> 특정유저조회요청(final long userId) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("userId", userId)
+                .when()
+                .get("/user/info/{userId}")
+                .then()
+                .log().all().extract();
+    }
+
+    public static LoginUserRequest 로그인요청생성() {
+        return LoginUserRequest.builder()
+                .accountId(accountId)
+                .accountPw(accountPw)
+                .build();
+    }
+
+    public static ExtractableResponse<Response> 로그인요청(LoginUserRequest loginUserRequest) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(loginUserRequest)
+                .when()
+                .post("/user/login")
+                .then()
+                .log().all().extract();
+    }
+
+    public static ExtractableResponse<Response> 자신정보조회요청(String token) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .when()
+                .get("/user/me")
                 .then()
                 .log().all().extract();
     }

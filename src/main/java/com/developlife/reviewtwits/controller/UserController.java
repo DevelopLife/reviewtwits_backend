@@ -3,10 +3,12 @@ package com.developlife.reviewtwits.controller;
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.KakaoOauthReqeust;
-import com.developlife.reviewtwits.message.response.JwtTokenResponse;
-import com.developlife.reviewtwits.message.response.KakaoOauthResponse;
+import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
+import com.developlife.reviewtwits.message.response.user.KakaoOauthResponse;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
+import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.type.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,12 +45,23 @@ public class UserController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @GetMapping(value = "/login", consumes = "application/json", produces = "application/json")
-    public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest) {
+    @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
+    public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest, HttpServletResponse response) {
         User user = userService.login(loginUserRequest);
+        // Create a cookie
+        Cookie cookie = new Cookie("refreshToken", jwtTokenProvider.issueRefreshToken(user.getAccountId()));
+        cookie.setMaxAge((int) JwtTokenProvider.refreshTokenValidTime);
+        // 보안 설정
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
+
         return JwtTokenResponse.builder()
                 .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
-                .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
+                .tokenType("Bearer")
+                .provider("reviewtwits")
                 .build();
     }
 
@@ -55,30 +70,32 @@ public class UserController {
         User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
         return JwtTokenResponse.builder()
                 .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
-                .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
+                .tokenType("Bearer")
+                .provider("reviewtwits")
                 .build();
     }
 
+    @GetMapping(value = "/info/{userId}", produces = "application/json")
+    public UserInfoResponse searchUser(@PathVariable long userId) {
+        return userService.getUserInfo(userId);
+    }
+
     @GetMapping(value = "/me", produces = "application/json")
-    public User me() {
-        // SecurityContext에서 인증받은 회원의 정보를 가져옴
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String id = authentication.getName();
-        return userService.getUser(id);
+    public UserDetailInfoResponse me() {
+        String accountId = getTokenOwner();
+        return userService.getDetailUserInfo(accountId);
     }
 
     // admin권한 부여를 받을수 있는 테스트용 메소드
     @PostMapping(value = "/permission", produces = "application/json")
     public User addAdminPermission() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String accountId = authentication.getName();
+        String accountId = getTokenOwner();
         return userService.grantedAdminPermission(accountId);
     }
 
     @DeleteMapping(value = "/permission", produces = "application/json")
     public User deleteAdminPermission() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String accountId = authentication.getName();
+        String accountId = getTokenOwner();
         return userService.confiscatedAdminPermission(accountId);
     }
 
@@ -125,5 +142,10 @@ public class UserController {
         Object objValue = objectMapper.readValue(content, Object.class);
         System.out.println(response.statusCode());
         return objectMapper.convertValue(objValue, KakaoOauthResponse.class);
+    }
+
+    private String getTokenOwner() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 }
