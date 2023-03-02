@@ -168,7 +168,7 @@ public class UserSteps {
     public static RegisterUserRequest 회원가입요청_비밀번호규칙_불일치() {
         return RegisterUserRequest.builder()
                 .nickname(nickname)
-                .accountId(accountId)
+                .accountId("wrong@test.com")
                 .accountPw("123@@@")
                 .birthday(birthday)
                 .gender(gender)

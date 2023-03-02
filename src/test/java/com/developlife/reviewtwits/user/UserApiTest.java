@@ -132,36 +132,17 @@ public class UserApiTest extends ApiTest {
 
     @Test
     @DisplayName("회원가입 실패 - 입력한 정보가 조건에 맞지않음")
-    void 회원가입체크_입력조건부적합_False() {
+    void 회원가입체크_입력조건부적합_False() throws JsonProcessingException {
 
         // 이메일 인증 코드 invalid
         // 비밀번호 조건 틀린
         final var request = UserSteps.회원가입요청_입력정보_부적합();
-
-    }
-
-    @Test
-    @DisplayName("유저 권한 확인")
-    void 유저권한확인_유저권학부여확인_True() {
-
-    }
-
-    @Test
-    @DisplayName("JWT토큰생성확인")
-    void JWT토큰생성확인_토큰존재여부_True() {
-
-    }
-
-    @Test
-    @DisplayName("JWT토큰인증확인")
-    void JWT토큰인증확인_인증여부_True() {
-
-    }
-
-    @Test
-    @DisplayName("토큰제공자별 응답확인")
-    void 토큰제공자별응답확인_응답확인_True() {
-
+        final var response = UserSteps.회원가입요청(request);
+        List<ErrorResponse> errorResponseList = objectMapper.readValue(response.body().asString(), new TypeReference<List<ErrorResponse>>(){});
+        List<String> fieldNames = errorResponseList.stream().map(
+                errorResponse -> errorResponse.fieldName()
+        ).collect(Collectors.toList());
+        assertThat(fieldNames).contains("accountPw");
     }
 
     JwtTokenResponse 로그인토큰정보(LoginUserRequest request) throws JsonProcessingException {
