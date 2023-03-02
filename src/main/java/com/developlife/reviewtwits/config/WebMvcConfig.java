@@ -1,7 +1,9 @@
 package com.developlife.reviewtwits.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -13,6 +15,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+
+    @Autowired
+    private DateTimeFormatConfig dateTimeFormatConfig;
+
     private static final String[] CLASSPATH_RESOURCE_LOCATIONS = { "classpath:/static/", "classpath:/public/", "classpath:/",
             "classpath:/resources/", "classpath:/META-INF/resources/", "classpath:/META-INF/resources/webjars/" };
 
@@ -36,5 +42,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("headers")
                 .maxAge(3000);
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        dateTimeFormatConfig.registerFormatters(registry);
     }
 }
