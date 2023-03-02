@@ -2,9 +2,8 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.message.request.user.KakaoOauthReqeust;
+import com.developlife.reviewtwits.message.request.user.OAuthTokenRequest;
 import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
-import com.developlife.reviewtwits.message.response.user.KakaoOauthResponse;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
@@ -14,12 +13,14 @@ import com.developlife.reviewtwits.type.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -66,7 +67,8 @@ public class UserController {
     }
 
     @PostMapping(value = "", consumes = "application/json", produces = "application/json")
-    public JwtTokenResponse register(@RequestBody RegisterUserRequest registerUserRequest) {
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public JwtTokenResponse register(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
         User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
         return JwtTokenResponse.builder()
                 .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
@@ -104,45 +106,6 @@ public class UserController {
         return "hello admin";
     }
 
-    @PostMapping(value = "/kakao-oauth", produces = "application/json")
-    public KakaoOauthResponse kakaoOauth(@RequestBody KakaoOauthReqeust request) throws IOException, URISyntaxException, InterruptedException {
-        return requestKakaoJwtToken(request);
-    }
-
-    private KakaoOauthResponse requestKakaoJwtToken(KakaoOauthReqeust reqeust) throws IOException, URISyntaxException, InterruptedException {
-        URI uri = new URI("https://kauth.kakao.com/oauth/token");
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("code", reqeust.code());
-        parameters.put("grant_type", "authorization_code");
-        parameters.put("client_id", "3b6b892b63e2f4847f755307fd076b7b");
-        parameters.put("redirect_uri", "http://localhost:3000/auth/kakao");
-
-
-        String form = parameters.entrySet()
-                .stream()
-                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
-                .collect(Collectors.joining("&"));
-
-        HttpClient client = HttpClient.newHttpClient();
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://kauth.kakao.com/oauth/token"))
-                .headers("Content-Type", "application/x-www-form-urlencoded")
-                .POST(HttpRequest.BodyPublishers.ofString(form))
-                .build();
-
-
-
-        HttpResponse response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        if(response.statusCode() != 200)
-            return KakaoOauthResponse.builder().build();
-
-        String content = response.body().toString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Object objValue = objectMapper.readValue(content, Object.class);
-        System.out.println(response.statusCode());
-        return objectMapper.convertValue(objValue, KakaoOauthResponse.class);
-    }
 
     private String getTokenOwner() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

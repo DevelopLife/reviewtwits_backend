@@ -85,14 +85,6 @@ public class UserSteps {
                 "a1@$!%*#?&");
     }
 
-    public static RegisterUserRequest 회원가입요청_비밀번호규칙_불일치() {
-        return RegisterUserRequest.builder()
-                .accountId("pw_rule_failed_" + accountId)
-                .accountPw("1112@@")
-                .nickname("pw_rule_failed_" + nickname)
-                .build();
-    }
-
     public static List<String> 규칙이틀린비밀번호들() {
         // 비밀번호 규칙 확인 - 알파벳 x
         // 비밀번호 규칙 확인 - 숫자 x
@@ -104,16 +96,6 @@ public class UserSteps {
                 "test123123",
                 "TEST123123",
                 "a1@a3", "a1@");
-    }
-
-    public static ExtractableResponse<Response> 자신정보요청(String token) {
-        return RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN", token)
-                .when()
-                .get("/user/me")
-                .then()
-                .log().all().extract();
     }
 
     public static ExtractableResponse<Response> 특정유저조회요청(final long userId) {
@@ -151,5 +133,47 @@ public class UserSteps {
                 .get("/user/me")
                 .then()
                 .log().all().extract();
+    }
+
+    public static RegisterUserRequest 추가회원가입정보_생성() {
+        return RegisterUserRequest.builder()
+                .nickname(nickname)
+                .accountId("add_" + accountId)
+                .accountPw(accountPw)
+                .birthday(birthday)
+                .gender(gender)
+                .phoneNumber("01011110000")
+                .authenticationCode("123456")
+                .build();
+    }
+
+    public static RegisterUserRequest 회원가입요청_입력정보_누락() {
+        return RegisterUserRequest.builder()
+                .gender(gender)
+                .build();
+    }
+
+    public static RegisterUserRequest 회원가입요청_입력정보_부적합() {
+        return RegisterUserRequest.builder()
+                .nickname(nickname)
+                .accountId("add_" + accountId)
+                .accountPw("1234")
+                .birthday(birthday)
+                .gender(gender)
+                .phoneNumber("전화번호")
+                .authenticationCode("123456")
+                .build();
+    }
+
+    public static RegisterUserRequest 회원가입요청_비밀번호규칙_불일치() {
+        return RegisterUserRequest.builder()
+                .nickname(nickname)
+                .accountId("wrong@test.com")
+                .accountPw("123@@@")
+                .birthday(birthday)
+                .gender(gender)
+                .phoneNumber(phoneNumber)
+                .authenticationCode("123456")
+                .build();
     }
 }

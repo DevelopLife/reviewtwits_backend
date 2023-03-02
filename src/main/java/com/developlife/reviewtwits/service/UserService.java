@@ -1,10 +1,7 @@
 package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.exception.user.AccountIdAlreadyExistsException;
-import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
-import com.developlife.reviewtwits.exception.user.PasswordVerifyException;
-import com.developlife.reviewtwits.exception.user.AccountPasswordWrongException;
+import com.developlife.reviewtwits.exception.user.*;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
@@ -84,7 +81,7 @@ public class UserService {
 
     public UserInfoResponse getUserInfo(long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AccountIdNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UserIdNotFoundException("사용자를 찾을 수 없습니다."));
         return userMapper.toDto(user);
     }
 

@@ -38,6 +38,12 @@ jobs:
          echo "${{ secrets.EMAIL_CONFIG_INFO }}" >> ./email.properties
         cat ./email.properties
       shell: bash
+    - name: Make oauth.properties
+      run: |
+        cd ./src/main/resources
+         echo "${{ secrets.OAUTH_KEY }}" >> ./oauth.properties
+        cat ./oauth.properties
+      shell: bash
 
     - name : Setup MariaDB
       uses: getong/mariadb-action@v1.1
