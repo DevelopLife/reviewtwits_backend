@@ -14,12 +14,15 @@ import com.developlife.reviewtwits.type.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -66,7 +69,8 @@ public class UserController {
     }
 
     @PostMapping(value = "", consumes = "application/json", produces = "application/json")
-    public JwtTokenResponse register(@RequestBody RegisterUserRequest registerUserRequest) {
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public JwtTokenResponse register(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
         User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
         return JwtTokenResponse.builder()
                 .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))

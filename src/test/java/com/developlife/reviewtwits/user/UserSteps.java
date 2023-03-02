@@ -90,6 +90,10 @@ public class UserSteps {
                 .accountId("pw_rule_failed_" + accountId)
                 .accountPw("1112@@")
                 .nickname("pw_rule_failed_" + nickname)
+                .birthday(birthday)
+                .gender(gender)
+                .phoneNumber("010111111212")
+                .authenticationCode("123456")
                 .build();
     }
 
@@ -104,16 +108,6 @@ public class UserSteps {
                 "test123123",
                 "TEST123123",
                 "a1@a3", "a1@");
-    }
-
-    public static ExtractableResponse<Response> 자신정보요청(String token) {
-        return RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN", token)
-                .when()
-                .get("/user/me")
-                .then()
-                .log().all().extract();
     }
 
     public static ExtractableResponse<Response> 특정유저조회요청(final long userId) {
@@ -151,5 +145,28 @@ public class UserSteps {
                 .get("/user/me")
                 .then()
                 .log().all().extract();
+    }
+
+    public static RegisterUserRequest 추가회원가입정보_생성() {
+        return RegisterUserRequest.builder()
+                .nickname(nickname)
+                .accountId("add_" + accountId)
+                .accountPw(accountPw)
+                .birthday(birthday)
+                .gender(gender)
+                .phoneNumber("01011110000")
+                .authenticationCode("123456")
+                .build();
+    }
+
+    public static RegisterUserRequest 회원가입요청_휴대전화번호_누락() {
+        return RegisterUserRequest.builder()
+                .nickname(nickname)
+                .accountId("add_" + accountId)
+                .accountPw(accountPw)
+                .birthday(birthday)
+                .gender(gender)
+                .authenticationCode("123456")
+                .build();
     }
 }
