@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
@@ -18,8 +19,10 @@ import java.time.LocalDateTime;
 @Builder
 public record RegisterUserRequest(
         String nickname,
+        @NotBlank(message = "이메일을 입력해주세요")
         @Email(message = "이메일 형식이 아닙니다.")
         String accountId,
+        @NotBlank(message = "비밀번호를 입력해주세요")
         @Pattern(message = "비밀번호는 6자리 이상, 영문, 숫자, 특수문자 조합이어야 합니다.",
                 regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,}$")
         String accountPw,

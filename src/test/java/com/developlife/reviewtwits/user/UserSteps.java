@@ -85,18 +85,6 @@ public class UserSteps {
                 "a1@$!%*#?&");
     }
 
-    public static RegisterUserRequest 회원가입요청_비밀번호규칙_불일치() {
-        return RegisterUserRequest.builder()
-                .accountId("pw_rule_failed_" + accountId)
-                .accountPw("1112@@")
-                .nickname("pw_rule_failed_" + nickname)
-                .birthday(birthday)
-                .gender(gender)
-                .phoneNumber("010111111212")
-                .authenticationCode("123456")
-                .build();
-    }
-
     public static List<String> 규칙이틀린비밀번호들() {
         // 비밀번호 규칙 확인 - 알파벳 x
         // 비밀번호 규칙 확인 - 숫자 x
@@ -159,13 +147,32 @@ public class UserSteps {
                 .build();
     }
 
-    public static RegisterUserRequest 회원가입요청_휴대전화번호_누락() {
+    public static RegisterUserRequest 회원가입요청_입력정보_누락() {
+        return RegisterUserRequest.builder()
+                .gender(gender)
+                .build();
+    }
+
+    public static RegisterUserRequest 회원가입요청_입력정보_부적합() {
         return RegisterUserRequest.builder()
                 .nickname(nickname)
                 .accountId("add_" + accountId)
-                .accountPw(accountPw)
+                .accountPw("1234")
                 .birthday(birthday)
                 .gender(gender)
+                .phoneNumber("전화번호")
+                .authenticationCode("123456")
+                .build();
+    }
+
+    public static RegisterUserRequest 회원가입요청_비밀번호규칙_불일치() {
+        return RegisterUserRequest.builder()
+                .nickname(nickname)
+                .accountId(accountId)
+                .accountPw("123@@@")
+                .birthday(birthday)
+                .gender(gender)
+                .phoneNumber(phoneNumber)
                 .authenticationCode("123456")
                 .build();
     }

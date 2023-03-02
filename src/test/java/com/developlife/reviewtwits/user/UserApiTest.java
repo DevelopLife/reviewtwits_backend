@@ -1,15 +1,15 @@
 package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.ApiTest;
-import com.developlife.reviewtwits.controller.UserController;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.exception.user.PasswordVerifyException;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.user.ErrorResponse;
 import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import java.util.List;
+import java.util.stream.Collectors;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.not;
 
 public class UserApiTest extends ApiTest {
 
@@ -112,10 +116,17 @@ public class UserApiTest extends ApiTest {
 
     @Test
     @DisplayName("회원가입 실패 - 입력정보부족")
-    void 회원가입체크_입력정보부족_False() {
-        final var request = UserSteps.회원가입요청_휴대전화번호_누락();
+    void 회원가입체크_입력정보부족_False() throws JsonProcessingException {
+        final var request = UserSteps.회원가입요청_입력정보_누락();
         final var response = UserSteps.회원가입요청(request);
+        List<ErrorResponse> errorResponseList = objectMapper.readValue(response.body().asString(), new TypeReference<List<ErrorResponse>>(){});
+        List<String> fieldNames = errorResponseList.stream().map(
+                errorResponse -> errorResponse.fieldName()
+        ).collect(Collectors.toList());
 
+        // authenticationCode 추가해야함
+        assertThat(fieldNames).contains("phoneNumber", "accountPw", "authenticationCode", "accountId");
+        assertThat(fieldNames).doesNotContain("birthday", "nickname", "gender");
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
@@ -124,9 +135,8 @@ public class UserApiTest extends ApiTest {
     void 회원가입체크_입력조건부적합_False() {
 
         // 이메일 인증 코드 invalid
-
         // 비밀번호 조건 틀린
-        final var request = UserSteps.회원가입요청_비밀번호규칙_불일치();
+        final var request = UserSteps.회원가입요청_입력정보_부적합();
 
     }
 
@@ -152,12 +162,6 @@ public class UserApiTest extends ApiTest {
     @DisplayName("토큰제공자별 응답확인")
     void 토큰제공자별응답확인_응답확인_True() {
 
-    }
-
-    @Test
-    @DisplayName("이메일 인증번호 발급")
-    void 이메일인증번호발급_인증번호발급확인_True() {
-        // 따로 테스트 불가능 직접 확인
     }
 
     JwtTokenResponse 로그인토큰정보(LoginUserRequest request) throws JsonProcessingException {
