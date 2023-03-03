@@ -3,6 +3,8 @@ package com.developlife.reviewtwits.entity;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.UserRole;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,6 +30,7 @@ public class User implements UserDetails {
     private String nickname;
     private String accountId;
     private String accountPw;
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime birthday;
     @Column(unique = true, length = 20)
     private String phoneNumber;
@@ -41,7 +44,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Builder.Default // 인스턴스 만들때 특정 필드값으로 초기화 할경우
     private Set<UserRole> roles = new HashSet<>();
+    @CreatedDate
     LocalDateTime createdDate;
+    @LastModifiedDate
     LocalDateTime lastModifiedDate;
 
     // TODO 파일업로드 구현 완료시 구현

@@ -19,23 +19,6 @@ import java.util.List;
 @RestControllerAdvice
 public class UserExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public List<ErrorResponse> processValidationError(MethodArgumentNotValidException e) {
-        List<ErrorResponse> errorResponseList = e.getBindingResult().getFieldErrors().stream()
-                .map(fieldError -> {
-                    ErrorResponse errorResponse = ErrorResponse.builder()
-                            .message(fieldError.getDefaultMessage())
-                            .errorType(fieldError.getCode())
-                            .fieldName(fieldError.getField())
-                            .build();
-                    return errorResponse;
-                })
-                .toList();
-
-        return errorResponseList;
-    }
-
     @ExceptionHandler(AccountIdAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public String accountIdAlreadyExistsExceptionHandler(AccountIdAlreadyExistsException e){

@@ -7,6 +7,7 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.user.ErrorResponse;
 import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.repository.UserRepository;
+import com.developlife.reviewtwits.service.EmailService;
 import com.developlife.reviewtwits.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -24,21 +25,25 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.not;
 
 public class UserApiTest extends ApiTest {
-
+    @Autowired
+    private UserSteps userSteps;
     @Autowired
     private UserService userService;
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private EmailService emailService;
+    @Autowired
     private ObjectMapper objectMapper;
 
-    private final RegisterUserRequest registerUserRequest = UserSteps.회원가입정보_생성();
-    private final RegisterUserRequest registerAdminRequest = UserSteps.회원가입정보_어드민_생성();
-
-
+    private RegisterUserRequest registerUserRequest;
+    private RegisterUserRequest registerAdminRequest;
 
     @BeforeEach
     void setting() {
+        registerUserRequest = userSteps.회원가입정보_생성();
+        registerAdminRequest = userSteps.회원가입정보_어드민_생성();
+
         // 일반유저, 어드민유저 회원가입 해두고 테스트 진행
         userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
         userService.register(registerAdminRequest, UserSteps.어드민유저권한_생성());
@@ -95,7 +100,7 @@ public class UserApiTest extends ApiTest {
     @Test
     @DisplayName("회원가입 성공")
     void 회원가입체크_회원가입정보저장확인_True() {
-        final var request = UserSteps.추가회원가입정보_생성();
+        final var request = userSteps.추가회원가입정보_생성();
 
         final var responseRegister = UserSteps.회원가입요청(request);
         final String token = responseRegister.jsonPath().getString("accessToken");

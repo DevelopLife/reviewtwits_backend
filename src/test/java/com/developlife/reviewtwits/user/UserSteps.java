@@ -2,17 +2,21 @@ package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.service.EmailService;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.UserRole;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+@Component
 public class UserSteps {
     final static String nickname = "test";
     final static String accountId = "test@naver.com";
@@ -20,6 +24,11 @@ public class UserSteps {
     final static LocalDateTime birthday = LocalDateTime.now();
     final static String phoneNumber = "01012345678";
     final static Gender gender = Gender.남자;
+    private final EmailService emailService;
+
+    public UserSteps(EmailService emailService) {
+        this.emailService = emailService;
+    }
 
     public static ExtractableResponse<Response> 회원가입요청(final RegisterUserRequest request) {
         return RestAssured.given().log().all()
@@ -31,7 +40,9 @@ public class UserSteps {
                 .log().all().extract();
     }
 
-    public static RegisterUserRequest 회원가입정보_생성() {
+    public RegisterUserRequest 회원가입정보_생성() {
+        String key = emailService.sendEmailMock(accountId);
+
         return RegisterUserRequest.builder()
                 .nickname(nickname)
                 .accountId(accountId)
@@ -39,15 +50,21 @@ public class UserSteps {
                 .birthday(birthday)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
-                .authenticationCode("123456")
+                .authenticationCode(key)
                 .build();
     }
 
-    public static RegisterUserRequest 회원가입정보_어드민_생성() {
+    public RegisterUserRequest 회원가입정보_어드민_생성() {
+        String key = emailService.sendEmailMock("admin_" + accountId);
+
         return RegisterUserRequest.builder().
                 nickname(nickname+"_admin")
                 .accountId("admin_" + accountId)
                 .accountPw(accountPw)
+                .birthday(birthday)
+                .gender(gender)
+                .phoneNumber("01099999999")
+                .authenticationCode(key)
                 .build();
     }
 
@@ -135,7 +152,9 @@ public class UserSteps {
                 .log().all().extract();
     }
 
-    public static RegisterUserRequest 추가회원가입정보_생성() {
+    public RegisterUserRequest 추가회원가입정보_생성() {
+        String key = emailService.sendEmailMock("add_" + accountId);
+
         return RegisterUserRequest.builder()
                 .nickname(nickname)
                 .accountId("add_" + accountId)
@@ -143,7 +162,7 @@ public class UserSteps {
                 .birthday(birthday)
                 .gender(gender)
                 .phoneNumber("01011110000")
-                .authenticationCode("123456")
+                .authenticationCode(key)
                 .build();
     }
 

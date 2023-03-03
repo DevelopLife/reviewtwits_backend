@@ -19,7 +19,7 @@ public class EmailController {
 
     @GetMapping("/verify")
     public ResponseEntity<Void> verifyEmail(@RequestParam String email) throws Exception {
-        emailService.sendSimpleMessage(email);
+        emailService.sendMessage(email);
         return ResponseEntity.ok().build();
     }
 }
