@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.message.response.user;
+package com.developlife.reviewtwits.message.response;
 
 import lombok.Builder;
 

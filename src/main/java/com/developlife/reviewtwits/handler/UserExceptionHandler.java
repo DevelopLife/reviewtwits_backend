@@ -1,16 +1,11 @@
 package com.developlife.reviewtwits.handler;
 
 import com.developlife.reviewtwits.exception.user.*;
-import com.developlife.reviewtwits.message.response.user.ErrorResponse;
-import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
+import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.List;
 
 /**
  * @author ghdic
@@ -21,43 +16,71 @@ public class UserExceptionHandler {
 
     @ExceptionHandler(AccountIdAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public String accountIdAlreadyExistsExceptionHandler(AccountIdAlreadyExistsException e){
-        return e.getMessage();
+    public ErrorResponse accountIdAlreadyExistsExceptionHandler(AccountIdAlreadyExistsException e){
+        return ErrorResponse.builder()
+                .message(e.getMessage())
+                .errorType(e.getClass().getSimpleName())
+                .fieldName("accountId")
+                .build();
     }
 
     @ExceptionHandler(AccountPasswordWrongException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public String accountPasswordWrongExceptionHandler(AccountPasswordWrongException e){
-        return e.getMessage();
+    public ErrorResponse accountPasswordWrongExceptionHandler(AccountPasswordWrongException e){
+        return ErrorResponse.builder()
+                .message(e.getMessage())
+                .errorType(e.getClass().getSimpleName())
+                .fieldName("accountPw")
+                .build();
     }
 
     @ExceptionHandler(PasswordVerifyException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public String passwordVerifyExceptionHandler(PasswordVerifyException e){
-        return e.getMessage();
+    public ErrorResponse passwordVerifyExceptionHandler(PasswordVerifyException e){
+        return ErrorResponse.builder()
+                .message(e.getMessage())
+                .errorType(e.getClass().getSimpleName())
+                .fieldName("accountPw")
+                .build();
     }
 
     @ExceptionHandler(AccountIdNotFoundException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public String accountIdNotFoundExceptionHandler(AccountIdNotFoundException e){
-        return e.getMessage();
+    public ErrorResponse accountIdNotFoundExceptionHandler(AccountIdNotFoundException e){
+        return ErrorResponse.builder()
+                .message(e.getMessage())
+                .errorType(e.getClass().getSimpleName())
+                .fieldName("accountId")
+                .build();
     }
 
     @ExceptionHandler(TokenExpiredException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public String tokenExpiredExceptionHandler(TokenExpiredException e){
-        return e.getMessage();
+    public ErrorResponse tokenExpiredExceptionHandler(TokenExpiredException e){
+        return ErrorResponse.builder()
+                .message(e.getMessage())
+                .errorType(e.getClass().getSimpleName())
+                .fieldName("")
+                .build();
     }
 
     @ExceptionHandler(TokenInvalidException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public String tokenInvalidExceptionHandler(TokenInvalidException e){
-        return e.getMessage();
+    public ErrorResponse tokenInvalidExceptionHandler(TokenInvalidException e){
+        return ErrorResponse.builder()
+                .message(e.getMessage())
+                .errorType(e.getClass().getSimpleName())
+                .fieldName("")
+                .build();
     }
 
     @ExceptionHandler(UserIdNotFoundException.class)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String userIdNotFoundExceptionHandler(UserIdNotFoundException e){
-        return e.getMessage();
+    public ErrorResponse userIdNotFoundExceptionHandler(UserIdNotFoundException e){
+        return ErrorResponse.builder()
+                .message(e.getMessage())
+                .errorType(e.getClass().getSimpleName())
+                .fieldName("userId")
+                .build();
     }
 }

@@ -4,7 +4,7 @@ import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.message.response.user.ErrorResponse;
+import com.developlife.reviewtwits.message.response.ErrorResponse;
 import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.EmailService;

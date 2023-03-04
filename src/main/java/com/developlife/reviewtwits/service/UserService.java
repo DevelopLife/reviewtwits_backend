@@ -108,7 +108,7 @@ public class UserService {
 
     private User getUser(String accountId) {
         return userRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new AccountIdNotFoundException(accountId + " 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new AccountIdNotFoundException("존재하지 않는 아이디입니다."));
     }
 
     public User grantedAdminPermission(String accountId) {
