@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 /**
@@ -30,5 +31,16 @@ public class ValidExceptionHandler {
                 .toList();
 
         return errorResponseList;
+    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse dateTimeParseExceptionHandler(DateTimeParseException e) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message("날짜 형식이 올바르지 않습니다. [yyyy-MM-ddTHH:mm:ss] 포맷을 지켜주세요")
+                .errorType(e.getClass().getSimpleName())
+                .fieldName("")
+                .build();
+        return errorResponse;
     }
 }

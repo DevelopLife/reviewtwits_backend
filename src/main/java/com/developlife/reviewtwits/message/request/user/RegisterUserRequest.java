@@ -6,10 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 
 /**
@@ -26,9 +23,11 @@ public record RegisterUserRequest(
         @Pattern(message = "비밀번호는 6자리 이상, 영문, 숫자, 특수문자 조합이어야 합니다.",
                 regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,}$")
         String accountPw,
-        // @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        @Past(message = "생일은 이전 날짜만 입력 가능합니다.")
         LocalDateTime birthday,
         @NotBlank(message = "휴대폰번호를 입력해주세요")
+                @Pattern(message = "휴대폰번호 형식이 아닙니다.",
+                regexp = "^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$")
         String phoneNumber,
         Gender gender,
         @NotBlank(message = "이메일 인증코드를 입력해주세요")

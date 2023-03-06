@@ -4,6 +4,7 @@ import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.request.user.UserInfoRequest;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.repository.UserRepository;
@@ -12,17 +13,23 @@ import com.developlife.reviewtwits.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
+import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 
 public class UserApiTest extends ApiTest {
     @Autowired
@@ -54,13 +61,32 @@ public class UserApiTest extends ApiTest {
     void 특정유저조회_유저정보확인_True() {
         User user = userRepository.findByAccountId(registerUserRequest.accountId()).get();
 
-        final var response = UserSteps.특정유저조회요청(user.getUserId());
+//        final var response = UserSteps.특정유저조회요청(user.getUserId());
 
-        // 기본 정보 표시
-        assertThat(response.jsonPath().getString("nickname")).isEqualTo(registerUserRequest.nickname());
-        // 민감정보 노출x
-        assertThat(response.jsonPath().getString("phoneNumber")).isNull();
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        // 기본 정보 표시
+//        assertThat(response.jsonPath().getString("nickname")).isEqualTo(registerUserRequest.nickname());
+//        // 민감정보 노출x
+//        assertThat(response.jsonPath().getString("phoneNumber")).isNull();
+//        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+
+        //Map<String, Object> requestBody = new HashMap<>();
+
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.UserInfoRequestField, UserDocsFields.UserInfoResponseField))
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .header("Content-type", "application/json")
+            //.body(requestBody)
+            .pathParam("userId", user.getUserId())
+        .when()
+            .get("/user/info/{userId}")
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            // 기본정보 표시
+            .body("nickname", notNullValue())
+            .body("accountId", notNullValue())
+            // 민감정보 노출 x
+            .body("phoneNumber", nullValue())
+            .log().all();
     }
 
     @Test
