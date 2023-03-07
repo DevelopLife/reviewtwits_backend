@@ -4,7 +4,6 @@ import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.message.request.user.UserInfoRequest;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.repository.UserRepository;
@@ -13,7 +12,7 @@ import com.developlife.reviewtwits.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.JSONObject;
+import io.restassured.matcher.RestAssuredMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,13 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 
@@ -58,28 +55,17 @@ public class UserApiTest extends ApiTest {
 
     @Test
     @DisplayName("특정유저조회")
-    void 특정유저조회_유저정보확인_True() {
+    void 특정유저조회_유저정보확인_200() {
         User user = userRepository.findByAccountId(registerUserRequest.accountId()).get();
 
-//        final var response = UserSteps.특정유저조회요청(user.getUserId());
-
-//        // 기본 정보 표시
-//        assertThat(response.jsonPath().getString("nickname")).isEqualTo(registerUserRequest.nickname());
-//        // 민감정보 노출x
-//        assertThat(response.jsonPath().getString("phoneNumber")).isNull();
-//        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-
-        //Map<String, Object> requestBody = new HashMap<>();
-
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.UserInfoRequestField, UserDocsFields.UserInfoResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.UserInfoPathField, UserDocsFields.UserInfoResponseField))
             .accept(MediaType.APPLICATION_JSON_VALUE)
-            .header("Content-type", "application/json")
-            //.body(requestBody)
             .pathParam("userId", user.getUserId())
         .when()
-            .get("/user/info/{userId}")
+            .get("/users/{userId}")
         .then()
+            .assertThat()
             .statusCode(HttpStatus.OK.value())
             // 기본정보 표시
             .body("nickname", notNullValue())
@@ -91,89 +77,158 @@ public class UserApiTest extends ApiTest {
 
     @Test
     @DisplayName("자신정보조회")
-    void 자신정보조회_유저정보확인_True() throws JsonProcessingException {
+    void 자신정보조회_유저정보확인_200() throws JsonProcessingException {
         final String token = 로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
-        final var response = UserSteps.자신정보조회요청(token);
 
-        // 기본 정보 표시
-        assertThat(response.jsonPath().getString("nickname")).isEqualTo(registerUserRequest.nickname());
-        // 민감정보 노출o
-        assertThat(response.jsonPath().getString("phoneNumber")).isEqualTo(registerUserRequest.phoneNumber());
-        // 비밀번호는 예외
-        assertThat(response.jsonPath().getString("password")).isNull();
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.UserDetailInfoResponseField))
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .header("X-AUTH-TOKEN", token)
+        .when()
+            .get("/users/me")
+        .then()
+            .assertThat()
+            .statusCode(HttpStatus.OK.value())
+            // 기본정보 표시
+            .body("nickname", equalTo(registerUserRequest.nickname()))
+            // 민감정보 노출 o
+            .body("phoneNumber", equalTo(registerUserRequest.phoneNumber()))
+            // 비밀번호는 예외
+            .body("accountPw", nullValue())
+            .log().all();
     }
 
     @Test
     @DisplayName("로그인성공")
-    void 로그인성공_로그인정보확인_True() throws JsonProcessingException {
-        final JwtTokenResponse response = 로그인토큰정보(UserSteps.로그인요청생성());
+    void 로그인성공_로그인정보확인_200() {
+        LoginUserRequest request = UserSteps.로그인요청생성();
 
-        assertThat(response.accessToken()).isNotNull();
+        given(this.spec).log().all()
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.LoginUserRequestField, UserDocsFields.JwtTokenResponseField))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(request)
+        .when()
+            .post("/users/login")
+        .then()
+            .assertThat()
+            .statusCode(HttpStatus.OK.value())
+            .cookie("refreshToken", notNullValue())
+            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().httpOnly(true))
+            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().secured(true))
+            .body("accessToken", notNullValue())
+            .log().all().extract();
     }
 
     @Test
-    @DisplayName("로그인실패")
-    void 로그인실패_로그인정보불일치_False() {
-        // 아이디가 존재하지 않음
-        // 비밀번호 불일치
-        final var loginIdWrongResponse = UserSteps.로그인요청(UserSteps.로그인요청_생성_아이디불일치());
-        final var loginPwWrongResponse = UserSteps.로그인요청(UserSteps.로그인요청_생성_비밀번호불일치());
+    @DisplayName("로그인실패 - 아이디불일치")
+    void 로그인실패_아이디불일치_401() {
+        final var request = UserSteps.로그인요청_생성_아이디불일치();
 
-        assertThat(loginIdWrongResponse.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
-        assertThat(loginPwWrongResponse.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        given(this.spec).log().all()
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.LoginUserRequestField, UserDocsFields.ErrorResponseFields))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(request)
+        .when()
+            .post("/users/login")
+        .then()
+            .assertThat()
+            .statusCode(HttpStatus.UNAUTHORIZED.value())
+            .body("find{it.errorType == 'AccountIdNotFoundException' " +
+                    "&& it.fieldName == 'accountId'}", notNullValue())
+            .log().all().extract();
+    }
+
+    @Test
+    @DisplayName("로그인실패 - 비밀번호 불일치")
+    void 로그인실패_비밀번호불일치_401() {
+        final var request = UserSteps.로그인요청_생성_비밀번호불일치();
+
+        given(this.spec).log().all()
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.LoginUserRequestField, UserDocsFields.ErrorResponseFields))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(request)
+        .when()
+            .post("/users/login")
+        .then()
+            .assertThat()
+            .statusCode(HttpStatus.UNAUTHORIZED.value())
+            .body("find{it.errorType == 'AccountPasswordWrongException' " +
+                    "&& it.fieldName == 'accountPw'}", notNullValue())
+            .log().all().extract();
     }
 
     @Test
     @DisplayName("회원가입 성공")
-    void 회원가입체크_회원가입정보저장확인_True() {
+    void 회원가입체크_회원가입정보저장확인_201() {
         final var request = userSteps.추가회원가입정보_생성();
 
-        final var responseRegister = UserSteps.회원가입요청(request);
-        final String token = responseRegister.jsonPath().getString("accessToken");
-        assertThat(token).isNotNull();
-        assertThat(responseRegister.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+        // 회원가입
+        var response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.RegisterUserRequestField, UserDocsFields.JwtTokenResponseField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(request)
+        .when()
+                .post("/users/register")
+        .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .cookie("refreshToken", notNullValue())
+                .cookie("refreshToken", RestAssuredMatchers.detailedCookie().httpOnly(true))
+                .cookie("refreshToken", RestAssuredMatchers.detailedCookie().secured(true))
+                .body("accessToken", notNullValue())
+                .log().all().extract().response();
 
-        final var response = UserSteps.자신정보조회요청(token);
+        // 회원가입 정보와 저장된 정보 비교
+        given()
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("X-AUTH-TOKEN", response.body().path("accessToken"))
+        .when()
+            .get("/users/me")
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("nickname", equalTo(UserSteps.nickname))
+            .body("accountId", equalTo("add_" + UserSteps.accountId))
+            .body("accountPw", nullValue())
+            .body("birthDate", equalTo(UserSteps.birthDate))
+            .body("phoneNumber", equalTo("01011110000"))
+            .body("gender", equalTo(UserSteps.gender.name()))
+            .log().all().extract().response();
 
-        assertThat(response.jsonPath().getString("nickname")).isEqualTo(UserSteps.nickname);
-        assertThat(response.jsonPath().getString("accountId")).isEqualTo("add_" + UserSteps.accountId);
-        assertThat(response.jsonPath().getString("accountPw")).isNotEqualTo(UserSteps.accountPw);
-        // assertThat(response.jsonPath().getString("birthday")).isEqualTo(UserSteps.birthday.toString());
-        assertThat(response.jsonPath().getString("phoneNumber")).isEqualTo("01011110000");
-        assertThat(response.jsonPath().getString("gender")).isEqualTo(UserSteps.gender.toString());
-
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
     @DisplayName("회원가입 실패 - 입력정보부족")
-    void 회원가입체크_입력정보부족_False() throws JsonProcessingException {
+    void 회원가입체크_입력정보부족_400() {
         final var request = UserSteps.회원가입요청_입력정보_누락();
-        final var response = UserSteps.회원가입요청(request);
-        List<ErrorResponse> errorResponseList = objectMapper.readValue(response.body().asString(), new TypeReference<List<ErrorResponse>>(){});
-        List<String> fieldNames = errorResponseList.stream().map(
-                errorResponse -> errorResponse.fieldName()
-        ).collect(Collectors.toList());
 
-        // authenticationCode 추가해야함
-        assertThat(fieldNames).contains("phoneNumber", "accountPw", "authenticationCode", "accountId");
-        assertThat(fieldNames).doesNotContain("birthday", "nickname", "gender");
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.ErrorResponseFields))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(request)
+        .when()
+            .post("/users/register")
+        .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .body("collect{ it.fieldName }", hasItems("phoneNumber", "accountPw", "authenticationCode", "accountId"))
+            .log().all().extract().response();
     }
 
     @Test
     @DisplayName("회원가입 실패 - 입력한 정보가 조건에 맞지않음")
-    void 회원가입체크_입력조건부적합_False() throws JsonProcessingException {
+    void 회원가입체크_입력조건부적합_400() {
 
         // 이메일 인증 코드 invalid
         // 비밀번호 조건 틀린
         final var request = UserSteps.회원가입요청_입력정보_부적합();
-        final var response = UserSteps.회원가입요청(request);
-        List<ErrorResponse> errorResponseList = objectMapper.readValue(response.body().asString(), new TypeReference<List<ErrorResponse>>(){});
-        List<String> fieldNames = errorResponseList.stream().map(
-                errorResponse -> errorResponse.fieldName()
-        ).collect(Collectors.toList());
-        assertThat(fieldNames).contains("accountPw");
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(request)
+                .when()
+                .post("/users/register")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("collect{ it.fieldName }", hasItems("accountPw", "phoneNumber"))
+                .log().all().extract().response();
     }
 
     JwtTokenResponse 로그인토큰정보(LoginUserRequest request) throws JsonProcessingException {

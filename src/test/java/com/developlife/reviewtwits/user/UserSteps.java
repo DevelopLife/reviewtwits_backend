@@ -21,7 +21,7 @@ public class UserSteps {
     final static String nickname = "test";
     final static String accountId = "test@naver.com";
     final static String accountPw = "test1122!";
-    final static LocalDateTime birthday = LocalDateTime.now();
+    final static String birthDate = "2002-01-01";
     final static String phoneNumber = "01012345678";
     final static Gender gender = Gender.남자;
     private final EmailService emailService;
@@ -47,7 +47,7 @@ public class UserSteps {
                 .nickname(nickname)
                 .accountId(accountId)
                 .accountPw(accountPw)
-                .birthday(birthday)
+                .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
                 .authenticationCode(key)
@@ -61,7 +61,7 @@ public class UserSteps {
                 nickname(nickname+"_admin")
                 .accountId("admin_" + accountId)
                 .accountPw(accountPw)
-                .birthday(birthday)
+                .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber("01099999999")
                 .authenticationCode(key)
@@ -137,17 +137,7 @@ public class UserSteps {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(loginUserRequest)
                 .when()
-                .post("/user/login")
-                .then()
-                .log().all().extract();
-    }
-
-    public static ExtractableResponse<Response> 자신정보조회요청(String token) {
-        return RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN", token)
-                .when()
-                .get("/user/me")
+                .post("/users/login")
                 .then()
                 .log().all().extract();
     }
@@ -159,7 +149,7 @@ public class UserSteps {
                 .nickname(nickname)
                 .accountId("add_" + accountId)
                 .accountPw(accountPw)
-                .birthday(birthday)
+                .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber("01011110000")
                 .authenticationCode(key)
@@ -177,7 +167,7 @@ public class UserSteps {
                 .nickname(nickname)
                 .accountId("add_" + accountId)
                 .accountPw("1234")
-                .birthday(birthday)
+                .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber("전화번호")
                 .authenticationCode("123456")
@@ -189,7 +179,7 @@ public class UserSteps {
                 .nickname(nickname)
                 .accountId("wrong@test.com")
                 .accountPw("123@@@")
-                .birthday(birthday)
+                .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
                 .authenticationCode("123456")

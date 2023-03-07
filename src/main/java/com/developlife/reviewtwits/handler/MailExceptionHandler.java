@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.List;
+
+import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeErrorResponse;
+
 /**
  * @author ghdic
  * @since 2023/03/02
@@ -16,21 +20,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class MailExceptionHandler {
     @ExceptionHandler(MailSendException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse mailSendExceptionHandler(MailSendException e) {
-        return ErrorResponse.builder()
-                .message(e.getMessage())
-                .errorType(e.getClass().getSimpleName())
-                .fieldName("accountId")
-                .build();
+    public List<ErrorResponse> mailSendExceptionHandler(MailSendException e) {
+        return makeErrorResponse(e, "accountId");
     }
 
     @ExceptionHandler(VerifyCodeException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse verifyCodeExceptionHandler(VerifyCodeException e) {
-        return ErrorResponse.builder()
-                .message(e.getMessage())
-                .errorType(e.getClass().getSimpleName())
-                .fieldName("authenticationCode")
-                .build();
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public List<ErrorResponse> verifyCodeExceptionHandler(VerifyCodeException e) {
+        return makeErrorResponse(e, "authenticationCode");
     }
 }

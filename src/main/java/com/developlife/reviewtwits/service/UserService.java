@@ -57,7 +57,20 @@ public class UserService {
         if (!passwordVerify(registerUserRequest.accountPw())) {
             throw new PasswordVerifyException("비밀번호는 6자리 이상, 영문, 숫자, 특수문자 조합이어야 합니다.");
         }
-        EmailVerify emailVerify = emailVerifyRepository.findByEmail(registerUserRequest.accountId())
+        authenticationCodeVerify(registerUserRequest.accountId(), registerUserRequest.authenticationCode());
+
+
+        String encodedPassword = passwordEncoder.encode(registerUserRequest.accountPw());
+
+        User registered_user = userMapper.toEntity(registerUserRequest);
+        registered_user.setAccountPw(encodedPassword);
+        registered_user.setRoles(roles);
+
+        return userRepository.save(registered_user);
+    }
+
+    private void authenticationCodeVerify(String accountId, String authenticationCode) {
+        EmailVerify emailVerify = emailVerifyRepository.findByEmail(accountId)
                 .orElseThrow(() -> new VerifyCodeException("인증코드 발급을 진행해주세요"));
         LocalDateTime expiredDate = emailVerify.getCreateDate().plusHours(1);
         if(LocalDateTime.now().isAfter(expiredDate)) {
@@ -66,27 +79,12 @@ public class UserService {
         if(emailVerify.isAlreadyUsed()) {
             throw new VerifyCodeException("이미 사용된 인증코드입니다.");
         }
-        if(emailVerify.getVerifyCode().equals(registerUserRequest.authenticationCode())) {
+        if(emailVerify.getVerifyCode().equals(authenticationCode)) {
             emailVerify.setAlreadyUsed(true);
             emailVerifyRepository.save(emailVerify);
         } else {
             throw new VerifyCodeException("인증코드가 일치하지 않습니다.");
         }
-
-
-        String encodedPassword = passwordEncoder.encode(registerUserRequest.accountPw());
-
-        User registered_user = User.builder()
-                .nickname(registerUserRequest.nickname())
-                .accountId(registerUserRequest.accountId())
-                .accountPw(encodedPassword)
-                .roles(roles)
-                .birthday(registerUserRequest.birthday())
-                .phoneNumber(registerUserRequest.phoneNumber())
-                .gender(registerUserRequest.gender())
-                .build();
-
-        return userRepository.save(registered_user);
     }
 
     public static boolean passwordVerify(String password) {

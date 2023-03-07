@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
@@ -51,6 +51,16 @@ public class UserController {
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
     public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest, HttpServletResponse response) {
         User user = userService.login(loginUserRequest);
+        setRefreshTokenForClient(response, user);
+
+        return JwtTokenResponse.builder()
+                .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
+                .tokenType("Bearer")
+                .provider("reviewtwits")
+                .build();
+    }
+
+    private void setRefreshTokenForClient(HttpServletResponse response, User user) {
         // Create a cookie
         Cookie cookie = new Cookie("refreshToken", jwtTokenProvider.issueRefreshToken(user.getAccountId()));
         cookie.setMaxAge((int) JwtTokenProvider.refreshTokenValidTime);
@@ -60,18 +70,14 @@ public class UserController {
         cookie.setPath("/");
 
         response.addCookie(cookie);
-
-        return JwtTokenResponse.builder()
-                .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
-                .tokenType("Bearer")
-                .provider("reviewtwits")
-                .build();
     }
 
-    @PostMapping(value = "", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/register", consumes = "application/json", produces = "application/json")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public JwtTokenResponse register(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
+    public JwtTokenResponse register(@Valid @RequestBody RegisterUserRequest registerUserRequest, HttpServletResponse response) {
         User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
+        setRefreshTokenForClient(response, user);
+
         return JwtTokenResponse.builder()
                 .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
                 .tokenType("Bearer")
@@ -79,7 +85,7 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping(value = "/info/{userId}", produces = "application/json")
+    @GetMapping(value = "/{userId}", produces = "application/json")
     public UserInfoResponse searchUser(@PathVariable long userId) {
         return userService.getUserInfo(userId);
     }

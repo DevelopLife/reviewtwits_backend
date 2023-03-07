@@ -20,7 +20,7 @@ public class DateTimeFormatConfig implements FormatterRegistrar {
     @Override
     public void registerFormatters(FormatterRegistry registry) {
         DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
-        // registrar.setDateFormatter(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        registrar.setDateFormatter(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         registrar.setDateTimeFormatter(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
         registrar.registerFormatters(registry);
     }

@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
  * @since 2023/02/019
  */
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -27,19 +26,25 @@ import java.util.stream.Collectors;
 public class User implements UserDetails {
     @Id @GeneratedValue
     private long userId;
+    @Setter
+    @Column(unique = true, length = 20)
     private String nickname;
     private String accountId;
+    @Setter
     private String accountPw;
+    @Setter
     @Column(columnDefinition = "TIMESTAMP")
-    private LocalDateTime birthday;
+    private Date birthDate;
     @Column(unique = true, length = 20)
     private String phoneNumber;
+    @Setter
     @Enumerated(value = EnumType.STRING)
     private Gender gender;
     private String provider;
     private String uuid;
 
 
+    @Setter
     @ElementCollection(fetch = FetchType.EAGER) // pk-fk갖고 별도테이블 생성
     @Enumerated(EnumType.STRING)
     @Builder.Default // 인스턴스 만들때 특정 필드값으로 초기화 할경우
