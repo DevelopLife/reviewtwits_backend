@@ -37,9 +37,9 @@ swaggerSources {
 
 openapi3 {
 	setServer("http://localhost:8080")
-	title = "restdocs-swagger API Documentation"
-	description = "Spring REST Docs with SwaggerUI"
-	version = "0.0.1"
+	title = "ReviewTwits API Documentation"
+	description = "reviewtwits에서 사용하는 API 문서입니다."
+	version = "1.0.1"
 	format = "yaml" // default json
 }
 

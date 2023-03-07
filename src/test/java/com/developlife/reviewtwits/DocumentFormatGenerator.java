@@ -1,6 +1,11 @@
 package com.developlife.reviewtwits;
 
+import org.assertj.core.util.Lists;
+import org.springframework.restdocs.constraints.Constraint;
 import org.springframework.restdocs.snippet.Attributes;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author ghdic
@@ -18,5 +23,9 @@ public class DocumentFormatGenerator {
 
     public static Attributes.Attribute getGenderFormat() {
         return Attributes.key("format").value("남자, 여자");
+    }
+    public static Attributes.Attribute required() {
+        List<Constraint> constraints = Lists.newArrayList(new Constraint("javax.validation.constraints.NotNull", Collections.emptyMap()));
+        return Attributes.key("validationConstraints").value(constraints);
     }
 }

@@ -36,8 +36,6 @@ public class UserApiTest extends ApiTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private EmailService emailService;
-    @Autowired
     private ObjectMapper objectMapper;
 
     private RegisterUserRequest registerUserRequest;
@@ -104,7 +102,7 @@ public class UserApiTest extends ApiTest {
         LoginUserRequest request = UserSteps.로그인요청생성();
 
         given(this.spec).log().all()
-            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.LoginUserRequestField, UserDocsFields.JwtTokenResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH,"로그인시 accessToken과 refreshToken이 발급됩니다", "로그인", UserDocsFields.LoginUserRequestField, UserDocsFields.JwtTokenResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .body(request)
         .when()
