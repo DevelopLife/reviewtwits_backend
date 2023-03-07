@@ -7,13 +7,14 @@ import static com.developlife.reviewtwits.DocumentFormatGenerator.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
-
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 /**
  * @author ghdic
  * @since 2023/03/06
  */
 public class UserDocsFields {
-    public static final Snippet UserInfoPathField = pathParameters(
+    public static final Snippet UserInfoPathParams = pathParameters(
             parameterWithName("userId").description("유저아이디")
     );
 
@@ -60,5 +61,9 @@ public class UserDocsFields {
             fieldWithPath("[].message").type(JsonFieldType.STRING).description("에러메세지"),
             fieldWithPath("[].errorType").type(JsonFieldType.STRING).description("에러타입"),
             fieldWithPath("[].fieldName").type(JsonFieldType.STRING).description("에러난 필드이름")
+    );
+
+    public static final Snippet AccessTokenHeader = requestHeaders(
+            headerWithName("X-AUTH-TOKEN").attributes(required()).description("access token")
     );
 }

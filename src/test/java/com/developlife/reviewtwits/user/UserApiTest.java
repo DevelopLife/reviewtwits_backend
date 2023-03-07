@@ -4,13 +4,10 @@ import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.message.response.ErrorResponse;
 import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.repository.UserRepository;
-import com.developlife.reviewtwits.service.EmailService;
 import com.developlife.reviewtwits.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.matcher.RestAssuredMatchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,11 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 
@@ -57,7 +50,7 @@ public class UserApiTest extends ApiTest {
         User user = userRepository.findByAccountId(registerUserRequest.accountId()).get();
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.UserInfoPathField, UserDocsFields.UserInfoResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "특정유저의 공개가능한 정보를 조회합니다", "특정유저조회", UserDocsFields.UserInfoPathParams, UserDocsFields.UserInfoResponseField))
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .pathParam("userId", user.getUserId())
         .when()
@@ -79,7 +72,7 @@ public class UserApiTest extends ApiTest {
         final String token = 로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.UserDetailInfoResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "자신의 디테일한 정보를 조회합니다", "자신정보조회", UserDocsFields.AccessTokenHeader, UserDocsFields.UserDetailInfoResponseField))
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
         .when()
@@ -123,7 +116,7 @@ public class UserApiTest extends ApiTest {
         final var request = UserSteps.로그인요청_생성_아이디불일치();
 
         given(this.spec).log().all()
-            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.LoginUserRequestField, UserDocsFields.ErrorResponseFields))
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.ErrorResponseFields))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .body(request)
         .when()
@@ -142,7 +135,7 @@ public class UserApiTest extends ApiTest {
         final var request = UserSteps.로그인요청_생성_비밀번호불일치();
 
         given(this.spec).log().all()
-            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.LoginUserRequestField, UserDocsFields.ErrorResponseFields))
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.ErrorResponseFields))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .body(request)
         .when()
@@ -162,7 +155,7 @@ public class UserApiTest extends ApiTest {
 
         // 회원가입
         var response = given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.RegisterUserRequestField, UserDocsFields.JwtTokenResponseField))
+                .filter(document(DEFAULT_RESTDOC_PATH, "회원가입을 할때 사용", "회원가입", UserDocsFields.RegisterUserRequestField, UserDocsFields.JwtTokenResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(request)
         .when()
