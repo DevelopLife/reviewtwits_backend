@@ -146,7 +146,7 @@ public class UserSteps {
         String key = emailService.sendEmailMock("add_" + accountId);
 
         return RegisterUserRequest.builder()
-                .nickname(nickname)
+                .nickname("add_" + nickname)
                 .accountId("add_" + accountId)
                 .accountPw(accountPw)
                 .birthDate(birthDate)

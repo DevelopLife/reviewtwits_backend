@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * @author ghdic
  * @since 2023/02/19
  */
-@Builder
+
 public record RegisterUserRequest(
         @Size(min = 2, max = 20, message = "닉네임은 2자리 이상, 20자리 이하로 입력해주세요")
         String nickname,
@@ -35,4 +35,8 @@ public record RegisterUserRequest(
         @NotBlank(message = "이메일 인증코드를 입력해주세요")
         String authenticationCode // 이메일 인증코드
 ) {
+        @Builder
+        public RegisterUserRequest{
+
+        }
 }
