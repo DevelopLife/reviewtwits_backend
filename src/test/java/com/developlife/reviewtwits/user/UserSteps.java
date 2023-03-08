@@ -2,24 +2,33 @@ package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.service.EmailService;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.UserRole;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+@Component
 public class UserSteps {
     final static String nickname = "test";
     final static String accountId = "test@naver.com";
     final static String accountPw = "test1122!";
-    final static LocalDateTime birthday = LocalDateTime.now();
+    final static String birthDate = "2002-01-01";
     final static String phoneNumber = "01012345678";
     final static Gender gender = Gender.남자;
+    private final EmailService emailService;
+
+    public UserSteps(EmailService emailService) {
+        this.emailService = emailService;
+    }
 
     public static ExtractableResponse<Response> 회원가입요청(final RegisterUserRequest request) {
         return RestAssured.given().log().all()
@@ -31,23 +40,31 @@ public class UserSteps {
                 .log().all().extract();
     }
 
-    public static RegisterUserRequest 회원가입정보_생성() {
+    public RegisterUserRequest 회원가입정보_생성() {
+        String key = emailService.sendEmailMock(accountId);
+
         return RegisterUserRequest.builder()
                 .nickname(nickname)
                 .accountId(accountId)
                 .accountPw(accountPw)
-                .birthday(birthday)
+                .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
-                .authenticationCode("123456")
+                .authenticationCode(key)
                 .build();
     }
 
-    public static RegisterUserRequest 회원가입정보_어드민_생성() {
+    public RegisterUserRequest 회원가입정보_어드민_생성() {
+        String key = emailService.sendEmailMock("admin_" + accountId);
+
         return RegisterUserRequest.builder().
                 nickname(nickname+"_admin")
                 .accountId("admin_" + accountId)
                 .accountPw(accountPw)
+                .birthDate(birthDate)
+                .gender(gender)
+                .phoneNumber("01099999999")
+                .authenticationCode(key)
                 .build();
     }
 
@@ -120,30 +137,22 @@ public class UserSteps {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(loginUserRequest)
                 .when()
-                .post("/user/login")
+                .post("/users/login")
                 .then()
                 .log().all().extract();
     }
 
-    public static ExtractableResponse<Response> 자신정보조회요청(String token) {
-        return RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN", token)
-                .when()
-                .get("/user/me")
-                .then()
-                .log().all().extract();
-    }
+    public RegisterUserRequest 추가회원가입정보_생성() {
+        String key = emailService.sendEmailMock("add_" + accountId);
 
-    public static RegisterUserRequest 추가회원가입정보_생성() {
         return RegisterUserRequest.builder()
                 .nickname(nickname)
                 .accountId("add_" + accountId)
                 .accountPw(accountPw)
-                .birthday(birthday)
+                .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber("01011110000")
-                .authenticationCode("123456")
+                .authenticationCode(key)
                 .build();
     }
 
@@ -158,7 +167,7 @@ public class UserSteps {
                 .nickname(nickname)
                 .accountId("add_" + accountId)
                 .accountPw("1234")
-                .birthday(birthday)
+                .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber("전화번호")
                 .authenticationCode("123456")
@@ -170,7 +179,7 @@ public class UserSteps {
                 .nickname(nickname)
                 .accountId("wrong@test.com")
                 .accountPw("123@@@")
-                .birthday(birthday)
+                .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
                 .authenticationCode("123456")

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public record UserDetailInfoResponse(
         String nickname,
         String accountId,
-        LocalDateTime birthday,
+        String birthDate,
         String phoneNumber,
         Gender gender,
         String provider,

@@ -8,6 +8,7 @@ import com.developlife.reviewtwits.exception.user.AccountPasswordWrongException;
 import com.developlife.reviewtwits.exception.user.PasswordVerifyException;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.UserRepository;
+import com.developlife.reviewtwits.service.EmailService;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.type.UserRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,20 +24,26 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 public class UserServiceTest extends ApiTest {
 
+    private final UserSteps userSteps;
     private final UserService userService;
     private final UserRepository userRepository;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
-    private final RegisterUserRequest registerUserRequest = UserSteps.회원가입정보_생성();
-    private final RegisterUserRequest registerAdminRequest = UserSteps.회원가입정보_어드민_생성();
+    private RegisterUserRequest registerUserRequest;
+    private RegisterUserRequest registerAdminRequest;
     @Autowired
-    public UserServiceTest(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceTest(UserSteps userSteps, UserService userService, UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
+        this.userSteps = userSteps;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
     }
 
     @BeforeEach
     void setting() {
+        registerUserRequest = userSteps.회원가입정보_생성();
+        registerAdminRequest = userSteps.회원가입정보_어드민_생성();
         // 일반유저, 어드민유저 회원가입 해두고 테스트 진행
         userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
         userService.register(registerAdminRequest, UserSteps.어드민유저권한_생성());

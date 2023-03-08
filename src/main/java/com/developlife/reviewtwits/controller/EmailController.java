@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2023/02/28
  */
 @RestController
-@RequestMapping("/email")
+@RequestMapping("/emails")
 public class EmailController {
     private final EmailService emailService;
 
@@ -19,7 +19,7 @@ public class EmailController {
 
     @GetMapping("/verify")
     public ResponseEntity<Void> verifyEmail(@RequestParam String email) throws Exception {
-        emailService.sendSimpleMessage(email);
+        emailService.sendMessage(email);
         return ResponseEntity.ok().build();
     }
 }

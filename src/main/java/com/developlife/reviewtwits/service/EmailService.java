@@ -1,11 +1,13 @@
 package com.developlife.reviewtwits.service;
 
-import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.developlife.reviewtwits.entity.EmailVerify;
+import com.developlife.reviewtwits.repository.EmailVerifyRepository;
 import org.springframework.mail.MailException;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +19,18 @@ import java.util.Random;
  */
 @Service
 public class EmailService {
-    @Autowired
-    JavaMailSender emailSender;
 
-    public static final String ePw = createKey();
+    final JavaMailSender emailSender;
+    final EmailVerifyRepository emailVerifyRepository;
 
-    private MimeMessage createMessage(String to)throws Exception{
-        System.out.println("보내는 대상 : "+ to);
-        System.out.println("인증 번호 : "+ePw);
+    public EmailService(JavaMailSender emailSender, EmailVerifyRepository emailVerifyRepository) {
+        this.emailSender = emailSender;
+        this.emailVerifyRepository = emailVerifyRepository;
+    }
+
+    private MimeMessage createMessage(final String to, final String authenticationCode)throws Exception{
+        System.out.println("보내는 대상 : " + to);
+        System.out.println("인증 번호 : " + authenticationCode);
         MimeMessage message = emailSender.createMimeMessage();
 
         message.addRecipients(MimeMessage.RecipientType.TO, to);//보내는 대상
@@ -42,7 +48,7 @@ public class EmailService {
         msgg+= "<h3 style='color:blue;'>회원가입 인증 코드입니다.</h3>";
         msgg+= "<div style='font-size:130%'>";
         msgg+= "CODE : <strong>";
-        msgg+= ePw+"</strong><div><br/> ";
+        msgg+= authenticationCode+"</strong><div><br/> ";
         msgg+= "</div>";
         message.setText(msgg, "utf-8", "html");//내용
         message.setFrom(new InternetAddress("ghdic77@gmail.com","reviewtwit"));//보내는 사람
@@ -75,15 +81,49 @@ public class EmailService {
         return key.toString();
     }
 
-    public String sendSimpleMessage(String to)throws Exception {
-        // TODO Auto-generated method stub
-        MimeMessage message = createMessage(to);
-        try{//예외처리
+    @Transactional
+    public void sendMessage(String to)throws Exception {
+        String key = createKey();
+        emailVerifyRepository.findByEmail(to).ifPresentOrElse(
+                emailVerify -> {
+                    emailVerify.setVerifyCode(key);
+                    emailVerify.setAlreadyUsed(false);
+                    emailVerifyRepository.save(emailVerify);
+                },
+                () -> {
+                    EmailVerify emailVerify = EmailVerify.builder()
+                            .email(to)
+                            .verifyCode(key)
+                            .build();
+                    emailVerifyRepository.save(emailVerify);
+                }
+        );
+
+        MimeMessage message = createMessage(to, key);
+        try{
             emailSender.send(message);
         }catch(MailException es){
-            es.printStackTrace();
-            throw new IllegalArgumentException();
+            throw new MailSendException("메일 발송 실패");
         }
-        return ePw;
+    }
+
+    @Transactional
+    public String sendEmailMock(String to) {
+        String key = createKey();
+        emailVerifyRepository.findByEmail(to).ifPresentOrElse(
+                emailVerify -> {
+                    emailVerify.setVerifyCode(key);
+                    emailVerify.setAlreadyUsed(false);
+                    emailVerifyRepository.save(emailVerify);
+                },
+                () -> {
+                    EmailVerify emailVerify = EmailVerify.builder()
+                            .email(to)
+                            .verifyCode(key)
+                            .build();
+                    emailVerifyRepository.save(emailVerify);
+                }
+        );
+        return key;
     }
 }

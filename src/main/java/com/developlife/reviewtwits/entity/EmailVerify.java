@@ -1,0 +1,34 @@
+package com.developlife.reviewtwits.entity;
+
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedDate;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import java.time.LocalDateTime;
+
+/**
+ * @author ghdic
+ * @since 2023/03/03
+ */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity(name = "EmailVerify")
+public class EmailVerify {
+    @Id
+    private String email;
+    @Column(length = 8)
+    private String verifyCode;
+    @CreatedDate
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime createDate;
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime verifyDate;
+    @ColumnDefault("false")
+    private boolean alreadyUsed;
+}

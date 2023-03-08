@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
+    @Mapping(target = "birthDate", dateFormat = "yyyy-MM-dd")
     UserDetailInfoResponse toDTO(User user);
     UserInfoResponse toDto(User user);
     @Mapping(target = "userId", ignore = true)
@@ -27,6 +28,7 @@ public interface UserMapper {
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "profileImage", ignore = true)
+    @Mapping(target = "birthDate", dateFormat = "yyyy-MM-dd")
     User toEntity(RegisterUserRequest registerUserRequest);
 
 
