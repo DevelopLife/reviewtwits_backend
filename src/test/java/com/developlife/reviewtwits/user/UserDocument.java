@@ -13,7 +13,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.requestHe
  * @author ghdic
  * @since 2023/03/06
  */
-public class UserDocsFields {
+public class UserDocument {
     public static final Snippet UserInfoPathParams = pathParameters(
             parameterWithName("userId").description("유저아이디")
     );

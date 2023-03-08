@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -60,10 +61,30 @@ public class UserController {
                 .build();
     }
 
+    @PostMapping(value = "logout", consumes = "application/json", produces = "application/json")
+    public void logout(@CookieValue(required = false) String refreshToken, HttpServletResponse response) {
+        if(refreshToken != null) {
+            userService.logout(refreshToken);
+        }
+        removeRefreshTokenForClient(response);
+    }
+
     private void setRefreshTokenForClient(HttpServletResponse response, User user) {
         // Create a cookie
         Cookie cookie = new Cookie("refreshToken", jwtTokenProvider.issueRefreshToken(user.getAccountId()));
         cookie.setMaxAge((int) JwtTokenProvider.refreshTokenValidTime);
+        // 보안 설정
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
+    }
+
+    private void removeRefreshTokenForClient(HttpServletResponse response) {
+        // Create a cookie
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setMaxAge(0);
         // 보안 설정
         cookie.setSecure(true);
         cookie.setHttpOnly(true);

@@ -50,7 +50,7 @@ public class UserApiTest extends ApiTest {
         User user = userRepository.findByAccountId(registerUserRequest.accountId()).get();
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "특정유저의 공개가능한 정보를 조회합니다", "특정유저조회", UserDocsFields.UserInfoPathParams, UserDocsFields.UserInfoResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "특정유저의 공개가능한 정보를 조회합니다", "특정유저조회", UserDocument.UserInfoPathParams, UserDocument.UserInfoResponseField))
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .pathParam("userId", user.getUserId())
         .when()
@@ -72,7 +72,7 @@ public class UserApiTest extends ApiTest {
         final String token = 로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "자신의 디테일한 정보를 조회합니다", "자신정보조회", UserDocsFields.AccessTokenHeader, UserDocsFields.UserDetailInfoResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "자신의 디테일한 정보를 조회합니다", "자신정보조회", UserDocument.AccessTokenHeader, UserDocument.UserDetailInfoResponseField))
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
         .when()
@@ -95,7 +95,7 @@ public class UserApiTest extends ApiTest {
         LoginUserRequest request = UserSteps.로그인요청생성();
 
         given(this.spec).log().all()
-            .filter(document(DEFAULT_RESTDOC_PATH,"로그인시 accessToken과 refreshToken이 발급됩니다", "로그인", UserDocsFields.LoginUserRequestField, UserDocsFields.JwtTokenResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH,"로그인시 accessToken과 refreshToken이 발급됩니다", "로그인", UserDocument.LoginUserRequestField, UserDocument.JwtTokenResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .body(request)
         .when()
@@ -116,7 +116,7 @@ public class UserApiTest extends ApiTest {
         final var request = UserSteps.로그인요청_생성_아이디불일치();
 
         given(this.spec).log().all()
-            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.ErrorResponseFields))
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocument.ErrorResponseFields))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .body(request)
         .when()
@@ -135,7 +135,7 @@ public class UserApiTest extends ApiTest {
         final var request = UserSteps.로그인요청_생성_비밀번호불일치();
 
         given(this.spec).log().all()
-            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.ErrorResponseFields))
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocument.ErrorResponseFields))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .body(request)
         .when()
@@ -155,7 +155,7 @@ public class UserApiTest extends ApiTest {
 
         // 회원가입
         var response = given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "회원가입을 할때 사용", "회원가입", UserDocsFields.RegisterUserRequestField, UserDocsFields.JwtTokenResponseField))
+                .filter(document(DEFAULT_RESTDOC_PATH, "회원가입을 할때 사용", "회원가입", UserDocument.RegisterUserRequestField, UserDocument.JwtTokenResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(request)
         .when()
@@ -192,7 +192,7 @@ public class UserApiTest extends ApiTest {
         final var request = UserSteps.회원가입요청_입력정보_누락();
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.ErrorResponseFields))
+            .filter(document(DEFAULT_RESTDOC_PATH, UserDocument.ErrorResponseFields))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .body(request)
         .when()
@@ -211,7 +211,7 @@ public class UserApiTest extends ApiTest {
         // 비밀번호 조건 틀린
         final var request = UserSteps.회원가입요청_입력정보_부적합();
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, UserDocsFields.ErrorResponseFields))
+                .filter(document(DEFAULT_RESTDOC_PATH, UserDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(request)
                 .when()
@@ -228,5 +228,20 @@ public class UserApiTest extends ApiTest {
         // groovy에서 파싱을 못해서 에러남
         // final JwtTokenResponse jwtTokenResponse = loginResponse.body().as(JwtTokenResponse.class);
         return jwtTokenResponse;
+    }
+
+    @Test
+    @DisplayName("로그아웃")
+    void 로그아웃_캐시제거_200() {
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH, "로그아웃은 서버에 보관된 refreshToken을 폐기하고 쿠키에 저장된 refreshToken을 제거합니다\n accessToken은 클라이언트에서 따로 제거 해야합니다", "로그아웃"))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .when()
+            .post("/users/logout")
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            // 쿠키 초기화 확인
+            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().maxAge(0))
+            .log().all().extract();
     }
 }

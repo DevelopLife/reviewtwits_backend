@@ -9,6 +9,7 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.EmailVerifyRepository;
+import com.developlife.reviewtwits.repository.RefreshTokenRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.UserRole;
 import lombok.extern.log4j.Log4j2;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -29,13 +31,16 @@ import java.util.Set;
 public class UserService {
     private final UserRepository userRepository;
     private final EmailVerifyRepository emailVerifyRepository;
+
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     @Autowired
-    public UserService(UserRepository userRepository, EmailVerifyRepository emailVerifyRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, EmailVerifyRepository emailVerifyRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.emailVerifyRepository = emailVerifyRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
     }
@@ -125,5 +130,12 @@ public class UserService {
 
         user.setRoles(roles);
         return userRepository.save(user);
+    }
+
+    @Transactional
+    public void logout(String refreshToken) {
+        refreshTokenRepository.findByToken(refreshToken).ifPresent(
+                refreshTokenRepository::delete
+        );
     }
 }

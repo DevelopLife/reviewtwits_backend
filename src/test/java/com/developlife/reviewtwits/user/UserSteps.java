@@ -19,10 +19,10 @@ import java.util.Set;
 @Component
 public class UserSteps {
     final static String nickname = "test";
-    final static String accountId = "test@naver.com";
+    public final static String accountId = "test@naver.com";
     final static String accountPw = "test1122!";
-    final static String birthDate = "2002-01-01";
-    final static String phoneNumber = "01012345678";
+    public final static String birthDate = "2002-01-01";
+    public final static String phoneNumber = "01012345678";
     final static Gender gender = Gender.남자;
     private final EmailService emailService;
 
