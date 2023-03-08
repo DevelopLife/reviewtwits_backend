@@ -1,8 +1,9 @@
 package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.message.request.email.FindIdsEmailRequest;
+import com.developlife.reviewtwits.message.request.email.FindPwEmailRequest;
 import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
-import com.developlife.reviewtwits.service.EmailService;
+import com.developlife.reviewtwits.service.email.EmailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +24,17 @@ public class EmailController {
 
     @GetMapping("/verify")
     public ResponseEntity<Void> verifyEmail(@RequestParam String email) throws Exception {
-        emailService.sendMessage(email);
+        emailService.verifyCodeMessage(email);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/find-ids")
     public List<FindIdsEmailResponse> findIds(@RequestBody FindIdsEmailRequest findIdsEmailRequest) {
         return emailService.findIdsWithInfo(findIdsEmailRequest);
+    }
+
+    @PostMapping("/find-pw")
+    public void findPw(@RequestBody FindPwEmailRequest findPwEmailRequest) {
+        emailService.findPwWithInfo(findPwEmailRequest);
     }
 }

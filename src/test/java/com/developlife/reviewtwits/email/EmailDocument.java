@@ -20,4 +20,9 @@ public class EmailDocument {
             fieldWithPath("[].accountId").type(JsonFieldType.STRING).attributes(required()).description("아이디"),
             fieldWithPath("[].createdDate").type(JsonFieldType.STRING).attributes(required()).description("계정생성일")
     );
+    public static final Snippet FindIdsPasswrdRequestField = requestFields(
+            fieldWithPath("accountId").type(JsonFieldType.STRING).attributes(required()).description("아이디"),
+            fieldWithPath("phoneNumber").type(JsonFieldType.STRING).attributes(required()).description("휴대폰번호"),
+            fieldWithPath("birthDate").type(JsonFieldType.STRING).attributes(required()).description("생일 yyyy-MM-dd")
+    );
 }

@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByAccountIdAndAccountPw(String accountId, String accountPw);
 
     List<User> findByPhoneNumberAndBirthDate(String phoneNumber, Date birthDate);
+
+    Optional<User> findByAccountIdAndPhoneNumberAndBirthDate(String accountId, String phoneNumber, Date birthDate);
 }

@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.handler;
 
 import com.developlife.reviewtwits.exception.mail.MailSendException;
+import com.developlife.reviewtwits.exception.mail.NoContentMatchInfoException;
 import com.developlife.reviewtwits.exception.mail.NotFoundMatchInfoException;
 import com.developlife.reviewtwits.exception.user.VerifyCodeException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
@@ -32,9 +33,15 @@ public class MailExceptionHandler {
     }
 
     // 204는 에러메세지나 추가정보를 보내지 않음
-    @ExceptionHandler(NotFoundMatchInfoException.class)
+    @ExceptionHandler(NoContentMatchInfoException.class)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void notFoundMatchInfoExceptionHandler(NotFoundMatchInfoException e) {
+    public void notFoundMatchInfoExceptionHandler(NoContentMatchInfoException e) {
         // return makeErrorResponse(e, "");
+    }
+
+    @ExceptionHandler(NotFoundMatchInfoException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public List<ErrorResponse> notFoundMatchInfoExceptionHandler(NotFoundMatchInfoException e) {
+         return makeErrorResponse(e, "");
     }
 }

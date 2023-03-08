@@ -2,17 +2,16 @@ package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.service.EmailService;
+import com.developlife.reviewtwits.service.email.EmailCodeSender;
+import com.developlife.reviewtwits.service.email.EmailService;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.UserRole;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -24,10 +23,11 @@ public class UserSteps {
     public final static String birthDate = "2002-01-01";
     public final static String phoneNumber = "01012345678";
     final static Gender gender = Gender.남자;
-    private final EmailService emailService;
 
-    public UserSteps(EmailService emailService) {
-        this.emailService = emailService;
+    final private EmailCodeSender emailSender;
+
+    public UserSteps(EmailCodeSender emailSender) {
+        this.emailSender = emailSender;
     }
 
     public static ExtractableResponse<Response> 회원가입요청(final RegisterUserRequest request) {
@@ -41,7 +41,7 @@ public class UserSteps {
     }
 
     public RegisterUserRequest 회원가입정보_생성() {
-        String key = emailService.sendEmailMock(accountId);
+        String key = emailSender.sendEmailMock(accountId);
 
         return RegisterUserRequest.builder()
                 .nickname(nickname)
@@ -55,7 +55,7 @@ public class UserSteps {
     }
 
     public RegisterUserRequest 회원가입정보_어드민_생성() {
-        String key = emailService.sendEmailMock("admin_" + accountId);
+        String key = emailSender.sendEmailMock("admin_" + accountId);
 
         return RegisterUserRequest.builder().
                 nickname(nickname+"_admin")
@@ -143,7 +143,7 @@ public class UserSteps {
     }
 
     public RegisterUserRequest 추가회원가입정보_생성() {
-        String key = emailService.sendEmailMock("add_" + accountId);
+        String key = emailSender.sendEmailMock("add_" + accountId);
 
         return RegisterUserRequest.builder()
                 .nickname("add_" + nickname)
