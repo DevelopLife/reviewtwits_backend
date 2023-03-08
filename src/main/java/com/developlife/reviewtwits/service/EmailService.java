@@ -5,12 +5,20 @@ import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 
 import com.developlife.reviewtwits.entity.EmailVerify;
+import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.exception.mail.NotFoundMatchInfoException;
+import com.developlife.reviewtwits.mapper.CommonMapper;
+import com.developlife.reviewtwits.mapper.UserMapper;
+import com.developlife.reviewtwits.message.request.email.FindIdsEmailRequest;
+import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
 import com.developlife.reviewtwits.repository.EmailVerifyRepository;
+import com.developlife.reviewtwits.repository.UserRepository;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -22,10 +30,16 @@ public class EmailService {
 
     final JavaMailSender emailSender;
     final EmailVerifyRepository emailVerifyRepository;
+    final UserRepository userRepository;
+    final UserMapper userMapper;
+    final CommonMapper commonMapper;
 
-    public EmailService(JavaMailSender emailSender, EmailVerifyRepository emailVerifyRepository) {
+    public EmailService(JavaMailSender emailSender, EmailVerifyRepository emailVerifyRepository, UserRepository userRepository, UserMapper userMapper, CommonMapper commonMapper) {
         this.emailSender = emailSender;
         this.emailVerifyRepository = emailVerifyRepository;
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.commonMapper = commonMapper;
     }
 
     private MimeMessage createMessage(final String to, final String authenticationCode)throws Exception{
@@ -125,5 +139,15 @@ public class EmailService {
                 }
         );
         return key;
+    }
+
+    public List<FindIdsEmailResponse> findIdsWithInfo(FindIdsEmailRequest findIdsEmailRequest) {
+       List<User> userList =  userRepository.findByPhoneNumberAndBirthDate(
+               findIdsEmailRequest.phoneNumber(),
+               commonMapper.toDate(findIdsEmailRequest.birthDate()));
+       if(userList.isEmpty()) {
+           throw new NotFoundMatchInfoException("입력하신 개인정보로 가입된 계정이 존재하지 않습니다.");
+       }
+        return userMapper.toFindIdsEmailResponseList(userList);
     }
 }

@@ -57,11 +57,6 @@ public class UserDocument {
             fieldWithPath("accountId").type(JsonFieldType.STRING).attributes(required()).description("아이디"),
             fieldWithPath("accountPw").type(JsonFieldType.STRING).attributes(required()).description("비밀번호")
     );
-    public static final Snippet ErrorResponseFields = responseFields(
-            fieldWithPath("[].message").type(JsonFieldType.STRING).description("에러메세지"),
-            fieldWithPath("[].errorType").type(JsonFieldType.STRING).description("에러타입"),
-            fieldWithPath("[].fieldName").type(JsonFieldType.STRING).description("에러난 필드이름")
-    );
 
     public static final Snippet AccessTokenHeader = requestHeaders(
             headerWithName("X-AUTH-TOKEN").attributes(required()).description("access token")

@@ -67,7 +67,7 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(registerUserRequest.accountPw());
 
-        User registered_user = userMapper.toEntity(registerUserRequest);
+        User registered_user = userMapper.toUser(registerUserRequest);
         registered_user.setAccountPw(encodedPassword);
         registered_user.setRoles(roles);
 
@@ -100,13 +100,13 @@ public class UserService {
     public UserDetailInfoResponse getDetailUserInfo(String accountId) {
         User user = userRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new AccountIdNotFoundException("사용자를 찾을 수 없습니다."));
-        return userMapper.toDTO(user);
+        return userMapper.toUserDetailInfoResponse(user);
     }
 
     public UserInfoResponse getUserInfo(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException("사용자를 찾을 수 없습니다."));
-        return userMapper.toDto(user);
+        return userMapper.toUserInfoResponse(user);
     }
 
     private User getUser(String accountId) {
