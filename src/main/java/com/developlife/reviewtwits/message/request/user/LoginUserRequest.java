@@ -8,8 +8,9 @@ import lombok.Data;
  * @author ghdic
  * @since 2023/02/19
  */
-@Builder
+
 public record LoginUserRequest(String accountId, String accountPw) {
+    @Builder
     public LoginUserRequest {
     }
 }

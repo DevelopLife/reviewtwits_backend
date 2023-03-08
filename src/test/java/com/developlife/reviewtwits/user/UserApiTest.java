@@ -176,7 +176,7 @@ public class UserApiTest extends ApiTest {
             .get("/users/me")
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("nickname", equalTo(UserSteps.nickname))
+            .body("nickname", equalTo("add_"+ UserSteps.nickname))
             .body("accountId", equalTo("add_" + UserSteps.accountId))
             .body("accountPw", nullValue())
             .body("birthDate", equalTo(UserSteps.birthDate))
