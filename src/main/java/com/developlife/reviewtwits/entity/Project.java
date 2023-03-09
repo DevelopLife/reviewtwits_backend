@@ -3,6 +3,7 @@ package com.developlife.reviewtwits.entity;
 import com.developlife.reviewtwits.type.project.Language;
 import com.developlife.reviewtwits.type.project.ProjectPricePlan;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -34,4 +35,7 @@ public class Project extends BaseEntity {
     private String projectColor;
     @Enumerated(value = EnumType.STRING)
     private ProjectPricePlan pricePlan;
+
+    @ColumnDefault("0")
+    private int reviewCount;
 }
