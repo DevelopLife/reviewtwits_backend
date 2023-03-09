@@ -3,7 +3,7 @@ package com.developlife.reviewtwits.user;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.snippet.Snippet;
 
-import static com.developlife.reviewtwits.DocumentFormatGenerator.*;
+import static com.developlife.reviewtwits.DocumentFormatProvider.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
@@ -13,7 +13,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.requestHe
  * @author ghdic
  * @since 2023/03/06
  */
-public class UserDocsFields {
+public class UserDocument {
     public static final Snippet UserInfoPathParams = pathParameters(
             parameterWithName("userId").description("유저아이디")
     );
@@ -45,7 +45,7 @@ public class UserDocsFields {
                     .attributes(getPhoneNumberFormat()).attributes(required()).description("전화번호"),
             fieldWithPath("gender").type(JsonFieldType.STRING)
                     .attributes(getGenderFormat()).description("성별(남자, 여자)"),
-            fieldWithPath("authenticationCode").type(JsonFieldType.STRING).attributes(required()).description("이메일 인증코드")
+            fieldWithPath("verifyCode").type(JsonFieldType.STRING).attributes(required()).description("이메일 인증코드")
     );
     public static final Snippet JwtTokenResponseField = responseFields(
             fieldWithPath("accessToken").type(JsonFieldType.STRING).description("access token"),
@@ -56,11 +56,6 @@ public class UserDocsFields {
     public static final Snippet LoginUserRequestField = requestFields(
             fieldWithPath("accountId").type(JsonFieldType.STRING).attributes(required()).description("아이디"),
             fieldWithPath("accountPw").type(JsonFieldType.STRING).attributes(required()).description("비밀번호")
-    );
-    public static final Snippet ErrorResponseFields = responseFields(
-            fieldWithPath("[].message").type(JsonFieldType.STRING).description("에러메세지"),
-            fieldWithPath("[].errorType").type(JsonFieldType.STRING).description("에러타입"),
-            fieldWithPath("[].fieldName").type(JsonFieldType.STRING).description("에러난 필드이름")
     );
 
     public static final Snippet AccessTokenHeader = requestHeaders(

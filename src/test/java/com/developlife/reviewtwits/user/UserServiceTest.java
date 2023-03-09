@@ -8,7 +8,7 @@ import com.developlife.reviewtwits.exception.user.AccountPasswordWrongException;
 import com.developlife.reviewtwits.exception.user.PasswordVerifyException;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.UserRepository;
-import com.developlife.reviewtwits.service.EmailService;
+import com.developlife.reviewtwits.service.email.EmailService;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.type.UserRole;
 import org.junit.jupiter.api.BeforeEach;

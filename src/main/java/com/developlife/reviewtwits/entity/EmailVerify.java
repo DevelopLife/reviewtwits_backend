@@ -1,12 +1,11 @@
 package com.developlife.reviewtwits.entity;
 
+import com.developlife.reviewtwits.type.EmailType;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
@@ -22,8 +21,10 @@ import java.time.LocalDateTime;
 public class EmailVerify {
     @Id
     private String email;
-    @Column(length = 8)
+    @Column(length = 36, unique = true)
     private String verifyCode;
+    @Enumerated(EnumType.STRING)
+    private EmailType type;
     @CreatedDate
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime createDate;

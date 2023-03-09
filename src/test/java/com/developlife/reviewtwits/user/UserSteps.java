@@ -2,32 +2,33 @@ package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.service.EmailService;
+import com.developlife.reviewtwits.service.email.EmailCodeSender;
+import com.developlife.reviewtwits.service.email.EmailService;
+import com.developlife.reviewtwits.type.EmailType;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.UserRole;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 @Component
 public class UserSteps {
     final static String nickname = "test";
-    final static String accountId = "test@naver.com";
+    public final static String accountId = "test@naver.com";
     final static String accountPw = "test1122!";
-    final static String birthDate = "2002-01-01";
-    final static String phoneNumber = "01012345678";
+    public final static String birthDate = "2002-01-01";
+    public final static String phoneNumber = "01012345678";
     final static Gender gender = Gender.남자;
-    private final EmailService emailService;
 
-    public UserSteps(EmailService emailService) {
-        this.emailService = emailService;
+    final private EmailCodeSender emailSender;
+
+    public UserSteps(EmailCodeSender emailSender) {
+        this.emailSender = emailSender;
     }
 
     public static ExtractableResponse<Response> 회원가입요청(final RegisterUserRequest request) {
@@ -41,7 +42,7 @@ public class UserSteps {
     }
 
     public RegisterUserRequest 회원가입정보_생성() {
-        String key = emailService.sendEmailMock(accountId);
+        String key = emailSender.storageVerifyInfo(accountId, EmailType.회원가입인증코드);
 
         return RegisterUserRequest.builder()
                 .nickname(nickname)
@@ -50,12 +51,12 @@ public class UserSteps {
                 .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
-                .authenticationCode(key)
+                .verifyCode(key)
                 .build();
     }
 
     public RegisterUserRequest 회원가입정보_어드민_생성() {
-        String key = emailService.sendEmailMock("admin_" + accountId);
+        String key = emailSender.storageVerifyInfo("admin_" + accountId, EmailType.회원가입인증코드);
 
         return RegisterUserRequest.builder().
                 nickname(nickname+"_admin")
@@ -64,7 +65,7 @@ public class UserSteps {
                 .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber("01099999999")
-                .authenticationCode(key)
+                .verifyCode(key)
                 .build();
     }
 
@@ -143,7 +144,7 @@ public class UserSteps {
     }
 
     public RegisterUserRequest 추가회원가입정보_생성() {
-        String key = emailService.sendEmailMock("add_" + accountId);
+        String key = emailSender.storageVerifyInfo("add_" + accountId, EmailType.회원가입인증코드);
 
         return RegisterUserRequest.builder()
                 .nickname("add_" + nickname)
@@ -152,7 +153,7 @@ public class UserSteps {
                 .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber("01011110000")
-                .authenticationCode(key)
+                .verifyCode(key)
                 .build();
     }
 
@@ -170,7 +171,7 @@ public class UserSteps {
                 .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber("전화번호")
-                .authenticationCode("123456")
+                .verifyCode("123456")
                 .build();
     }
 
@@ -182,7 +183,7 @@ public class UserSteps {
                 .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
-                .authenticationCode("123456")
+                .verifyCode("123456")
                 .build();
     }
 }

@@ -1,15 +1,14 @@
 package com.developlife.reviewtwits.mapper;
 
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
 import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 /**
  * @author ghdic
@@ -19,8 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public interface UserMapper {
 
     @Mapping(target = "birthDate", dateFormat = "yyyy-MM-dd")
-    UserDetailInfoResponse toDTO(User user);
-    UserInfoResponse toDto(User user);
+    UserDetailInfoResponse toUserDetailInfoResponse(User user);
+    UserInfoResponse toUserInfoResponse(User user);
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "provider", ignore = true)
     @Mapping(target = "uuid", ignore = true)
@@ -29,8 +28,11 @@ public interface UserMapper {
     @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "profileImage", ignore = true)
     @Mapping(target = "birthDate", dateFormat = "yyyy-MM-dd")
-    User toEntity(RegisterUserRequest registerUserRequest);
+    User toUser(RegisterUserRequest registerUserRequest);
 
+
+    FindIdsEmailResponse toFindIdsEmailResponse(User user);
+    List<FindIdsEmailResponse> toFindIdsEmailResponseList(List<User> users);
 
 //     List<LoginUserRequest> map(List<User> users);
 
