@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.exceptions;
+package com.developlife.reviewtwits.handler;
 
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.HttpStatus;

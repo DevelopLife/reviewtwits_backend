@@ -1,7 +1,6 @@
 package com.developlife.reviewtwits.handler;
 
 import com.developlife.reviewtwits.exception.common.DateParseException;
-import com.developlife.reviewtwits.exception.user.VerifyCodeException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;

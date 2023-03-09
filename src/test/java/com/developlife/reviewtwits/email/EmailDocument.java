@@ -3,7 +3,7 @@ package com.developlife.reviewtwits.email;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.snippet.Snippet;
 
-import static com.developlife.reviewtwits.DocumentFormatGenerator.required;
+import static com.developlife.reviewtwits.DocumentFormatProvider.required;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 
 /**
@@ -20,9 +20,14 @@ public class EmailDocument {
             fieldWithPath("[].accountId").type(JsonFieldType.STRING).attributes(required()).description("아이디"),
             fieldWithPath("[].createdDate").type(JsonFieldType.STRING).attributes(required()).description("계정생성일")
     );
-    public static final Snippet FindIdsPasswrdRequestField = requestFields(
+    public static final Snippet FindPwEmailRequestField = requestFields(
             fieldWithPath("accountId").type(JsonFieldType.STRING).attributes(required()).description("아이디"),
             fieldWithPath("phoneNumber").type(JsonFieldType.STRING).attributes(required()).description("휴대폰번호"),
             fieldWithPath("birthDate").type(JsonFieldType.STRING).attributes(required()).description("생일 yyyy-MM-dd")
+    );
+
+    public static final Snippet ResetPwEmailRequestField = requestFields(
+            fieldWithPath("accountPw").type(JsonFieldType.STRING).attributes(required()).description("초기화할 비밀번호"),
+            fieldWithPath("verifyCode").type(JsonFieldType.STRING).attributes(required()).description("URL로부터 받은 code")
     );
 }

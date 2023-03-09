@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.EmailVerify;
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.exception.mail.VerifyCodeException;
 import com.developlife.reviewtwits.exception.user.*;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
@@ -62,7 +63,7 @@ public class UserService {
         if (!passwordVerify(registerUserRequest.accountPw())) {
             throw new PasswordVerifyException("비밀번호는 6자리 이상, 영문, 숫자, 특수문자 조합이어야 합니다.");
         }
-        authenticationCodeVerify(registerUserRequest.accountId(), registerUserRequest.authenticationCode());
+        authenticationCodeVerify(registerUserRequest.accountId(), registerUserRequest.verifyCode());
 
 
         String encodedPassword = passwordEncoder.encode(registerUserRequest.accountPw());
@@ -74,7 +75,7 @@ public class UserService {
         return userRepository.save(registered_user);
     }
 
-    private void authenticationCodeVerify(String accountId, String authenticationCode) {
+    private void authenticationCodeVerify(String accountId, String verifyCode) {
         EmailVerify emailVerify = emailVerifyRepository.findByEmail(accountId)
                 .orElseThrow(() -> new VerifyCodeException("인증코드 발급을 진행해주세요"));
         LocalDateTime expiredDate = emailVerify.getCreateDate().plusHours(1);
@@ -84,7 +85,7 @@ public class UserService {
         if(emailVerify.isAlreadyUsed()) {
             throw new VerifyCodeException("이미 사용된 인증코드입니다.");
         }
-        if(emailVerify.getVerifyCode().equals(authenticationCode)) {
+        if(emailVerify.getVerifyCode().equals(verifyCode)) {
             emailVerify.setAlreadyUsed(true);
             emailVerifyRepository.save(emailVerify);
         } else {

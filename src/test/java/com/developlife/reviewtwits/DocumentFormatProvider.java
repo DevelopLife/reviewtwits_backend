@@ -11,7 +11,7 @@ import java.util.List;
  * @author ghdic
  * @since 2023/03/08
  */
-public class DocumentFormatGenerator {
+public class DocumentFormatProvider {
 
     public static Attributes.Attribute getDateFormat() {
         return Attributes.key("format").value("yyyy-MM-DD");

@@ -11,7 +11,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
-import java.util.Random;
+import java.util.UUID;
 
 public abstract class EmailSender {
 
@@ -27,7 +27,20 @@ public abstract class EmailSender {
 
     @Transactional
     protected void sendMessage(String to, EmailType type) throws MessagingException, UnsupportedEncodingException {
-        String key = createKey();
+
+        String key = storageVerifyInfo(to, type);
+
+        MimeMessage message = createMessage(to, key);
+        try{
+            emailSender.send(message);
+        }catch(MailException es){
+            throw new MailSendException("메일 발송 실패");
+        }
+    }
+
+    @Transactional
+    public String storageVerifyInfo(String to, EmailType type) {
+        String key = creatUniqueKey();
         emailVerifyRepository.findByEmailAndType(to, type).ifPresentOrElse(
                 emailVerify -> {
                     emailVerify.setVerifyCode(key);
@@ -44,40 +57,17 @@ public abstract class EmailSender {
                     emailVerifyRepository.save(emailVerify);
                 }
         );
+        return key;
+    }
 
-        MimeMessage message = createMessage(to, key);
-        try{
-            emailSender.send(message);
-        }catch(MailException es){
-            throw new MailSendException("메일 발송 실패");
-        }
+    private String creatUniqueKey() {
+        String key;
+        do {
+            key = UUID.randomUUID().toString();
+        } while(emailVerifyRepository.findByVerifyCode(key).isPresent());
+        return key;
     }
 
     public abstract void sendMessage(String to) throws MessagingException, UnsupportedEncodingException;
-
-    protected static String createKey() {
-        StringBuffer key = new StringBuffer();
-        Random rnd = new Random();
-
-        for (int i = 0; i < 8; i++) { // 인증코드 8자리
-            int index = rnd.nextInt(3); // 0~2 까지 랜덤
-
-            switch (index) {
-                case 0:
-                    key.append((char) ((int) (rnd.nextInt(26)) + 97));
-                    //  a~z  (ex. 1+97=98 => (char)98 = 'b')
-                    break;
-                case 1:
-                    key.append((char) ((int) (rnd.nextInt(26)) + 65));
-                    //  A~Z
-                    break;
-                case 2:
-                    key.append((rnd.nextInt(10)));
-                    // 0~9
-                    break;
-            }
-        }
-        return key.toString();
-    }
 
 }

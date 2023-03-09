@@ -33,7 +33,7 @@ public record RegisterUserRequest(
         String phoneNumber,
         Gender gender,
         @NotBlank(message = "이메일 인증코드를 입력해주세요")
-        String authenticationCode // 이메일 인증코드
+        String verifyCode // 이메일 인증코드
 ) {
         @Builder
         public RegisterUserRequest{

@@ -3,7 +3,7 @@ package com.developlife.reviewtwits.handler;
 import com.developlife.reviewtwits.exception.mail.MailSendException;
 import com.developlife.reviewtwits.exception.mail.NoContentMatchInfoException;
 import com.developlife.reviewtwits.exception.mail.NotFoundMatchInfoException;
-import com.developlife.reviewtwits.exception.user.VerifyCodeException;
+import com.developlife.reviewtwits.exception.mail.VerifyCodeException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;

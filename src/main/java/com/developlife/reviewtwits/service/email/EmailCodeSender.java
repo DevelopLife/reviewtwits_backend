@@ -55,24 +55,4 @@ public class EmailCodeSender extends EmailSender{
     public void sendMessage(String to) throws MessagingException, UnsupportedEncodingException {
         sendMessage(to, EmailType.회원가입인증코드);
     }
-
-    @Transactional
-    public String sendEmailMock(String to) {
-        String key = createKey();
-        emailVerifyRepository.findByEmail(to).ifPresentOrElse(
-                emailVerify -> {
-                    emailVerify.setVerifyCode(key);
-                    emailVerify.setAlreadyUsed(false);
-                    emailVerifyRepository.save(emailVerify);
-                },
-                () -> {
-                    EmailVerify emailVerify = EmailVerify.builder()
-                            .email(to)
-                            .verifyCode(key)
-                            .build();
-                    emailVerifyRepository.save(emailVerify);
-                }
-        );
-        return key;
-    }
 }

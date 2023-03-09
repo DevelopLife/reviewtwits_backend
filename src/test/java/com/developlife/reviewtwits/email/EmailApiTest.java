@@ -1,7 +1,6 @@
 package com.developlife.reviewtwits.email;
 
 import com.developlife.reviewtwits.ApiTest;
-import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.service.UserService;
 import com.developlife.reviewtwits.user.UserSteps;
@@ -26,6 +25,8 @@ public class EmailApiTest extends ApiTest {
     private UserService userService;
     @Autowired
     private UserSteps userSteps;
+    @Autowired
+    private EmailSteps emailSteps;
     private RegisterUserRequest registerUserRequest;
     @BeforeEach
     void setting() {
@@ -73,11 +74,27 @@ public class EmailApiTest extends ApiTest {
         var request = EmailSteps.비밀번호찾기_이메일보내기성공_요청생성();
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "입력정보가 일치할 경우 accountId로 비밀번호 리셋 url이 담긴 이메일이 전송됩니다", "비밀번호 찾기", EmailDocument.FindIdsPasswrdRequestField))
+                .filter(document(DEFAULT_RESTDOC_PATH, "입력정보가 일치할 경우 accountId로 비밀번호 리셋 url이 담긴 이메일이 전송됩니다", "비밀번호 찾기", EmailDocument.FindPwEmailRequestField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(request)
                 .when()
-                .post("/emails/find-pw")
+                .post("/emails/find-password")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract().response();
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정")
+    void 비밀번호재설정_비밀번호재설정_200() {
+        var request = emailSteps.비밀번호재설정_비밀번호설정_요청생성();
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "url을 통해 전달받은 code와 클라이언트로부터 입력받은 비밀번호를 서버로 전달", "비밀번호 재설정", EmailDocument.ResetPwEmailRequestField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(request)
+                .when()
+                .post("/emails/reset-password")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .log().all().extract().response();

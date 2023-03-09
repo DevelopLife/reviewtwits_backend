@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.message.request.email.FindIdsEmailRequest;
 import com.developlife.reviewtwits.message.request.email.FindPwEmailRequest;
+import com.developlife.reviewtwits.message.request.email.ResetPwEmailRequest;
 import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
 import com.developlife.reviewtwits.service.email.EmailService;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +34,13 @@ public class EmailController {
         return emailService.findIdsWithInfo(findIdsEmailRequest);
     }
 
-    @PostMapping("/find-pw")
+    @PostMapping("/find-password")
     public void findPw(@RequestBody FindPwEmailRequest findPwEmailRequest) {
         emailService.findPwWithInfo(findPwEmailRequest);
+    }
+
+    @PostMapping("/reset-password")
+    public void resetPw(@RequestBody ResetPwEmailRequest resetPwEmailRequest) {
+        emailService.resetPwWithInfo(resetPwEmailRequest);
     }
 }

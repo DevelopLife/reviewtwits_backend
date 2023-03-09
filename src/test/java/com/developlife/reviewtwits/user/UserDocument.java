@@ -3,7 +3,7 @@ package com.developlife.reviewtwits.user;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.snippet.Snippet;
 
-import static com.developlife.reviewtwits.DocumentFormatGenerator.*;
+import static com.developlife.reviewtwits.DocumentFormatProvider.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
@@ -45,7 +45,7 @@ public class UserDocument {
                     .attributes(getPhoneNumberFormat()).attributes(required()).description("전화번호"),
             fieldWithPath("gender").type(JsonFieldType.STRING)
                     .attributes(getGenderFormat()).description("성별(남자, 여자)"),
-            fieldWithPath("authenticationCode").type(JsonFieldType.STRING).attributes(required()).description("이메일 인증코드")
+            fieldWithPath("verifyCode").type(JsonFieldType.STRING).attributes(required()).description("이메일 인증코드")
     );
     public static final Snippet JwtTokenResponseField = responseFields(
             fieldWithPath("accessToken").type(JsonFieldType.STRING).description("access token"),

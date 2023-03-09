@@ -4,11 +4,14 @@ import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.mail.MailSendException;
 import com.developlife.reviewtwits.exception.mail.NoContentMatchInfoException;
 import com.developlife.reviewtwits.exception.mail.NotFoundMatchInfoException;
+import com.developlife.reviewtwits.exception.mail.VerifyCodeException;
 import com.developlife.reviewtwits.mapper.CommonMapper;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.request.email.FindIdsEmailRequest;
 import com.developlife.reviewtwits.message.request.email.FindPwEmailRequest;
+import com.developlife.reviewtwits.message.request.email.ResetPwEmailRequest;
 import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
+import com.developlife.reviewtwits.repository.EmailVerifyRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +28,15 @@ public class EmailService {
     final UserRepository userRepository;
     final UserMapper userMapper;
     final CommonMapper commonMapper;
+    final EmailVerifyRepository emailVerifyRepository;
     final EmailCodeSender emailCodeSender;
     final EmailLinkSender emailLinkSender;
 
-    public EmailService(UserRepository userRepository, UserMapper userMapper, CommonMapper commonMapper, EmailCodeSender emailCodeSender, EmailLinkSender emailLinkSender) {
+    public EmailService(UserRepository userRepository, UserMapper userMapper, CommonMapper commonMapper, EmailVerifyRepository emailVerifyRepository, EmailCodeSender emailCodeSender, EmailLinkSender emailLinkSender) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.commonMapper = commonMapper;
+        this.emailVerifyRepository = emailVerifyRepository;
         this.emailCodeSender = emailCodeSender;
         this.emailLinkSender = emailLinkSender;
     }
@@ -70,5 +75,11 @@ public class EmailService {
                 commonMapper.toDate(findPwEmailRequest.birthDate()))
                 .orElseThrow(() -> new NotFoundMatchInfoException("입력하신 개인정보가 일치하지 않습니다"));
         resetPasswordMessage(findPwEmailRequest.accountId());
+    }
+
+
+    public void resetPwWithInfo(ResetPwEmailRequest resetPwEmailRequest) {
+        emailVerifyRepository.findByVerifyCode(resetPwEmailRequest.verifyCode())
+                .orElseThrow(() -> new VerifyCodeException("인증코드가 일치하지 않습니다."));
     }
 }

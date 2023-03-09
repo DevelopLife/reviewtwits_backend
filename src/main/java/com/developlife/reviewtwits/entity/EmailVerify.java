@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class EmailVerify {
     @Id
     private String email;
-    @Column(length = 8)
+    @Column(length = 36, unique = true)
     private String verifyCode;
     @Enumerated(EnumType.STRING)
     private EmailType type;
