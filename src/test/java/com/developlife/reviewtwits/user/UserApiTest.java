@@ -200,7 +200,7 @@ public class UserApiTest extends ApiTest {
             .post("/users/register")
         .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
-            .body("collect{ it.fieldName }", hasItems("phoneNumber", "accountPw", "authenticationCode", "accountId"))
+            .body("collect{ it.fieldName }", hasItems("phoneNumber", "accountPw", "verifyCode", "accountId"))
             .log().all().extract().response();
     }
 
