@@ -2,11 +2,13 @@ package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.service.email.EmailCodeSender;
-import com.developlife.reviewtwits.service.email.EmailService;
 import com.developlife.reviewtwits.type.EmailType;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.UserRole;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -26,9 +28,11 @@ public class UserSteps {
     final static Gender gender = Gender.남자;
 
     final private EmailCodeSender emailSender;
+    final private ObjectMapper objectMapper;
 
-    public UserSteps(EmailCodeSender emailSender) {
+    public UserSteps(EmailCodeSender emailSender, ObjectMapper objectMapper) {
         this.emailSender = emailSender;
+        this.objectMapper = objectMapper;
     }
 
     public static ExtractableResponse<Response> 회원가입요청(final RegisterUserRequest request) {
@@ -185,5 +189,18 @@ public class UserSteps {
                 .phoneNumber(phoneNumber)
                 .verifyCode("123456")
                 .build();
+    }
+
+    public JwtTokenResponse 로그인토큰정보(LoginUserRequest request) {
+        final var loginResponse = UserSteps.로그인요청(request);
+        try {
+            JwtTokenResponse jwtTokenResponse = objectMapper.readValue(loginResponse.body().asString(), JwtTokenResponse.class);
+
+            // groovy에서 파싱을 못해서 에러남
+            // final JwtTokenResponse jwtTokenResponse = loginResponse.body().as(JwtTokenResponse.class);
+            return jwtTokenResponse;
+        } catch (JsonProcessingException e) {
+            return JwtTokenResponse.builder().build();
+        }
     }
 }

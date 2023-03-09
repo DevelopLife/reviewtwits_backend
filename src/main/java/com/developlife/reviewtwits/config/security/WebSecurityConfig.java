@@ -57,6 +57,7 @@ public class WebSecurityConfig {
                 .antMatchers("/users/admin").hasRole("ADMIN")
                 .antMatchers("/users/**").permitAll()
                 .antMatchers("/users/me").hasRole("USER")
+                .antMatchers("/projects/**").hasRole("USER")
                 .anyRequest()
                 .permitAll()
                 .and()

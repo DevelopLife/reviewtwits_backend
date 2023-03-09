@@ -69,8 +69,8 @@ public class UserApiTest extends ApiTest {
 
     @Test
     @DisplayName("자신정보조회")
-    void 자신정보조회_유저정보확인_200() throws JsonProcessingException {
-        final String token = 로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+    void 자신정보조회_유저정보확인_200(){
+        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
 
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "자신의 디테일한 정보를 조회합니다", "자신정보조회", UserDocument.AccessTokenHeader, UserDocument.UserDetailInfoResponseField))
@@ -212,23 +212,15 @@ public class UserApiTest extends ApiTest {
         // 비밀번호 조건 틀린
         final var request = UserSteps.회원가입요청_입력정보_부적합();
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(request)
-                .when()
-                .post("/users/register")
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("collect{ it.fieldName }", hasItems("accountPw", "phoneNumber"))
-                .log().all().extract().response();
-    }
-
-    JwtTokenResponse 로그인토큰정보(LoginUserRequest request) throws JsonProcessingException {
-        final var loginResponse = UserSteps.로그인요청(request);
-        JwtTokenResponse jwtTokenResponse =  objectMapper.readValue(loginResponse.body().asString(), JwtTokenResponse.class);
-        // groovy에서 파싱을 못해서 에러남
-        // final JwtTokenResponse jwtTokenResponse = loginResponse.body().as(JwtTokenResponse.class);
-        return jwtTokenResponse;
+            .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(request)
+        .when()
+            .post("/users/register")
+        .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .body("collect{ it.fieldName }", hasItems("accountPw", "phoneNumber"))
+            .log().all().extract().response();
     }
 
     @Test

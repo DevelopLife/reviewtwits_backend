@@ -16,7 +16,7 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @Builder
 @Entity(name = "RefreshToken")
-public class RefreshToken {
+public class RefreshToken extends BaseEntity {
     @Id @GeneratedValue
     private long id;
     private String token;

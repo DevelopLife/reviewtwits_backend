@@ -78,7 +78,7 @@ public class UserService {
     private void authenticationCodeVerify(String accountId, String verifyCode) {
         EmailVerify emailVerify = emailVerifyRepository.findByEmail(accountId)
                 .orElseThrow(() -> new VerifyCodeException("인증코드 발급을 진행해주세요"));
-        LocalDateTime expiredDate = emailVerify.getCreateDate().plusHours(1);
+        LocalDateTime expiredDate = emailVerify.getCreatedDate().plusHours(1);
         if(LocalDateTime.now().isAfter(expiredDate)) {
             throw new VerifyCodeException("인증코드가 만료되었습니다.");
         }

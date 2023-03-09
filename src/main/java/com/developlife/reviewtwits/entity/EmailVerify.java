@@ -18,16 +18,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity(name = "EmailVerify")
-public class EmailVerify {
+public class EmailVerify extends BaseEntity {
     @Id
     private String email;
     @Column(length = 36, unique = true)
     private String verifyCode;
     @Enumerated(EnumType.STRING)
     private EmailType type;
-    @CreatedDate
-    @Column(columnDefinition = "TIMESTAMP")
-    private LocalDateTime createDate;
+
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime verifyDate;
     @ColumnDefault("false")

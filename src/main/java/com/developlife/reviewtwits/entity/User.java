@@ -23,9 +23,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
 @Entity(name = "User")
-public class User implements UserDetails {
+public class User extends BaseEntity implements UserDetails {
     @Id @GeneratedValue
     private long userId;
     @Setter
@@ -45,16 +44,17 @@ public class User implements UserDetails {
     private String provider;
     private String uuid;
 
+    @Setter
+    @Builder.Default
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Project> projectList = new ArrayList<>();
+
 
     @Setter
     @ElementCollection(fetch = FetchType.EAGER) // pk-fk갖고 별도테이블 생성
     @Enumerated(EnumType.STRING)
     @Builder.Default // 인스턴스 만들때 특정 필드값으로 초기화 할경우
     private Set<UserRole> roles = new HashSet<>();
-    @CreatedDate
-    LocalDateTime createdDate;
-    @LastModifiedDate
-    LocalDateTime lastModifiedDate;
 
     // TODO 파일업로드 구현 완료시 구현
      @Transient
