@@ -39,4 +39,10 @@ public enum FileReferenceType {
         }
         return true;
     }
+
+    public static boolean isValidFileType(String referenceType, String fileName){
+        FileReferenceType fileType = FileReferenceType.valueOf(referenceType.toUpperCase(Locale.ROOT));
+        String ext = FileStoreService.extractExt(fileName);
+        return fileType.filetypeList.contains(ext);
+    }
 }
