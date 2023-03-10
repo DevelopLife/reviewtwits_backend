@@ -24,10 +24,9 @@ public interface UserMapper {
     @Mapping(target = "provider", ignore = true)
     @Mapping(target = "uuid", ignore = true)
     @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "profileImage", ignore = true)
     @Mapping(target = "birthDate", dateFormat = "yyyy-MM-dd")
+    @Mapping(target = "projectList", ignore = true)
     User toUser(RegisterUserRequest registerUserRequest);
 
 
