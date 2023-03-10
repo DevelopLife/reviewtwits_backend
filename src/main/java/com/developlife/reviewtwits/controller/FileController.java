@@ -5,6 +5,7 @@ import com.developlife.reviewtwits.message.request.FileUpdateRequest;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import com.developlife.reviewtwits.service.FileStoreService;
 import com.developlife.reviewtwits.type.FileReferenceType;
+import com.google.common.net.HttpHeaders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -13,10 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeErrorResponse;
@@ -51,6 +54,21 @@ public class FileController {
             return new UrlResource("file:"+ fileStore.getFullPath(fileName));
         }
         throw new MalformedURLException();
+    }
+
+    @GetMapping("/request-download-files/{fileName}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws MalformedURLException{
+        String originalFilename = fileStore.findOriginalFilename(fileName);
+
+        UrlResource resource = new UrlResource("file:" + fileStore.getFullPath(fileName));
+
+        String encodeDownloadFileName = UriUtils.encode(originalFilename, StandardCharsets.UTF_8);
+        String contentDisposition = "attachment; filename:\"" + encodeDownloadFileName + "\"";
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+                .header(HttpHeaders.CONTENT_TYPE, FileReferenceType.getContentType(fileName))
+                .body(resource);
     }
 
     @ExceptionHandler(NullPointerException.class)
