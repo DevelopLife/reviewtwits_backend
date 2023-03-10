@@ -5,6 +5,7 @@ import com.developlife.reviewtwits.message.request.email.FindPwEmailRequest;
 import com.developlife.reviewtwits.message.request.email.ResetPwEmailRequest;
 import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
 import com.developlife.reviewtwits.service.email.EmailService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +24,9 @@ public class EmailController {
         this.emailService = emailService;
     }
 
-    @GetMapping("/verify")
-    public ResponseEntity<Void> verifyEmail(@RequestParam String email) throws Exception {
-        emailService.verifyCodeMessage(email);
-        return ResponseEntity.ok().build();
+    @GetMapping(value = "/verify", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public void verifyEmail(@RequestParam String accountId) {
+        emailService.verifyCodeMessage(accountId);
     }
 
     @PostMapping("/find-ids")

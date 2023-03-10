@@ -5,6 +5,8 @@ import org.springframework.restdocs.snippet.Snippet;
 
 import static com.developlife.reviewtwits.DocumentFormatProvider.required;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 
 /**
  * @author ghdic
@@ -29,5 +31,8 @@ public class EmailDocument {
     public static final Snippet ResetPwEmailRequestField = requestFields(
             fieldWithPath("accountPw").type(JsonFieldType.STRING).attributes(required()).description("초기화할 비밀번호"),
             fieldWithPath("verifyCode").type(JsonFieldType.STRING).attributes(required()).description("URL로부터 받은 code")
+    );
+    public static final Snippet VerifyEmailRequestField = requestParameters(
+            parameterWithName("accountId").attributes(required()).description("인증번호 보낼 이메일")
     );
 }

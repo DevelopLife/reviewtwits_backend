@@ -99,4 +99,20 @@ public class EmailApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .log().all().extract().response();
     }
+
+    @Test
+    @DisplayName("회원가입 이메일 인증코드 발급")
+    void 회원가입_이메일인증코드발급_200() {
+        var request = userSteps.accountId;
+
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH, "이메일로 실제로 코드가 날아갑니다. 정상적으로 날아갔는지는 수동확인이 필요", "회원가입시 이메일 인증코드 발급", EmailDocument.VerifyEmailRequestField))
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            .param("accountId", request)
+            .when()
+            .get("/emails/verify")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .log().all().extract().response();
+    }
 }
