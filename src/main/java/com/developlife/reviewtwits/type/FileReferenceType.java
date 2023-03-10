@@ -45,4 +45,14 @@ public enum FileReferenceType {
         String ext = FileStoreService.extractExt(fileName);
         return fileType.filetypeList.contains(ext);
     }
+
+    public static String getContentType(String fileName){
+        String ext = FileStoreService.extractExt(fileName);
+        for(FileReferenceType type : FileReferenceType.values()){
+            if(type.filetypeList.contains(ext)){
+                return type.name().toLowerCase(Locale.ROOT) + "/" + ext;
+            }
+        }
+        return "";
+    }
 }
