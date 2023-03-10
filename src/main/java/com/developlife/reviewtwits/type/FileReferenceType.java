@@ -10,16 +10,20 @@ import java.util.Locale;
  * @author WhalesBob
  * @since 2023-02-26
  */
+
 public enum FileReferenceType {
-    USER(List.of("jpg","png","svg","gif")),
-    REVIEW(List.of("jpg","png","svg","gif")),
-    PRODUCT(List.of("jpg","png","svg","gif")),
+
+    IMAGE(List.of("jpg","png","svg","gif")),
+    USER(IMAGE.filetypeList),
+    REVIEW(IMAGE.filetypeList),
+    PRODUCT(IMAGE.filetypeList),
     TEST(List.of("txt"));
 
     // enum 을 통해 관리되어야 하는 것
     //  1. 받을 수 있는 파일타입
 
     private List<String> filetypeList;
+
 
     FileReferenceType(List<String> filetypeList) {
         this.filetypeList = filetypeList;
