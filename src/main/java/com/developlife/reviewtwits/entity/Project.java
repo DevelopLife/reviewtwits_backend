@@ -4,6 +4,7 @@ import com.developlife.reviewtwits.type.project.Language;
 import com.developlife.reviewtwits.type.project.ProjectPricePlan;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -18,6 +19,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@DynamicUpdate
 @Entity(name = "Project")
 public class Project extends BaseEntity {
     @Id @GeneratedValue
@@ -25,16 +27,25 @@ public class Project extends BaseEntity {
     @Setter
     @ManyToOne(fetch = FetchType.EAGER)
     private User user;
+    @Setter
     private String projectName;
+    @Setter
     private String projectDescription;
+    @Setter
     private String uriPattern;
+    @Setter
     private String category;
+    @Setter
     @Enumerated(value = EnumType.STRING)
     private Language language;
+    @Setter
     @Column(length = 7)
     private String projectColor;
+    @Setter
+    @Builder.Default
     @Enumerated(value = EnumType.STRING)
-    private ProjectPricePlan pricePlan;
+    @ColumnDefault("'FREE_PLAN'")
+    private ProjectPricePlan pricePlan = ProjectPricePlan.FREE_PLAN;
 
     @ColumnDefault("0")
     private int reviewCount;

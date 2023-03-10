@@ -52,7 +52,7 @@ public class UserApiTest extends ApiTest {
 
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "특정유저의 공개가능한 정보를 조회합니다", "특정유저조회", UserDocument.UserInfoPathParams, UserDocument.UserInfoResponseField))
-            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
             .pathParam("userId", user.getUserId())
         .when()
             .get("/users/{userId}")
@@ -74,7 +74,7 @@ public class UserApiTest extends ApiTest {
 
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "자신의 디테일한 정보를 조회합니다", "자신정보조회", UserDocument.AccessTokenHeader, UserDocument.UserDetailInfoResponseField))
-            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
         .when()
             .get("/users/me")

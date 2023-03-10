@@ -19,8 +19,6 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
 @RestControllerAdvice
 public class UserExceptionHandler {
 
-
-
     @ExceptionHandler(AccountIdAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public List<ErrorResponse> accountIdAlreadyExistsExceptionHandler(AccountIdAlreadyExistsException e){
@@ -61,5 +59,11 @@ public class UserExceptionHandler {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public List<ErrorResponse> userIdNotFoundExceptionHandler(UserIdNotFoundException e){
         return makeErrorResponse(e, "userId");
+    }
+
+    @ExceptionHandler(AccessResourceDeniedException.class)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    public List<ErrorResponse> accessResourceDeniedExceptionHandler(AccessResourceDeniedException e){
+        return makeErrorResponse(e, "");
     }
 }

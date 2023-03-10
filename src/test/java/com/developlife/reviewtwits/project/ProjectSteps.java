@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.project;
 
+import com.developlife.reviewtwits.message.request.project.FixProjectRequest;
 import com.developlife.reviewtwits.message.request.project.RegisterProjectRequest;
 import com.developlife.reviewtwits.type.project.Language;
 import com.developlife.reviewtwits.type.project.ProjectCategory;
@@ -27,5 +28,12 @@ public class ProjectSteps {
                 .language(language)
                 .projectColor(projectColor)
                 .build();
+    }
+
+    public static FixProjectRequest 프로젝트수정요청_생성() {
+        return FixProjectRequest.builder()
+            .projectName("인생마린 프로젝트")
+            .language(Language.ENGLISH)
+            .build();
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author ghdic
@@ -13,4 +14,9 @@ import java.util.List;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findProjectsByUser_AccountId(String accountId);
+
+    Optional<Project> findByProjectId(Long projectId);
+
+    Optional<Project> findFirstByUser_AccountId(String accountId);
+
 }
