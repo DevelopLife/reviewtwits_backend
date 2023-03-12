@@ -34,10 +34,10 @@ public class FileController {
     @PostMapping("/files/save")
     public ResponseEntity<String> saveFile(@ModelAttribute FileUpdateRequest request) throws IOException {
 
-        String referenceType = request.getReferenceType();
-        Long id = request.getId();
-        List<MultipartFile> attachedFiles = request.getAttachedFiles();
-        if(request.getAttachedFiles().get(0).isEmpty() || !FileReferenceType.isValidFileType(referenceType, attachedFiles)){
+        String referenceType = request.referenceType();
+        Long id = request.id();
+        List<MultipartFile> attachedFiles = request.attachedFiles();
+        if(attachedFiles.get(0).isEmpty() || !FileReferenceType.isValidFileType(referenceType, attachedFiles)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
