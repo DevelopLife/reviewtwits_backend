@@ -41,7 +41,7 @@ public class BasicFileUploadTest extends FileUploadTest {
             ResponseEntity<String> response = fileUpload(inputContent,filename,suffix, 12L, "Test");
             // 검증
             System.out.println("response.getStatusCode = " +  response.getStatusCode());
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             String storedPath = getStoredFullPath(response);
             String uploadedContent = new String(Files.readAllBytes(Path.of(storedPath)));
@@ -62,7 +62,7 @@ public class BasicFileUploadTest extends FileUploadTest {
         Long id = 23L;
         String referenceType = "Test";
         ResponseEntity<String> response = fileUpload(inputContent,"testDB",".txt", id, referenceType);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         FileInfo updatedInfo = fileInfoRepository.findByOriginalFilename("testDB.txt").get();
         assertThat(updatedInfo.getFilePath()).isEqualTo(getStoredFullPath(response));

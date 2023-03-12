@@ -44,7 +44,7 @@ public class FileController {
         List<FileInfo> storeFiles = fileStore.storeFiles(attachedFiles,id,referenceType);
         String storeFilename = storeFiles.get(0).getRealFilename();
 
-        return ResponseEntity.accepted().body(storeFilename);
+        return ResponseEntity.ok().body(storeFilename); // 바꾸기
     }
 
     @GetMapping("/request-images/{UUID}")
