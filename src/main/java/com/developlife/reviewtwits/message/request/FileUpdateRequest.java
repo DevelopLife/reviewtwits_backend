@@ -5,11 +5,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@RequiredArgsConstructor @Getter @Setter
-public class FileUpdateRequest {
+public record FileUpdateRequest(Long id, String referenceType, List<MultipartFile> attachedFiles) {
+    @Builder
+    public FileUpdateRequest{
 
-    private Long id;
-    private String referenceType;
-    private List<MultipartFile> attachedFiles;
+    }
 
 }

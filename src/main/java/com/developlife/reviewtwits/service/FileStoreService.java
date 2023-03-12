@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -55,6 +56,11 @@ public class FileStoreService {
         fileManagerRepository.saveAll(fileManagerList);
 
         return storeFileResult;
+    }
+
+    public String findOriginalFilename(String storedFileName){
+        Optional<FileInfo> fileInfo = fileInfoRepository.findByRealFilename(storedFileName);
+        return fileInfo.map(FileInfo::getOriginalFilename).orElse(null);
     }
 
     public String getFullPath(String filename){
