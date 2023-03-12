@@ -11,6 +11,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
  */
 public class FileDownloadDocument {
     public static final Snippet uuidFileName = pathParameters(
-            parameterWithName("UUID").description("file name made of UUID")
+            parameterWithName("UUID").description("UUID 와 확장자로 구성된 파일 이름")
     );
 }
