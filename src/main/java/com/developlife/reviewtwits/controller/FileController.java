@@ -31,7 +31,7 @@ public class FileController {
 
     private final FileStoreService fileStore;
 
-    @PostMapping("/files/save")
+    @PostMapping(value = "/files/save", produces = "application/json")
     public ResponseEntity<String> saveFile(@ModelAttribute FileUpdateRequest request) throws IOException {
 
         String referenceType = request.referenceType();
@@ -48,16 +48,16 @@ public class FileController {
         return ResponseEntity.accepted().body(resource.toString());
     }
 
-    @GetMapping("/request-images/{fileName}")
-    public Resource downloadImage(@PathVariable String fileName) throws MalformedURLException {
+    @GetMapping("/request-images/{UUID}")
+    public Resource downloadImage(@PathVariable(name = "UUID") String fileName) throws MalformedURLException {
         if(FileReferenceType.isValidFileType("image",fileName)){
             return new UrlResource("file:"+ fileStore.getFullPath(fileName));
         }
         throw new MalformedURLException();
     }
 
-    @GetMapping("/request-download-files/{fileName}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws MalformedURLException{
+    @GetMapping(value = "/request-download-files/{UUID}", produces = "application/json")
+    public ResponseEntity<Resource> downloadFile(@PathVariable(name = "UUID") String fileName) throws MalformedURLException{
         String originalFilename = fileStore.findOriginalFilename(fileName);
 
         UrlResource resource = new UrlResource("file:" + fileStore.getFullPath(fileName));
@@ -76,9 +76,9 @@ public class FileController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(MalformedURLException.class)
+    @ExceptionHandler(FileNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public List<ErrorResponse> malformedUrlExceptionHandler(){
-        return makeErrorResponse(new FileNotFoundException(), "fileName");
+    public List<ErrorResponse> FileNotFoundExceptionHandler(){
+        return makeErrorResponse(new FileNotFoundException("해당 파일이 존재하지 않습니다."), "fileName");
     }
 }

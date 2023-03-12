@@ -17,7 +17,7 @@ public enum FileReferenceType {
     USER(IMAGE.filetypeList),
     REVIEW(IMAGE.filetypeList),
     PRODUCT(IMAGE.filetypeList),
-    TEST(List.of("txt"));
+    TEST(List.of("txt","mp4"));
 
     // enum 을 통해 관리되어야 하는 것
     //  1. 받을 수 있는 파일타입
