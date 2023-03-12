@@ -43,9 +43,8 @@ public class FileController {
 
         List<FileInfo> storeFiles = fileStore.storeFiles(attachedFiles,id,referenceType);
         String storeFilename = storeFiles.get(0).getRealFilename();
-        UrlResource resource = new UrlResource("file:" + fileStore.getFullPath(storeFilename));
 
-        return ResponseEntity.accepted().body(resource.toString());
+        return ResponseEntity.accepted().body(storeFilename);
     }
 
     @GetMapping("/request-images/{UUID}")

@@ -2,7 +2,9 @@ package com.developlife.reviewtwits.file;
 
 import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.entity.FileManager;
+import com.developlife.reviewtwits.service.FileStoreService;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
 
@@ -17,6 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BasicFileUploadTest extends FileUploadTest {
+
+    @Autowired
+    private FileStoreService fileStore;
 
     @Nested
     class CheckFileUploadTest{
@@ -45,7 +50,7 @@ public class BasicFileUploadTest extends FileUploadTest {
     }
 
     private String getStoredFullPath(ResponseEntity<String> response) {
-        return response.getBody().substring(10, response.getBody().length() - 1);
+        return fileStore.getFullPath(response.getBody());
     }
 
 
