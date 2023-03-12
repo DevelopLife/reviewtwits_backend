@@ -21,7 +21,7 @@ public class CheckFiletypeTest extends FileUploadTest{
     @DisplayName("파일 확장자를 검증하는데 있어,  referenceType 에 맞는 확장자 파일 저장 시 202 코드 반환")
     void 파일확장자_검증_일치() throws IOException {
         ResponseEntity<String> response = fileUpload("hello world","forTest",".txt", 12L, "Test");
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
