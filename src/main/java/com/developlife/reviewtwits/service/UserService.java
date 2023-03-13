@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.EmailVerify;
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.exception.user.PhoneNumberAlreadyExistsException;
 import com.developlife.reviewtwits.exception.mail.VerifyCodeException;
 import com.developlife.reviewtwits.exception.user.*;
 import com.developlife.reviewtwits.mapper.UserMapper;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -56,10 +56,20 @@ public class UserService {
     }
 
     public User register(RegisterUserRequest registerUserRequest, Set<UserRole> roles) {
-        Optional<User> user = userRepository.findByAccountId(registerUserRequest.accountId());
-        if (user.isPresent()) {
-            throw new AccountIdAlreadyExistsException("중복된 이메일입니다");
-        }
+        userRepository.findByAccountId(registerUserRequest.accountId()).ifPresent(
+            user -> {throw new AccountIdAlreadyExistsException("중복된 이메일입니다");}
+        );
+
+        userRepository.findByAccountIdOrPhoneNumber(registerUserRequest.accountId(),
+            registerUserRequest.phoneNumber()).ifPresent(
+            user -> {
+                if (user.getAccountId().equals(registerUserRequest.accountId())) {
+                    throw new AccountIdAlreadyExistsException("중복된 이메일입니다");
+                } else {
+                    throw new PhoneNumberAlreadyExistsException("중복된 전화번호입니다");
+                }
+            });
+
         if (!passwordVerify(registerUserRequest.accountPw())) {
             throw new PasswordVerifyException("비밀번호는 6자리 이상, 영문, 숫자, 특수문자 조합이어야 합니다.");
         }
