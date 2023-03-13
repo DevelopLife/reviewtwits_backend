@@ -24,7 +24,7 @@ public class EmailController {
         this.emailService = emailService;
     }
 
-    @GetMapping(value = "/verify", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @GetMapping(value = "/verify", consumes = MediaType.ALL_VALUE)
     public void verifyEmail(@RequestParam String accountId) {
         emailService.verifyCodeMessage(accountId);
     }
