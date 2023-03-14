@@ -20,7 +20,7 @@ import java.util.Set;
 
 @Component
 public class UserSteps {
-    final static String nickname = "test";
+    final static String nickname = "templates";
     public final static String accountId = "test@naver.com";
     final static String accountPw = "test1122!";
     public final static String birthDate = "2002-01-01";

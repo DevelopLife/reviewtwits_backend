@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.service;
+package com.developlife.reviewtwits.service.user;
 
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.EmailVerify;

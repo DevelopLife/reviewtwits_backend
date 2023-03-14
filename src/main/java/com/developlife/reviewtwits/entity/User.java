@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.entity;
 
 import com.developlife.reviewtwits.type.Gender;
+import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -41,7 +42,8 @@ public class User extends BaseEntity implements UserDetails {
     @Setter
     @Enumerated(value = EnumType.STRING)
     private Gender gender;
-    private String provider;
+    @Enumerated(value = EnumType.STRING)
+    private JwtProvider provider;
     private String uuid;
 
     @Setter
