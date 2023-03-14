@@ -34,7 +34,7 @@ public class BasicFileUploadTest extends FileUploadTest {
         @Test
         @DisplayName("파일 업로드 시, 같은 내용으로 파일이 존재하는지 확안하기.")
         void checkFileUpload_existInDirectory_case2() throws IOException {
-            checkFileUpload_existInDirectory("hello file upload","test",".txt");
+            checkFileUpload_existInDirectory("hello file upload", "templates",".txt");
         }
 
         void checkFileUpload_existInDirectory(String inputContent,String filename, String suffix) throws IOException{

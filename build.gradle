@@ -36,7 +36,10 @@ swaggerSources {
 }
 
 openapi3 {
-	setServer("http://localhost:8080")
+	def Properties properties = new Properties()
+	InputStream inputStream = new FileInputStream(project.rootProject.file('src/main/resources/application.properties'))
+	properties.load(inputStream)
+	setServer(properties.getProperty("openapi3.hostname", "http://localhost:8080"))
 	title = "ReviewTwits API Documentation"
 	description = "reviewtwits에서 사용하는 API 문서입니다."
 	version = "1.0.1"

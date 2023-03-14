@@ -1,12 +1,12 @@
 package com.developlife.reviewtwits.mapper;
 
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.message.request.user.RegisterOauthUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
 import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
  * @author ghdic
  * @since 2023/02/25
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy =  NullValuePropertyMappingStrategy.IGNORE, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface UserMapper {
 
     @Mapping(target = "birthDate", dateFormat = "yyyy-MM-dd")
@@ -32,6 +32,13 @@ public interface UserMapper {
 
     FindIdsEmailResponse toFindIdsEmailResponse(User user);
     List<FindIdsEmailResponse> toFindIdsEmailResponseList(List<User> users);
+
+    @Mapping(target = "accountPw", ignore = true)
+    @Mapping(target = "projectList", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "provider", ignore = true)
+    void updateUserFromRegisterOauthUserRequest(RegisterOauthUserRequest registerOauthUserRequest, @MappingTarget User user);
 
 //     List<LoginUserRequest> map(List<User> users);
 

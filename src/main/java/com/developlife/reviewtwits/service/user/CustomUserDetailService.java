@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.service;
+package com.developlife.reviewtwits.service.user;
 
 import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
 import com.developlife.reviewtwits.repository.UserRepository;
@@ -22,7 +22,7 @@ public class CustomUserDetailService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String accountId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String accountId) {
         return userRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new AccountIdNotFoundException("사용자를 찾을 수 없습니다."));
     }

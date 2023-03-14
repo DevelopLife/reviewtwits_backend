@@ -7,7 +7,6 @@ import static com.developlife.reviewtwits.DocumentFormatProvider.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 /**
  * @author ghdic
@@ -49,6 +48,7 @@ public class UserDocument {
     );
     public static final Snippet JwtTokenResponseField = responseFields(
             fieldWithPath("accessToken").type(JsonFieldType.STRING).description("access token"),
+            fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("refresh token"),
             fieldWithPath("tokenType").type(JsonFieldType.STRING).description("토큰 타입"),
             fieldWithPath("provider").type(JsonFieldType.STRING).description("제공자")
     );
@@ -58,7 +58,4 @@ public class UserDocument {
             fieldWithPath("accountPw").type(JsonFieldType.STRING).attributes(required()).description("비밀번호")
     );
 
-    public static final Snippet AccessTokenHeader = requestHeaders(
-            headerWithName("X-AUTH-TOKEN").attributes(required()).description("access token")
-    );
 }

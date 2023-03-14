@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.entity;
 
 import com.developlife.reviewtwits.type.Gender;
+import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -36,12 +38,27 @@ public class User extends BaseEntity implements UserDetails {
     @Setter
     @Column(columnDefinition = "TIMESTAMP")
     private Date birthDate;
+
     @Column(unique = true, length = 20)
     private String phoneNumber;
+
+    // 최초 업뎃만 가능하도록함
+    public void setPhoneNumber(String phoneNumber) {
+        if(!StringUtils.hasText(this.phoneNumber)) {
+            this.phoneNumber = phoneNumber;
+        }
+    }
     @Setter
     @Enumerated(value = EnumType.STRING)
     private Gender gender;
-    private String provider;
+    @Enumerated(value = EnumType.STRING)
+    private JwtProvider provider;
+
+    public void setProvider(JwtProvider provider) {
+        if(this.provider == null) {
+            this.provider = provider;
+        }
+    }
     private String uuid;
 
     @Setter

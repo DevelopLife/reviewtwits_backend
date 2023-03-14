@@ -5,12 +5,9 @@ import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.repository.UserRepository;
-import com.developlife.reviewtwits.service.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.developlife.reviewtwits.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.restassured.matcher.RestAssuredMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,7 +52,7 @@ public class UserApiTest extends ApiTest {
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .pathParam("userId", user.getUserId())
         .when()
-            .get("/users/{userId}")
+            .get("/users/search/{userId}")
         .then()
             .assertThat()
             .statusCode(HttpStatus.OK.value())
@@ -73,7 +70,7 @@ public class UserApiTest extends ApiTest {
         final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "자신의 디테일한 정보를 조회합니다", "자신정보조회", UserDocument.AccessTokenHeader, UserDocument.UserDetailInfoResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "자신의 디테일한 정보를 조회합니다", "자신정보조회", CommonDocument.AccessTokenHeader, UserDocument.UserDetailInfoResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
         .when()
@@ -91,7 +88,7 @@ public class UserApiTest extends ApiTest {
     }
 
     @Test
-    @DisplayName("로그인성공")
+    @DisplayName("인성공")
     void 로그인성공_로그인정보확인_200() {
         LoginUserRequest request = UserSteps.로그인요청생성();
 
@@ -104,10 +101,11 @@ public class UserApiTest extends ApiTest {
         .then()
             .assertThat()
             .statusCode(HttpStatus.OK.value())
-            .cookie("refreshToken", notNullValue())
-            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().httpOnly(true))
-            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().secured(true))
+//            .cookie("refreshToken", notNullValue())
+//            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().httpOnly(true))
+//            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().secured(true))
             .body("accessToken", notNullValue())
+            .body("refreshToken", notNullValue())
             .log().all().extract();
     }
 
@@ -159,14 +157,15 @@ public class UserApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH, "회원가입을 할때 사용", "회원가입", UserDocument.RegisterUserRequestField, UserDocument.JwtTokenResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(request)
-        .when()
+            .when()
                 .post("/users/register")
-        .then()
+            .then()
                 .statusCode(HttpStatus.CREATED.value())
-                .cookie("refreshToken", notNullValue())
-                .cookie("refreshToken", RestAssuredMatchers.detailedCookie().httpOnly(true))
-                .cookie("refreshToken", RestAssuredMatchers.detailedCookie().secured(true))
+//                .cookie("refreshToken", notNullValue())
+//                .cookie("refreshToken", RestAssuredMatchers.detailedCookie().httpOnly(true))
+//                .cookie("refreshToken", RestAssuredMatchers.detailedCookie().secured(true))
                 .body("accessToken", notNullValue())
+                .body("refreshToken", notNullValue())
                 .log().all().extract().response();
 
         // 회원가입 정보와 저장된 정보 비교
@@ -226,15 +225,37 @@ public class UserApiTest extends ApiTest {
     @Test
     @DisplayName("로그아웃")
     void 로그아웃_캐시제거_200() {
+        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).refreshToken();
+
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "로그아웃은 서버에 보관된 refreshToken을 폐기하고 쿠키에 저장된 refreshToken을 제거합니다\n accessToken은 클라이언트에서 따로 제거 해야합니다", "로그아웃"))
+            .filter(document(DEFAULT_RESTDOC_PATH, "로그아웃은 서버에 보관된 refreshToken을 폐기하고 쿠키에 저장된 refreshToken을 제거합니다\n accessToken은 클라이언트에서 따로 제거 해야합니다", "로그아웃", CommonDocument.RefreshTokenHeader))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("X-REFRESH-TOKEN", token)
         .when()
             .post("/users/logout")
         .then()
             .statusCode(HttpStatus.OK.value())
-            // 쿠키 초기화 확인
-            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().maxAge(0))
+//            // 쿠키 초기화 확인
+//            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().maxAge(0))
             .log().all().extract();
+    }
+
+    @Test
+    @DisplayName("accessToken 갱신")
+    void 액세스토큰갱신_갱신완료_200() {
+        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).refreshToken();
+
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH, "Refreesh Tokn으로 Access Token 갱신", "Access Token 갱신",
+                CommonDocument.RefreshTokenHeader, UserDocument.JwtTokenResponseField))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("X-REFRESH-TOKEN", token)
+        .when()
+            .post("/users/issue/access-token")
+        .then()
+            .assertThat()
+            .statusCode(HttpStatus.OK.value())
+            .body("accessToken", notNullValue())
+            .log().all();
     }
 }
