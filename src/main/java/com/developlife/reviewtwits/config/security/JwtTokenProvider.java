@@ -4,6 +4,7 @@ import com.developlife.reviewtwits.entity.RefreshToken;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
 import com.developlife.reviewtwits.exception.user.TokenInvalidException;
+import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.repository.RefreshTokenRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.JwtCode;
@@ -95,6 +96,17 @@ public class JwtTokenProvider {
                 }
         );
         return token;
+    }
+
+    public JwtTokenResponse issueJwtTokenResponse(User user) {
+        String accessToken = issueAccessToken(user.getAccountId(), user.getRoles());
+        String refreshToken = issueRefreshToken(user.getAccountId());
+        return JwtTokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .tokenType(tokenType)
+                .provider(user.getProvider())
+                .build();
     }
 
 

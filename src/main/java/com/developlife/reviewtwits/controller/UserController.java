@@ -8,6 +8,7 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.service.user.UserService;
+import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,16 +36,11 @@ public class UserController {
     }
 
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
-    public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest, HttpServletResponse response) {
+    public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest) {
         User user = userService.login(loginUserRequest);
         // setRefreshTokenForClient(response, user);
 
-        return JwtTokenResponse.builder()
-                .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
-                .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
-                .tokenType("Bearer")
-                .provider("reviewtwits")
-                .build();
+        return jwtTokenProvider.issueJwtTokenResponse(user);
     }
 
 //    @PostMapping(value = "logout", consumes = "application/json", produces = "application/json")
@@ -96,12 +92,7 @@ public class UserController {
         User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
         // setRefreshTokenForClient(response, user);
 
-        return JwtTokenResponse.builder()
-                .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
-                .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
-                .tokenType("Bearer")
-                .provider("reviewtwits")
-                .build();
+        return jwtTokenProvider.issueJwtTokenResponse(user);
     }
 
     @PostMapping(value = "/issue/access-token", produces = "application/json")
@@ -112,7 +103,7 @@ public class UserController {
                 .refreshToken(refreshToken)
                 .accessToken(jwtTokenProvider.reissueAccessToken(refreshToken))
                 .tokenType("Bearer")
-                .provider("reviewtwits")
+                .provider(JwtProvider.REVIEWTWITS)
                 .build();
     }
 
@@ -122,8 +113,8 @@ public class UserController {
     }
 
     @GetMapping(value = "/me", produces = "application/json")
-    public UserDetailInfoResponse me(@AuthenticationPrincipal Authentication authentication) {
-        return userService.getDetailUserInfo(authentication.getName());
+    public UserDetailInfoResponse me(@AuthenticationPrincipal User user) {
+        return userService.getDetailUserInfo(user);
     }
 
     // admin권한 부여를 받을수 있는 테스트용 메소드

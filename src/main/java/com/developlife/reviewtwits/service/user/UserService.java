@@ -16,6 +16,7 @@ import com.developlife.reviewtwits.repository.EmailVerifyRepository;
 import com.developlife.reviewtwits.repository.RefreshTokenRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.JwtCode;
+import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.log4j.Log4j2;
@@ -82,11 +83,12 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(registerUserRequest.accountPw());
 
-        User registered_user = userMapper.toUser(registerUserRequest);
-        registered_user.setAccountPw(encodedPassword);
-        registered_user.setRoles(roles);
+        User registeredUser = userMapper.toUser(registerUserRequest);
+        registeredUser.setAccountPw(encodedPassword);
+        registeredUser.setRoles(roles);
+        registeredUser.setProvider(JwtProvider.REVIEWTWITS);
 
-        return userRepository.save(registered_user);
+        return userRepository.save(registeredUser);
     }
 
     private void authenticationCodeVerify(String accountId, String verifyCode) {
@@ -112,9 +114,10 @@ public class UserService {
         return password.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,}$");
     }
 
-    public UserDetailInfoResponse getDetailUserInfo(String accountId) {
-        User user = userRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new AccountIdNotFoundException("사용자를 찾을 수 없습니다."));
+    public UserDetailInfoResponse getDetailUserInfo(User user) {
+        if(user == null){
+            throw new AccountIdNotFoundException("사용자를 찾을 수 없습니다.");
+        }
         return userMapper.toUserDetailInfoResponse(user);
     }
 

@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.swing.*;
 import java.util.List;
 
 import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeErrorResponse;
@@ -71,5 +70,17 @@ public class UserExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public List<ErrorResponse> phoneNumberAlreadyExistsExceptionHandler(PhoneNumberAlreadyExistsException e){
         return makeErrorResponse(e, "phoneNumber");
+    }
+
+    @ExceptionHandler(RegisterDataNeedException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public List<ErrorResponse> registerDataNeedExceptionHandler(RegisterDataNeedException e){
+        return makeErrorResponse(e, "");
+    }
+
+    @ExceptionHandler(ProviderNotSupportedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public List<ErrorResponse> providerNotSupportedExceptionHandler(ProviderNotSupportedException e){
+        return makeErrorResponse(e, "provider");
     }
 }

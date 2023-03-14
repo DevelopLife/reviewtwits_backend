@@ -1,10 +1,10 @@
 package com.developlife.reviewtwits.project;
 
 import com.developlife.reviewtwits.ApiTest;
+import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.service.ProjectService;
 import com.developlife.reviewtwits.service.user.UserService;
-import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -58,7 +58,7 @@ public class ProjectApiTest extends ApiTest {
         final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", UserDocument.AccessTokenHeader, ProjectDocument.RegisterProjectRequestField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", CommonDocument.AccessTokenHeader, ProjectDocument.RegisterProjectRequestField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
             .body(request)
@@ -76,7 +76,7 @@ public class ProjectApiTest extends ApiTest {
         final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", UserDocument.AccessTokenHeader, ProjectDocument.ProjectInfoListResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", CommonDocument.AccessTokenHeader, ProjectDocument.ProjectInfoListResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
             .when()
@@ -97,7 +97,7 @@ public class ProjectApiTest extends ApiTest {
 
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성",
-                UserDocument.AccessTokenHeader, ProjectDocument.ProjectIdPathParam,
+                CommonDocument.AccessTokenHeader, ProjectDocument.ProjectIdPathParam,
                 ProjectDocument.FixProjectRequestField,
                 ProjectDocument.ProjectSettingInfoResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)

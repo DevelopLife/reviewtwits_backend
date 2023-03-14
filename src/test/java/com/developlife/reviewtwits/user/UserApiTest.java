@@ -70,7 +70,7 @@ public class UserApiTest extends ApiTest {
         final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "자신의 디테일한 정보를 조회합니다", "자신정보조회", UserDocument.AccessTokenHeader, UserDocument.UserDetailInfoResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "자신의 디테일한 정보를 조회합니다", "자신정보조회", CommonDocument.AccessTokenHeader, UserDocument.UserDetailInfoResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
         .when()
@@ -88,7 +88,7 @@ public class UserApiTest extends ApiTest {
     }
 
     @Test
-    @DisplayName("로그인성공")
+    @DisplayName("인성공")
     void 로그인성공_로그인정보확인_200() {
         LoginUserRequest request = UserSteps.로그인요청생성();
 
@@ -228,7 +228,7 @@ public class UserApiTest extends ApiTest {
         final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).refreshToken();
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "로그아웃은 서버에 보관된 refreshToken을 폐기하고 쿠키에 저장된 refreshToken을 제거합니다\n accessToken은 클라이언트에서 따로 제거 해야합니다", "로그아웃", UserDocument.RefreshTokenHeader))
+            .filter(document(DEFAULT_RESTDOC_PATH, "로그아웃은 서버에 보관된 refreshToken을 폐기하고 쿠키에 저장된 refreshToken을 제거합니다\n accessToken은 클라이언트에서 따로 제거 해야합니다", "로그아웃", CommonDocument.RefreshTokenHeader))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-REFRESH-TOKEN", token)
         .when()
@@ -247,7 +247,7 @@ public class UserApiTest extends ApiTest {
 
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "Refreesh Tokn으로 Access Token 갱신", "Access Token 갱신",
-                UserDocument.RefreshTokenHeader, UserDocument.JwtTokenResponseField))
+                CommonDocument.RefreshTokenHeader, UserDocument.JwtTokenResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-REFRESH-TOKEN", token)
         .when()
