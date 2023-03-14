@@ -52,21 +52,33 @@ public class UserController {
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
     public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest, HttpServletResponse response) {
         User user = userService.login(loginUserRequest);
-        setRefreshTokenForClient(response, user);
+        // setRefreshTokenForClient(response, user);
 
         return JwtTokenResponse.builder()
+                .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
                 .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
                 .tokenType("Bearer")
                 .provider("reviewtwits")
                 .build();
     }
 
-    @PostMapping(value = "logout", consumes = "application/json", produces = "application/json")
-    public void logout(@CookieValue(required = false) String refreshToken, HttpServletResponse response) {
+//    @PostMapping(value = "logout", consumes = "application/json", produces = "application/json")
+//    public void logout(@CookieValue(required = false) String refreshToken, HttpServletResponse response) {
+//        if(refreshToken != null) {
+//            userService.logout(refreshToken);
+//        }
+//        removeRefreshTokenForClient(response);
+//    }
+
+    @PostMapping(value = "logout")
+    public void logout(
+        @RequestHeader(required = false, name = "X-REFRESH-TOKEN")
+        String refreshToken,
+        HttpServletResponse response) {
         if(refreshToken != null) {
             userService.logout(refreshToken);
         }
-        removeRefreshTokenForClient(response);
+        // removeRefreshTokenForClient(response);
     }
 
     private void setRefreshTokenForClient(HttpServletResponse response, User user) {
@@ -97,16 +109,29 @@ public class UserController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public JwtTokenResponse register(@Valid @RequestBody RegisterUserRequest registerUserRequest, HttpServletResponse response) {
         User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
-        setRefreshTokenForClient(response, user);
+        // setRefreshTokenForClient(response, user);
 
         return JwtTokenResponse.builder()
+                .refreshToken(jwtTokenProvider.issueRefreshToken(user.getAccountId()))
                 .accessToken(jwtTokenProvider.issueAccessToken(user.getAccountId(), user.getRoles()))
                 .tokenType("Bearer")
                 .provider("reviewtwits")
                 .build();
     }
 
-    @GetMapping(value = "/{userId}", produces = "application/json")
+    @PostMapping(value = "/issue/access-token", produces = "application/json")
+    public JwtTokenResponse issueAccessToken(
+        @RequestHeader(name = "X-REFRESH-TOKEN")
+        String refreshToken) {
+        return JwtTokenResponse.builder()
+                .refreshToken(refreshToken)
+                .accessToken(jwtTokenProvider.reissueAccessToken(refreshToken))
+                .tokenType("Bearer")
+                .provider("reviewtwits")
+                .build();
+    }
+
+    @GetMapping(value = "/search/{userId}", produces = "application/json")
     public UserInfoResponse searchUser(@PathVariable long userId) {
         return userService.getUserInfo(userId);
     }
@@ -118,19 +143,19 @@ public class UserController {
     }
 
     // admin권한 부여를 받을수 있는 테스트용 메소드
-    @PostMapping(value = "/permission", produces = "application/json")
+//    @PostMapping(value = "/permission", produces = "application/json")
     public User addAdminPermission() {
         String accountId = getTokenOwner();
         return userService.grantedAdminPermission(accountId);
     }
 
-    @DeleteMapping(value = "/permission", produces = "application/json")
+//    @DeleteMapping(value = "/permission", produces = "application/json")
     public User deleteAdminPermission() {
         String accountId = getTokenOwner();
         return userService.confiscatedAdminPermission(accountId);
     }
 
-    @GetMapping(value = "/admin", produces = "application/json")
+//    @GetMapping(value = "/admin", produces = "application/json")
     public String admin() {
         return "hello admin";
     }

@@ -44,7 +44,9 @@ public class WebSecurityConfig {
     // 정적 자원에 대해서는 Security 설정을 적용하지 않음
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+        return (web) -> web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+            .antMatchers("/users/login", "/users/logout", "/uesrs/register",
+                "/users/search/*");
     }
 
     @Bean
@@ -55,7 +57,6 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/users/admin").hasRole("ADMIN")
-                .antMatchers("/users/**").permitAll()
                 .antMatchers("/users/me").hasRole("USER")
                 .antMatchers("/projects/**").hasRole("USER")
                 .anyRequest()

@@ -186,7 +186,7 @@ public class UserSteps {
                 .accountPw("123@@@")
                 .birthDate(birthDate)
                 .gender(gender)
-                .phoneNumber(phoneNumber)
+                .phoneNumber("01099998888")
                 .verifyCode("123456")
                 .build();
     }

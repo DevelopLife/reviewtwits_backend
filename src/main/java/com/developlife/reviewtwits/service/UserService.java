@@ -1,6 +1,8 @@
 package com.developlife.reviewtwits.service;
 
+import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.EmailVerify;
+import com.developlife.reviewtwits.entity.RefreshToken;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.PhoneNumberAlreadyExistsException;
 import com.developlife.reviewtwits.exception.mail.VerifyCodeException;
@@ -13,7 +15,9 @@ import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.EmailVerifyRepository;
 import com.developlife.reviewtwits.repository.RefreshTokenRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
+import com.developlife.reviewtwits.type.JwtCode;
 import com.developlife.reviewtwits.type.UserRole;
+import io.jsonwebtoken.Jwts;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

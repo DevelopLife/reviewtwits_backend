@@ -98,12 +98,13 @@ public class JwtTokenProvider {
     }
 
 
-    public String reissueAccessToken(String refreshToken) throws RuntimeException {
+    public String reissueAccessToken(String refreshToken) {
         // refresh token 유효성 검사
         Authentication authentication = getAuthentication(refreshToken);
-        RefreshToken findRefreshToken = refreshTokenRepository.findByAccountId(authentication.getName())
-                .orElseThrow(() -> new AccountIdNotFoundException(authentication.getName() + " 사용자를 찾을 수 없습니다."));
-        if(findRefreshToken.getToken().equals(refreshToken)) {
+        RefreshToken token = refreshTokenRepository.findByToken(refreshToken).orElseThrow(
+            () -> new TokenInvalidException("refresh token이 유효하지 않습니다.")
+        );
+        if(this.validateToken(refreshToken) == JwtCode.ACCESS) {
             // access token 재발급
             User user = userRepository.findByAccountId(authentication.getName())
                     .orElseThrow(() -> new AccountIdNotFoundException(authentication.getName() + " 사용자를 찾을 수 없습니다."));
