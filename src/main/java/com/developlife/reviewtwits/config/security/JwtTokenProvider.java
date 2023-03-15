@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.config.security;
 
+import com.developlife.reviewtwits.controller.UserController;
 import com.developlife.reviewtwits.entity.RefreshToken;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
@@ -19,7 +20,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.Base64;
 import java.util.Date;
@@ -100,10 +103,8 @@ public class JwtTokenProvider {
 
     public JwtTokenResponse issueJwtTokenResponse(User user) {
         String accessToken = issueAccessToken(user.getAccountId(), user.getRoles());
-        String refreshToken = issueRefreshToken(user.getAccountId());
         return JwtTokenResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .tokenType(tokenType)
                 .provider(user.getProvider())
                 .build();
@@ -166,5 +167,29 @@ public class JwtTokenProvider {
             return token.substring(prefix.length());
         }
         return null;
+    }
+
+    public void setRefreshTokenForClient(HttpServletResponse response, User user) {
+        // Create a cookie
+        Cookie cookie = new Cookie("refreshToken", issueRefreshToken(user.getAccountId()));
+        cookie.setMaxAge((int) refreshTokenValidTime);
+        // 보안 설정
+//        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
+    }
+
+    public void removeRefreshTokenForClient(HttpServletResponse response) {
+        // Create a cookie
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setMaxAge(0);
+        // 보안 설정
+//        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
     }
 }

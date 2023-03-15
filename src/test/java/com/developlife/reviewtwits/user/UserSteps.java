@@ -191,16 +191,22 @@ public class UserSteps {
                 .build();
     }
 
-    public JwtTokenResponse 로그인토큰정보(LoginUserRequest request) {
+    public String 로그인액세스토큰정보(LoginUserRequest request) {
         final var loginResponse = UserSteps.로그인요청(request);
-        try {
-            JwtTokenResponse jwtTokenResponse = objectMapper.readValue(loginResponse.body().asString(), JwtTokenResponse.class);
+        return loginResponse.body().jsonPath().getString("accessToken");
+//        try {
+//            JwtTokenResponse jwtTokenResponse = objectMapper.readValue(loginResponse.body().asString(), JwtTokenResponse.class);
+//
+//            // groovy에서 파싱을 못해서 에러남
+//            // final JwtTokenResponse jwtTokenResponse = loginResponse.body().as(JwtTokenResponse.class);
+//            return jwtTokenResponse.accessToken();
+//        } catch (JsonProcessingException e) {
+//            return "";
+//        }
+    }
 
-            // groovy에서 파싱을 못해서 에러남
-            // final JwtTokenResponse jwtTokenResponse = loginResponse.body().as(JwtTokenResponse.class);
-            return jwtTokenResponse;
-        } catch (JsonProcessingException e) {
-            return JwtTokenResponse.builder().build();
-        }
+    public String 로그인리프래시토큰정보(LoginUserRequest request) {
+        final var loginResponse = UserSteps.로그인요청(request);
+        return loginResponse.cookie("refreshToken");
     }
 }

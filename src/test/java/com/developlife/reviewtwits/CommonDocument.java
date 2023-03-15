@@ -4,11 +4,10 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.snippet.Snippet;
 
 import static com.developlife.reviewtwits.DocumentFormatProvider.required;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-
+ //import org.springframework.restdocs.coo
 /**
  * @author ghdic
  * @since 2023/03/08
@@ -22,9 +21,7 @@ public class CommonDocument {
     public static final Snippet AccessTokenHeader = requestHeaders(
             headerWithName("X-AUTH-TOKEN").attributes(required()).description("access token")
     );
-    public static final Snippet RefreshTokenHeader = requestHeaders(
-        headerWithName("X-REFRESH-TOKEN").attributes(required()).description("refresh token")
-    );
+
     public static final Snippet AuthorizationHeader = requestHeaders(
             headerWithName("Authorization").attributes(required()).description("oauth access token")
     );
