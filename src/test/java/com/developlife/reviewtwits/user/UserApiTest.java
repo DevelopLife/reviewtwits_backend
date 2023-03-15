@@ -8,6 +8,7 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.matcher.RestAssuredMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ public class UserApiTest extends ApiTest {
     @Test
     @DisplayName("자신정보조회")
     void 자신정보조회_유저정보확인_200(){
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "자신의 디테일한 정보를 조회합니다", "자신정보조회", CommonDocument.AccessTokenHeader, UserDocument.UserDetailInfoResponseField))
@@ -88,7 +89,7 @@ public class UserApiTest extends ApiTest {
     }
 
     @Test
-    @DisplayName("인성공")
+    @DisplayName("로그인인성공")
     void 로그인성공_로그인정보확인_200() {
         LoginUserRequest request = UserSteps.로그인요청생성();
 
@@ -101,11 +102,10 @@ public class UserApiTest extends ApiTest {
         .then()
             .assertThat()
             .statusCode(HttpStatus.OK.value())
-//            .cookie("refreshToken", notNullValue())
-//            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().httpOnly(true))
+            .cookie("refreshToken", notNullValue())
+            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().httpOnly(true))
 //            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().secured(true))
             .body("accessToken", notNullValue())
-            .body("refreshToken", notNullValue())
             .log().all().extract();
     }
 
@@ -161,11 +161,10 @@ public class UserApiTest extends ApiTest {
                 .post("/users/register")
             .then()
                 .statusCode(HttpStatus.CREATED.value())
-//                .cookie("refreshToken", notNullValue())
-//                .cookie("refreshToken", RestAssuredMatchers.detailedCookie().httpOnly(true))
+                .cookie("refreshToken", notNullValue())
+                .cookie("refreshToken", RestAssuredMatchers.detailedCookie().httpOnly(true))
 //                .cookie("refreshToken", RestAssuredMatchers.detailedCookie().secured(true))
                 .body("accessToken", notNullValue())
-                .body("refreshToken", notNullValue())
                 .log().all().extract().response();
 
         // 회원가입 정보와 저장된 정보 비교
@@ -225,31 +224,33 @@ public class UserApiTest extends ApiTest {
     @Test
     @DisplayName("로그아웃")
     void 로그아웃_캐시제거_200() {
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).refreshToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "로그아웃은 서버에 보관된 refreshToken을 폐기하고 쿠키에 저장된 refreshToken을 제거합니다\n accessToken은 클라이언트에서 따로 제거 해야합니다", "로그아웃", CommonDocument.RefreshTokenHeader))
+            .filter(document(DEFAULT_RESTDOC_PATH, "로그아웃은 서버에 보관된 refreshToken을 폐기하고 쿠키에 저장된 refreshToken을 제거합니다\n accessToken은 클라이언트에서 따로 제거 해야합니다", "로그아웃", CommonDocument.AccessTokenHeader))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("X-REFRESH-TOKEN", token)
+            .header("X-AUTH-TOKEN", token)
         .when()
             .post("/users/logout")
         .then()
             .statusCode(HttpStatus.OK.value())
-//            // 쿠키 초기화 확인
-//            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().maxAge(0))
+            // 쿠키 초기화 확인
+            .cookie("refreshToken", RestAssuredMatchers.detailedCookie().maxAge(0))
             .log().all().extract();
     }
 
     @Test
     @DisplayName("accessToken 갱신")
     void 액세스토큰갱신_갱신완료_200() {
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).refreshToken();
+        final String refreshToken = userSteps.로그인리프래시토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "Refreesh Tokn으로 Access Token 갱신", "Access Token 갱신",
-                CommonDocument.RefreshTokenHeader, UserDocument.JwtTokenResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH,
+                "Refreesh Tokn으로 Access Token 갱신<br>Refresh Token은 브라우저 쿠키를 통해 자동으로 넘어갑니다",
+                "Access Token 갱신",
+                UserDocument.JwtTokenResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("X-REFRESH-TOKEN", token)
+            .cookie("refreshToken", refreshToken)
         .when()
             .post("/users/issue/access-token")
         .then()

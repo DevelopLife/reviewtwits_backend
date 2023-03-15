@@ -55,7 +55,7 @@ public class ProjectApiTest extends ApiTest {
     @DisplayName("프로젝트 생성")
     public void 프로젝트생성_프로젝트정보_200() {
         final var request = ProjectSteps.프로젝트생성요청_생성();
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", CommonDocument.AccessTokenHeader, ProjectDocument.RegisterProjectRequestField))
@@ -73,7 +73,7 @@ public class ProjectApiTest extends ApiTest {
     @Test
     @DisplayName("프로젝트 리스트")
     public void 프로젝트리스트_프로젝트정보_200() {
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", CommonDocument.AccessTokenHeader, ProjectDocument.ProjectInfoListResponseField))
@@ -92,7 +92,7 @@ public class ProjectApiTest extends ApiTest {
     @DisplayName("프로젝트 수정")
     public void 프로젝트수정_프로젝트정보_200() {
         final var request = ProjectSteps.프로젝트수정요청_생성();
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         final Long projectId = projectService.getProjectIdFromAccountId(UserSteps.accountId);
 
         given(this.spec)

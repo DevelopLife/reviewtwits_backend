@@ -48,7 +48,6 @@ public class UserDocument {
     );
     public static final Snippet JwtTokenResponseField = responseFields(
             fieldWithPath("accessToken").type(JsonFieldType.STRING).description("access token"),
-            fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("refresh token"),
             fieldWithPath("tokenType").type(JsonFieldType.STRING).description("토큰 타입"),
             fieldWithPath("provider").type(JsonFieldType.STRING).description("제공자")
     );

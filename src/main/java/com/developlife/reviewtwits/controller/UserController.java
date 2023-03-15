@@ -36,71 +36,33 @@ public class UserController {
     }
 
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
-    public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest) {
+    public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest, HttpServletResponse response) {
         User user = userService.login(loginUserRequest);
-        // setRefreshTokenForClient(response, user);
+        jwtTokenProvider.setRefreshTokenForClient(response, user);
 
         return jwtTokenProvider.issueJwtTokenResponse(user);
     }
 
-//    @PostMapping(value = "logout", consumes = "application/json", produces = "application/json")
-//    public void logout(@CookieValue(required = false) String refreshToken, HttpServletResponse response) {
-//        if(refreshToken != null) {
-//            userService.logout(refreshToken);
-//        }
-//        removeRefreshTokenForClient(response);
-//    }
-
-    @PostMapping(value = "logout")
-    public void logout(
-        @RequestHeader(required = false, name = "X-REFRESH-TOKEN")
-        String refreshToken,
-        HttpServletResponse response) {
-        if(refreshToken != null) {
-            userService.logout(refreshToken);
+    @PostMapping(value = "logout", consumes = "application/json", produces = "application/json")
+    public void logout(@AuthenticationPrincipal User user, HttpServletResponse response) {
+        if(user != null) {
+            userService.logout(user);
         }
-        // removeRefreshTokenForClient(response);
-    }
-
-    private void setRefreshTokenForClient(HttpServletResponse response, User user) {
-        // Create a cookie
-        Cookie cookie = new Cookie("refreshToken", jwtTokenProvider.issueRefreshToken(user.getAccountId()));
-        cookie.setMaxAge((int) JwtTokenProvider.refreshTokenValidTime);
-        // 보안 설정
-        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
-    }
-
-    private void removeRefreshTokenForClient(HttpServletResponse response) {
-        // Create a cookie
-        Cookie cookie = new Cookie("refreshToken", null);
-        cookie.setMaxAge(0);
-        // 보안 설정
-        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
+        jwtTokenProvider.removeRefreshTokenForClient(response);
     }
 
     @PostMapping(value = "/register", consumes = "application/json", produces = "application/json")
     @ResponseStatus(value = HttpStatus.CREATED)
     public JwtTokenResponse register(@Valid @RequestBody RegisterUserRequest registerUserRequest, HttpServletResponse response) {
         User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
-        // setRefreshTokenForClient(response, user);
+         jwtTokenProvider.setRefreshTokenForClient(response, user);
 
         return jwtTokenProvider.issueJwtTokenResponse(user);
     }
 
     @PostMapping(value = "/issue/access-token", produces = "application/json")
-    public JwtTokenResponse issueAccessToken(
-        @RequestHeader(name = "X-REFRESH-TOKEN")
-        String refreshToken) {
+    public JwtTokenResponse issueAccessToken(@CookieValue String refreshToken) {
         return JwtTokenResponse.builder()
-                .refreshToken(refreshToken)
                 .accessToken(jwtTokenProvider.reissueAccessToken(refreshToken))
                 .tokenType("Bearer")
                 .provider(JwtProvider.REVIEWTWITS)

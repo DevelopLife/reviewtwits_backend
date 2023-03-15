@@ -29,16 +29,14 @@ import java.util.Optional;
 public class OauthService {
 
     UserRepository userRepository;
-    JwtTokenProvider jwtTokenProvider;
     UserMapper userMapper;
 
-    public OauthService(UserRepository userRepository, JwtTokenProvider jwtTokenProvider, UserMapper userMapper) {
+    public OauthService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
-        this.jwtTokenProvider = jwtTokenProvider;
         this.userMapper = userMapper;
     }
 
-    public JwtTokenResponse authenticateToken(OauthUserInfo oauthUserInfo, JwtProvider jwtProvider) {
+    public User authenticateToken(OauthUserInfo oauthUserInfo, JwtProvider jwtProvider) {
         Optional<User> optionalUser = userRepository.findByUuid(oauthUserInfo.sub());
         User user;
         if (optionalUser.isPresent()) {
@@ -56,11 +54,11 @@ public class OauthService {
             throw new RegisterDataNeedException("추가 회원가입 입력정보가 필요합니다");
         }
 
-        return jwtTokenProvider.issueJwtTokenResponse(user);
+        return user;
     }
 
     @Transactional
-    public JwtTokenResponse registerNeedInfo(String accessToken, RegisterOauthUserRequest registerOauthUserRequest) {
+    public User registerNeedInfo(String accessToken, RegisterOauthUserRequest registerOauthUserRequest) {
         OauthUserInfo oauthUserInfo;
         switch (registerOauthUserRequest.provider()) {
             case KAKAO:
@@ -85,6 +83,6 @@ public class OauthService {
 
         userMapper.updateUserFromRegisterOauthUserRequest(registerOauthUserRequest, user);
         userRepository.save(user);
-        return jwtTokenProvider.issueJwtTokenResponse(user);
+        return user;
     }
 }
