@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author WhalesBob
@@ -43,5 +44,10 @@ public class ShoppingMallReviewController {
             throw new ProductNotFoundException("입력한 URL 로 등록된 제품이 존재하지 않습니다");
         }
         return result;
+    }
+
+    @GetMapping(value = "/shopping/list", produces = "application/json")
+    public List<Review> findShoppingMallReviewList(@Valid @RequestBody ReviewProductURLRequest request){
+        return reviewService.findShoppingMallReviewList(request.productURL());
     }
 }
