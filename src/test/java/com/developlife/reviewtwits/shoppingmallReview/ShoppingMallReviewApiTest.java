@@ -87,7 +87,50 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .log().all();
     }
 
+    @Test
+    void 쇼핑몰리뷰정보_제품별찾기_200() throws IOException{
+        // 먼저 쇼핑몰리뷰를 보내기
 
+        쇼핑몰_리뷰_등록();
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "쇼핑몰 제품의 리뷰 전체 요약 정보를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.","쇼핑몰 리뷰 요약정보",ShoppingMallReviewDocument.ReviewProductRequestField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(ShoppingMallReviewSteps.제품_URL_정보_생성())
+                .when()
+                .get("/reviews/shopping")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .body("averageStarScore", notNullValue())
+                .body("totalReviewCount", notNullValue())
+                .body("recentReviewCount", notNullValue())
+                .body("starScoreArray", notNullValue())
+                .log().all();
+    }
+
+    private void 쇼핑몰_리뷰_등록() throws IOException {
+        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+
+        RequestSpecification request = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,"쇼핑몰 리뷰를 작성합니다. 필수값이 입력되지 않았을 경우 400이 반환됩니다.","쇼핑몰리뷰작성", UserDocument.AccessTokenHeader ,ShoppingMallReviewDocument.ShoppingMallReviewWriteRequestField))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .multiPart("productURL", productURL)
+                .multiPart("content",rightReviewText)
+                .multiPart("score", starScore);
+
+        List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지_파일정보_생성();
+
+        for(MultiPartSpecification multiPartSpecification : multiPartSpecList){
+            request.multiPart(multiPartSpecification);
+        }
+
+        request
+                .when()
+                .post("/reviews/shopping")
+                .then().log().all();
+    }
 
 
     @Test

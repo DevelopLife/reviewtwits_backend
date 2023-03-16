@@ -3,6 +3,7 @@ package com.developlife.reviewtwits.shoppingmallReview;
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.mapper.ProjectMapper;
+import com.developlife.reviewtwits.message.request.review.ReviewProductURLRequest;
 import com.developlife.reviewtwits.project.ProjectSteps;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ProjectRepository;
@@ -87,5 +88,10 @@ public class ShoppingMallReviewSteps {
         return project;
     }
 
+    public static ReviewProductURLRequest 제품_URL_정보_생성(){
+        return ReviewProductURLRequest.builder()
+                .productURL(productURL)
+                .build();
+    }
 
 }
