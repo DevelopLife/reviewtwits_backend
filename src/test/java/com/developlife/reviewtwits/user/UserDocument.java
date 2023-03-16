@@ -4,6 +4,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.snippet.Snippet;
 
 import static com.developlife.reviewtwits.DocumentFormatProvider.*;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
@@ -55,6 +56,9 @@ public class UserDocument {
     public static final Snippet LoginUserRequestField = requestFields(
             fieldWithPath("accountId").type(JsonFieldType.STRING).attributes(required()).description("아이디"),
             fieldWithPath("accountPw").type(JsonFieldType.STRING).attributes(required()).description("비밀번호")
+    );
+    public static final Snippet AccessTokenHeader = requestHeaders(
+            headerWithName("X-AUTH-TOKEN").attributes(required()).description("access token")
     );
 
 }
