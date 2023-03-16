@@ -1,10 +1,12 @@
 package com.developlife.reviewtwits.entity;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "file_storage")
 public class FileInfo {
