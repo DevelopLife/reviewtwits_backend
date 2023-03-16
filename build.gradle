@@ -53,6 +53,7 @@ dependencies {
 	implementation 'com.google.guava:guava:31.1-jre'
 	implementation 'org.springframework.boot:spring-boot-starter-security:3.0.2'
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	implementation 'commons-fileupload:commons-fileupload:1.4'
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
 	implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.6'
 	implementation 'org.springframework.boot:spring-boot-starter-validation:3.0.2'
