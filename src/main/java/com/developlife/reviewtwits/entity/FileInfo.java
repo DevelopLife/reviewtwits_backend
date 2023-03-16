@@ -16,13 +16,10 @@ public class FileInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long fileID;
 
-    @Column(name = "file_path")
     private String filePath;
 
-    @Column(name = "real_filename")
     private String realFilename;
 
-    @Column(name = "original_filename")
     private String originalFilename;
 
     public FileInfo() {

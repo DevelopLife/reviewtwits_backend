@@ -19,7 +19,6 @@ import java.util.List;
 public class Review extends BaseEntity {
 
     @Id @GeneratedValue
-    @Column(name = "review_id")
     private long reviewId;
 
     @ManyToOne
@@ -36,7 +35,6 @@ public class Review extends BaseEntity {
 
     private String content;
 
-    @Column(name = "product_url")
     private String productUrl;
 
     private int score;
