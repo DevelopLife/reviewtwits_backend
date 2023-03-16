@@ -14,7 +14,7 @@ public class FileManager {
     @Column(name = "file_manager_id")
     private Long fileManagerID;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "file_storage_id")
     private FileInfo fileInfo; // 외래키 설정 필요
 
