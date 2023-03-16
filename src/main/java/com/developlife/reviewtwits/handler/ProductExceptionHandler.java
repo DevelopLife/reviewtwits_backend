@@ -18,7 +18,7 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
 public class ProductExceptionHandler {
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public List<ErrorResponse> projectIdNotFoundExceptionHandler(ProjectIdNotFoundException e){
+    public List<ErrorResponse> projectIdNotFoundExceptionHandler(ProductNotFoundException e){
         return makeErrorResponse(e, "productURL");
     }
 }
