@@ -98,7 +98,7 @@ public class UserController {
     }
 
 
-    private String getTokenOwner() {
+    public static String getTokenOwner() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
     }

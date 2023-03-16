@@ -127,7 +127,7 @@ public class UserService {
         return userMapper.toUserInfoResponse(user);
     }
 
-    private User getUser(String accountId) {
+    public User getUser(String accountId) {
         return userRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new AccountIdNotFoundException("존재하지 않는 아이디입니다."));
     }
