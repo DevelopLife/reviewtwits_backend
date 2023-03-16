@@ -7,6 +7,7 @@ import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
 import com.developlife.reviewtwits.service.user.UserService;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -47,6 +50,41 @@ public class ShoppingMallReviewService {
         fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(),"Review");
     }
 
+    public ShoppingMallReviewProductResponse findShoppingMallReviewTotalInfo(String productURL){
+        if(!productRepository.existsProductByProductUrl(productURL)){
+            return null;
+        }
+
+        List<Review> reviews = reviewRepository.findReviewsByProductUrl(productURL);
+
+        if(reviews.isEmpty()){
+            return ShoppingMallReviewProductResponse.builder().totalReviewCount(0).build();
+        }
+
+        int starScoreSum = 0;
+        int[] starScoreArray = new int[5];
+        int recentReviewCount = 0;
+        for(Review review : reviews){
+            starScoreArray[review.getScore()-1]++;
+            starScoreSum += review.getScore();
+            if(review.getCreatedDate().toLocalDate() == LocalDate.now()){
+                recentReviewCount++;
+            }
+        }
+
+        int totalReviewCount = reviews.size();
+        double[] starScores = new double[5];
+        for(int i = 0; i < 5; i++){
+            starScores[i] = starScoreArray[i] / (double)totalReviewCount;
+        }
+
+        return ShoppingMallReviewProductResponse.builder()
+                .averageStarScore((double) starScoreSum / (double) totalReviewCount)
+                .totalReviewCount(totalReviewCount)
+                .recentReviewCount(recentReviewCount)
+                .starScoreArray(starScores)
+                .build();
+    }
 
 
     public Project findProject(String productURL){
