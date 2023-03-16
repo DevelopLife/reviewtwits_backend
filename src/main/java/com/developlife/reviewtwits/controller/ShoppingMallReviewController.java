@@ -1,6 +1,8 @@
 package com.developlife.reviewtwits.controller;
 
 
+import com.developlife.reviewtwits.entity.Review;
+import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
 import com.developlife.reviewtwits.message.request.review.ReviewProductURLRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
@@ -8,6 +10,7 @@ import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewPro
 import com.developlife.reviewtwits.service.ShoppingMallReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,8 +30,9 @@ public class ShoppingMallReviewController {
     private final ShoppingMallReviewService reviewService;
 
     @PostMapping(value = "/shopping", consumes = "multipart/form-data")
-    public void writeShoppingMallReview(@Valid @ModelAttribute ShoppingMallReviewWriteRequest request) throws IOException {
-        reviewService.saveShoppingMallReview(request);
+    public void writeShoppingMallReview(@Valid @ModelAttribute ShoppingMallReviewWriteRequest request,
+                                        @AuthenticationPrincipal User user) throws IOException {
+        reviewService.saveShoppingMallReview(request, user);
     }
 
     @GetMapping(value = "/shopping", produces = "application/json")

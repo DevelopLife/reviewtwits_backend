@@ -33,9 +33,8 @@ public class ShoppingMallReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
 
-    public void saveShoppingMallReview(ShoppingMallReviewWriteRequest writeRequest) throws IOException {
+    public void saveShoppingMallReview(ShoppingMallReviewWriteRequest writeRequest, User user) throws IOException {
 
-        User user = userService.getUser(UserController.getTokenOwner());
         Project project = findProject(writeRequest.productURL());
 
         Review review = Review.builder()
