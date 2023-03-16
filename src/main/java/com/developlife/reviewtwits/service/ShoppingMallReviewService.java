@@ -1,6 +1,5 @@
 package com.developlife.reviewtwits.service;
 
-import com.developlife.reviewtwits.controller.UserController;
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.Review;
@@ -85,6 +84,14 @@ public class ShoppingMallReviewService {
                 .build();
     }
 
+    public List<Review> findShoppingMallReviewList(String productURL){
+        List<Review> reviews = reviewRepository.findReviewsByProductUrl(productURL);
+        for(Review review : reviews){
+            saveReviewImage(review);
+        }
+        return reviews;
+    }
+
 
     public Project findProject(String productURL){
         Optional<Product> product = productRepository.findProductByProductUrl(productURL);
@@ -95,4 +102,7 @@ public class ShoppingMallReviewService {
         throw new ProjectIdNotFoundException("입력한 URL 에 등록된 프로젝트가 존재하지 않습니다.");
     }
 
+    private void saveReviewImage(Review review){
+        review.setReviewImageNameList(fileStoreService.bringFileNameList("Review", review.getReviewId()));
+    }
 }
