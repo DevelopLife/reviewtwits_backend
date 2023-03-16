@@ -61,7 +61,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     @Test
     void 쇼핑몰리뷰작성_성공_200() throws IOException {
 
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         RequestSpecification request = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH,"쇼핑몰 리뷰를 작성합니다. 필수값이 입력되지 않았을 경우 400이 반환됩니다.","쇼핑몰리뷰작성", UserDocument.AccessTokenHeader ,ShoppingMallReviewDocument.ShoppingMallReviewWriteRequestField))
@@ -110,7 +110,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     private void 쇼핑몰_리뷰_등록() throws IOException {
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         RequestSpecification request = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH,"쇼핑몰 리뷰를 작성합니다. 필수값이 입력되지 않았을 경우 400이 반환됩니다.","쇼핑몰리뷰작성", UserDocument.AccessTokenHeader ,ShoppingMallReviewDocument.ShoppingMallReviewWriteRequestField))
@@ -136,7 +136,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     @Test
     void 쇼핑몰리뷰작성_별점미입력_400(){
 
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec).log().all()
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
@@ -156,7 +156,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
 
     @Test
     void 쇼핑몰리뷰작성_리뷰10자미만_400(){
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec).log().all()
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
@@ -178,7 +178,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     @Test
     void 쇼핑몰리뷰작성_이미지이외파일_400() throws IOException {
 
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         RequestSpecification request = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH,"쇼핑몰 리뷰를 올바로 작성한 부분입니다."))
@@ -207,7 +207,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
 /*
     @Test
     void 쇼핑몰리뷰작성_유효하지않은토큰_401(){
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         final String wrongToken = "wrongToken";
 
