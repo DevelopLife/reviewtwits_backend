@@ -50,7 +50,7 @@ public class FileStoreService {
             if(!multipartFile.isEmpty()){
                 FileInfo fileInfo = storeFile(multipartFile);
                 storeFileResult.add(fileInfo);
-                fileManagerList.add(new FileManager(fileInfo.getFileID(),referenceID,referenceType));
+                fileManagerList.add(new FileManager(fileInfo,referenceID,referenceType));
             }
         }
         fileManagerRepository.saveAll(fileManagerList);
