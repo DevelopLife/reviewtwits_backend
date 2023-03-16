@@ -1,9 +1,11 @@
 package com.developlife.reviewtwits.config.security;
 
+import com.developlife.reviewtwits.controller.UserController;
 import com.developlife.reviewtwits.entity.RefreshToken;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
 import com.developlife.reviewtwits.exception.user.TokenInvalidException;
+import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.repository.RefreshTokenRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.JwtCode;
@@ -18,7 +20,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.Base64;
 import java.util.Date;
@@ -97,13 +101,23 @@ public class JwtTokenProvider {
         return token;
     }
 
+    public JwtTokenResponse issueJwtTokenResponse(User user) {
+        String accessToken = issueAccessToken(user.getAccountId(), user.getRoles());
+        return JwtTokenResponse.builder()
+                .accessToken(accessToken)
+                .tokenType(tokenType)
+                .provider(user.getProvider())
+                .build();
+    }
 
-    public String reissueAccessToken(String refreshToken) throws RuntimeException {
+
+    public String reissueAccessToken(String refreshToken) {
         // refresh token 유효성 검사
         Authentication authentication = getAuthentication(refreshToken);
-        RefreshToken findRefreshToken = refreshTokenRepository.findByAccountId(authentication.getName())
-                .orElseThrow(() -> new AccountIdNotFoundException(authentication.getName() + " 사용자를 찾을 수 없습니다."));
-        if(findRefreshToken.getToken().equals(refreshToken)) {
+        RefreshToken token = refreshTokenRepository.findByToken(refreshToken).orElseThrow(
+            () -> new TokenInvalidException("refresh token이 유효하지 않습니다.")
+        );
+        if(this.validateToken(refreshToken) == JwtCode.ACCESS) {
             // access token 재발급
             User user = userRepository.findByAccountId(authentication.getName())
                     .orElseThrow(() -> new AccountIdNotFoundException(authentication.getName() + " 사용자를 찾을 수 없습니다."));
@@ -153,5 +167,29 @@ public class JwtTokenProvider {
             return token.substring(prefix.length());
         }
         return null;
+    }
+
+    public void setRefreshTokenForClient(HttpServletResponse response, User user) {
+        // Create a cookie
+        Cookie cookie = new Cookie("refreshToken", issueRefreshToken(user.getAccountId()));
+        cookie.setMaxAge((int) refreshTokenValidTime);
+        // 보안 설정
+//        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
+    }
+
+    public void removeRefreshTokenForClient(HttpServletResponse response) {
+        // Create a cookie
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setMaxAge(0);
+        // 보안 설정
+//        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
     }
 }

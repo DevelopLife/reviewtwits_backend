@@ -2,7 +2,7 @@ package com.developlife.reviewtwits.email;
 
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.service.UserService;
+import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserSteps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

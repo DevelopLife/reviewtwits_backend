@@ -1,7 +1,10 @@
-package com.developlife.reviewtwits.service;
+package com.developlife.reviewtwits.service.user;
 
+import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.EmailVerify;
+import com.developlife.reviewtwits.entity.RefreshToken;
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.exception.user.PhoneNumberAlreadyExistsException;
 import com.developlife.reviewtwits.exception.mail.VerifyCodeException;
 import com.developlife.reviewtwits.exception.user.*;
 import com.developlife.reviewtwits.mapper.UserMapper;
@@ -12,7 +15,10 @@ import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.EmailVerifyRepository;
 import com.developlife.reviewtwits.repository.RefreshTokenRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
+import com.developlife.reviewtwits.type.JwtCode;
+import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
+import io.jsonwebtoken.Jwts;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -56,10 +61,20 @@ public class UserService {
     }
 
     public User register(RegisterUserRequest registerUserRequest, Set<UserRole> roles) {
-        Optional<User> user = userRepository.findByAccountId(registerUserRequest.accountId());
-        if (user.isPresent()) {
-            throw new AccountIdAlreadyExistsException("중복된 이메일입니다");
-        }
+        userRepository.findByAccountId(registerUserRequest.accountId()).ifPresent(
+            user -> {throw new AccountIdAlreadyExistsException("중복된 이메일입니다");}
+        );
+
+        userRepository.findByAccountIdOrPhoneNumber(registerUserRequest.accountId(),
+            registerUserRequest.phoneNumber()).ifPresent(
+            user -> {
+                if (user.getAccountId().equals(registerUserRequest.accountId())) {
+                    throw new AccountIdAlreadyExistsException("중복된 이메일입니다");
+                } else {
+                    throw new PhoneNumberAlreadyExistsException("중복된 전화번호입니다");
+                }
+            });
+
         if (!passwordVerify(registerUserRequest.accountPw())) {
             throw new PasswordVerifyException("비밀번호는 6자리 이상, 영문, 숫자, 특수문자 조합이어야 합니다.");
         }
@@ -68,11 +83,12 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(registerUserRequest.accountPw());
 
-        User registered_user = userMapper.toUser(registerUserRequest);
-        registered_user.setAccountPw(encodedPassword);
-        registered_user.setRoles(roles);
+        User registeredUser = userMapper.toUser(registerUserRequest);
+        registeredUser.setAccountPw(encodedPassword);
+        registeredUser.setRoles(roles);
+        registeredUser.setProvider(JwtProvider.REVIEWTWITS);
 
-        return userRepository.save(registered_user);
+        return userRepository.save(registeredUser);
     }
 
     private void authenticationCodeVerify(String accountId, String verifyCode) {
@@ -98,9 +114,10 @@ public class UserService {
         return password.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,}$");
     }
 
-    public UserDetailInfoResponse getDetailUserInfo(String accountId) {
-        User user = userRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new AccountIdNotFoundException("사용자를 찾을 수 없습니다."));
+    public UserDetailInfoResponse getDetailUserInfo(User user) {
+        if(user == null){
+            throw new AccountIdNotFoundException("사용자를 찾을 수 없습니다.");
+        }
         return userMapper.toUserDetailInfoResponse(user);
     }
 
@@ -134,8 +151,8 @@ public class UserService {
     }
 
     @Transactional
-    public void logout(String refreshToken) {
-        refreshTokenRepository.findByToken(refreshToken).ifPresent(
+    public void logout(User user) {
+        refreshTokenRepository.findByAccountId(user.getAccountId()).ifPresent(
                 refreshTokenRepository::delete
         );
     }

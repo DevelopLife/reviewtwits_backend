@@ -1,10 +1,10 @@
 package com.developlife.reviewtwits.project;
 
 import com.developlife.reviewtwits.ApiTest;
+import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.service.ProjectService;
-import com.developlife.reviewtwits.service.UserService;
-import com.developlife.reviewtwits.user.UserDocument;
+import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserSteps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -55,10 +55,10 @@ public class ProjectApiTest extends ApiTest {
     @DisplayName("프로젝트 생성")
     public void 프로젝트생성_프로젝트정보_200() {
         final var request = ProjectSteps.프로젝트생성요청_생성();
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", UserDocument.AccessTokenHeader, ProjectDocument.RegisterProjectRequestField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", CommonDocument.AccessTokenHeader, ProjectDocument.RegisterProjectRequestField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
             .body(request)
@@ -73,10 +73,10 @@ public class ProjectApiTest extends ApiTest {
     @Test
     @DisplayName("프로젝트 리스트")
     public void 프로젝트리스트_프로젝트정보_200() {
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", UserDocument.AccessTokenHeader, ProjectDocument.ProjectInfoListResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", CommonDocument.AccessTokenHeader, ProjectDocument.ProjectInfoListResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
             .when()
@@ -92,12 +92,12 @@ public class ProjectApiTest extends ApiTest {
     @DisplayName("프로젝트 수정")
     public void 프로젝트수정_프로젝트정보_200() {
         final var request = ProjectSteps.프로젝트수정요청_생성();
-        final String token = userSteps.로그인토큰정보(UserSteps.로그인요청생성()).accessToken();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         final Long projectId = projectService.getProjectIdFromAccountId(UserSteps.accountId);
 
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성",
-                UserDocument.AccessTokenHeader, ProjectDocument.ProjectIdPathParam,
+                CommonDocument.AccessTokenHeader, ProjectDocument.ProjectIdPathParam,
                 ProjectDocument.FixProjectRequestField,
                 ProjectDocument.ProjectSettingInfoResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)

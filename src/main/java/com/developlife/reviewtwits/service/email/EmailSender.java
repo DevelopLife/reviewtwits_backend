@@ -63,7 +63,7 @@ public abstract class EmailSender {
     private String creatUniqueKey() {
         String key;
         do {
-            key = UUID.randomUUID().toString();
+            key = UUID.randomUUID().toString().substring(0, 8);
         } while(emailVerifyRepository.findByVerifyCode(key).isPresent());
         return key;
     }

@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.message.response.user;
 
+import com.developlife.reviewtwits.type.JwtProvider;
 import lombok.Builder;
 
 /**
@@ -7,7 +8,7 @@ import lombok.Builder;
  * @since 2023/02/27
  */
 
-public record JwtTokenResponse(String accessToken, String tokenType, String provider) {
+public record JwtTokenResponse(String accessToken, String tokenType, JwtProvider provider) {
     @Builder
     public JwtTokenResponse {
     }
