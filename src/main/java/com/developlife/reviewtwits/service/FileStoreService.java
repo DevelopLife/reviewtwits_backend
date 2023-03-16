@@ -85,4 +85,8 @@ public class FileStoreService {
             folder.mkdir();
         }
     }
+
+    public List<String> bringFileNameList(String referenceType, Long referenceID){
+        return fileManagerRepository.findRealFileNameByReferenceIdAAndReferenceType(referenceID, referenceType);
+    }
 }
