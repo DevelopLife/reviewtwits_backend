@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.handler;
 
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -16,9 +17,9 @@ import java.util.List;
  */
 @RestControllerAdvice
 public class ValidExceptionHandler {
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public List<ErrorResponse> processValidationError(MethodArgumentNotValidException e) {
+    public List<ErrorResponse> processValidationError(BindException e) {
         List<ErrorResponse> errorResponseList = e.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> {
                     ErrorResponse errorResponse = ErrorResponse.builder()

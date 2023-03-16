@@ -11,25 +11,22 @@ public class FileManager {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "file_manager_id")
-    private Long fileManagerID;
+    private Long fileManagerId;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "file_storage_id")
     private FileInfo fileInfo; // 외래키 설정 필요
 
-    @Column(name = "reference_id")
-    private Long referenceID;
+    private Long referenceId;
 
-    @Column(name = "reference_type")
     private String referenceType;
 
     public FileManager() {
     }
 
-    public FileManager(FileInfo fileInfo, Long referenceID, String referenceType) {
+    public FileManager(FileInfo fileInfo, Long referenceId, String referenceType) {
         this.fileInfo = fileInfo;
-        this.referenceID = referenceID;
+        this.referenceId = referenceId;
         this.referenceType = referenceType;
     }
 }

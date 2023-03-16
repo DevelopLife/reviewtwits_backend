@@ -72,7 +72,7 @@ public class BasicFileUploadTest extends FileUploadTest {
         assertThat(uploadedContent).isEqualTo(inputContent);
 
         FileManager updatedFileManager = fileManagerRepository.findByFileInfo_FileID(updatedInfo.getFileID()).get();
-        assertThat(updatedFileManager.getReferenceID()).isEqualTo(id);
+        assertThat(updatedFileManager.getReferenceId()).isEqualTo(id);
         assertThat(updatedFileManager.getReferenceType()).isEqualTo(referenceType);
     }
 }
