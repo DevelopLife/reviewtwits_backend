@@ -4,6 +4,7 @@ package com.developlife.reviewtwits.controller;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
 import com.developlife.reviewtwits.message.request.review.ReviewProductURLRequest;
+import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
@@ -14,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.List;
 
@@ -47,7 +49,7 @@ public class ShoppingMallReviewController {
     }
 
     @DeleteMapping(value = "/shopping/{reviewId}")
-    public void deleteShoppingMallReview(@PathVariable Long reviewId,
+    public void deleteShoppingMallReview(@NotBlank @PathVariable Long reviewId,
                                          @AuthenticationPrincipal User user){
 
         reviewService.checkReviewCanEdit(user,reviewId);
