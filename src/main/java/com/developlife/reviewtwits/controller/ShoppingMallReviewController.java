@@ -6,6 +6,7 @@ import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
 import com.developlife.reviewtwits.message.request.review.ReviewProductURLRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.service.ShoppingMallReviewService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class ShoppingMallReviewController {
 
     private final ShoppingMallReviewService reviewService;
 
-    @PostMapping(value = "/shopping", consumes = "multipart/form-data")
+    @PostMapping(value = "/shopping", consumes = "multipart/form-data;charset=UTF-8")
     public void writeShoppingMallReview(@Valid @ModelAttribute ShoppingMallReviewWriteRequest request,
                                         @AuthenticationPrincipal User user) throws IOException {
         reviewService.saveShoppingMallReview(request, user);
@@ -46,8 +47,8 @@ public class ShoppingMallReviewController {
         return result;
     }
 
-    @GetMapping(value = "/shopping/list", produces = "application/json")
-    public List<Review> findShoppingMallReviewList(@Valid @RequestBody ReviewProductURLRequest request){
+    @GetMapping(value = "/shopping/list", produces = "application/json;charset=UTF-8")
+    public List<DetailReviewResponse> findShoppingMallReviewList(@Valid @RequestBody ReviewProductURLRequest request){
         return reviewService.findShoppingMallReviewList(request.productURL());
     }
 }

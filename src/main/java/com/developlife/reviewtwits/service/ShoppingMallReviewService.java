@@ -5,7 +5,9 @@ import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
+import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
@@ -27,7 +29,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ShoppingMallReviewService {
 
-    private final UserService userService;
+    private final ReviewMapper mapper;
     private final FileStoreService fileStoreService;
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
@@ -84,12 +86,12 @@ public class ShoppingMallReviewService {
                 .build();
     }
 
-    public List<Review> findShoppingMallReviewList(String productURL){
+    public List<DetailReviewResponse> findShoppingMallReviewList(String productURL){
         List<Review> reviews = reviewRepository.findReviewsByProductUrl(productURL);
         for(Review review : reviews){
             saveReviewImage(review);
         }
-        return reviews;
+        return mapper.toDetailReviewResponseList(reviews);
     }
 
 
