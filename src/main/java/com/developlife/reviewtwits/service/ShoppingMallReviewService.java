@@ -1,12 +1,13 @@
 package com.developlife.reviewtwits.service;
 
-import com.developlife.reviewtwits.controller.UserController;
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
+import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
@@ -28,14 +29,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ShoppingMallReviewService {
 
-    private final UserService userService;
+    private final ReviewMapper mapper;
     private final FileStoreService fileStoreService;
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
 
-    public void saveShoppingMallReview(ShoppingMallReviewWriteRequest writeRequest) throws IOException {
+    public void saveShoppingMallReview(ShoppingMallReviewWriteRequest writeRequest, User user) throws IOException {
 
-        User user = userService.getUser(UserController.getTokenOwner());
         Project project = findProject(writeRequest.productURL());
 
         Review review = Review.builder()
@@ -86,6 +86,14 @@ public class ShoppingMallReviewService {
                 .build();
     }
 
+    public List<DetailReviewResponse> findShoppingMallReviewList(String productURL){
+        List<Review> reviews = reviewRepository.findReviewsByProductUrl(productURL);
+        for(Review review : reviews){
+            saveReviewImage(review);
+        }
+        return mapper.toDetailReviewResponseList(reviews);
+    }
+
 
     public Project findProject(String productURL){
         Optional<Product> product = productRepository.findProductByProductUrl(productURL);
@@ -96,4 +104,7 @@ public class ShoppingMallReviewService {
         throw new ProjectIdNotFoundException("입력한 URL 에 등록된 프로젝트가 존재하지 않습니다.");
     }
 
+    private void saveReviewImage(Review review){
+        review.setReviewImageNameList(fileStoreService.bringFileNameList("Review", review.getReviewId()));
+    }
 }

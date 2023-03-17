@@ -22,14 +22,13 @@ public class Review extends BaseEntity {
     private long reviewId;
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "projectId")
+    @JoinColumn(name = "project_id")
     private Project project;
 
-    @Column(name = "certification_flag")
     @ColumnDefault(value = "false")
     private boolean certificationFlag;
 

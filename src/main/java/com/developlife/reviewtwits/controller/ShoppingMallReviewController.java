@@ -1,17 +1,22 @@
 package com.developlife.reviewtwits.controller;
 
 
+import com.developlife.reviewtwits.entity.Review;
+import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
 import com.developlife.reviewtwits.message.request.review.ReviewProductURLRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.service.ShoppingMallReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author WhalesBob
@@ -26,9 +31,10 @@ public class ShoppingMallReviewController {
 
     private final ShoppingMallReviewService reviewService;
 
-    @PostMapping(value = "/shopping", consumes = "multipart/form-data")
-    public void writeShoppingMallReview(@Valid @ModelAttribute ShoppingMallReviewWriteRequest request) throws IOException {
-        reviewService.saveShoppingMallReview(request);
+    @PostMapping(value = "/shopping", consumes = "multipart/form-data;charset=UTF-8")
+    public void writeShoppingMallReview(@Valid @ModelAttribute ShoppingMallReviewWriteRequest request,
+                                        @AuthenticationPrincipal User user) throws IOException {
+        reviewService.saveShoppingMallReview(request, user);
     }
 
     @GetMapping(value = "/shopping", produces = "application/json")
@@ -39,5 +45,10 @@ public class ShoppingMallReviewController {
             throw new ProductNotFoundException("입력한 URL 로 등록된 제품이 존재하지 않습니다");
         }
         return result;
+    }
+
+    @GetMapping(value = "/shopping/list", produces = "application/json;charset=UTF-8")
+    public List<DetailReviewResponse> findShoppingMallReviewList(@Valid @RequestBody ReviewProductURLRequest request){
+        return reviewService.findShoppingMallReviewList(request.productURL());
     }
 }

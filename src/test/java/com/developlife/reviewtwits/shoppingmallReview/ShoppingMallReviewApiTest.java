@@ -13,12 +13,12 @@ import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.RequestSpecification;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -109,10 +109,27 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .log().all();
     }
 
+    @Test
+    void 쇼핑몰리뷰정보_리뷰리스트_반환_200() throws IOException {
+        쇼핑몰_리뷰_등록();
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "원하는 제품의 쇼핑몰 리뷰 리스트를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.", "쇼핑몰 리뷰 리스트",ShoppingMallReviewDocument.ReviewProductRequestField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(ShoppingMallReviewSteps.제품_URL_정보_생성())
+                .when()
+                .get("/reviews/shopping/list")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .body("$", Matchers.notNullValue())
+                .log().all();
+    }
+
     private void 쇼핑몰_리뷰_등록() throws IOException {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
-        RequestSpecification request = given(this.spec)
+        RequestSpecification request = given(this.spec).log().all()
                 .filter(document(DEFAULT_RESTDOC_PATH,"쇼핑몰 리뷰를 작성합니다. 필수값이 입력되지 않았을 경우 400이 반환됩니다.","쇼핑몰리뷰작성", UserDocument.AccessTokenHeader ,ShoppingMallReviewDocument.ShoppingMallReviewWriteRequestField))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
@@ -219,7 +236,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .multiPart("content",rightReviewText)
                 .multiPart("score", starScore)
                 .when()
-                .get("/reviews/shopping")
+                .post("/reviews/shopping")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.UNAUTHORIZED.value())
