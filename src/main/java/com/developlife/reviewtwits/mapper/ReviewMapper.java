@@ -1,6 +1,5 @@
 package com.developlife.reviewtwits.mapper;
 
-import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
@@ -29,12 +28,14 @@ public interface ReviewMapper {
         return DetailReviewResponse.builder()
                 .createdDate(review.getCreatedDate())
                 .lastModifiedDate(review.getLastModifiedDate())
-                .reviewId(review.getProject().getProjectId())
+                .reviewId(review.getReviewId())
                 .userInfo(mapUserToUserInfoResponse(review.getUser()))
+                .projectId(review.getProject().getProjectId())
                 .content(review.getContent())
                 .productUrl(review.getProductUrl())
                 .score(review.getScore())
                 .reviewImageNameList(review.getReviewImageNameList())
+                .exist(review.isExist())
                 .build();
     }
 }
