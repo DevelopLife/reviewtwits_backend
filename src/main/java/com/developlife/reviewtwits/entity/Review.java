@@ -14,6 +14,7 @@ import java.util.List;
 @Entity
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review extends BaseEntity {
@@ -31,6 +32,9 @@ public class Review extends BaseEntity {
 
     @ColumnDefault(value = "false")
     private boolean certificationFlag;
+
+    @ColumnDefault(value = "true")
+    private boolean exist;
 
     private String content;
 
