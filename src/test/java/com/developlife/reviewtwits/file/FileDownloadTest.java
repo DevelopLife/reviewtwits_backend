@@ -65,7 +65,7 @@ public class FileDownloadTest extends ApiTest {
         .then()
                 .assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
-                .header(HttpHeaders.CONTENT_TYPE,"application/json")
+                .header(HttpHeaders.CONTENT_TYPE,"application/json;charset=UTF-8")
                 .body("find{it.errorType == 'FileNotFoundException' " +
                         "&& it.fieldName == 'fileName' " + "&& it.message == '해당 파일이 존재하지 않습니다.'}", notNullValue())
                 .log().all().extract();
@@ -99,7 +99,7 @@ public class FileDownloadTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
-                .header(HttpHeaders.CONTENT_TYPE,"application/json")
+                .header(HttpHeaders.CONTENT_TYPE,"application/json;charset=UTF-8")
                 .body("find{it.errorType == 'FileNotFoundException' " +
                         "&& it.fieldName == 'fileName' " + "&& it.message == '해당 파일이 존재하지 않습니다.'}", notNullValue())
                 .log().all().extract();
