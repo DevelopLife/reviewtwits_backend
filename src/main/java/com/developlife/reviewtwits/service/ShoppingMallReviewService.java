@@ -66,15 +66,18 @@ public class ShoppingMallReviewService {
         int starScoreSum = 0;
         int[] starScoreArray = new int[5];
         int recentReviewCount = 0;
+        int totalReviewCount = 0;
         for(Review review : reviews){
-            starScoreArray[review.getScore()-1]++;
-            starScoreSum += review.getScore();
-            if(review.getCreatedDate().toLocalDate() == LocalDate.now()){
-                recentReviewCount++;
+            if(review.isExist()){
+                totalReviewCount++;
+                starScoreArray[review.getScore()-1]++;
+                starScoreSum += review.getScore();
+                if(review.getCreatedDate().toLocalDate() == LocalDate.now()){
+                    recentReviewCount++;
+                }
             }
         }
 
-        int totalReviewCount = reviews.size();
         double[] starScores = new double[5];
         for(int i = 0; i < 5; i++){
             starScores[i] = starScoreArray[i] / (double)totalReviewCount;
