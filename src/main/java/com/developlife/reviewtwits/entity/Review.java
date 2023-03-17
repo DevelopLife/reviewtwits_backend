@@ -22,14 +22,13 @@ public class Review extends BaseEntity {
     private long reviewId;
 
     @ManyToOne
-    @JoinColumn(name = "userId")
-    private User user;
+    @JoinColumn(name = "user_id")
+    private User user; // user 핵심 정보만 전달할 수 있게 하기
 
     @ManyToOne
-    @JoinColumn(name = "projectId")
-    private Project project;
+    @JoinColumn(name = "project_id")
+    private Project project; // project ID 만 들고오게 -> mapstruct 처리해서 projectID
 
-    @Column(name = "certification_flag")
     @ColumnDefault(value = "false")
     private boolean certificationFlag;
 
