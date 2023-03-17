@@ -106,6 +106,21 @@ public class ShoppingMallReviewService {
         }
     }
 
+    public void deleteShoppingMallReview(long reviewId){
+        Optional<Review> foundReview = reviewRepository.findById(reviewId);
+        if(foundReview.isPresent()){
+            Review review = foundReview.get();
+            review.setExist(false);
+        }
+    }
+
+    public void restoreShoppingMallReview(long reviewId){
+        Optional<Review> foundReview = reviewRepository.findById(reviewId);
+        if(foundReview.isPresent()){
+            Review review = foundReview.get();
+            review.setExist(true);
+        }
+    }
 
     public Project findProject(String productURL){
         Optional<Product> product = productRepository.findProductByProductUrl(productURL);
