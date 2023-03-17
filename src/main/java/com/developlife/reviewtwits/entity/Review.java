@@ -31,10 +31,10 @@ public class Review extends BaseEntity {
     private Project project;
 
     @ColumnDefault(value = "false")
-    private boolean certificationFlag;
+    private boolean certificationFlag = false;
 
     @ColumnDefault(value = "true")
-    private boolean exist;
+    private boolean exist = true;
 
     private String content;
 
