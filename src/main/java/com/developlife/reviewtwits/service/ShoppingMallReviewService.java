@@ -5,6 +5,8 @@ import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
+import com.developlife.reviewtwits.exception.review.CannotHandleReviewException;
+import com.developlife.reviewtwits.exception.review.ReviewNotExistException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
@@ -92,6 +94,16 @@ public class ShoppingMallReviewService {
             saveReviewImage(review);
         }
         return mapper.toDetailReviewResponseList(reviews);
+    }
+
+    public void checkReviewCanEdit(User user, long reviewId){
+        Optional<Review> review = reviewRepository.findById(reviewId);
+        if(review.isEmpty()){
+            throw new ReviewNotExistException("입력된 리뷰아이디로 등록된 리뷰가 존재하지 않습니다");
+        }
+        if(review.get().getUser() != user){
+            throw new CannotHandleReviewException("해당 유저의 권한으로 이 리뷰를 수정할 수 없습니다.");
+        }
     }
 
 
