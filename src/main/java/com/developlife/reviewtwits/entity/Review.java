@@ -4,7 +4,6 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -31,10 +30,13 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    private boolean certificationFlag;
+    @Builder.Default
+    @ColumnDefault(value = "false")
+    private boolean certificationFlag = false;
 
-    @NotNull
-    private boolean exist;
+    @Builder.Default
+    @ColumnDefault(value = "true")
+    private boolean exist = true;
 
     private String content;
 

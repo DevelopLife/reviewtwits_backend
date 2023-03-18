@@ -4,7 +4,6 @@ import com.developlife.reviewtwits.entity.FileInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -12,5 +11,4 @@ import java.util.Optional;
 public interface FileInfoRepository extends JpaRepository<FileInfo, Long> {
     Optional<FileInfo> findByOriginalFilename(String originalFilename);
     Optional<FileInfo> findByRealFilename(String realFilename);
-    List<FileInfo> findFileInfosByRealFilenameIn(List<String> realFilenameList);
 }

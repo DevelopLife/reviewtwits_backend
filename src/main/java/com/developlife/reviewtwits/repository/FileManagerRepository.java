@@ -12,8 +12,6 @@ import java.util.Optional;
 public interface FileManagerRepository extends JpaRepository<FileManager, Long> {
     Optional<FileManager> findByFileInfo_FileID(Long fileStorageId);
 
-    List<FileManager> findByReferenceIdAndReferenceType(Long referenceId, String referenceType);
-
-    @Query(value = "SELECT fs.real_filename FROM file_storage fs INNER JOIN file_manager fm ON fs.file_storage_id = fm.file_storage_id WHERE fm.reference_id = ?1 AND fm.reference_type LIKE ?2 AND fs.exist = true", nativeQuery = true)
+    @Query(value = "SELECT fs.real_filename FROM file_storage fs INNER JOIN file_manager fm ON fs.file_storage_id = fm.file_storage_id WHERE fm.reference_id = ?1 AND fm.reference_type LIKE ?2", nativeQuery = true)
     List<String> findRealFileNameByReferenceIdAAndReferenceType(Long referenceId, String referenceType);
 }
