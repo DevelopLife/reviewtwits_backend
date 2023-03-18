@@ -6,6 +6,7 @@ import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.mapper.ProjectMapper;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.repository.FileManagerRepository;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ProjectRepository;
 import com.developlife.reviewtwits.service.user.UserService;
@@ -48,6 +49,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     private ProjectMapper projectMapper;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired FileManagerRepository fileManagerRepository;
 
     private Product product;
     private Project project;
@@ -151,6 +153,11 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .log().all();
 
+        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
+        assertThat(jsonPath.getBoolean("[0].exist")).isFalse();
+    }
+
+    private JsonPath 리뷰리스트_JSONPath_추출() {
         ExtractableResponse<Response> response = given(this.spec)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(제품_URL_정보_생성())
@@ -159,21 +166,12 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .then()
                 .log().all().extract();
 
-        JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getBoolean("[0].exist")).isFalse();
+        return response.jsonPath();
     }
 
     private long 리뷰아이디_추출(){
 
-        ExtractableResponse<Response> response = given(this.spec)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(제품_URL_정보_생성())
-                .when()
-                .get("/reviews/shopping/list")
-                .then()
-                .log().all().extract();
-
-        JsonPath jsonPath = response.jsonPath();
+        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
         return jsonPath.getLong("[0].reviewId");
     }
 
@@ -181,7 +179,6 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         RequestSpecification request = given(this.spec).log().all()
-                .filter(document(DEFAULT_RESTDOC_PATH,"쇼핑몰 리뷰를 작성합니다. 필수값이 입력되지 않았을 경우 400이 반환됩니다.","쇼핑몰리뷰작성", UserDocument.AccessTokenHeader ,ShoppingMallReviewDocument.ShoppingMallReviewWriteRequestField))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)

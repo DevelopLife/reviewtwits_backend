@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +38,7 @@ public class FileStoreService {
         String storeFilename = createStoreFileName(originalFilename);
         multipartFile.transferTo(new File(getFullPath(storeFilename)));
         FileInfo file = new FileInfo(getFullPath(storeFilename),storeFilename,originalFilename);
+        file.setExist(true);
         fileInfoRepository.save(file);
         return file;
     }
@@ -58,9 +61,25 @@ public class FileStoreService {
         return storeFileResult;
     }
 
+    public void deleteFiles(List<String> fileNames,Long referenceId, String referenceType) throws IOException {
+        List<FileManager> fileManagerList = fileManagerRepository.findByReferenceIdAndReferenceType(referenceId, referenceType);
+        fileManagerRepository.deleteAll(fileManagerList);
+        for(String filename : fileNames){
+            Files.deleteIfExists(Path.of(getFullPath(filename)));
+        }
+    }
+
     public String findOriginalFilename(String storedFileName){
         Optional<FileInfo> fileInfo = fileInfoRepository.findByRealFilename(storedFileName);
         return fileInfo.map(FileInfo::getOriginalFilename).orElse(null);
+    }
+
+    public void checkDeleteFile(List<String> fileNames){
+        List<FileInfo> fileInfoList = fileInfoRepository.findFileInfosByRealFilenameIn(fileNames);
+        for(FileInfo info : fileInfoList){
+            info.setExist(false);
+        }
+        fileInfoRepository.saveAll(fileInfoList);
     }
 
     public String getFullPath(String filename){

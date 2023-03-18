@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -33,8 +34,8 @@ public class Review extends BaseEntity {
     @ColumnDefault(value = "false")
     private boolean certificationFlag = false;
 
-    @ColumnDefault(value = "true")
-    private boolean exist = true;
+    @NotNull
+    private boolean exist;
 
     private String content;
 
