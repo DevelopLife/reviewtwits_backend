@@ -11,6 +11,9 @@ import com.developlife.reviewtwits.repository.ProjectRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matchers;
@@ -25,6 +28,7 @@ import java.util.List;
 import static com.developlife.reviewtwits.shoppingmallReview.ShoppingMallReviewSteps.*;
 import static io.restassured.RestAssured.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
 
@@ -124,6 +128,53 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("$", Matchers.notNullValue())
                 .log().all();
+    }
+
+    @Test
+    void 쇼핑몰_리뷰_삭제_200() throws IOException {
+        쇼핑몰_리뷰_등록();
+        long reviewId = 리뷰아이디_추출();
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,"입력한 리뷰 아이디의 리뷰를 삭제 처리합니다." +
+                        "<br>입력된 아이디로 등록된 리뷰가 없는 경우 404 Not Found 가 리턴됩니다." +
+                        "<br>해당 리뷰를 수정할 권한이 없는 경우, 401 Unauthorized 가 리턴됩니다","쇼핑몰리뷰삭제", ShoppingMallReviewDocument.ReviewIdField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId",reviewId)
+                .when()
+                .delete("/reviews/shopping/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(제품_URL_정보_생성())
+                .when()
+                .get("/reviews/shopping/list")
+                .then()
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getBoolean("[0].exist")).isFalse();
+    }
+
+    private long 리뷰아이디_추출(){
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(제품_URL_정보_생성())
+                .when()
+                .get("/reviews/shopping/list")
+                .then()
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        return jsonPath.getLong("[0].reviewId");
     }
 
     private void 쇼핑몰_리뷰_등록() throws IOException {

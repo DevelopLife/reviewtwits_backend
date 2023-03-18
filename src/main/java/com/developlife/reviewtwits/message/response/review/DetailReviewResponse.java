@@ -18,7 +18,8 @@ public record DetailReviewResponse (LocalDateTime createdDate,
                                    String content,
                                    String productUrl,
                                    int score,
-                                   List<String> reviewImageNameList){
+                                   List<String> reviewImageNameList,
+                                    boolean exist){
 
     @Builder
     public DetailReviewResponse{}

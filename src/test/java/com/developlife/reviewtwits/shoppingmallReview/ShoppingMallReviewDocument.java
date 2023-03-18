@@ -5,9 +5,9 @@ import org.springframework.restdocs.snippet.Snippet;
 
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
 import static com.developlife.reviewtwits.DocumentFormatProvider.*;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 
 
 /**
@@ -30,4 +30,7 @@ public class ShoppingMallReviewDocument {
                     .description("product 를 찾기 위한 URL 값입니다. http 혹은 https 로 시작하는 인터넷 URL 형식이어야 합니다.")
     );
 
+    public static final Snippet ReviewIdField = pathParameters(
+            parameterWithName("reviewId").attributes(required()).description("리뷰의 아이디")
+    );
 }
