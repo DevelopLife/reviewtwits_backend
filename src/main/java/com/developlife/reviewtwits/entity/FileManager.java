@@ -13,7 +13,7 @@ public class FileManager {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long fileManagerId;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "file_storage_id")
     private FileInfo fileInfo; // 외래키 설정 필요
 
