@@ -31,8 +31,7 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @ColumnDefault(value = "false")
-    private boolean certificationFlag = false;
+    private boolean certificationFlag;
 
     @NotNull
     private boolean exist;
