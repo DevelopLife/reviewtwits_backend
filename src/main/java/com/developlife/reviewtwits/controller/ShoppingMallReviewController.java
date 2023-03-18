@@ -4,7 +4,6 @@ package com.developlife.reviewtwits.controller;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
 import com.developlife.reviewtwits.message.request.review.ReviewProductURLRequest;
-import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;

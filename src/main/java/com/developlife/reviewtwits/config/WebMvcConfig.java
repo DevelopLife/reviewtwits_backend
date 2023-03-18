@@ -39,6 +39,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:8080/", "http://localhost:3000/", "http://43.201.141.63:8080/")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("headers")
+                .allowCredentials(true)
                 .maxAge(3000);
     }
 

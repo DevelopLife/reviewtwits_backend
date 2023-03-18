@@ -8,12 +8,12 @@ import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
 import com.developlife.reviewtwits.exception.review.CannotHandleReviewException;
 import com.developlife.reviewtwits.exception.review.ReviewNotExistException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
-import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
+import com.developlife.reviewtwits.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +46,6 @@ public class ShoppingMallReviewService {
                 .content(writeRequest.content())
                 .productUrl(writeRequest.productURL())
                 .score(Integer.parseInt(writeRequest.score()))
-                .exist(true)
                 .build();
 
         reviewRepository.save(review);
@@ -111,9 +110,11 @@ public class ShoppingMallReviewService {
     }
 
     public void deleteShoppingMallReview(long reviewId){
-        Review review = reviewRepository.findById(reviewId).get();
-        review.setExist(false);
-        reviewRepository.save(review);
+        Optional<Review> foundReview = reviewRepository.findById(reviewId);
+        if(foundReview.isPresent()){
+            Review review = foundReview.get();
+            review.setExist(false);
+        }
     }
 
     public void restoreShoppingMallReview(long reviewId){
