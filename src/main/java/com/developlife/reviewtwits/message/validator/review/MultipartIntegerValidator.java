@@ -12,6 +12,9 @@ import javax.validation.ConstraintValidatorContext;
 public class MultipartIntegerValidator implements ConstraintValidator<MultipartInteger, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
+        if(value == null){
+            return true;
+        }
         try{
             int integerValue = Integer.parseInt(value);
             if((double)integerValue != Double.parseDouble(value)){

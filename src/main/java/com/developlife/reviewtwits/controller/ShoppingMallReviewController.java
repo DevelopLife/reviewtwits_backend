@@ -3,7 +3,7 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
-import com.developlife.reviewtwits.message.request.review.ReviewProductURLRequest;
+import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.io.IOException;
+import java.net.BindException;
 import java.util.List;
 
 /**
@@ -38,8 +39,9 @@ public class ShoppingMallReviewController {
     }
 
     @GetMapping(value = "/shopping", produces = "application/json")
-    public ShoppingMallReviewProductResponse getShoppingMallReviewInfo(@Valid @RequestBody ReviewProductURLRequest request){
-        ShoppingMallReviewProductResponse result =  reviewService.findShoppingMallReviewTotalInfo(request.productURL());
+    public ShoppingMallReviewProductResponse getShoppingMallReviewInfo(@RequestHeader String productURL) throws BindException {
+        reviewService.checkProductURLIsValid(productURL);
+        ShoppingMallReviewProductResponse result =  reviewService.findShoppingMallReviewTotalInfo(productURL);
 
         if(result == null){
             throw new ProductNotFoundException("입력한 URL 로 등록된 제품이 존재하지 않습니다");
@@ -47,12 +49,22 @@ public class ShoppingMallReviewController {
         return result;
     }
 
+
     @DeleteMapping(value = "/shopping/{reviewId}")
     public void deleteShoppingMallReview(@NotBlank @PathVariable Long reviewId,
                                          @AuthenticationPrincipal User user){
 
         reviewService.checkReviewCanEdit(user,reviewId);
         reviewService.deleteShoppingMallReview(reviewId);
+    }
+
+    @PatchMapping(value = "/shopping/{reviewId}", consumes = "multipart/form-data;charset=UTF-8")
+    public void changeShoppingMallReview(@PathVariable Long reviewId,
+                                         @AuthenticationPrincipal User user,
+                                         @Valid @ModelAttribute ShoppingMallReviewChangeRequest request) throws IOException {
+
+        reviewService.checkReviewCanEdit(user, reviewId);
+        reviewService.changeShoppingMallReview(reviewId, request);
     }
 
     @PutMapping(value = "/shopping/{reviewId}")
@@ -64,7 +76,8 @@ public class ShoppingMallReviewController {
     }
 
     @GetMapping(value = "/shopping/list", produces = "application/json;charset=UTF-8")
-    public List<DetailReviewResponse> findShoppingMallReviewList(@Valid @RequestBody ReviewProductURLRequest request){
-        return reviewService.findShoppingMallReviewList(request.productURL());
+    public List<DetailReviewResponse> findShoppingMallReviewList(@RequestHeader String productURL) throws BindException {
+        reviewService.checkProductURLIsValid(productURL);
+        return reviewService.findShoppingMallReviewList(productURL);
     }
 }

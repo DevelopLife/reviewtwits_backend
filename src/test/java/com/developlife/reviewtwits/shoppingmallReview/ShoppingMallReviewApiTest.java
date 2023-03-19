@@ -6,6 +6,7 @@ import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.mapper.ProjectMapper;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.repository.FileManagerRepository;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ProjectRepository;
 import com.developlife.reviewtwits.service.user.UserService;
@@ -48,6 +49,8 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     private ProjectMapper projectMapper;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private FileManagerRepository fileManagerRepository;
 
     private Product product;
     private Project project;
@@ -98,9 +101,9 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         쇼핑몰_리뷰_등록();
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "쇼핑몰 제품의 리뷰 전체 요약 정보를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.","쇼핑몰 리뷰 요약정보",ShoppingMallReviewDocument.ReviewProductRequestField))
+                .filter(document(DEFAULT_RESTDOC_PATH, "쇼핑몰 제품의 리뷰 전체 요약 정보를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.","쇼핑몰 리뷰 요약정보",ShoppingMallReviewDocument.ReviewProductRequestHeader))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(ShoppingMallReviewSteps.제품_URL_정보_생성())
+                .header("productURL", productURL)
                 .when()
                 .get("/reviews/shopping")
                 .then()
@@ -118,9 +121,9 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         쇼핑몰_리뷰_등록();
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "원하는 제품의 쇼핑몰 리뷰 리스트를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.", "쇼핑몰 리뷰 리스트",ShoppingMallReviewDocument.ReviewProductRequestField))
+                .filter(document(DEFAULT_RESTDOC_PATH, "원하는 제품의 쇼핑몰 리뷰 리스트를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.", "쇼핑몰 리뷰 리스트",ShoppingMallReviewDocument.ReviewProductRequestHeader))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(ShoppingMallReviewSteps.제품_URL_정보_생성())
+                .header("productURL", productURL)
                 .when()
                 .get("/reviews/shopping/list")
                 .then()
@@ -151,14 +154,96 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .log().all();
 
-        JsonPath jsonPath = JsonPath_추출();
+        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
         assertThat(jsonPath.getBoolean("[0].exist")).isFalse();
     }
+    @Test
+    void 쇼핑몰_리뷰_별점_수정_200() throws IOException {
+        쇼핑몰_리뷰_등록();
+        long reviewId = 리뷰아이디_추출();
 
-    private JsonPath JsonPath_추출() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        long newScore = 5;
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "쇼핑몰 리뷰를 수정하는 API 기능입니다. " +
+                                "<br>고치지 않을 부분은 입력하지 않으면 고쳐지지 않으며, 고쳐지는 부분은 작성때와 똑같은 규칙을 작용받습니다" +
+                                "<br>X-AUTH-TOKEN 을 입력해야 하며, 유저가 해당 리뷰를 작성하지 않아 리뷰를 수정/삭제할 권한이 존재하지 않는 경우 401 에러를 반환합니다." +
+                                "<br>등록되지 않은 리뷰 아이디를 입력했다면, 404 에러를 반환합니다." +
+                                "<br>기존의 사진을 삭제하고 싶다면, 조회했을 때 들어간 리뷰 사진의 이름을 multipart form 에 이름을 하나하나 담아 넘겨주면 삭제 처리 됩니다." +
+                                "<br>수정이 성공적으로 이루어졌다면 200 OK 가 반환됩니다.", "쇼핑몰리뷰수정",UserDocument.AccessTokenHeader,
+                        ShoppingMallReviewDocument.ReviewIdField, ShoppingMallReviewDocument.scoreField))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", reviewId)
+                .multiPart("score", newScore)
+                .when()
+                .patch("reviews/shopping/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
+        assertThat(jsonPath.getInt("[0].score")).isEqualTo(newScore);
+    }
+
+    @Test
+    void 쇼핑몰_리뷰_사진추가_수정_200() throws IOException {
+        쇼핑몰_리뷰_등록();
+        long reviewId = 리뷰아이디_추출();
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, UserDocument.AccessTokenHeader,
+                        ShoppingMallReviewDocument.ReviewIdField, ShoppingMallReviewDocument.imageFileFiend))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", reviewId)
+                .multiPart(리뷰_이미지_파일정보_생성().get(0))
+                .when()
+                .patch("reviews/shopping/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
+        assertThat(jsonPath.getList("[0].reviewImageNameList").size()).isEqualTo(2);
+    }
+
+    @Test
+    void 쇼핑몰_리뷰_사진삭제_수정_200() throws IOException {
+        쇼핑몰_리뷰_등록();
+        long reviewId = 리뷰아이디_추출();
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        List<String> fileNameList = fileManagerRepository.findRealFileNameByReferenceIdAAndReferenceType(reviewId,"Review");
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, UserDocument.AccessTokenHeader,
+                        ShoppingMallReviewDocument.ReviewIdField, ShoppingMallReviewDocument.deleteFileListField))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", reviewId)
+                .multiPart("deleteFileList",fileNameList.get(0))
+                .when()
+                .patch("reviews/shopping/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+
+        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
+        assertThat(jsonPath.getList("[0].reviewImageNameList").size()).isEqualTo(0);
+    }
+
+    private JsonPath 리뷰리스트_JSONPath_추출() {
         ExtractableResponse<Response> response = given(this.spec)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(제품_URL_정보_생성())
+                .header("productURL",productURL)
                 .when()
                 .get("/reviews/shopping/list")
                 .then()
@@ -169,7 +254,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
 
     private long 리뷰아이디_추출(){
 
-        JsonPath jsonPath = JsonPath_추출();
+        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
         return jsonPath.getLong("[0].reviewId");
     }
 

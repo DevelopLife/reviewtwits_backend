@@ -90,4 +90,12 @@ public class FileStoreService {
     public List<String> bringFileNameList(String referenceType, Long referenceID){
         return fileManagerRepository.findRealFileNameByReferenceIdAAndReferenceType(referenceID, referenceType);
     }
+
+    public void checkDeleteFile(List<String> fileNames){
+        List<FileInfo> fileInfoList = fileInfoRepository.findFileInfosByRealFilenameIn(fileNames);
+        for(FileInfo info : fileInfoList){
+            info.setExist(false);
+        }
+        fileInfoRepository.saveAll(fileInfoList);
+    }
 }
