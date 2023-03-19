@@ -1,13 +1,16 @@
 package com.developlife.reviewtwits.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
+@Entity
+@Builder
 @Getter
 @Setter
-@Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "file_storage")
 public class FileInfo {
 
@@ -22,12 +25,7 @@ public class FileInfo {
 
     private String originalFilename;
 
-    public FileInfo() {
-    }
-
-    public FileInfo(String filePath, String realFilename, String originalFilename) {
-        this.filePath = filePath;
-        this.realFilename = realFilename;
-        this.originalFilename = originalFilename;
-    }
+    @Builder.Default
+    @ColumnDefault(value = "true")
+    private boolean exist = true;
 }
