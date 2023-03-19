@@ -8,12 +8,12 @@ import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
 import com.developlife.reviewtwits.exception.review.CannotHandleReviewException;
 import com.developlife.reviewtwits.exception.review.ReviewNotExistException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
+import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
-import com.developlife.reviewtwits.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -123,6 +123,25 @@ public class ShoppingMallReviewService {
         if(foundReview.isPresent()){
             Review review = foundReview.get();
             review.setExist(true);
+        }
+    }
+
+    public void changeShoppingMallReview(long reviewId, ShoppingMallReviewChangeRequest changeRequest) throws IOException {
+        Review review = reviewRepository.findById(reviewId).get();
+        if(changeRequest.content() != null){
+            review.setContent(changeRequest.content());
+        }
+        if(changeRequest.score() != null){
+            review.setScore(Integer.parseInt(changeRequest.score()));
+        }
+        reviewRepository.save(review);
+
+        if(changeRequest.multipartImageFiles() != null && !changeRequest.multipartImageFiles().isEmpty()){
+            fileStoreService.storeFiles(changeRequest.multipartImageFiles(),review.getReviewId(),"Review");
+        }
+
+        if(changeRequest.deleteFileList() != null && !changeRequest.deleteFileList().isEmpty()){
+            fileStoreService.checkDeleteFile(changeRequest.deleteFileList());
         }
     }
 
