@@ -4,6 +4,7 @@ package com.developlife.reviewtwits.controller;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
 import com.developlife.reviewtwits.message.request.review.ReviewProductURLRequest;
+import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
@@ -53,6 +54,15 @@ public class ShoppingMallReviewController {
 
         reviewService.checkReviewCanEdit(user,reviewId);
         reviewService.deleteShoppingMallReview(reviewId);
+    }
+
+    @PatchMapping(value = "/shopping/{reviewId}", consumes = "multipart/form-data;charset=UTF-8")
+    public void changeShoppingMallReview(@PathVariable Long reviewId,
+                                         @AuthenticationPrincipal User user,
+                                         @Valid @ModelAttribute ShoppingMallReviewChangeRequest request) throws IOException {
+
+        reviewService.checkReviewCanEdit(user, reviewId);
+        reviewService.changeShoppingMallReview(reviewId, request);
     }
 
     @PutMapping(value = "/shopping/{reviewId}")
