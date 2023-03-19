@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface FileInfoRepository extends JpaRepository<FileInfo, Long> {
     Optional<FileInfo> findByOriginalFilename(String originalFilename);
     Optional<FileInfo> findFileInfoByRealFilename(String realFilename);
+    List<FileInfo> findFileInfosByRealFilenameIn(List<String> realFilenameList);
 }
