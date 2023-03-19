@@ -6,6 +6,7 @@ import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
  * @author WhalesBob
  * @since 2023-03-15
  */
+@RestControllerAdvice
 public class ProductExceptionHandler {
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
