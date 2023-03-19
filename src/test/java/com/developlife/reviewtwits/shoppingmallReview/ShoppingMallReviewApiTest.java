@@ -101,9 +101,9 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         쇼핑몰_리뷰_등록();
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "쇼핑몰 제품의 리뷰 전체 요약 정보를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.","쇼핑몰 리뷰 요약정보",ShoppingMallReviewDocument.ReviewProductRequestField))
+                .filter(document(DEFAULT_RESTDOC_PATH, "쇼핑몰 제품의 리뷰 전체 요약 정보를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.","쇼핑몰 리뷰 요약정보",ShoppingMallReviewDocument.ReviewProductRequestHeader))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(ShoppingMallReviewSteps.제품_URL_정보_생성())
+                .header("productURL", productURL)
                 .when()
                 .get("/reviews/shopping")
                 .then()
@@ -121,9 +121,9 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         쇼핑몰_리뷰_등록();
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "원하는 제품의 쇼핑몰 리뷰 리스트를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.", "쇼핑몰 리뷰 리스트",ShoppingMallReviewDocument.ReviewProductRequestField))
+                .filter(document(DEFAULT_RESTDOC_PATH, "원하는 제품의 쇼핑몰 리뷰 리스트를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.", "쇼핑몰 리뷰 리스트",ShoppingMallReviewDocument.ReviewProductRequestHeader))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(ShoppingMallReviewSteps.제품_URL_정보_생성())
+                .header("productURL", productURL)
                 .when()
                 .get("/reviews/shopping/list")
                 .then()
@@ -243,7 +243,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     private JsonPath 리뷰리스트_JSONPath_추출() {
         ExtractableResponse<Response> response = given(this.spec)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(제품_URL_정보_생성())
+                .header("productURL",productURL)
                 .when()
                 .get("/reviews/shopping/list")
                 .then()

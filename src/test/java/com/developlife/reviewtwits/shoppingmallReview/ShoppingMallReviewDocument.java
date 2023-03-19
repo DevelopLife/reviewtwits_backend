@@ -1,10 +1,9 @@
 package com.developlife.reviewtwits.shoppingmallReview;
 
-import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.snippet.Snippet;
 
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static com.developlife.reviewtwits.DocumentFormatProvider.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -25,9 +24,8 @@ public class ShoppingMallReviewDocument {
             partWithName("multipartImageFiles").description("리뷰에 등록하는 이미지 파일들입니다. 여러 장 등록할 수 있습니다.")
     );
 
-    public static final Snippet ReviewProductRequestField = requestFields(
-            fieldWithPath("productURL").type(JsonFieldType.STRING).attributes(required())
-                    .description("product 를 찾기 위한 URL 값입니다. http 혹은 https 로 시작하는 인터넷 URL 형식이어야 합니다.")
+    public static final Snippet ReviewProductRequestHeader =  requestHeaders(
+            headerWithName("productURL").attributes(required()).description("product URL 을 받는 곳입니다.")
     );
 
     public static final Snippet ReviewIdField = pathParameters(

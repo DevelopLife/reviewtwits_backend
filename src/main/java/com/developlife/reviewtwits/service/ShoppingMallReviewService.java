@@ -18,9 +18,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * @author WhalesBob
@@ -97,6 +99,12 @@ public class ShoppingMallReviewService {
             saveReviewImage(review);
         }
         return mapper.toDetailReviewResponseList(reviews);
+    }
+
+    public void checkProductURLIsValid(String productURL) throws BindException {
+        if(!Pattern.matches("^(https?://)[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+/[a-zA-Z0-9-_/.?=]*",productURL)){
+            throw new BindException("유효한 productURL 이 아닙니다.");
+        }
     }
 
     public void checkReviewCanEdit(User user, long reviewId){
