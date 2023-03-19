@@ -114,6 +114,7 @@ public class ShoppingMallReviewService {
         if(foundReview.isPresent()){
             Review review = foundReview.get();
             review.setExist(false);
+            reviewRepository.save(review);
         }
     }
 

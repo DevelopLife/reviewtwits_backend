@@ -151,6 +151,11 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .log().all();
 
+        JsonPath jsonPath = JsonPath_추출();
+        assertThat(jsonPath.getBoolean("[0].exist")).isFalse();
+    }
+
+    private JsonPath JsonPath_추출() {
         ExtractableResponse<Response> response = given(this.spec)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(제품_URL_정보_생성())
@@ -159,21 +164,12 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .then()
                 .log().all().extract();
 
-        JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getBoolean("[0].exist")).isTrue();
+        return response.jsonPath();
     }
 
     private long 리뷰아이디_추출(){
 
-        ExtractableResponse<Response> response = given(this.spec)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(제품_URL_정보_생성())
-                .when()
-                .get("/reviews/shopping/list")
-                .then()
-                .log().all().extract();
-
-        JsonPath jsonPath = response.jsonPath();
+        JsonPath jsonPath = JsonPath_추출();
         return jsonPath.getLong("[0].reviewId");
     }
 

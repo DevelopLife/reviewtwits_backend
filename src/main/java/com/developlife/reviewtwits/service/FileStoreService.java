@@ -35,7 +35,8 @@ public class FileStoreService {
         String originalFilename = multipartFile.getOriginalFilename();
         String storeFilename = createStoreFileName(originalFilename);
         multipartFile.transferTo(new File(getFullPath(storeFilename)));
-        FileInfo file = new FileInfo(getFullPath(storeFilename),storeFilename,originalFilename);
+        FileInfo file = FileInfo.builder().filePath(getFullPath(storeFilename)).realFilename(storeFilename)
+                        .originalFilename(originalFilename).build();
         fileInfoRepository.save(file);
         return file;
     }
@@ -59,7 +60,7 @@ public class FileStoreService {
     }
 
     public String findOriginalFilename(String storedFileName){
-        Optional<FileInfo> fileInfo = fileInfoRepository.findByRealFilename(storedFileName);
+        Optional<FileInfo> fileInfo = fileInfoRepository.findFileInfoByRealFilename(storedFileName);
         return fileInfo.map(FileInfo::getOriginalFilename).orElse(null);
     }
 
