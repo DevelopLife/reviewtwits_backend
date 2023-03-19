@@ -55,7 +55,7 @@ public class UserController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public JwtTokenResponse register(@Valid @RequestBody RegisterUserRequest registerUserRequest, HttpServletResponse response) {
         User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
-         jwtTokenProvider.setRefreshTokenForClient(response, user);
+        jwtTokenProvider.setRefreshTokenForClient(response, user);
 
         return jwtTokenProvider.issueJwtTokenResponse(user);
     }

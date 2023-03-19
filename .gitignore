@@ -40,3 +40,4 @@ out/
 /src/main/resources/email.properties
 /src/main/resources/application.properties
 /src/main/resources/application-prod.properties
+keystore.p12
