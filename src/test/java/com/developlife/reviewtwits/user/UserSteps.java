@@ -27,6 +27,8 @@ public class UserSteps {
     public final static String phoneNumber = "01012345678";
     final static Gender gender = Gender.남자;
 
+    final static String targetAccountId = "whalesbob@naver.com";
+
     final private EmailCodeSender emailSender;
     final private ObjectMapper objectMapper;
 
@@ -55,6 +57,26 @@ public class UserSteps {
                 .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
+                .verifyCode(key)
+                .build();
+    }
+
+    public RegisterUserRequest 팔로우상대방_회원가입정보_생성(){
+
+
+        String targetNickname = "whalesbob";
+        String targetBirthDate = "1996-11-22";
+        String targetPhoneNumber = "01011112222";
+
+        String key = emailSender.storageVerifyInfo(targetAccountId, EmailType.회원가입인증코드);
+
+        return RegisterUserRequest.builder()
+                .nickname(targetNickname)
+                .accountId(targetAccountId)
+                .accountPw(accountPw)
+                .birthDate(targetBirthDate)
+                .gender(gender)
+                .phoneNumber(targetPhoneNumber)
                 .verifyCode(key)
                 .build();
     }
@@ -133,6 +155,13 @@ public class UserSteps {
     public static LoginUserRequest 로그인요청생성() {
         return LoginUserRequest.builder()
                 .accountId(accountId)
+                .accountPw(accountPw)
+                .build();
+    }
+
+    public static LoginUserRequest 팔로우상대_로그인요청생성(){
+        return LoginUserRequest.builder()
+                .accountId(targetAccountId)
                 .accountPw(accountPw)
                 .build();
     }
