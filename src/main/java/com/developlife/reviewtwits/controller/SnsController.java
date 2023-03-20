@@ -29,4 +29,9 @@ public class SnsController {
     public void followProcess(@AuthenticationPrincipal User user, @Valid @RequestBody FollowRequest request){
         snsService.followProcess(user, request.targetUserAccountId());
     }
+
+    @PostMapping("/requestUnfollow")
+    public void unfollowProcess(@AuthenticationPrincipal User user, @Valid @RequestBody FollowRequest request){
+        snsService.unfollowProcess(user, request.targetUserAccountId());
+    }
 }
