@@ -55,7 +55,7 @@ public class UserExceptionHandler {
     }
 
     @ExceptionHandler(UserIdNotFoundException.class)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public List<ErrorResponse> userIdNotFoundExceptionHandler(UserIdNotFoundException e){
         return makeErrorResponse(e, "userId");
     }
