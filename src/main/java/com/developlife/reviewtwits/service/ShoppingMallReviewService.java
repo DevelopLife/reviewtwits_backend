@@ -51,7 +51,9 @@ public class ShoppingMallReviewService {
                 .build();
 
         reviewRepository.save(review);
-        fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(),"Review");
+        if(writeRequest.multipartImageFiles() != null) {
+            fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(),"Review");
+        }
     }
 
     public ShoppingMallReviewProductResponse findShoppingMallReviewTotalInfo(String productURL){
