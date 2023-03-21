@@ -38,14 +38,12 @@ public class SnsController {
     }
 
     @GetMapping("/get-followers/{accountId}")
-    public List<UserInfoResponse> getFollowers(@PathVariable String accountId){
-        return List.of();
-        //return snsService.getFollowerList(accountId);
+    public List<UserInfoResponse> getFollowers(@PathVariable @Email String accountId){
+        return snsService.getFollowerList(accountId);
     }
 
     @GetMapping("/get-followings/{accountId}")
-    public List<UserInfoResponse> getFollowings(@PathVariable String accountId){
-        return List.of();
-        //return snsService.getFollowingList(accountId);
+    public List<UserInfoResponse> getFollowings(@PathVariable @Email String accountId){
+        return snsService.getFollowingList(accountId);
     }
 }
