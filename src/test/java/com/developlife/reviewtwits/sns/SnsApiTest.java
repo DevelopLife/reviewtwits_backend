@@ -323,6 +323,7 @@ public class SnsApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
+
                 .body("find{it.errorType == 'ConstraintViolationException' "
                         + "&& it.fieldName == 'accountId' }", notNullValue())
                 .log().all();
@@ -381,6 +382,7 @@ public class SnsApiTest extends ApiTest {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("find{it.errorType == 'ConstraintViolationException' "
                         + "&& it.fieldName == 'accountId' }", notNullValue())
+
                 .log().all();
     }
 
