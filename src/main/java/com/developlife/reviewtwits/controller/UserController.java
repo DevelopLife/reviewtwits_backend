@@ -36,7 +36,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
-    public JwtTokenResponse login(@RequestBody LoginUserRequest loginUserRequest, HttpServletResponse response) {
+    public JwtTokenResponse login(@RequestBody @Valid LoginUserRequest loginUserRequest, HttpServletResponse response) {
         User user = userService.login(loginUserRequest);
         jwtTokenProvider.setRefreshTokenForClient(response, user);
 
@@ -53,7 +53,7 @@ public class UserController {
 
     @PostMapping(value = "/register", consumes = "application/json", produces = "application/json")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public JwtTokenResponse register(@Valid @RequestBody RegisterUserRequest registerUserRequest, HttpServletResponse response) {
+    public JwtTokenResponse register(@RequestBody @Valid RegisterUserRequest registerUserRequest, HttpServletResponse response) {
         User user = userService.register(registerUserRequest, Set.of(UserRole.USER));
         jwtTokenProvider.setRefreshTokenForClient(response, user);
 

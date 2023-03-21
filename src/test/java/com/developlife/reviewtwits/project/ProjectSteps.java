@@ -16,7 +16,7 @@ public class ProjectSteps {
     public static final String uriPattern = "/products";
     public static final ProjectCategory category = ProjectCategory.쇼핑;
     public static final Language language = Language.한국어;
-    public static final String projectColor = "프로젝트 색깔";
+    public static final String projectColor = "#FFFFFF";
     public static final ProjectPricePlan pricePlan = ProjectPricePlan.FREE_PLAN;
 
     public static RegisterProjectRequest 프로젝트생성요청_생성() {
@@ -24,8 +24,8 @@ public class ProjectSteps {
                 .projectName(projectName)
                 .projectDescription(projectDescription)
                 .uriPattern(uriPattern)
-                .category(category)
-                .language(language)
+                .category(category.toString())
+                .language(language.toString())
                 .projectColor(projectColor)
                 .build();
     }
@@ -33,7 +33,7 @@ public class ProjectSteps {
     public static FixProjectRequest 프로젝트수정요청_생성() {
         return FixProjectRequest.builder()
             .projectName("인생마린 프로젝트")
-            .language(Language.ENGLISH)
+            .language(Language.ENGLISH.toString())
             .build();
     }
 }

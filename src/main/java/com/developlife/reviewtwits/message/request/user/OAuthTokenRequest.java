@@ -1,5 +1,7 @@
 package com.developlife.reviewtwits.message.request.user;
 
+import com.developlife.reviewtwits.message.annotation.oauth.JwtProvider;
+
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -10,6 +12,7 @@ public record OAuthTokenRequest(
         @NotBlank(message = "토큰 발급을 위한 인증코드가 필요합니다")
         String code,
         @NotBlank(message = "토큰 제공사에 대한 정보가 필요합니다")
+        @JwtProvider
         String provider
 ) {
 }

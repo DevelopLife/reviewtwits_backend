@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.project;
 
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
+import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.service.ProjectService;
 import com.developlife.reviewtwits.service.user.UserService;
@@ -43,10 +44,11 @@ public class ProjectApiTest extends ApiTest {
         // 일반유저, 어드민유저 회원가입 해두고 테스트 진행
         userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
         userService.register(registerAdminRequest, UserSteps.어드민유저권한_생성());
+        User user = userService.getUser(UserSteps.accountId);
 
         IntStream.range(1, 3)
                 .forEach(
-                    i -> projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(), UserSteps.accountId));
+                    i -> projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(), user));
     }
 
 
@@ -76,7 +78,7 @@ public class ProjectApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", CommonDocument.AccessTokenHeader, ProjectDocument.ProjectInfoListResponseField))
+            .filter(document(DEFAULT_RESTDOC_PATH, "유저의 프로젝트를 리스트를 반환합니다", "프로젝트리스트", CommonDocument.AccessTokenHeader, ProjectDocument.ProjectInfoListResponseField))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
             .when()
@@ -96,7 +98,7 @@ public class ProjectApiTest extends ApiTest {
         final Long projectId = projectService.getProjectIdFromAccountId(UserSteps.accountId);
 
         given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성",
+            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 수정합니다", "프로젝트수정",
                 CommonDocument.AccessTokenHeader, ProjectDocument.ProjectIdPathParam,
                 ProjectDocument.FixProjectRequestField,
                 ProjectDocument.ProjectSettingInfoResponseField))
