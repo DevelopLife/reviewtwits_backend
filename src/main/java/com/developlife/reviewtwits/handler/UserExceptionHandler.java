@@ -83,4 +83,10 @@ public class UserExceptionHandler {
     public List<ErrorResponse> providerNotSupportedExceptionHandler(ProviderNotSupportedException e){
         return makeErrorResponse(e, "provider");
     }
+
+    @ExceptionHandler(UnAuthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public List<ErrorResponse> unAuthorizedExceptionHandler(UnAuthorizedException e){
+        return makeErrorResponse(e, "");
+    }
 }

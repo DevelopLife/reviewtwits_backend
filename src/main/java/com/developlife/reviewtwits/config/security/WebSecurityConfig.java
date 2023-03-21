@@ -45,19 +45,22 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.httpBasic().disable()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/users/admin").hasRole("ADMIN")
-                .antMatchers("/users/me").hasRole("USER")
-                .antMatchers("/projects/**").hasRole("USER")
-                .antMatchers(HttpMethod.POST,"/reviews/shopping").hasRole("USER")
-                .anyRequest()
-                .permitAll()
-                .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-                .cors(Customizer.withDefaults());
+            .csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .authorizeRequests()
+            .antMatchers("/users/admin").hasRole("ADMIN")
+            .antMatchers("/users/me").hasRole("USER")
+            .antMatchers("/projects/**").hasRole("USER")
+            .antMatchers(HttpMethod.POST,"/reviews/shopping").hasRole("USER")
+            .anyRequest()
+            .permitAll()
+            .and()
+            .exceptionHandling()
+            .accessDeniedHandler(new JwtAccessDeniedHandler())
+            .and()
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+            .cors(Customizer.withDefaults());
 
         return http.build();
     }
