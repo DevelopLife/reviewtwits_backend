@@ -17,7 +17,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
-
+      - name: echo README
+        run: cat README.md
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
