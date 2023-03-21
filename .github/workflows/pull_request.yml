@@ -3,7 +3,7 @@ name: ReviewTwits Pull Rquest
 on:
   pull_request_target:
     branches:
-      - feature/**
+      - develop
 
 jobs:
   build:
