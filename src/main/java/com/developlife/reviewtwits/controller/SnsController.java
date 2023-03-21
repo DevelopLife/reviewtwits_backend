@@ -6,12 +6,10 @@ import com.developlife.reviewtwits.service.SnsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.BindException;
 
 /**
  * @author WhalesBob
@@ -25,8 +23,13 @@ public class SnsController {
 
     private final SnsService snsService;
 
-    @PostMapping("/requestFollow")
+    @PostMapping("/request-follow")
     public void followProcess(@AuthenticationPrincipal User user, @Valid @RequestBody FollowRequest request){
         snsService.followProcess(user, request.targetUserAccountId());
+    }
+
+    @PostMapping("/request-unfollow")
+    public void unfollowProcess(@AuthenticationPrincipal User user, @Valid @RequestBody FollowRequest request){
+        snsService.unfollowProcess(user, request.targetUserAccountId());
     }
 }

@@ -1,6 +1,8 @@
 package com.developlife.reviewtwits.handler;
 
+import com.developlife.reviewtwits.exception.sns.AlreadyDoneException;
 import com.developlife.reviewtwits.exception.sns.FollowAlreadyExistsException;
+import com.developlife.reviewtwits.exception.sns.UnfollowAlreadyDoneException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,9 +19,9 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
  */
 @RestControllerAdvice
 public class SnsExceptionHandler {
-    @ExceptionHandler(FollowAlreadyExistsException.class)
+    @ExceptionHandler({FollowAlreadyExistsException.class, UnfollowAlreadyDoneException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public List<ErrorResponse> followAlreadyExistsExceptionHandler(FollowAlreadyExistsException e){
+    public List<ErrorResponse> followAlreadyExistsExceptionHandler(AlreadyDoneException e){
         return makeErrorResponse(e, "targetUserAccountId");
     }
 }

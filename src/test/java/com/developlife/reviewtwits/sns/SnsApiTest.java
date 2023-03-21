@@ -58,6 +58,7 @@ public class SnsApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH,"팔로우 요청을 보냅니다." +
+                        "<br>팔로우가 정상적으로 이루어졌다면 200 OK 가 반환됩니다." +
                         "<br>입력된 아이디로 등록된 계정이 없는 경우 404 Not Found 가 반환됩니다." +
                         "<br>이미 요청되어 성사되어 있는 팔로우를 다시 요청하면 409 Conflict 가 반환됩니다" +
                         "<br>이메일 형식의 아이디가 아닌 경우, 400 Bad Request 가 반환됩니다." +
@@ -66,7 +67,7 @@ public class SnsApiTest extends ApiTest {
                 .header("X-AUTH-TOKEN", token)
                 .body(snsSteps.팔로우정보_생성())
                 .when()
-                .post("/sns/requestFollow")
+                .post("/sns/request-follow")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value());
@@ -89,7 +90,7 @@ public class SnsApiTest extends ApiTest {
                 .header("X-AUTH-TOKEN", oppositeToken)
                 .body(snsSteps.팔로우정보_상대방측_생성())
                 .when()
-                .post("/sns/requestFollow")
+                .post("/sns/request-follow")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value());
@@ -108,7 +109,7 @@ public class SnsApiTest extends ApiTest {
                 .header("X-AUTH-TOKEN", token)
                 .body(request)
                 .when()
-                .post("/sns/requestFollow")
+                .post("/sns/request-follow")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value());
@@ -126,7 +127,7 @@ public class SnsApiTest extends ApiTest {
                 .header("X-AUTH-TOKEN", tokenAgain)
                 .body(snsSteps.팔로우정보_생성())
                 .when()
-                .post("/sns/requestFollow")
+                .post("/sns/request-follow")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.CONFLICT.value())
@@ -147,7 +148,7 @@ public class SnsApiTest extends ApiTest {
                 .header("X-AUTH-TOKEN", token)
                 .body(snsSteps.없는상대방_팔로우요청_생성())
                 .when()
-                .post("/sns/requestFollow")
+                .post("/sns/request-follow")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
@@ -166,7 +167,7 @@ public class SnsApiTest extends ApiTest {
                 .header("X-AUTH-TOKEN", token)
                 .body(snsSteps.이메일형식아닌_팔로우요청_생성())
                 .when()
-                .post("/sns/requestFollow")
+                .post("/sns/request-follow")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -175,4 +176,113 @@ public class SnsApiTest extends ApiTest {
                 .log().all().extract();;
     }
 
+    @Test
+    void 언팔로우요청_기본_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        팔로우요청_생성(token, snsSteps.팔로우정보_생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,"언팔로우 요청을 보냅니다." +
+                        "<br>언팔로우가 정상적으로 동작했다면 200 OK 가 반환됩니다." +
+                        "<br>입력된 아이디로 등록된 계정이 없는 경우 404 Not Found 가 반환됩니다." +
+                        "<br>이미 팔로우되어 있지 않은 계정에 언팔로우를 요청하면 409 Conflict 가 반환됩니다" +
+                        "<br>이메일 형식의 아이디가 아닌 경우, 400 Bad Request 가 반환됩니다." +
+                        "<br>유효한 access token 이 아닐 경우, 401 Unauthorized 가 반환됩니다.","언팔로우요청", SnsDocument.followRequestField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .body(snsSteps.팔로우정보_생성())
+                .when()
+                .post("/sns/request-unfollow")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value());
+
+        Optional<Follow> newFollow = followRepository.findByUserAndTargetUser(user, targetUser);
+        assertThat(newFollow.isPresent()).isFalse();
+    }
+
+    @Test
+    void 언팔로우요청_맞팔로우해제_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        팔로우요청_생성(token, snsSteps.팔로우정보_생성());
+
+        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
+        팔로우요청_생성(oppositeToken, snsSteps.팔로우정보_상대방측_생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, SnsDocument.followRequestField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .body(snsSteps.팔로우정보_생성())
+                .when()
+                .post("/sns/request-unfollow")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value());
+
+        Optional<Follow> follow = followRepository.findByUserAndTargetUser(user, targetUser);
+        Optional<Follow> backFollow = followRepository.findByUserAndTargetUser(targetUser, user);
+
+        assertThat(follow.isPresent()).isFalse();
+        assertThat(backFollow.isPresent()).isTrue();
+        assertThat(backFollow.get().isFollowBackFlag()).isFalse();
+    }
+
+    @Test
+    void 팔로우요청_없는계정언팔로우요청_404(){
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .body(snsSteps.없는상대방_팔로우요청_생성())
+                .when()
+                .post("/sns/request-unfollow")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body("find{it.errorType == 'UserIdNotFoundException' " +
+                        "&& it.fieldName == 'userId' }", notNullValue())
+                .log().all().extract();;
+    }
+
+    @Test
+    void 언팔로우요청_이메일형식아님_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .body(snsSteps.이메일형식아닌_팔로우요청_생성())
+                .when()
+                .post("/sns/request-unfollow")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("find{it.errorType == 'Email' " +
+                        "&& it.fieldName == 'targetUserAccountId' }", notNullValue())
+                .log().all().extract();;
+    }
+
+    @Test
+    void 언팔로우요청_이미_맞팔로우_아님_409(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .body(snsSteps.팔로우정보_생성())
+                .when()
+                .post("/sns/request-unfollow")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .body("find{it.errorType == 'UnfollowAlreadyDoneException' " +
+                        "&& it.fieldName == 'targetUserAccountId' }", notNullValue())
+                .log().all().extract();
+    }
 }
