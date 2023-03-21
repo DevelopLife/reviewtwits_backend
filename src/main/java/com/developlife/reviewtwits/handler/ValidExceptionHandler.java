@@ -18,6 +18,7 @@ import java.util.List;
  */
 @RestControllerAdvice
 public class ValidExceptionHandler {
+
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public List<ErrorResponse> processValidationError(BindException e) {
@@ -49,12 +50,17 @@ public class ValidExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public List<ErrorResponse> constraintViolationExceptionHandler(ConstraintViolationException e){
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .message(e.getMessage().split(": ")[1])
-                .errorType(e.getClass().getSimpleName())
-                .fieldName("")
-                .build();
 
-        return List.of(errorResponse);
+        return e.getConstraintViolations().stream().map(error -> {
+            String[] propertyPath = error.getPropertyPath().toString().split("\\.");
+            String fieldName = propertyPath[propertyPath.length-1];
+
+            return ErrorResponse.builder()
+                    .message(e.getMessage().split(": ")[1])
+                    .errorType(e.getClass().getSimpleName())
+                    .fieldName(fieldName)
+                    .build();
+        }).toList();
+
     }
 }
