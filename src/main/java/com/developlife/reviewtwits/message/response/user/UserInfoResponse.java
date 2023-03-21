@@ -6,6 +6,8 @@ package com.developlife.reviewtwits.message.response.user;
  */
 public record UserInfoResponse(
         String nickname,
-        String accountId
+        String accountId,
+        String introduceText,
+        String profileImage
 ) {
 }

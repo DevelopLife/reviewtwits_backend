@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolationException;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
  */
 @RestControllerAdvice
 public class ValidExceptionHandler {
+
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public List<ErrorResponse> processValidationError(BindException e) {
@@ -43,5 +45,22 @@ public class ValidExceptionHandler {
                 .fieldName("")
                 .build();
         return errorResponse;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public List<ErrorResponse> constraintViolationExceptionHandler(ConstraintViolationException e){
+
+        return e.getConstraintViolations().stream().map(error -> {
+            String[] propertyPath = error.getPropertyPath().toString().split("\\.");
+            String fieldName = propertyPath[propertyPath.length-1];
+
+            return ErrorResponse.builder()
+                    .message(e.getMessage().split(": ")[1])
+                    .errorType(e.getClass().getSimpleName())
+                    .fieldName(fieldName)
+                    .build();
+        }).toList();
+
     }
 }

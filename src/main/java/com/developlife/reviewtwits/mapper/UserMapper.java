@@ -32,6 +32,7 @@ public interface UserMapper {
 
     FindIdsEmailResponse toFindIdsEmailResponse(User user);
     List<FindIdsEmailResponse> toFindIdsEmailResponseList(List<User> users);
+    List<UserInfoResponse> toUserInfoResponseList(List<User> users);
 
     @Mapping(target = "accountPw", ignore = true)
     @Mapping(target = "projectList", ignore = true)

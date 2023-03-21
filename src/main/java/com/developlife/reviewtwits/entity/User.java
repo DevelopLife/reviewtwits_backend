@@ -73,9 +73,11 @@ public class User extends BaseEntity implements UserDetails {
     @Builder.Default // 인스턴스 만들때 특정 필드값으로 초기화 할경우
     private Set<UserRole> roles = new HashSet<>();
 
-    // TODO 파일업로드 구현 완료시 구현
-     @Transient
-     String profileImage;
+    String introduceText;
+
+    @Setter
+    @Transient
+    String profileImage;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

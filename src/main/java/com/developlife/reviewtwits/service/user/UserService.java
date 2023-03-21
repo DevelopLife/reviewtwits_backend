@@ -1,8 +1,6 @@
 package com.developlife.reviewtwits.service.user;
 
-import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.EmailVerify;
-import com.developlife.reviewtwits.entity.RefreshToken;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.PhoneNumberAlreadyExistsException;
 import com.developlife.reviewtwits.exception.mail.VerifyCodeException;
@@ -15,10 +13,9 @@ import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.EmailVerifyRepository;
 import com.developlife.reviewtwits.repository.RefreshTokenRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
-import com.developlife.reviewtwits.type.JwtCode;
+import com.developlife.reviewtwits.service.FileStoreService;
 import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
-import io.jsonwebtoken.Jwts;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -41,14 +39,16 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final FileStoreService fileStoreService;
 
     @Autowired
-    public UserService(UserRepository userRepository, EmailVerifyRepository emailVerifyRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, EmailVerifyRepository emailVerifyRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, FileStoreService fileStoreService) {
         this.userRepository = userRepository;
         this.emailVerifyRepository = emailVerifyRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
+        this.fileStoreService = fileStoreService;
     }
 
     public User login(LoginUserRequest loginUserRequest) {
@@ -155,5 +155,12 @@ public class UserService {
         refreshTokenRepository.findByAccountId(user.getAccountId()).ifPresent(
                 refreshTokenRepository::delete
         );
+    }
+
+    public void setImages(User user){
+        List<String> userProfileImage = fileStoreService.bringFileNameList("User", user.getUserId());
+        if(!userProfileImage.isEmpty()){
+            user.setProfileImage(userProfileImage.get(0));
+        }
     }
 }

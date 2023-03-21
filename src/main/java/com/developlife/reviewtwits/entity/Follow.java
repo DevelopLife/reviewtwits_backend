@@ -21,7 +21,7 @@ public class Follow {
     @Id @GeneratedValue
     private long followId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private User user;
 
