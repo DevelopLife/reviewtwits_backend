@@ -1,10 +1,9 @@
 package com.developlife.reviewtwits.message.request.project;
 
 import com.developlife.reviewtwits.message.annotation.project.Color;
+import com.developlife.reviewtwits.message.annotation.project.Language;
+import com.developlife.reviewtwits.message.annotation.project.ProjectCategory;
 import com.developlife.reviewtwits.message.annotation.project.URI;
-import com.developlife.reviewtwits.type.project.Language;
-import com.developlife.reviewtwits.type.project.ProjectCategory;
-import com.developlife.reviewtwits.type.project.ProjectPricePlan;
 import lombok.Builder;
 
 import javax.validation.constraints.Size;
@@ -20,13 +19,13 @@ public record FixProjectRequest(
     String projectDescription,
     @URI
     String uriPattern,
-    @com.developlife.reviewtwits.message.annotation.project.ProjectCategory
+    @ProjectCategory
     String category,
-    @com.developlife.reviewtwits.message.annotation.project.Language
+    @Language
     String language,
     @Color
     String projectColor,
-    @com.developlife.reviewtwits.message.annotation.project.ProjectCategory
+    @ProjectCategory
     String pricePlan) {
     @Builder
     public FixProjectRequest {

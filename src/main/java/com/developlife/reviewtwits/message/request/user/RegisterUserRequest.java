@@ -1,9 +1,9 @@
 package com.developlife.reviewtwits.message.request.user;
 
 import com.developlife.reviewtwits.message.annotation.user.Birthday;
+import com.developlife.reviewtwits.message.annotation.user.Gender;
 import com.developlife.reviewtwits.message.annotation.user.Password;
 import com.developlife.reviewtwits.message.annotation.user.Phone;
-import com.developlife.reviewtwits.type.Gender;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -32,7 +32,7 @@ public record RegisterUserRequest(
         @NotBlank(message = "휴대폰번호를 입력해주세요")
         @Phone
         String phoneNumber,
-        @com.developlife.reviewtwits.message.annotation.user.Gender
+        @Gender
         String gender,
         @NotBlank(message = "이메일 인증코드를 입력해주세요")
         String verifyCode // 이메일 인증코드

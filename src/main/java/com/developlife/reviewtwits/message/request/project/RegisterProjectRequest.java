@@ -1,10 +1,6 @@
 package com.developlife.reviewtwits.message.request.project;
 
-import com.developlife.reviewtwits.message.annotation.project.Color;
-import com.developlife.reviewtwits.message.annotation.project.URI;
-import com.developlife.reviewtwits.type.project.Language;
-import com.developlife.reviewtwits.type.project.ProjectCategory;
-import com.developlife.reviewtwits.type.project.ProjectPricePlan;
+import com.developlife.reviewtwits.message.annotation.project.*;
 import lombok.Builder;
 
 import javax.validation.constraints.NotBlank;
@@ -21,15 +17,15 @@ public record RegisterProjectRequest(
     @URI
     String uriPattern,
     @NotBlank(message = "프로젝트 카테고리를 선택해주세요")
-    @com.developlife.reviewtwits.message.annotation.project.ProjectCategory
+    @ProjectCategory
     String category,
     @NotBlank(message = "프로젝트 언어를 선택해주세요")
-    @com.developlife.reviewtwits.message.annotation.project.Language
+    @Language
     String language,
     @NotBlank(message = "프로젝트 색상을 선택해주세요")
     @Color
     String projectColor,
-    @com.developlife.reviewtwits.message.annotation.project.ProjectPricePlan
+    @ProjectPricePlan
     String pricePlan) {
     @Builder
     public RegisterProjectRequest {

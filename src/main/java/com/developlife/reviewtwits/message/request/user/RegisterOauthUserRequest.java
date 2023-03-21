@@ -1,8 +1,8 @@
 package com.developlife.reviewtwits.message.request.user;
 
+import com.developlife.reviewtwits.message.annotation.oauth.JwtProvider;
+import com.developlife.reviewtwits.message.annotation.user.Gender;
 import com.developlife.reviewtwits.message.annotation.user.Phone;
-import com.developlife.reviewtwits.type.Gender;
-import com.developlife.reviewtwits.type.JwtProvider;
 import lombok.Builder;
 
 import javax.validation.constraints.NotBlank;
@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
  * @since 2023/03/15
  */
 public record RegisterOauthUserRequest(
-    @com.developlife.reviewtwits.message.annotation.oauth.JwtProvider
+    @JwtProvider
     String provider,
     @Size(min = 2, max = 20, message = "닉네임은 2자리 이상, 20자리 이하로 입력해주세요")
     String nickname,
@@ -24,7 +24,7 @@ public record RegisterOauthUserRequest(
     @NotBlank(message = "휴대폰번호를 입력해주세요")
     @Phone
     String phoneNumber,
-    @com.developlife.reviewtwits.message.annotation.user.Gender
+    @Gender
     String gender
 ) {
     @Builder
