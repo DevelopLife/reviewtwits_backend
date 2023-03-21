@@ -1,5 +1,8 @@
 package com.developlife.reviewtwits.message.request.user;
 
+import com.developlife.reviewtwits.message.annotation.user.Birthday;
+import com.developlife.reviewtwits.message.annotation.user.Password;
+import com.developlife.reviewtwits.message.annotation.user.Phone;
 import com.developlife.reviewtwits.type.Gender;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -21,17 +24,16 @@ public record RegisterUserRequest(
         @Email(message = "이메일 형식이 아닙니다.")
         String accountId,
         @NotBlank(message = "비밀번호를 입력해주세요")
-        @Pattern(message = "비밀번호는 6자리 이상, 영문, 숫자, 특수문자 조합이어야 합니다.",
-                regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,}$")
+        @Password
         String accountPw,
-        @Pattern(message = "생일 형식이 아닙니다.",
-                regexp = "^(19|20)\\d{2}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$")
+        @NotBlank(message = "생년월일을 입력해주세요")
+        @Birthday
         String birthDate,
         @NotBlank(message = "휴대폰번호를 입력해주세요")
-        @Pattern(message = "휴대폰번호 형식이 아닙니다.",
-                regexp = "^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$")
+        @Phone
         String phoneNumber,
-        Gender gender,
+        @com.developlife.reviewtwits.message.annotation.user.Gender
+        String gender,
         @NotBlank(message = "이메일 인증코드를 입력해주세요")
         String verifyCode // 이메일 인증코드
 ) {

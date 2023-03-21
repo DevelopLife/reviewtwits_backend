@@ -55,7 +55,7 @@ public class UserSteps {
                 .accountId(accountId)
                 .accountPw(accountPw)
                 .birthDate(birthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber(phoneNumber)
                 .verifyCode(key)
                 .build();
@@ -75,7 +75,7 @@ public class UserSteps {
                 .accountId(targetAccountId)
                 .accountPw(accountPw)
                 .birthDate(targetBirthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber(targetPhoneNumber)
                 .verifyCode(key)
                 .build();
@@ -89,7 +89,7 @@ public class UserSteps {
                 .accountId("admin_" + accountId)
                 .accountPw(accountPw)
                 .birthDate(birthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber("01099999999")
                 .verifyCode(key)
                 .build();
@@ -184,7 +184,7 @@ public class UserSteps {
                 .accountId("add_" + accountId)
                 .accountPw(accountPw)
                 .birthDate(birthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber("01011110000")
                 .verifyCode(key)
                 .build();
@@ -192,7 +192,7 @@ public class UserSteps {
 
     public static RegisterUserRequest 회원가입요청_입력정보_누락() {
         return RegisterUserRequest.builder()
-                .gender(gender)
+                .gender(gender.toString())
                 .build();
     }
 
@@ -202,7 +202,7 @@ public class UserSteps {
                 .accountId("add_" + accountId)
                 .accountPw("1234")
                 .birthDate(birthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber("전화번호")
                 .verifyCode("123456")
                 .build();
@@ -214,7 +214,7 @@ public class UserSteps {
                 .accountId("wrong@test.com")
                 .accountPw("123@@@")
                 .birthDate(birthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber("01099998888")
                 .verifyCode("123456")
                 .build();
