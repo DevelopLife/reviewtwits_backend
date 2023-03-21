@@ -312,21 +312,21 @@ public class SnsApiTest extends ApiTest {
         assertThat(jsonPath.getString("[0].accountId")).isEqualTo(SnsSteps.userAccountId);
     }
 
-//    @Test
-//    void 팔로워리스트_요청_이메일형식아님_400(){
-//        given(this.spec)
-//                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
-//                .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                .pathParam("accountId", "notEmail")
-//                .when()
-//                .get("/sns/get-followers/{accountId}")
-//                .then()
-//                .assertThat()
-//                .statusCode(HttpStatus.BAD_REQUEST.value())
-//                .body("find{it.errorType == 'ConstraintViolationException' " + "&& it.fieldName == 'accountId'" +
-//                        "&& it.message == '올바른 형식의 이메일 주소여야 합니다' }", notNullValue())
-//                .log().all();
-//    }
+    @Test
+    void 팔로워리스트_요청_이메일형식아님_400(){
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("accountId", "notEmail")
+                .when()
+                .get("/sns/get-followers/{accountId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("find{it.errorType == 'ConstraintViolationException' " + "&& it.fieldName == 'accountId'" +
+                        "&& it.message == '올바른 형식의 이메일 주소여야 합니다' }", notNullValue())
+                .log().all();
+    }
 
     @Test
     void 팔로워리스트_요청_없는아이디_404(){
@@ -368,21 +368,21 @@ public class SnsApiTest extends ApiTest {
         assertThat(jsonPath.getString("[0].accountId")).isEqualTo(SnsSteps.targetUserAccountId);
     }
 
-//    @Test
-//    void 팔로잉리스트_요청_이메일형식아님_400(){
-//        given(this.spec)
-//                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
-//                .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                .pathParam("accountId", "notEmail")
-//                .when()
-//                .get("/sns/get-followings/{accountId}")
-//                .then()
-//                .assertThat()
-//                .statusCode(HttpStatus.BAD_REQUEST.value())
-//                .body("find{it.errorType == 'ConstraintViolationException' " + "&& it.fieldName == 'accountId'" +
-//                        "&& it.message == '올바른 형식의 이메일 주소여야 합니다' }", notNullValue())
-//                .log().all();
-//    }
+    @Test
+    void 팔로잉리스트_요청_이메일형식아님_400(){
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("accountId", "notEmail")
+                .when()
+                .get("/sns/get-followings/{accountId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("find{it.errorType == 'ConstraintViolationException' " + "&& it.fieldName == 'accountId'" +
+                        "&& it.message == '올바른 형식의 이메일 주소여야 합니다' }", notNullValue())
+                .log().all();
+    }
 
     @Test
     void 팔로잉리스트_요청_없는아이디_404(){
