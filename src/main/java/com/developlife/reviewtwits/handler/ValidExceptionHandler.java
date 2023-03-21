@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolationException;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
@@ -43,5 +44,17 @@ public class ValidExceptionHandler {
                 .fieldName("")
                 .build();
         return errorResponse;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public List<ErrorResponse> constraintViolationExceptionHandler(ConstraintViolationException e){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message(e.getMessage().split(": ")[1])
+                .errorType(e.getClass().getSimpleName())
+                .fieldName("")
+                .build();
+
+        return List.of(errorResponse);
     }
 }
