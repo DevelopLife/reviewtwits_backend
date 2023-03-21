@@ -56,7 +56,7 @@ public class UserApiTest extends ApiTest {
             .get("/users/search/{userId}")
         .then()
             .assertThat()
-            .statusCode(HttpStatus.OK.value())
+            .statusCode(HttpStatus.ALREADY_REPORTED.value())
             // 기본정보 표시
             .body("nickname", notNullValue())
             .body("accountId", notNullValue())
