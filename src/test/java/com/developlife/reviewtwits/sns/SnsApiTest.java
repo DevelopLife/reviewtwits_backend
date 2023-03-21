@@ -9,6 +9,9 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.FollowRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserSteps;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -284,5 +287,117 @@ public class SnsApiTest extends ApiTest {
                 .body("find{it.errorType == 'UnfollowAlreadyDoneException' " +
                         "&& it.fieldName == 'targetUserAccountId' }", notNullValue())
                 .log().all().extract();
+    }
+
+    @Test
+    void 팔로워리스트_요청_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        팔로우요청_생성(token, snsSteps.팔로우정보_생성());
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "팔로워 리스트를 요청합니다." +
+                        "<br> 정상적인 이메일 형식의 아이디를 입력해 성공하면, 200 OK 코드와 함께 유저 정보 리스트가 반환됩니다." +
+                        "<br> 이메일 형식의 아이디가 아니라면, 400 BAD REQUEST 와 함께 오류 메세지가 반환됩니다." +
+                        "<br> 가입되어 있지 않은 아이디가 입력되면, 404 Not Found 와 함께 오류 메세지가 반환됩니다.","팔로워리스트요청",SnsDocument.followIdField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("accountId", SnsSteps.targetUserAccountId)
+                .when()
+                .get("/sns/get-followers/{accountId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("[0].accountId")).isEqualTo(SnsSteps.userAccountId);
+    }
+
+    @Test
+    void 팔로워리스트_요청_이메일형식아님_400(){
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("accountId", "notEmail")
+                .when()
+                .get("/sns/get-followers/{accountId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("find{it.errorType == 'ConstraintViolationException' " +
+                        "&& it.message == '올바른 형식의 이메일 주소여야 합니다' }", notNullValue())
+                .log().all();
+    }
+
+    @Test
+    void 팔로워리스트_요청_없는아이디_404(){
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("accountId", SnsSteps.notExistAccountId)
+                .when()
+                .get("/sns/get-followers/{accountId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body("find{it.errorType == 'UserIdNotFoundException' " +
+                        "&& it.fieldName == 'userId' }", notNullValue())
+                .log().all();
+    }
+
+    @Test
+    void 팔로잉리스트_요청_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        팔로우요청_생성(token, snsSteps.팔로우정보_생성());
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "팔로잉 리스트를 요청합니다." +
+                        "<br> 정상적인 이메일 형식의 아이디를 입력해 성공하면, 200 OK 코드와 함께 유저 정보 리스트가 반환됩니다." +
+                        "<br> 이메일 형식의 아이디가 아니라면, 400 BAD REQUEST 와 함께 오류 메세지가 반환됩니다." +
+                        "<br> 가입되어 있지 않은 아이디가 입력되면, 404 Not Found 와 함께 오류 메세지가 반환됩니다.","팔로잉리스트요청",SnsDocument.followIdField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("accountId", SnsSteps.userAccountId)
+                .when()
+                .get("/sns/get-followings/{accountId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("[0].accountId")).isEqualTo(SnsSteps.targetUserAccountId);
+    }
+
+    @Test
+    void 팔로잉리스트_요청_이메일형식아님_400(){
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("accountId", "notEmail")
+                .when()
+                .get("/sns/get-followers/{accountId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("find{it.errorType == 'ConstraintViolationException' " +
+                        "&& it.message == '올바른 형식의 이메일 주소여야 합니다' }", notNullValue())
+                .log().all();
+    }
+
+    @Test
+    void 팔로잉리스트_요청_없는아이디_404(){
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("accountId", SnsSteps.notExistAccountId)
+                .when()
+                .get("/sns/get-followers/{accountId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body("find{it.errorType == 'UserIdNotFoundException' " +
+                        "&& it.fieldName == 'userId' }", notNullValue())
+                .log().all();
     }
 }
