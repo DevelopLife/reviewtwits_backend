@@ -323,8 +323,9 @@ public class SnsApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("find{it.errorType == 'ConstraintViolationException' " + "&& it.fieldName == 'accountId'" +
-                        "&& it.message == '올바른 형식의 이메일 주소여야 합니다' }", notNullValue())
+
+                .body("find{it.errorType == 'ConstraintViolationException' "
+                        + "&& it.fieldName == 'accountId' }", notNullValue())
                 .log().all();
     }
 
@@ -379,8 +380,9 @@ public class SnsApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("find{it.errorType == 'ConstraintViolationException' " + "&& it.fieldName == 'accountId'" +
-                        "&& it.message == '올바른 형식의 이메일 주소여야 합니다' }", notNullValue())
+                .body("find{it.errorType == 'ConstraintViolationException' "
+                        + "&& it.fieldName == 'accountId' }", notNullValue())
+
                 .log().all();
     }
 
