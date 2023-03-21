@@ -35,25 +35,22 @@ public class ProjectService {
     }
 
     @Transactional
-    public void registerProject(RegisterProjectRequest registerProjectRequest, String accountId) {
-        User user = userRepository.findByAccountId(accountId)
-            .orElseThrow(() -> new AccountIdNotFoundException("해당 유저가 존재하지 않습니다."));
-
+    public void registerProject(RegisterProjectRequest registerProjectRequest, User user) {
         Project project = projectMapper.toProject(registerProjectRequest);
         project.setUser(user);
         projectRepository.save(project);
     }
 
-    public List<ProjectInfoResponse> getProjectListByUser(String accountId) {
-        List<Project> projectList = projectRepository.findProjectsByUser_AccountId(accountId);
+    public List<ProjectInfoResponse> getProjectListByUser(User user) {
+        List<Project> projectList = projectRepository.findProjectsByUser_AccountId(user.getAccountId());
         return projectMapper.toProjectInfoResponseList(projectList);
     }
 
     @Transactional
-    public ProjectSettingInfoResponse updateProject(Long projectId, FixProjectRequest fixProjectRequest, String accountId) {
+    public ProjectSettingInfoResponse updateProject(Long projectId, FixProjectRequest fixProjectRequest, User user) {
         Project project = projectRepository.findByProjectId(projectId)
             .orElseThrow(() -> new ProjectIdNotFoundException("해당 프로젝트가 존재하지 않습니다."));
-        if (!project.getUser().getAccountId().equals(accountId)) {
+        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
             throw new AccessResourceDeniedException("해당 리소스에 접근할 수 있는 권하이 없습니다.");
         }
         projectMapper.updateProjectFromFixProjectRequest(fixProjectRequest, project);
