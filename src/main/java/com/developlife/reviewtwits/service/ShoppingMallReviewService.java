@@ -103,6 +103,15 @@ public class ShoppingMallReviewService {
         return mapper.toDetailReviewResponseList(reviews);
     }
 
+    public DetailReviewResponse findOneShoppingMallReview(long reviewId){
+        Optional<Review> review = reviewRepository.findById(reviewId);
+        if(review.isEmpty()){
+            return null;
+        }
+        review.ifPresent(this::saveReviewImage);
+        return mapper.mapReviewToDetailReviewResponse(review.get());
+    }
+
     public void checkProductURLIsValid(String productURL) throws BindException {
         if(!Pattern.matches("^(https?://)[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+/[a-zA-Z0-9-_/.?=]*",productURL)){
             throw new BindException("유효한 productURL 이 아닙니다.");

@@ -49,6 +49,11 @@ public class ShoppingMallReviewController {
         return result;
     }
 
+    @GetMapping(value = "/shopping/{reviewId}", produces = "application/json")
+    public DetailReviewResponse findOneShoppingMallReview(@PathVariable Long reviewId){
+        return reviewService.findOneShoppingMallReview(reviewId);
+    }
+
 
     @DeleteMapping(value = "/shopping/{reviewId}")
     public void deleteShoppingMallReview(@NotBlank @PathVariable Long reviewId,
