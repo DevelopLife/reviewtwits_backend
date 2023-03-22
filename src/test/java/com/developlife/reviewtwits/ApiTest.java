@@ -19,7 +19,7 @@ import static org.springframework.restdocs.restassured3.RestAssuredRestDocumenta
 public class ApiTest {
 
     @Autowired
-    private DatabaseCleanUp databaseCleanup;
+    private DatabaseCleanup databaseCleanup;
 
     @LocalServerPort
     private int port;
