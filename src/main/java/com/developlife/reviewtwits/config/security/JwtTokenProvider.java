@@ -13,6 +13,8 @@ import com.developlife.reviewtwits.type.UserRole;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -170,26 +172,27 @@ public class JwtTokenProvider {
     }
 
     public void setRefreshTokenForClient(HttpServletResponse response, User user) {
-        // Create a cookie
-        Cookie cookie = new Cookie("refreshToken", issueRefreshToken(user.getAccountId()));
-        cookie.setMaxAge((int) refreshTokenValidTime);
-        // 보안 설정
-//        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", issueRefreshToken(user.getAccountId()))
+            .maxAge(refreshTokenValidTime / 1000)
+            // 보안 설정
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .sameSite("None")
+            .build();
+        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     public void removeRefreshTokenForClient(HttpServletResponse response) {
-        // Create a cookie
-        Cookie cookie = new Cookie("refreshToken", null);
-        cookie.setMaxAge(0);
-        // 보안 설정
-//        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", null)
+            .maxAge(0)
+            // 보안 설정
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .sameSite("None")
+            .build();
 
-        response.addCookie(cookie);
+        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }

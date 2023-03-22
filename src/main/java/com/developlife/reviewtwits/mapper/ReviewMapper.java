@@ -21,7 +21,7 @@ public interface ReviewMapper {
     List<DetailReviewResponse> toDetailReviewResponseList(List<Review> reviews);
 
     default UserInfoResponse mapUserToUserInfoResponse(User user){
-        return new UserInfoResponse(user.getNickname(),user.getAccountId());
+        return new UserInfoResponse(user.getNickname(),user.getAccountId(),user.getIntroduceText(),user.getProfileImage());
     }
 
     default DetailReviewResponse mapReviewToDetailReviewResponse(Review review){

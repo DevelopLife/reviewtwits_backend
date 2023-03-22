@@ -1,9 +1,11 @@
 package com.developlife.reviewtwits.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.servlet.config.annotation.*;
 
 /**
@@ -36,7 +38,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:8080/", "http://localhost:3000/", "http://43.201.141.63:8080/")
+                .allowedOrigins("http://localhost:8080", "http://localhost:3000", "http://43.201.141.63", "https://reviewtwits.mcv.kr",
+                    "https://localhost:8080", "https://localhost:3000", "https://43.201.141.63")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("headers")
                 .allowCredentials(true)
@@ -46,5 +49,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         dateTimeFormatConfig.registerFormatters(registry);
+    }
+
+    @Bean
+    public MethodValidationPostProcessor methodValidationPostProcessor() {
+        return new MethodValidationPostProcessor();
     }
 }

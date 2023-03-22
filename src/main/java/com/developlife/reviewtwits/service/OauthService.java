@@ -21,6 +21,8 @@ import org.springframework.util.StringUtils;
 import javax.transaction.Transactional;
 import java.util.Optional;
 
+import static com.developlife.reviewtwits.type.JwtProvider.*;
+
 /**
  * @author ghdic
  * @since 2023/03/15
@@ -60,7 +62,8 @@ public class OauthService {
     @Transactional
     public User registerNeedInfo(String accessToken, RegisterOauthUserRequest registerOauthUserRequest) {
         OauthUserInfo oauthUserInfo;
-        switch (registerOauthUserRequest.provider()) {
+        JwtProvider jwtProvider = JwtProvider.valueOf(registerOauthUserRequest.provider());
+        switch (jwtProvider) {
             case KAKAO:
                 oauthUserInfo = KakaoOauth2Utils.getUserInfo(accessToken);
                 break;

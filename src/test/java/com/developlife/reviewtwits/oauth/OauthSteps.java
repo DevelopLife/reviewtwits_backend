@@ -15,8 +15,8 @@ public class OauthSteps {
             .nickname("nickname")
             .birthDate("1990-01-01")
             .phoneNumber("010-1234-5678")
-            .gender(Gender.남자)
-            .provider(JwtProvider.GOOGLE)
+            .gender(Gender.남자.toString())
+            .provider(JwtProvider.GOOGLE.toString())
             .build();
     }
 }

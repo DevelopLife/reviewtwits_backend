@@ -27,6 +27,8 @@ public class UserSteps {
     public final static String phoneNumber = "01012345678";
     final static Gender gender = Gender.남자;
 
+    final static String targetAccountId = "whalesbob@naver.com";
+
     final private EmailCodeSender emailSender;
     final private ObjectMapper objectMapper;
 
@@ -53,8 +55,28 @@ public class UserSteps {
                 .accountId(accountId)
                 .accountPw(accountPw)
                 .birthDate(birthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber(phoneNumber)
+                .verifyCode(key)
+                .build();
+    }
+
+    public RegisterUserRequest 팔로우상대방_회원가입정보_생성(){
+
+
+        String targetNickname = "whalesbob";
+        String targetBirthDate = "1996-11-22";
+        String targetPhoneNumber = "01011112222";
+
+        String key = emailSender.storageVerifyInfo(targetAccountId, EmailType.회원가입인증코드);
+
+        return RegisterUserRequest.builder()
+                .nickname(targetNickname)
+                .accountId(targetAccountId)
+                .accountPw(accountPw)
+                .birthDate(targetBirthDate)
+                .gender(gender.toString())
+                .phoneNumber(targetPhoneNumber)
                 .verifyCode(key)
                 .build();
     }
@@ -67,7 +89,7 @@ public class UserSteps {
                 .accountId("admin_" + accountId)
                 .accountPw(accountPw)
                 .birthDate(birthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber("01099999999")
                 .verifyCode(key)
                 .build();
@@ -137,6 +159,13 @@ public class UserSteps {
                 .build();
     }
 
+    public static LoginUserRequest 팔로우상대_로그인요청생성(){
+        return LoginUserRequest.builder()
+                .accountId(targetAccountId)
+                .accountPw(accountPw)
+                .build();
+    }
+
     public static ExtractableResponse<Response> 로그인요청(LoginUserRequest loginUserRequest) {
         return RestAssured.given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -155,7 +184,7 @@ public class UserSteps {
                 .accountId("add_" + accountId)
                 .accountPw(accountPw)
                 .birthDate(birthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber("01011110000")
                 .verifyCode(key)
                 .build();
@@ -163,7 +192,7 @@ public class UserSteps {
 
     public static RegisterUserRequest 회원가입요청_입력정보_누락() {
         return RegisterUserRequest.builder()
-                .gender(gender)
+                .gender(gender.toString())
                 .build();
     }
 
@@ -173,7 +202,7 @@ public class UserSteps {
                 .accountId("add_" + accountId)
                 .accountPw("1234")
                 .birthDate(birthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber("전화번호")
                 .verifyCode("123456")
                 .build();
@@ -185,7 +214,7 @@ public class UserSteps {
                 .accountId("wrong@test.com")
                 .accountPw("123@@@")
                 .birthDate(birthDate)
-                .gender(gender)
+                .gender(gender.toString())
                 .phoneNumber("01099998888")
                 .verifyCode("123456")
                 .build();

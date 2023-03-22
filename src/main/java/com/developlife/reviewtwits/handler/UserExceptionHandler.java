@@ -55,7 +55,7 @@ public class UserExceptionHandler {
     }
 
     @ExceptionHandler(UserIdNotFoundException.class)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public List<ErrorResponse> userIdNotFoundExceptionHandler(UserIdNotFoundException e){
         return makeErrorResponse(e, "userId");
     }
@@ -82,5 +82,11 @@ public class UserExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public List<ErrorResponse> providerNotSupportedExceptionHandler(ProviderNotSupportedException e){
         return makeErrorResponse(e, "provider");
+    }
+
+    @ExceptionHandler(UnAuthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public List<ErrorResponse> unAuthorizedExceptionHandler(UnAuthorizedException e){
+        return makeErrorResponse(e, "");
     }
 }

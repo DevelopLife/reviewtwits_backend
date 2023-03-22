@@ -20,7 +20,9 @@ public class UserDocument {
 
     public static final Snippet UserInfoResponseField = responseFields(
             fieldWithPath("nickname").type(JsonFieldType.STRING).description("닉네임"),
-            fieldWithPath("accountId").type(JsonFieldType.STRING).description("아이디")
+            fieldWithPath("accountId").type(JsonFieldType.STRING).description("아이디"),
+            fieldWithPath("introduceText").type(JsonFieldType.STRING).description("자기소개 한줄글").optional(),
+            fieldWithPath("profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일명").optional()
     );
 
     public static final Snippet UserDetailInfoResponseField = responseFields(

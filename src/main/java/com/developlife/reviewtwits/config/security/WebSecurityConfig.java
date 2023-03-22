@@ -45,19 +45,22 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.httpBasic().disable()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/users/admin").hasRole("ADMIN")
-                .antMatchers("/users/me").hasRole("USER")
-                .antMatchers("/projects/**").hasRole("USER")
-                .antMatchers(HttpMethod.POST,"/reviews/shopping").hasRole("USER")
-                .anyRequest()
-                .permitAll()
-                .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-                .cors(Customizer.withDefaults());
+            .csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .authorizeRequests()
+            .antMatchers("/users/admin").hasRole("ADMIN")
+            .antMatchers("/users/me").hasRole("USER")
+            .antMatchers("/projects/**").hasRole("USER")
+            .antMatchers(HttpMethod.POST,"/reviews/shopping").hasRole("USER")
+            .anyRequest()
+            .permitAll()
+            .and()
+            .exceptionHandling()
+            .accessDeniedHandler(new JwtAccessDeniedHandler())
+            .and()
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+            .cors(Customizer.withDefaults());
 
         return http.build();
     }
@@ -75,7 +78,9 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:3000", "http://43.201.141.63:8080"));
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:8080", "http://localhost:3000", "http://43.201.141.63:8080", "https://reviewtwits.mcv.kr",
+            "https://localhost:8080", "https://localhost:3000", "https://43.201.141.63:8080"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
