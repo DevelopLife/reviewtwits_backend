@@ -19,7 +19,7 @@ public class FileExceptionHandler {
     @ExceptionHandler(SizeLimitExceededException.class)
     @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
     public List<ErrorResponse> sizeLimitExceptionHandler(SizeLimitExceededException e){
-        log.warn("허가된 파일 사이즈는 {} 인데, 파일 사이즈가 {} 입니다",e.getPermittedSize(), e.getActualSize());
+        System.out.printf("허가된 파일 사이즈는 %d 인데, 파일 사이즈가 %d 입니다\n",e.getPermittedSize(), e.getActualSize());
         return makeErrorResponse(e, "accountId");
     }
 }
