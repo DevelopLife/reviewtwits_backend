@@ -35,7 +35,8 @@ public class UserDocument {
             fieldWithPath("gender").type(JsonFieldType.STRING)
                     .attributes(getGenderFormat()).description("성별").optional(),
             fieldWithPath("provider").type(JsonFieldType.STRING).description("Oauth 가입 제공자").optional(),
-            fieldWithPath("uuid").type(JsonFieldType.STRING).description("Oauth Sub값").optional()
+            fieldWithPath("uuid").type(JsonFieldType.STRING).description("Oauth Sub값").optional(),
+            fieldWithPath("profileImage").type(JsonFieldType.STRING).description("프로필 이미지 파일 이름").optional()
     );
     public static final Snippet RegisterUserRequestField = requestFields(
             fieldWithPath("nickname").type(JsonFieldType.STRING).attributes(required()).description("닉네임"),

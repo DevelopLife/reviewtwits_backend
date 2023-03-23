@@ -15,6 +15,7 @@ public record UserDetailInfoResponse(
         String phoneNumber,
         Gender gender,
         String provider,
-        String uuid
+        String uuid,
+        String profileImage
 ) {
 }

@@ -2,11 +2,13 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.message.request.ImageUpdateRequest;
 import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
+import com.developlife.reviewtwits.service.FileStoreService;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -28,11 +31,13 @@ import java.util.Set;
 public class UserController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final FileStoreService fileStoreService;
 
     @Autowired
-    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
+    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider, FileStoreService fileStoreService) {
         this.userService = userService;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.fileStoreService = fileStoreService;
     }
 
     @PostMapping(value = "/login", consumes = "application/json", produces = "application/json")
@@ -79,6 +84,13 @@ public class UserController {
         return userService.getDetailUserInfo(user);
     }
 
+    @PostMapping("/saveProfileImage")
+    public void saveProfileImage(
+            @AuthenticationPrincipal User user,
+            @Valid @ModelAttribute ImageUpdateRequest request){
+
+        fileStoreService.storeFiles(List.of(request.attachedFiles()),user.getUserId(),"User");
+    }
     // admin권한 부여를 받을수 있는 테스트용 메소드
 //    @PostMapping(value = "/permission", produces = "application/json")
     public User addAdminPermission() {
