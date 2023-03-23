@@ -32,7 +32,7 @@ public class FileController {
     private final FileStoreService fileStore;
 
     @PostMapping(value = "/files/save", produces = "application/json")
-    public ResponseEntity<String> saveFile(@ModelAttribute FileUpdateRequest request) throws IOException {
+    public ResponseEntity<String> saveFile(@ModelAttribute FileUpdateRequest request) {
 
         String referenceType = request.referenceType();
         Long id = request.id();
