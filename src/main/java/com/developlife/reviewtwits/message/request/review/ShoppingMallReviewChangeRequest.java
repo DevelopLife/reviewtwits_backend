@@ -1,6 +1,6 @@
 package com.developlife.reviewtwits.message.request.review;
 
-import com.developlife.reviewtwits.message.annotation.review.ImageFiles;
+import com.developlife.reviewtwits.message.annotation.file.ImageFiles;
 import com.developlife.reviewtwits.message.annotation.review.MultipartInteger;
 import org.springframework.web.multipart.MultipartFile;
 
