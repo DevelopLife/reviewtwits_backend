@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.entity.FileInfo;
+import com.developlife.reviewtwits.exception.file.InvalidFilenameExtensionException;
 import com.developlife.reviewtwits.message.request.FileUpdateRequest;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import com.developlife.reviewtwits.service.FileStoreService;
@@ -52,7 +53,7 @@ public class FileController {
         if(FileReferenceType.isValidFileType("image",fileName)){
             return new UrlResource("file:"+ fileStore.getFullPath(fileName));
         }
-        throw new MalformedURLException();
+        throw new InvalidFilenameExtensionException("등록된 이미지 파일 확장자로 온 요청이 아닙니다.");
     }
 
     @GetMapping(value = "/request-download-files/{UUID}", produces = "application/json")

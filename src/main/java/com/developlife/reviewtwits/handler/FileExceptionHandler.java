@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.handler;
 
+import com.developlife.reviewtwits.exception.file.InvalidFilenameExtensionException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
@@ -21,5 +22,11 @@ public class FileExceptionHandler {
     public List<ErrorResponse> sizeLimitExceptionHandler(SizeLimitExceededException e){
         log.warn("허가된 파일 사이즈는 {} 인데, 파일 사이즈가 {} 입니다",e.getPermittedSize(), e.getActualSize());
         return makeErrorResponse(e, "accountId");
+    }
+
+    @ExceptionHandler(InvalidFilenameExtensionException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public List<ErrorResponse> invalidFilenameExtensionExceptionHandler(InvalidFilenameExtensionException e){
+        return makeErrorResponse(e, "UUID");
     }
 }
