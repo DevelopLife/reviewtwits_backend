@@ -3,6 +3,7 @@ package com.developlife.reviewtwits.handler;
 import com.developlife.reviewtwits.exception.file.InvalidFilenameExtensionException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,5 +29,11 @@ public class FileExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public List<ErrorResponse> invalidFilenameExtensionExceptionHandler(InvalidFilenameExtensionException e){
         return makeErrorResponse(e, "UUID");
+    }
+
+    @ExceptionHandler(FileUploadException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public List<ErrorResponse> fileUploadExceptionHandler(FileUploadException e){
+        return makeErrorResponse(e, "file");
     }
 }
