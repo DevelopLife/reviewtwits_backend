@@ -84,12 +84,10 @@ public class UserController {
         return userService.getDetailUserInfo(user);
     }
 
-    @PostMapping("/saveProfileImage")
-    public void saveProfileImage(
-            @AuthenticationPrincipal User user,
-            @Valid @ModelAttribute ImageUpdateRequest request){
+    @PostMapping("/save-profile-image")
+    public void saveProfileImage(@AuthenticationPrincipal User user, @Valid @ModelAttribute ImageUpdateRequest request){
 
-        fileStoreService.storeFiles(List.of(request.attachedFiles()),user.getUserId(),"User");
+        fileStoreService.storeFiles(List.of(request.imageFile()),user.getUserId(),"User");
     }
     // admin권한 부여를 받을수 있는 테스트용 메소드
 //    @PostMapping(value = "/permission", produces = "application/json")

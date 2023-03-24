@@ -6,9 +6,10 @@ import org.springframework.restdocs.snippet.Snippet;
 import static com.developlife.reviewtwits.DocumentFormatProvider.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
+
 /**
  * @author ghdic
  * @since 2023/03/06
@@ -62,6 +63,9 @@ public class UserDocument {
     );
     public static final Snippet AccessTokenHeader = requestHeaders(
             headerWithName("X-AUTH-TOKEN").attributes(required()).description("access token")
+    );
+    public static final Snippet ImageUpdateRequestField = requestParts(
+            partWithName("imageFile").attributes(required()).description("이미지 파일 등록을 위한 multipart/form-data 입니다.")
     );
 
 }

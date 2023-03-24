@@ -1,6 +1,6 @@
 package com.developlife.reviewtwits.message.request;
 
-import com.developlife.reviewtwits.message.annotation.file.ImageFiles;
+import com.developlife.reviewtwits.message.annotation.file.ImageFile;
 import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,8 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
  * @since 2023-03-24
  */
 public record ImageUpdateRequest(
-        @ImageFiles
-        MultipartFile attachedFiles) {
+        @ImageFile
+        MultipartFile imageFile) {
 
     @Builder
     public ImageUpdateRequest{

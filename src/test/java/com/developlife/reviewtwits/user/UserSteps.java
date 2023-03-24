@@ -2,19 +2,28 @@ package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.service.email.EmailCodeSender;
 import com.developlife.reviewtwits.type.EmailType;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.UserRole;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
+import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import io.restassured.specification.MultiPartSpecification;
+import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
@@ -237,5 +246,36 @@ public class UserSteps {
     public String 로그인리프래시토큰정보(LoginUserRequest request) {
         final var loginResponse = UserSteps.로그인요청(request);
         return loginResponse.cookie("refreshToken");
+    }
+    public static MultiPartSpecification 프로필_이미지_파일정보_생성() throws IOException {
+        String fileFullName = "image.png";
+        File file = new File(System.getProperty("java.io.tmpdir"), fileFullName);
+
+        BufferedImage image = new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB);
+        ImageIO.write(image,"png",file);
+
+        return createMultipartFile(file);
+    }
+
+    public static MultiPartSpecification 프로필_이미지아닌_파일정보_생성() throws IOException {
+        String fileFullName = "text.txt";
+        Path path = new File(System.getProperty("java.io.tmpdir"), fileFullName).toPath();
+
+        String inputContent = "hello world";
+        Files.write(path, inputContent.getBytes());
+
+        return createMultipartFile(path.toFile());
+    }
+
+    private static MultiPartSpecification createMultipartFile(File file) throws IOException {
+        DiskFileItem fileItem = new DiskFileItem("file", "application/octet-stream", false, file.getName(), (int) file.length() , file.getParentFile());
+        fileItem.getOutputStream().write(Files.readAllBytes(file.toPath()));
+
+        MultipartFile multipartFile = new CommonsMultipartFile(fileItem);
+        return new MultiPartSpecBuilder(multipartFile.getBytes())
+                .controlName("imageFile")
+                .fileName(multipartFile.getOriginalFilename())
+                .mimeType(multipartFile.getContentType())
+                .build();
     }
 }
