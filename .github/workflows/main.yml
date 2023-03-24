@@ -8,6 +8,7 @@ on:
 
 env:
   S3_BUCKET_NAME: reviewtwits
+  S3_BUCKET_NAME2: reviewtwits2
 
 jobs:
   build:
@@ -103,7 +104,7 @@ jobs:
         aws-region: ap-northeast-2
 
     - name: Upload to S3
-      run: aws s3 cp --region ap-northeast-2 ./reviewtwits.zip s3://$S3_BUCKET_NAME/reviewtwits.zip
+      run: aws s3 cp --region ap-northeast-2 ./reviewtwits.zip s3://$S3_BUCKET_NAME2/reviewtwits.zip
 
       # Deploy
     - name: Code Deploy
@@ -112,4 +113,4 @@ jobs:
         --deployment-config-name CodeDeployDefault.AllAtOnce \
         --application-name reviewtwits \
         --deployment-group-name reviewtwits-group \
-        --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=reviewtwits.zip
+        --s3-location bucket=$S3_BUCKET_NAME2,bundleType=zip,key=reviewtwits.zip
