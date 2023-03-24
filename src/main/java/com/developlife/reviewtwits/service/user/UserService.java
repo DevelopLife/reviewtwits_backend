@@ -118,12 +118,16 @@ public class UserService {
         if(user == null){
             throw new AccountIdNotFoundException("사용자를 찾을 수 없습니다.");
         }
+
+        setProfileImage(user);
         return userMapper.toUserDetailInfoResponse(user);
     }
 
     public UserInfoResponse getUserInfo(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException("사용자를 찾을 수 없습니다."));
+
+        setProfileImage(user);
         return userMapper.toUserInfoResponse(user);
     }
 
@@ -157,7 +161,7 @@ public class UserService {
         );
     }
 
-    public void setImages(User user){
+    public void setProfileImage(User user){
         List<String> userProfileImage = fileStoreService.bringFileNameList("User", user.getUserId());
         if(!userProfileImage.isEmpty()){
             user.setProfileImage(userProfileImage.get(0));

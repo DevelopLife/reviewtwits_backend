@@ -82,7 +82,7 @@ public class SnsService {
 
     private List<UserInfoResponse> getUserInfoResponses(List<User> followersList) {
         for(User user : followersList){
-            userService.setImages(user);
+            userService.setProfileImage(user);
         }
         return userMapper.toUserInfoResponseList(followersList);
     }

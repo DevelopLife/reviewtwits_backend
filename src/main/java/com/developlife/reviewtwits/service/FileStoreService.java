@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.entity.FileManager;
+import com.developlife.reviewtwits.exception.file.FileNotStoredException;
 import com.developlife.reviewtwits.repository.FileInfoRepository;
 import com.developlife.reviewtwits.repository.FileManagerRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,21 +28,25 @@ public class FileStoreService {
     private final FileManagerRepository fileManagerRepository;
 
     @Transactional
-    public FileInfo storeFile(MultipartFile multipartFile) throws IOException{
+    public FileInfo storeFile(MultipartFile multipartFile) {
         if(multipartFile.isEmpty()){
             return null;
         }
 
         String originalFilename = multipartFile.getOriginalFilename();
         String storeFilename = createStoreFileName(originalFilename);
-        multipartFile.transferTo(new File(getFullPath(storeFilename)));
+        try{
+            multipartFile.transferTo(new File(getFullPath(storeFilename)));
+        }catch(IOException e){
+            throw new FileNotStoredException("IOException 이 발생했습니다. 알려주세요");
+        }
         FileInfo file = FileInfo.builder().filePath(getFullPath(storeFilename)).realFilename(storeFilename)
                         .originalFilename(originalFilename).build();
         fileInfoRepository.save(file);
         return file;
     }
 
-    public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, String referenceType) throws IOException {
+    public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, String referenceType) {
 
         checkFolder();
 
