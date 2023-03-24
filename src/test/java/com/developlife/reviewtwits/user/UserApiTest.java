@@ -9,6 +9,8 @@ import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.matcher.RestAssuredMatchers;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import java.io.IOException;
+
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 
@@ -258,5 +263,82 @@ public class UserApiTest extends ApiTest {
             .statusCode(HttpStatus.OK.value())
             .body("accessToken", notNullValue())
             .log().all();
+    }
+
+    @Test
+    void 회원가입_프로필이미지_업로드() throws IOException {
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,"프로필 이미지를 업로드하는 API입니다. " +
+                        "<br>정상적으로 업로드 되었다면 200 OK 를 받을 수 있습니다." +
+                        "<br>등록된 이미지 파일 확장자가 아닌 다른 확장자를 입력하면, 400 Bad Request 가 반환됩니다." +
+                        "<br>이미지 multipart/form-data 는 필수값입니다. 입력하지 않을 시 400 Bad Request 가 반환됩니다." +
+                        "<br>유저의 토큰 값 역시 필수값입니다. 입력하지 않을 시 403 Forbidden 이 반환됩니다.",
+                        "프로필이미지업로드", UserDocument.AccessTokenHeader,UserDocument.ImageUpdateRequestField))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN",token)
+                .multiPart(UserSteps.프로필_이미지_파일정보_생성())
+                .when()
+                .post("/users/save-profile-image")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+        assertThat(유저정보_프로필이미지_추출()).isNotNull();
+    }
+
+    private String 유저정보_프로필이미지_추출() {
+        User user = userRepository.findByAccountId(registerUserRequest.accountId()).get();
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("userId", user.getUserId())
+                .when()
+                .get("/users/search/{userId}")
+                .then()
+                .log().all().extract();
+
+        return response.jsonPath().get("profileImage");
+    }
+
+    @Test
+    void 회원가입_프로필이미지_이미지아닌_업로드() throws IOException {
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN",token)
+                .multiPart(UserSteps.프로필_이미지아닌_파일정보_생성())
+                .when()
+                .post("/users/save-profile-image")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("find{it.message == '입력된 파일이 이미지가 아닙니다.' " +
+                        "&& it.errorType == 'ImageFile' && it.fieldName == 'imageFile' }",notNullValue())
+                .log().all();
+    }
+
+    @Test
+    void 회원가입_프로필이미지_업로드안함() {
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN",token)
+                .when()
+                .post("/users/save-profile-image")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("find{it.errorType == 'FileUploadException' && it.fieldName == 'file' }",notNullValue())
+                .log().all();
     }
 }
