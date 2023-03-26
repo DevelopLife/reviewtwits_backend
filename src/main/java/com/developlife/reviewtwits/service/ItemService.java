@@ -5,6 +5,7 @@ import com.developlife.reviewtwits.entity.RelatedProduct;
 import com.developlife.reviewtwits.repository.ItemDetailRepository;
 import com.developlife.reviewtwits.repository.RelatedProductRepository;
 import com.developlife.reviewtwits.type.MadeMultipartFile;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -40,7 +41,6 @@ import java.util.StringJoiner;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@PropertySource(value = "seleniumSettings.properties")
 public class ItemService {
 
     private final RelatedProductRepository relatedProductRepository;
@@ -51,12 +51,6 @@ public class ItemService {
     private static final String site = "https://www.coupang.com";
     private static final String searchUrl = "https://www.coupang.com/np/search?q=";
     private static final String ourImageRequestUrl = "https://reviewtwits.mcv.kr/request-images/";
-
-    @Value("${selenium.web.driver.id}")
-    private String WEB_DRIVER_ID;
-
-    @Value("${selenium.web.driver.path}")
-    private String WEB_DRIVER_PATH;
 
     public String search(String productName) {
         if(productName == null) {
@@ -169,7 +163,7 @@ public class ItemService {
     }
 
     private WebDriver getDriverWithOptions() {
-        System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
+        WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("headless");

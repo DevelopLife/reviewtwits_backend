@@ -35,13 +35,6 @@ jobs:
         google-chrome --version
         ls -al
 
-    - name: Download ChromeDriver
-      run: |
-        cd /home/reviewtwits_directory
-        wget https://chromedriver.storage.googleapis.com/111.0.5563.64/chromedriver_linux64.zip
-        unzip chromedriver_linux64.zip
-        ls -al
-
     - name: Make application.properties
       run: |
         cd ./src/main/resources
@@ -54,12 +47,6 @@ jobs:
          echo "${{ secrets.EMAIL_CONFIG_INFO }}" >> ./email.properties
         cat ./email.properties
       shell: bash
-
-    - name: Make seleniumSettings.properties
-      run: |
-        cd ./src/main/resources
-        echo "${{ secrets.SELENIUM_SETTINGS }}" >> /seleniumSettings.properties
-        cat ./seleniumSettings.properties
 
     - name : Setup MariaDB
       uses: getong/mariadb-action@v1.1
