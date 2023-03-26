@@ -208,6 +208,7 @@ public class ItemService {
     }
 
     private Document coupangCrawlingConnection(String url) throws IOException {
+        log.info("url = {}",url);
         return Jsoup.connect(url)
                 .maxBodySize(0)
                 .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
