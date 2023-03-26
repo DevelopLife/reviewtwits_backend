@@ -87,6 +87,8 @@ public class ItemService {
                 .detailInfo(targetDetailElement.html())
                 .build();
 
+        itemDetailRepository.save(detail);
+
         Elements imgElements = targetDetailElement.getElementsByTag("img");
         List<String> fileSourceList = getImageURLFromHTML(imgElements);
         storeDetailInfoImages(firstRelatedProduct, detail.getItemId(), fileSourceList);
@@ -148,7 +150,7 @@ public class ItemService {
     private void storeDetailInfoImages(RelatedProduct firstRelatedProduct, long itemDetailId, List<String> fileSourceList) {
         List<MultipartFile> multipartFileList = new ArrayList<>();
         for(int i = 0; i < fileSourceList.size(); i++){
-            String fileName = firstRelatedProduct.getFileName() + "_" + i;
+            String fileName = firstRelatedProduct.getName() + "_" + i;
             MultipartFile multipartFile = getImageFileFromUrl("https:" + fileSourceList.get(i),fileName);
             multipartFileList.add(multipartFile);
         }
