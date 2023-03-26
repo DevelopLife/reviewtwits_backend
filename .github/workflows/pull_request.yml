@@ -27,6 +27,22 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Chrome Download
+        run: |
+          sudo mkdir reviewtwits_directory
+          cd /home/reviewtwits_directory
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb 
+          sudo apt install ./google-chrome-stable_current_amd64.deb 
+          google-chrome --version
+          ls -al
+
+      - name: Download ChromeDriver
+        run: |
+          cd /home/reviewtwits_directory
+          wget https://chromedriver.storage.googleapis.com/111.0.5563.64/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          ls -al
+
       - name: Make application.properties
         run: |
           cd ./src/main/resources
@@ -45,6 +61,12 @@ jobs:
            echo "${{ secrets.OAUTH_KEY }}" >> ./oauth.properties
           cat ./oauth.properties
         shell: bash
+
+      - name : Make seleniumSettings.properties
+        run : | 
+          cd ./src/main/resources
+          echo "${{ secrets.SELENIUM_SETTINGS }}" >> /seleniumSettings.properties
+          cat ./seleniumSettings.properties
 
       - name : Setup MariaDB
         uses: getong/mariadb-action@v1.1

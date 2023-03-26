@@ -39,6 +39,12 @@ jobs:
         cat ./email.properties
       shell: bash
 
+    - name: Make seleniumSettings.properties
+      run: |
+        cd ./src/main/resources
+        echo "${{ secrets.SELENIUM_SETTINGS }}" >> /seleniumSettings.properties
+        cat ./seleniumSettings.properties
+
     - name : Setup MariaDB
       uses: getong/mariadb-action@v1.1
       with:
