@@ -27,6 +27,15 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Chrome Download
+      run: |
+        sudo mkdir reviewtwits_directory
+        cd /home/reviewtwits_directory
+        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb 
+        sudo apt install ./google-chrome-stable_current_amd64.deb 
+        google-chrome --version
+        ls -al
+
     - name: Make application.properties
       run: |
         cd ./src/main/resources

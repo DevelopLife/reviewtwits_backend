@@ -1,6 +1,6 @@
 package com.developlife.reviewtwits.controller;
 
-import com.developlife.reviewtwits.service.itemService;
+import com.developlife.reviewtwits.service.ItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +14,9 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/items")
 public class ItemController {
-    private itemService itemService;
+    private ItemService itemService;
 
-    public ItemController(itemService itemService) {
+    public ItemController(ItemService itemService) {
         this.itemService = itemService;
     }
 
