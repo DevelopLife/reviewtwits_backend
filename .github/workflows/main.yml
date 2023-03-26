@@ -8,6 +8,7 @@ on:
 
 env:
   S3_BUCKET_NAME: reviewtwits
+  S3_BUCKET_NAME2: reviewtwits2
 
 jobs:
   build:
@@ -61,15 +62,15 @@ jobs:
         echo "${{ secrets.SELENIUM_SETTINGS }}" >> /seleniumSettings.properties
         cat ./seleniumSettings.properties
 
-    - name : Setup MariaDB
-      uses: getong/mariadb-action@v1.1
-      with:
-        character set server: 'utf8mb4' # Optional, default value is 'utf8mb4'. The '--character-set-server' option for mysqld
-        mariadb version: '10.6.8' # Optional, default value is "latest". The version of the MariaDB
-        mysql database: 'reviewtwits' # Optional, default value is "test". The specified database which will be create
-        # mysql root password: ${{ secrets.MARIADB_PASSWORD }} # Required if "mysql user" is empty, default is empty. The root superuser password
-        mysql user: ${{ secrets.MARIADB_USERNAME}} # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
-        mysql password: ${{ secrets.MARIADB_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
+#    - name : Setup MariaDB
+#      uses: getong/mariadb-action@v1.1
+#      with:
+#        character set server: 'utf8mb4' # Optional, default value is 'utf8mb4'. The '--character-set-server' option for mysqld
+#        mariadb version: '10.6.8' # Optional, default value is "latest". The version of the MariaDB
+#        mysql database: 'reviewtwits' # Optional, default value is "test". The specified database which will be create
+#        # mysql root password: ${{ secrets.MARIADB_PASSWORD }} # Required if "mysql user" is empty, default is empty. The root superuser password
+#        mysql user: ${{ secrets.MARIADB_USERNAME}} # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
+#        mysql password: ${{ secrets.MARIADB_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
 
     - name: Build with Gradle
       env:
@@ -115,3 +116,23 @@ jobs:
           --application-name reviewtwits \
           --deployment-group-name reviewtwits-group \
           --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=reviewtwits.zip
+
+      # 두번째 서버에도 배포
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID2 }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY2 }}
+        aws-region: ap-northeast-2
+
+    - name: Upload to S3
+      run: aws s3 cp --region ap-northeast-2 ./reviewtwits.zip s3://$S3_BUCKET_NAME2/reviewtwits.zip
+
+      # Deploy
+    - name: Code Deploy
+      run: |
+        aws deploy create-deployment \
+        --deployment-config-name CodeDeployDefault.AllAtOnce \
+        --application-name reviewtwits \
+        --deployment-group-name reviewtwits-group \
+        --s3-location bucket=$S3_BUCKET_NAME2,bundleType=zip,key=reviewtwits.zip
