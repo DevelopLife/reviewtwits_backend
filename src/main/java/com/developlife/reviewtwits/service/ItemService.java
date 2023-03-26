@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.ItemDetail;
 import com.developlife.reviewtwits.entity.RelatedProduct;
+import com.developlife.reviewtwits.exception.file.FileNotStoredException;
 import com.developlife.reviewtwits.repository.ItemDetailRepository;
 import com.developlife.reviewtwits.repository.RelatedProductRepository;
 import com.developlife.reviewtwits.type.MadeMultipartFile;
@@ -128,7 +129,10 @@ public class ItemService {
 
             WebElement webElement = driver.findElement(By.cssSelector("#btfTab > ul.tab-contents > li.product-detail.tab-contents__content > div:nth-child(2)"));
             return Jsoup.parse(webElement.getAttribute("innerHTML")).body();
-        }finally{
+        }catch(Exception e){
+            throw new FileNotStoredException("파일이 저장되고 있지 않습니다");
+        }
+        finally{
             driver.close();
         }
     }
