@@ -34,6 +34,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author ghdic
@@ -65,7 +67,6 @@ public class ItemService {
             .retrieve()
             .bodyToMono(String.class)
             .block();
-        System.out.println(response);
         return response;
     }
 
@@ -85,7 +86,13 @@ public class ItemService {
             }
 
             Element targetDetailElement = getTargetDetailElementFromSelenium(firstRelatedProduct, chromeWebDriver);
-
+            Elements imgElements = targetDetailElement.getElementsByTag("img");
+            for(Element element : imgElements) {
+                String url = element.attributes().get("src");
+                if(checkCompleteUrl(url)) {
+                    element.remove();
+                }
+            }
 
             ItemDetail detail = ItemDetail.builder()
                     .relatedProduct(firstRelatedProduct)
@@ -94,10 +101,10 @@ public class ItemService {
 
             itemDetailRepository.save(detail);
 
-            Elements imgElements = targetDetailElement.getElementsByTag("img");
-            List<String> fileSourceList = getImageURLFromHTML(imgElements);
+            Elements targetImages = targetDetailElement.getElementsByTag("img");
+            List<String> fileSourceList = getImageURLFromHTML(targetImages);
             storeDetailInfoImages(firstRelatedProduct, detail.getItemId(), fileSourceList);
-            changeImageInfoInHtmlAndSave(targetDetailElement, detail, imgElements);
+            changeImageInfoInHtmlAndSave(targetDetailElement, detail, targetImages);
             log.info("자료 취합 완료");
         }finally{
             chromeWebDriver.close();
@@ -115,16 +122,15 @@ public class ItemService {
 
         List<Element> extractedElements = new ArrayList<>();
         for(WebElement toExtractElements : webElements){
-            extractedElements.add(Jsoup.parse(toExtractElements.getAttribute("innerHTML")).body());
+            extractedElements.add(Jsoup.parse(toExtractElements.getAttribute("outerHTML")).body().child(0));
         }
 
         List<Element> targetElements = new ArrayList<>();
         for (Element element : extractedElements){
             if(element.childrenSize() >= 2){
-                Element searchProductElement = element.child(0);
                 Element siblingElement = element.child(1);
                 if (siblingElement.hasClass("number") && Integer.parseInt(siblingElement.text()) <= 5) {
-                    targetElements.add(searchProductElement);
+                    targetElements.add(element);
                 }
             }
         }
@@ -138,8 +144,6 @@ public class ItemService {
             }
         }
 
-        log.info("Jsoup : product 정보 담기 시도 성공");
-
         relatedProductRepository.saveAll(crawlerList);
 
         for(RelatedProduct crawler : crawlerList){
@@ -152,12 +156,7 @@ public class ItemService {
 
     private Element getTargetDetailElementFromSelenium(RelatedProduct firstRelatedProduct, WebDriver chromeWebDriver) {
         log.info("전체 body 를 들고 오는 시도 시작");
-
         chromeWebDriver.get(firstRelatedProduct.getProductUrl());
-        // setCookiesInDriver(chromeWebDriver);
-        
-        String bodyTag = chromeWebDriver.findElement(new By.ByTagName("body")).getAttribute("innerHTML");
-        System.out.println(bodyTag);
 
         WebDriverWait wait = new WebDriverWait(chromeWebDriver, Duration.ofSeconds(15));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#btfTab > ul.tab-contents > li.product-detail.tab-contents__content > div:nth-child(2)")));
@@ -184,6 +183,12 @@ public class ItemService {
         fileStoreService.storeFiles(multipartFileList, itemDetailId,"ItemDetail");
     }
 
+    private boolean checkCompleteUrl(String url) {
+        Pattern p = Pattern.compile("^(http|https)://.*$");
+        Matcher m = p.matcher(url);
+        return m.matches();
+    }
+
     private void changeImageInfoInHtmlAndSave(Element targetDetailElement, ItemDetail detail, Elements imgElements) {
         List<String> itemImageNameList = fileStoreService.bringFileNameList("ItemDetail", detail.getItemId());
 
@@ -207,13 +212,12 @@ public class ItemService {
     }
 
     private RelatedProduct makeCrawlingProductInfo(Element element) {
-        Element parentElement = element.parent();
-        String productURL = site + parentElement.attributes().get("href");
+        String productURL = site + element.attributes().get("href");
 
-        Element imgElement = element.child(0).child(0);
+        Element imgElement = element.child(0).child(0).child(0);
         String imagePath = "https:" + imgElement.attributes().get("src");
 
-        Element description = element.child(1).child(0);
+        Element description = element.child(0).child(1).child(0);
 
         String registeredName = description.getElementsByClass("name").first().text();
         int price = getPriceFromText(description.getElementsByClass("price-value").first().text());
