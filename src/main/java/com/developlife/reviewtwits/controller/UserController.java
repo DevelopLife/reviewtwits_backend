@@ -3,6 +3,7 @@ package com.developlife.reviewtwits.controller;
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.ImageUpdateRequest;
+import com.developlife.reviewtwits.message.request.user.RegisterUserInfoRequest;
 import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
@@ -65,6 +66,13 @@ public class UserController {
         return jwtTokenProvider.issueJwtTokenResponse(user);
     }
 
+    @PostMapping(value = "/register-addition", consumes = "multipart/form-data", produces = "application/json")
+    @ResponseStatus(value = HttpStatus.OK)
+    public UserDetailInfoResponse registerAddition(@AuthenticationPrincipal User user,
+                                             @Valid @ModelAttribute RegisterUserInfoRequest registerUserInfoRequest) {
+        return userService.registerAddition(registerUserInfoRequest, user);
+    }
+
     @PostMapping(value = "/issue/access-token", produces = "application/json")
     public JwtTokenResponse issueAccessToken(@CookieValue String refreshToken) {
         return JwtTokenResponse.builder()
@@ -84,7 +92,7 @@ public class UserController {
         return userService.getDetailUserInfo(user);
     }
 
-    @PostMapping("/save-profile-image")
+    @PostMapping(value = "/save-profile-image", consumes = "multipart/form-data", produces = "application/json")
     public void saveProfileImage(@AuthenticationPrincipal User user, @Valid @ModelAttribute ImageUpdateRequest request){
 
         fileStoreService.storeFiles(List.of(request.imageFile()),user.getUserId(),"User");

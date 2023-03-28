@@ -7,10 +7,12 @@ import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.user.UserService;
+import com.developlife.reviewtwits.shoppingmallReview.ShoppingMallReviewSteps;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import io.restassured.specification.MultiPartSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -85,7 +87,7 @@ public class UserApiTest extends ApiTest {
             .assertThat()
             .statusCode(HttpStatus.OK.value())
             // 기본정보 표시
-            .body("nickname", equalTo(registerUserRequest.nickname()))
+            .body("nickname", notNullValue())
             // 민감정보 노출 o
             .body("phoneNumber", equalTo(registerUserRequest.phoneNumber()))
             // 비밀번호는 예외
@@ -159,7 +161,7 @@ public class UserApiTest extends ApiTest {
 
         // 회원가입
         var response = given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "회원가입을 할때 사용", "회원가입", UserDocument.RegisterUserRequestField, UserDocument.JwtTokenResponseField))
+                .filter(document(DEFAULT_RESTDOC_PATH, "201 정상적으로 회원가입이 이루어짐<br> 400 입력에 문제가 있음<br> 409 입력한 값이 중복(유니크한값이여야함)", "회원가입", UserDocument.RegisterUserRequestField, UserDocument.JwtTokenResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(request)
             .when()
@@ -180,7 +182,6 @@ public class UserApiTest extends ApiTest {
             .get("/users/me")
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("nickname", equalTo("add_"+ UserSteps.nickname))
             .body("accountId", equalTo("add_" + UserSteps.accountId))
             .body("accountPw", nullValue())
             .body("birthDate", equalTo(UserSteps.birthDate))
@@ -223,6 +224,29 @@ public class UserApiTest extends ApiTest {
         .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("collect{ it.fieldName }", hasItems("accountPw", "phoneNumber"))
+            .log().all().extract().response();
+    }
+
+    @Test
+    @DisplayName("회원가입 추가정보 등록 성공")
+    void 회원가입추가정보_입력정보_200() throws IOException {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        MultiPartSpecification profileImage = ShoppingMallReviewSteps.프로필_이미지_파일정보생성();
+
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH, "200 정상적으로 입력이 들어갔을때<br>400 비정상적인 입력<br>409 닉네임이 중복", "회원가입 추가정보 등록",
+                UserDocument.RegisterUserInfoRequestField, UserDocument.UserDetailInfoResponseField))
+            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+            .header("X-AUTH-TOKEN", token)
+            .multiPart("nickname", "test")
+            .multiPart("introduceText", "test")
+            .multiPart(profileImage)
+        .when()
+            .post("/users/register-addition")
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("nickname", equalTo("test"))
+            .body("introduceText", equalTo("test"))
             .log().all().extract().response();
     }
 

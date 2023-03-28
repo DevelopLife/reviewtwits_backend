@@ -80,15 +80,13 @@ public class ItemService {
 
             RelatedProduct firstRelatedProduct = saveRelatedFiveProductAndGetFirstProduct(productName, chromeWebDriver);
 
-            log.info("{} 으로 다섯개 정보 찾기 성공", productName);
             if(firstRelatedProduct == null){
                 return;
             }
 
-            log.info("selenium 재점화");
             Element targetDetailElement = getTargetDetailElementFromSelenium(firstRelatedProduct, chromeWebDriver);
 
-            log.info("selenium 사용 완료, 자료 취합");
+
             ItemDetail detail = ItemDetail.builder()
                     .relatedProduct(firstRelatedProduct)
                     .detailInfo(targetDetailElement.html())
@@ -111,7 +109,7 @@ public class ItemService {
 
         StringJoiner name = getNameForURL(productName);
         chromeWebDriver.get(searchUrl + name);
-        setCookiesInDriver(chromeWebDriver);
+        //setCookiesInDriver(chromeWebDriver);
 
         List<WebElement> webElements = chromeWebDriver.findElements(new By.ByClassName("search-product-link"));
 
@@ -156,7 +154,7 @@ public class ItemService {
         log.info("전체 body 를 들고 오는 시도 시작");
 
         chromeWebDriver.get(firstRelatedProduct.getProductUrl());
-        setCookiesInDriver(chromeWebDriver);
+        // setCookiesInDriver(chromeWebDriver);
         
         String bodyTag = chromeWebDriver.findElement(new By.ByTagName("body")).getAttribute("innerHTML");
         System.out.println(bodyTag);
@@ -203,10 +201,9 @@ public class ItemService {
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("headless");
         options.addArguments("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.104 Whale/3.13.131.36 Safari/537.36");
-        options.addArguments("authority=www.coupang.com");
-        options.addArguments("accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9");
-
-        return new ChromeDriver(options);
+        options.addArguments("--disable-blink-features=AutomationControlled");
+        ChromeDriver driver = new ChromeDriver(options);
+        return driver;
     }
 
     private RelatedProduct makeCrawlingProductInfo(Element element) {
@@ -263,16 +260,5 @@ public class ItemService {
             joiner.add(part);
         }
         return joiner.toString();
-    }
-    private void setCookiesInDriver(WebDriver driver){
-        driver.manage().addCookie(new Cookie("PCID","31489593180081104183684"));
-        driver.manage().addCookie(new Cookie("_fbp","fb.1.1644931520418.1544640325"));
-        driver.manage().addCookie(new Cookie("gd1","Y"));
-        driver.manage().addCookie(new Cookie("X-CP-PT-locale","ko_KR"));
-        driver.manage().addCookie(new Cookie("MARKETID","31489593180081104183684"));
-        driver.manage().addCookie(new Cookie("sid","03ae1c0ed61946c19e760cf1a3d9317d808aca8b"));
-        driver.manage().addCookie(new Cookie("x-coupang-origin-region","KOREA"));
-        driver.manage().addCookie(new Cookie("x-coupang-target-market","KR"));
-        driver.manage().addCookie(new Cookie("x-coupang-accept-language","ko_KR"));
     }
 }

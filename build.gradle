@@ -61,6 +61,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation:3.0.2'
 	implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.8.1'
 	implementation 'io.github.bonigarcia:webdrivermanager:5.3.1'
+	implementation ('com.github.javafaker:javafaker:1.0.2') { exclude module: 'org.yaml' }
+	implementation group: 'org.yaml', name: 'snakeyaml', version: '1.26'
 	testImplementation 'org.projectlombok:lombok:1.18.22'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'

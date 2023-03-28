@@ -18,8 +18,6 @@ import java.time.LocalDateTime;
  */
 
 public record RegisterUserRequest(
-        @Size(min = 2, max = 20, message = "닉네임은 2자리 이상, 20자리 이하로 입력해주세요")
-        String nickname,
         @NotBlank(message = "이메일을 입력해주세요")
         @Email(message = "이메일 형식이 아닙니다.")
         String accountId,

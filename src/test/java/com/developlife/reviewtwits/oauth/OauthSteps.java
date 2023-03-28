@@ -12,7 +12,6 @@ public class OauthSteps {
 
     public static RegisterOauthUserRequest 회원가입추가정보생성() {
         return RegisterOauthUserRequest.builder()
-            .nickname("nickname")
             .birthDate("1990-01-01")
             .phoneNumber("010-1234-5678")
             .gender(Gender.남자.toString())

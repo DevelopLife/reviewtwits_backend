@@ -73,7 +73,9 @@ public class User extends BaseEntity implements UserDetails {
     @Builder.Default // 인스턴스 만들때 특정 필드값으로 초기화 할경우
     private Set<UserRole> roles = new HashSet<>();
 
-    String introduceText;
+    @Setter
+    @Builder.Default
+    String introduceText = "";
 
     @Setter
     @Transient

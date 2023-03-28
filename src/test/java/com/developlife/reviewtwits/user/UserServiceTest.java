@@ -56,7 +56,7 @@ public class UserServiceTest extends ApiTest {
         // 입력한 정보로 가입한 유저가 없는 경우 확인
         assertThat(user).isNotNull();
         // 입력정보 제대로 들어갔나 확인
-        assertThat(registerUserRequest.nickname().equals(user.getNickname())).isTrue();
+        assertThat(registerUserRequest.accountId().equals(user.getAccountId())).isTrue();
         // 비밀번호 해시화 확인
         assertThat(passwordEncoder.matches(registerUserRequest.accountPw(), user.getAccountPw())).isTrue();
     }
