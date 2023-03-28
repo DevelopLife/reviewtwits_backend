@@ -11,6 +11,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public abstract class EmailSender {
@@ -45,15 +46,17 @@ public abstract class EmailSender {
                 emailVerify -> {
                     emailVerify.setVerifyCode(key);
                     emailVerify.setAlreadyUsed(false);
+                    emailVerify.setVerifyDate(LocalDateTime.now());
                     emailVerifyRepository.save(emailVerify);
                 },
                 () -> {
                     EmailVerify emailVerify = EmailVerify.builder()
-                            .email(to)
-                            .verifyCode(key)
-                            .type(type)
-                            .alreadyUsed(false)
-                            .build();
+                        .email(to)
+                        .verifyCode(key)
+                        .verifyDate(LocalDateTime.now())
+                        .type(type)
+                        .alreadyUsed(false)
+                        .build();
                     emailVerifyRepository.save(emailVerify);
                 }
         );
