@@ -186,6 +186,7 @@ public class UserService {
 
         user.setNickname(registerUserInfoRequest.nickname());
         user.setIntroduceText(registerUserInfoRequest.introduceText());
+        fileStoreService.storeFiles(List.of(registerUserInfoRequest.profileImage()),user.getUserId(),"User");
         userRepository.save(user);
 
         setProfileImage(user);
