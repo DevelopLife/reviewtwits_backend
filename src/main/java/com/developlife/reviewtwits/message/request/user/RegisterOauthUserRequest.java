@@ -16,8 +16,6 @@ import javax.validation.constraints.Size;
 public record RegisterOauthUserRequest(
     @JwtProvider
     String provider,
-    @Size(min = 2, max = 20, message = "닉네임은 2자리 이상, 20자리 이하로 입력해주세요")
-    String nickname,
     @Pattern(message = "생일 형식이 아닙니다.",
         regexp = "^(19|20)\\d{2}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$")
     String birthDate,

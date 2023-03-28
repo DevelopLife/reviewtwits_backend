@@ -7,6 +7,7 @@ import com.developlife.reviewtwits.exception.mail.VerifyCodeException;
 import com.developlife.reviewtwits.exception.user.*;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
+import com.developlife.reviewtwits.message.request.user.RegisterUserInfoRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
@@ -16,6 +17,7 @@ import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.FileStoreService;
 import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
+import com.github.javafaker.Faker;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,6 +42,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final FileStoreService fileStoreService;
+    private final Faker faker;
 
     @Autowired
     public UserService(UserRepository userRepository, EmailVerifyRepository emailVerifyRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, FileStoreService fileStoreService) {
@@ -49,6 +52,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.fileStoreService = fileStoreService;
+        this.faker = new Faker();
     }
 
     public User login(LoginUserRequest loginUserRequest) {
@@ -87,11 +91,19 @@ public class UserService {
         registeredUser.setAccountPw(encodedPassword);
         registeredUser.setRoles(roles);
         registeredUser.setProvider(JwtProvider.REVIEWTWITS);
+        String nickname;
+        do {
+            nickname = faker.name().username();
+        } while (userRepository.findByNickname(nickname).isPresent());
+
+        registeredUser.setNickname(nickname);
 
         return userRepository.save(registeredUser);
     }
 
     private void authenticationCodeVerify(String accountId, String verifyCode) {
+        System.out.println(accountId);
+        System.out.println("verify_code: " + verifyCode);
         EmailVerify emailVerify = emailVerifyRepository.findByEmail(accountId)
                 .orElseThrow(() -> new VerifyCodeException("인증코드 발급을 진행해주세요"));
         LocalDateTime expiredDate = emailVerify.getCreatedDate().plusHours(1);
@@ -166,5 +178,19 @@ public class UserService {
         if(!userProfileImage.isEmpty()){
             user.setProfileImage(userProfileImage.get(0));
         }
+    }
+
+    @Transactional
+    public UserDetailInfoResponse registerAddition(RegisterUserInfoRequest registerUserInfoRequest, User user) {
+        userRepository.findByNickname(registerUserInfoRequest.nickname()).ifPresent(
+                u -> {throw new NicknameAlreadyExistsException("중복된 닉네임입니다");}
+        );
+
+        user.setNickname(registerUserInfoRequest.nickname());
+        user.setIntroduceText(registerUserInfoRequest.introduceText());
+        userRepository.save(user);
+
+        setProfileImage(user);
+        return userMapper.toUserDetailInfoResponse(user);
     }
 }

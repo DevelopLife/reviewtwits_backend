@@ -19,7 +19,7 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
 public class UserExceptionHandler {
 
     @ExceptionHandler(AccountIdAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public List<ErrorResponse> accountIdAlreadyExistsExceptionHandler(AccountIdAlreadyExistsException e){
         return makeErrorResponse(e, "accountId");
     }
@@ -67,7 +67,7 @@ public class UserExceptionHandler {
     }
 
     @ExceptionHandler(PhoneNumberAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public List<ErrorResponse> phoneNumberAlreadyExistsExceptionHandler(PhoneNumberAlreadyExistsException e){
         return makeErrorResponse(e, "phoneNumber");
     }
@@ -88,5 +88,11 @@ public class UserExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public List<ErrorResponse> unAuthorizedExceptionHandler(UnAuthorizedException e){
         return makeErrorResponse(e, "");
+    }
+
+    @ExceptionHandler(NicknameAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public List<ErrorResponse> nicknameAlreadyExistsExceptionHandler(NicknameAlreadyExistsException e){
+        return makeErrorResponse(e, "nickname");
     }
 }

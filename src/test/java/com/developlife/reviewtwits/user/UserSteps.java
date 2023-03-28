@@ -1,22 +1,20 @@
 package com.developlife.reviewtwits.user;
 
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
+import com.developlife.reviewtwits.message.request.user.RegisterUserInfoRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.service.email.EmailCodeSender;
+import com.developlife.reviewtwits.shoppingmallReview.ShoppingMallReviewSteps;
 import com.developlife.reviewtwits.type.EmailType;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
-import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.specification.MultiPartSpecification;
-import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -56,11 +54,19 @@ public class UserSteps {
                 .log().all().extract();
     }
 
+    public static RegisterUserInfoRequest 회원가입_추가정보요청() {
+
+
+        return RegisterUserInfoRequest.builder()
+                .nickname(nickname)
+            .introduceText("hello")
+                .build();
+    }
+
     public RegisterUserRequest 회원가입정보_생성() {
         String key = emailSender.storageVerifyInfo(accountId, EmailType.회원가입인증코드);
 
         return RegisterUserRequest.builder()
-                .nickname(nickname)
                 .accountId(accountId)
                 .accountPw(accountPw)
                 .birthDate(birthDate)
@@ -80,7 +86,6 @@ public class UserSteps {
         String key = emailSender.storageVerifyInfo(targetAccountId, EmailType.회원가입인증코드);
 
         return RegisterUserRequest.builder()
-                .nickname(targetNickname)
                 .accountId(targetAccountId)
                 .accountPw(accountPw)
                 .birthDate(targetBirthDate)
@@ -93,8 +98,7 @@ public class UserSteps {
     public RegisterUserRequest 회원가입정보_어드민_생성() {
         String key = emailSender.storageVerifyInfo("admin_" + accountId, EmailType.회원가입인증코드);
 
-        return RegisterUserRequest.builder().
-                nickname(nickname+"_admin")
+        return RegisterUserRequest.builder()
                 .accountId("admin_" + accountId)
                 .accountPw(accountPw)
                 .birthDate(birthDate)
@@ -189,7 +193,6 @@ public class UserSteps {
         String key = emailSender.storageVerifyInfo("add_" + accountId, EmailType.회원가입인증코드);
 
         return RegisterUserRequest.builder()
-                .nickname("add_" + nickname)
                 .accountId("add_" + accountId)
                 .accountPw(accountPw)
                 .birthDate(birthDate)
@@ -207,7 +210,6 @@ public class UserSteps {
 
     public static RegisterUserRequest 회원가입요청_입력정보_부적합() {
         return RegisterUserRequest.builder()
-                .nickname(nickname)
                 .accountId("add_" + accountId)
                 .accountPw("1234")
                 .birthDate(birthDate)
@@ -219,7 +221,6 @@ public class UserSteps {
 
     public static RegisterUserRequest 회원가입요청_비밀번호규칙_불일치() {
         return RegisterUserRequest.builder()
-                .nickname(nickname)
                 .accountId("wrong@test.com")
                 .accountPw("123@@@")
                 .birthDate(birthDate)
@@ -254,7 +255,7 @@ public class UserSteps {
         BufferedImage image = new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB);
         ImageIO.write(image,"png",file);
 
-        return createMultipartFile(file);
+        return ShoppingMallReviewSteps.createMultipartFile(file, "imageFile");
     }
 
     public static MultiPartSpecification 프로필_이미지아닌_파일정보_생성() throws IOException {
@@ -264,18 +265,7 @@ public class UserSteps {
         String inputContent = "hello world";
         Files.write(path, inputContent.getBytes());
 
-        return createMultipartFile(path.toFile());
+        return ShoppingMallReviewSteps.createMultipartFile(path.toFile(), "imageFile");
     }
 
-    private static MultiPartSpecification createMultipartFile(File file) throws IOException {
-        DiskFileItem fileItem = new DiskFileItem("file", "application/octet-stream", false, file.getName(), (int) file.length() , file.getParentFile());
-        fileItem.getOutputStream().write(Files.readAllBytes(file.toPath()));
-
-        MultipartFile multipartFile = new CommonsMultipartFile(fileItem);
-        return new MultiPartSpecBuilder(multipartFile.getBytes())
-                .controlName("imageFile")
-                .fileName(multipartFile.getOriginalFilename())
-                .mimeType(multipartFile.getContentType())
-                .build();
-    }
 }

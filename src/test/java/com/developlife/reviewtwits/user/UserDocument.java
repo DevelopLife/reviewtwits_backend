@@ -37,10 +37,10 @@ public class UserDocument {
                     .attributes(getGenderFormat()).description("성별").optional(),
             fieldWithPath("provider").type(JsonFieldType.STRING).description("Oauth 가입 제공자").optional(),
             fieldWithPath("uuid").type(JsonFieldType.STRING).description("Oauth Sub값").optional(),
-            fieldWithPath("profileImage").type(JsonFieldType.STRING).description("프로필 이미지 파일 이름").optional()
+            fieldWithPath("profileImage").type(JsonFieldType.STRING).description("프로필 이미지 파일 이름").optional(),
+            fieldWithPath("introduceText").type(JsonFieldType.STRING).description("자기소개 한줄글").optional()
     );
     public static final Snippet RegisterUserRequestField = requestFields(
-            fieldWithPath("nickname").type(JsonFieldType.STRING).attributes(required()).description("닉네임"),
             fieldWithPath("accountId").type(JsonFieldType.STRING).attributes(required()).description("아이디"),
             fieldWithPath("accountPw").type(JsonFieldType.STRING).attributes(required()).description("비밀번호"),
             fieldWithPath("birthDate").type(JsonFieldType.STRING)
@@ -50,6 +50,12 @@ public class UserDocument {
             fieldWithPath("gender").type(JsonFieldType.STRING)
                     .attributes(getGenderFormat()).description("성별(남자, 여자)"),
             fieldWithPath("verifyCode").type(JsonFieldType.STRING).attributes(required()).description("이메일 인증코드")
+    );
+
+    public static final Snippet RegisterUserInfoRequestField = requestParts(
+            partWithName("nickname").attributes(required()).description("닉네임"),
+            partWithName("introduceText").description("자기소개 한줄글"),
+            partWithName("profileImage").description("프로필이미지 파일 등록을 위한 multipart/form-data 입니다.")
     );
     public static final Snippet JwtTokenResponseField = responseFields(
             fieldWithPath("accessToken").type(JsonFieldType.STRING).description("access token"),

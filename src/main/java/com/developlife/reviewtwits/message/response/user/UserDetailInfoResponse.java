@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.message.response.user;
 
 import com.developlife.reviewtwits.type.Gender;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,10 @@ public record UserDetailInfoResponse(
         Gender gender,
         String provider,
         String uuid,
-        String profileImage
+        String profileImage,
+        String introduceText
 ) {
+    @Builder
+    public UserDetailInfoResponse {
+    }
 }
