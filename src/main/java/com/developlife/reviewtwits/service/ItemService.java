@@ -14,12 +14,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -67,38 +69,67 @@ public class ItemService {
         return response;
     }
 
-    public void relateProductsCrawling(String productName) throws IOException {
+    public void relateProductsCrawling(String productName) {
+
+        WebDriver chromeWebDriver = getDriverWithOptions();
 
         if(relatedProductRepository.existsByNameLike(productName)){
             return;
         }
-        RelatedProduct firstRelatedProduct = saveRelatedFiveProductAndGetFirstProduct(productName);
+        try{
 
-        if(firstRelatedProduct == null){
-            return;
+            RelatedProduct firstRelatedProduct = saveRelatedFiveProductAndGetFirstProduct(productName, chromeWebDriver);
+
+            log.info("{} 으로 다섯개 정보 찾기 성공", productName);
+            if(firstRelatedProduct == null){
+                return;
+            }
+
+            log.info("selenium 재점화");
+            Element targetDetailElement = getTargetDetailElementFromSelenium(firstRelatedProduct, chromeWebDriver);
+
+            log.info("selenium 사용 완료, 자료 취합");
+            ItemDetail detail = ItemDetail.builder()
+                    .relatedProduct(firstRelatedProduct)
+                    .detailInfo(targetDetailElement.html())
+                    .build();
+
+            itemDetailRepository.save(detail);
+
+            Elements imgElements = targetDetailElement.getElementsByTag("img");
+            List<String> fileSourceList = getImageURLFromHTML(imgElements);
+            storeDetailInfoImages(firstRelatedProduct, detail.getItemId(), fileSourceList);
+            changeImageInfoInHtmlAndSave(targetDetailElement, detail, imgElements);
+            log.info("자료 취합 완료");
+        }finally{
+            chromeWebDriver.close();
         }
-
-        Element targetDetailElement = getTargetDetailElementFromSelenium(firstRelatedProduct);
-
-        ItemDetail detail = ItemDetail.builder()
-                .relatedProduct(firstRelatedProduct)
-                .detailInfo(targetDetailElement.html())
-                .build();
-
-        itemDetailRepository.save(detail);
-
-        Elements imgElements = targetDetailElement.getElementsByTag("img");
-        List<String> fileSourceList = getImageURLFromHTML(imgElements);
-        storeDetailInfoImages(firstRelatedProduct, detail.getItemId(), fileSourceList);
-        changeImageInfoInHtmlAndSave(targetDetailElement, detail, imgElements);
     }
 
-    private RelatedProduct saveRelatedFiveProductAndGetFirstProduct(String productName) throws IOException {
+    private RelatedProduct saveRelatedFiveProductAndGetFirstProduct(String productName, WebDriver chromeWebDriver){
         RelatedProduct firstRelatedProduct = null;
 
         StringJoiner name = getNameForURL(productName);
-        Document document = coupangCrawlingConnection(searchUrl + name);
-        List<Element> targetElements = collectTopFiveElements(document);
+        chromeWebDriver.get(searchUrl + name);
+        setCookiesInDriver(chromeWebDriver);
+
+        List<WebElement> webElements = chromeWebDriver.findElements(new By.ByClassName("search-product-link"));
+
+        List<Element> extractedElements = new ArrayList<>();
+        for(WebElement toExtractElements : webElements){
+            extractedElements.add(Jsoup.parse(toExtractElements.getAttribute("innerHTML")).body());
+        }
+
+        List<Element> targetElements = new ArrayList<>();
+        for (Element element : extractedElements){
+            if(element.childrenSize() >= 2){
+                Element searchProductElement = element.child(0);
+                Element siblingElement = element.child(1);
+                if (siblingElement.hasClass("number") && Integer.parseInt(siblingElement.text()) <= 5) {
+                    targetElements.add(searchProductElement);
+                }
+            }
+        }
 
         List<RelatedProduct> crawlerList = new ArrayList<>();
         for(int elementIndex = 0; elementIndex < targetElements.size(); elementIndex++){
@@ -108,6 +139,8 @@ public class ItemService {
                 firstRelatedProduct = product;
             }
         }
+
+        log.info("Jsoup : product 정보 담기 시도 성공");
 
         relatedProductRepository.saveAll(crawlerList);
 
@@ -119,22 +152,20 @@ public class ItemService {
         return firstRelatedProduct;
     }
 
-    private Element getTargetDetailElementFromSelenium(RelatedProduct firstRelatedProduct) {
-        WebDriver driver = getDriverWithOptions();
-        try{
-            driver.get(firstRelatedProduct.getProductUrl());
+    private Element getTargetDetailElementFromSelenium(RelatedProduct firstRelatedProduct, WebDriver chromeWebDriver) {
+        log.info("전체 body 를 들고 오는 시도 시작");
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#btfTab > ul.tab-contents > li.product-detail.tab-contents__content > div:nth-child(2)")));
+        chromeWebDriver.get(firstRelatedProduct.getProductUrl());
+        setCookiesInDriver(chromeWebDriver);
+        
+        String bodyTag = chromeWebDriver.findElement(new By.ByTagName("body")).getAttribute("innerHTML");
+        System.out.println(bodyTag);
 
-            WebElement webElement = driver.findElement(By.cssSelector("#btfTab > ul.tab-contents > li.product-detail.tab-contents__content > div:nth-child(2)"));
-            return Jsoup.parse(webElement.getAttribute("innerHTML")).body();
-        }catch(Exception e){
-            throw new FileNotStoredException("파일이 저장되고 있지 않습니다");
-        }
-        finally{
-            driver.close();
-        }
+        WebDriverWait wait = new WebDriverWait(chromeWebDriver, Duration.ofSeconds(15));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#btfTab > ul.tab-contents > li.product-detail.tab-contents__content > div:nth-child(2)")));
+
+        WebElement webElement = chromeWebDriver.findElement(By.cssSelector("#btfTab > ul.tab-contents > li.product-detail.tab-contents__content > div:nth-child(2)"));
+        return Jsoup.parse(webElement.getAttribute("innerHTML")).body();
     }
 
     private List<String> getImageURLFromHTML(Elements imgElements) {
@@ -172,19 +203,10 @@ public class ItemService {
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("headless");
         options.addArguments("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.104 Whale/3.13.131.36 Safari/537.36");
+        options.addArguments("authority=www.coupang.com");
+        options.addArguments("accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9");
 
         return new ChromeDriver(options);
-    }
-
-    private List<Element> collectTopFiveElements(Document document){
-        List<Element> targetElements = new ArrayList<>();
-        for (Element element : document.getElementsByClass("search-product-wrap")) {
-            Element siblingElement = element.nextElementSibling();
-            if (siblingElement.hasClass("number") && Integer.parseInt(siblingElement.text()) <= 5) {
-                targetElements.add(element);
-            }
-        }
-        return targetElements;
     }
 
     private RelatedProduct makeCrawlingProductInfo(Element element) {
@@ -205,17 +227,6 @@ public class ItemService {
                                 .imagePath(imagePath)
                                 .productUrl(productURL)
                                 .build();
-    }
-
-    private Document coupangCrawlingConnection(String url) throws IOException {
-        log.info("url = {}",url);
-        return Jsoup.connect(url)
-                .maxBodySize(0)
-                .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
-                        "Chrome/111.0.0.0 Safari/537.36")
-                .header("cookie", "PCID=31489593180081104183684; _fbp=fb.1.1644931520418.1544640325; gd1=Y; X-CP-PT-locale=ko_KR; MARKETID=31489593180081104183684; sid=03ae1c0ed61946c19e760cf1a3d9317d808aca8b; x-coupang-origin-region=KOREA; x-coupang-target-market=KR; x-coupang-accept-language=ko_KR;")
-                .timeout(10000)
-                .get();
     }
 
     private StringJoiner getNameForURL(String productName) {
@@ -252,5 +263,16 @@ public class ItemService {
             joiner.add(part);
         }
         return joiner.toString();
+    }
+    private void setCookiesInDriver(WebDriver driver){
+        driver.manage().addCookie(new Cookie("PCID","31489593180081104183684"));
+        driver.manage().addCookie(new Cookie("_fbp","fb.1.1644931520418.1544640325"));
+        driver.manage().addCookie(new Cookie("gd1","Y"));
+        driver.manage().addCookie(new Cookie("X-CP-PT-locale","ko_KR"));
+        driver.manage().addCookie(new Cookie("MARKETID","31489593180081104183684"));
+        driver.manage().addCookie(new Cookie("sid","03ae1c0ed61946c19e760cf1a3d9317d808aca8b"));
+        driver.manage().addCookie(new Cookie("x-coupang-origin-region","KOREA"));
+        driver.manage().addCookie(new Cookie("x-coupang-target-market","KR"));
+        driver.manage().addCookie(new Cookie("x-coupang-accept-language","ko_KR"));
     }
 }
