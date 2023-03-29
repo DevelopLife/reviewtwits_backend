@@ -97,7 +97,7 @@ tasks.withType(GenerateSwaggerUI) {
 
 // 생성된 SwaggerUI 를 jar 에 포함시키기 위해 build/resources 경로로 로 복사
 tasks.register('copySwaggerUI', Copy) {
-	dependsOn 'generateSwaggerUISample'
+	dependsOn "generateSwaggerUISample"
 	def generateSwaggerUISampleTask = tasks.named('generateSwaggerUISample', GenerateSwaggerUI).get()
 	from("${generateSwaggerUISampleTask.outputDir}")
 	into("${project.buildDir}/resources/main/static/docs")
