@@ -52,8 +52,9 @@ public class FileStoreService {
 
         List<FileInfo> storeFileResult = new ArrayList<>();
         List<FileManager> fileManagerList = new ArrayList<>();
+
         for (MultipartFile multipartFile : multipartFiles) {
-            if(!multipartFile.isEmpty()){
+            if(multipartFile != null && !multipartFile.isEmpty()){
                 FileInfo fileInfo = storeFile(multipartFile);
                 storeFileResult.add(fileInfo);
                 fileManagerList.add(new FileManager(fileInfo,referenceID,referenceType));
