@@ -1,6 +1,9 @@
 package com.developlife.reviewtwits.config;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -29,6 +32,16 @@ public class DataSourceConfiguration {
     private static final String SOURCE_SERVER = "SOURCE";
     private static final String REPLICA_SERVER = "REPLICA";
     private final JpaProperties jpaProperties;
+    @Value("${spring.datasource.source.url}")
+    private String masterUrl;
+    @Value("${spring.datasource.replica.url}")
+    private String slaveUrl;
+    @Value("${spring.datasource.driver-class-name}")
+    private String driverClassName;
+    @Value("${spring.datasource.username}")
+    private String username;
+    @Value("${spring.datasource.password}")
+    private String password;
 
     public DataSourceConfiguration(JpaProperties jpaProperties) {
         this.jpaProperties = jpaProperties;
@@ -38,16 +51,23 @@ public class DataSourceConfiguration {
     @Qualifier(SOURCE_SERVER)
     @ConfigurationProperties(prefix = "spring.datasource.source")
     public DataSource sourceDataSource() {
-        return DataSourceBuilder.create()
-            .build();
+        return createDataSource(masterUrl);
     }
 
     @Bean
     @Qualifier(REPLICA_SERVER)
     @ConfigurationProperties(prefix = "spring.datasource.replica")
     public DataSource replicaDataSource() {
-        return DataSourceBuilder.create()
-            .build();
+        return createDataSource(slaveUrl);
+    }
+
+    public DataSource createDataSource(String url) {
+        HikariDataSource hikariDataSource = new HikariDataSource();
+        hikariDataSource.setJdbcUrl(url);
+        hikariDataSource.setDriverClassName(driverClassName);
+        hikariDataSource.setUsername(username);
+        hikariDataSource.setPassword(password);
+        return hikariDataSource;
     }
 
     @Bean
