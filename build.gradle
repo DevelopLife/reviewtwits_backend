@@ -63,6 +63,9 @@ dependencies {
 	implementation 'io.github.bonigarcia:webdrivermanager:5.3.1'
 	implementation ('com.github.javafaker:javafaker:1.0.2') { exclude module: 'org.yaml' }
 	implementation group: 'org.yaml', name: 'snakeyaml', version: '1.26'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.429'
+	implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.429'
+	implementation 'com.amazonaws:aws-encryption-sdk-java:2.4.0'
 	testImplementation 'org.projectlombok:lombok:1.18.22'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
