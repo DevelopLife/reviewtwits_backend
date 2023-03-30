@@ -47,7 +47,7 @@ public class FileController {
         return ResponseEntity.ok().body(storeFilename); // 바꾸기
     }
 
-    @GetMapping(value = "/request-images/{UUID}", consumes = "application/json;charset=UTF-8")
+    @GetMapping(value = "/request-images/{UUID}")
     public Resource downloadImage(@PathVariable(name = "UUID") String fileName) throws IOException {
 
         if(FileReferenceType.isValidFileType("image",fileName)){
