@@ -46,6 +46,12 @@ jobs:
           cat ./oauth.properties
         shell: bash
 
+      - name: Make s3.properties
+        run: |
+          cd ./src/main/resources
+           echo "${{ secrets.AWS_S3 }}" >> ./s3.properties
+          cat ./s3.properties
+        shell: bash
 #      - name : Setup MariaDB
 #        uses: getong/mariadb-action@v1.1
 #        with:
