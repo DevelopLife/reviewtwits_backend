@@ -8,7 +8,6 @@ import com.developlife.reviewtwits.shoppingmallReview.ShoppingMallReviewSteps;
 import com.developlife.reviewtwits.type.EmailType;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.UserRole;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -37,11 +36,9 @@ public class UserSteps {
     final static String targetAccountId = "whalesbob@naver.com";
 
     final private EmailCodeSender emailSender;
-    final private ObjectMapper objectMapper;
 
-    public UserSteps(EmailCodeSender emailSender, ObjectMapper objectMapper) {
+    public UserSteps(EmailCodeSender emailSender) {
         this.emailSender = emailSender;
-        this.objectMapper = objectMapper;
     }
 
     public static ExtractableResponse<Response> 회원가입요청(final RegisterUserRequest request) {

@@ -2,10 +2,14 @@ package com.developlife.reviewtwits.file;
 
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
+import com.developlife.reviewtwits.service.AwsS3Service;
 import com.google.common.net.HttpHeaders;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -14,30 +18,40 @@ import java.io.IOException;
 import static org.hamcrest.Matchers.*;
 import static io.restassured.RestAssured.given;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
+import static org.mockito.Mockito.*;
 
 
 /**
  * @author WhalesBob
  * @since 2023-03-12
  */
-public class FileDownloadTest extends ApiTest {
+public class FileDownloadApiTest extends ApiTest {
 
     @Autowired
     private FileDownloadSteps downloadSteps;
+
+    @MockBean
+    private AwsS3Service awsS3Service;
 
     private String uuidFilename;
     private String uuidImageFilename;
 
     @BeforeEach
     void settings() throws IOException {
+
         uuidFilename = downloadSteps.textFileUpload("example","example",".txt",12L,"TEST");
         // 임의의 파일과 이미지 하나를 저장해 두고, 없는 거 부르면 실패/있는거 부르면 성공
         uuidImageFilename = downloadSteps.imageFileUpload(345L,"Image");
+
+        doReturn(new ByteArrayResource("Hello World".getBytes()))
+                .when(awsS3Service)
+                .getFilesFromS3(Mockito.anyString());
     }
 
 
+
     @Test
-    void 파일다운로드요청_성공_200(){
+    void 파일다운로드요청_성공_200() throws IOException {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "UUID 로 저장된 이름으로 파일을 찾아, 다운로드할 수 있는 태그를 만듭니다.","파일다운로드요청", FileDownloadDocument.uuidFileName))
@@ -51,7 +65,9 @@ public class FileDownloadTest extends ApiTest {
                 .header(HttpHeaders.CONTENT_DISPOSITION,notNullValue())
                 .header(HttpHeaders.CONTENT_TYPE,notNullValue())
                 .body(notNullValue())
-                .log().all().extract();
+                .log().all();
+
+        verify(awsS3Service).getFilesFromS3(Mockito.anyString());
     }
 
     @Test

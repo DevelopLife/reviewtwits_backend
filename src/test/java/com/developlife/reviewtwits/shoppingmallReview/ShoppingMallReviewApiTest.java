@@ -1,5 +1,7 @@
 package com.developlife.reviewtwits.shoppingmallReview;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.entity.Product;
@@ -20,6 +22,7 @@ import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,6 +34,7 @@ import static io.restassured.RestAssured.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.verify;
 
 
 /**
@@ -51,6 +55,9 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     private ProjectRepository projectRepository;
     @Autowired
     private FileManagerRepository fileManagerRepository;
+
+    @Autowired
+    private AmazonS3 s3Client;
 
     private Product product;
     private Project project;
@@ -92,6 +99,8 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .log().all();
+
+        verify(s3Client).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
@@ -301,6 +310,8 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .body("find{it.errorType == 'NotBlank' " +
                         "&& it.fieldName == 'score' " + "&& it.message == '별점이 입력되지 않았습니다.'}", notNullValue())
                 .log().all().extract();
+
+        verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
@@ -322,6 +333,8 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .body("find{it.errorType == 'Size' " +
                         "&& it.fieldName == 'content' " + "&& it.message == '리뷰내용은 10자 이상이어야 합니다.'}", notNullValue())
                 .log().all().extract();
+
+        verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
@@ -352,6 +365,8 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .body("find{it.errorType == 'ImageFiles' " +
                         "&& it.fieldName == 'multipartImageFiles' " + "&& it.message == '입력된 파일이 이미지가 아닙니다.'}", notNullValue())
                 .log().all().extract();
+
+        verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 /*
     @Test
