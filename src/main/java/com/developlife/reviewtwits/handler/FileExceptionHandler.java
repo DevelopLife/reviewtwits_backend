@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.handler;
 
+import com.developlife.reviewtwits.exception.file.FileEmptyException;
 import com.developlife.reviewtwits.exception.file.InvalidFilenameExtensionException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,12 @@ public class FileExceptionHandler {
     @ExceptionHandler(FileUploadException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public List<ErrorResponse> fileUploadExceptionHandler(FileUploadException e){
+        return makeErrorResponse(e, "file");
+    }
+
+    @ExceptionHandler(FileEmptyException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public List<ErrorResponse> fileEmptyExceptionHandler(FileEmptyException e){
         return makeErrorResponse(e, "file");
     }
 }
