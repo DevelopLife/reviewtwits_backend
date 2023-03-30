@@ -4,6 +4,7 @@ import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.exception.file.InvalidFilenameExtensionException;
 import com.developlife.reviewtwits.message.request.FileUpdateRequest;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
+import com.developlife.reviewtwits.service.AwsS3Service;
 import com.developlife.reviewtwits.service.FileStoreService;
 import com.developlife.reviewtwits.type.FileReferenceType;
 import com.google.common.net.HttpHeaders;
@@ -31,6 +32,7 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
 public class FileController {
 
     private final FileStoreService fileStore;
+    private final AwsS3Service s3Service;
 
     @PostMapping(value = "/files/save", produces = "application/json")
     public ResponseEntity<String> saveFile(@ModelAttribute FileUpdateRequest request) {
@@ -38,9 +40,6 @@ public class FileController {
         String referenceType = request.referenceType();
         Long id = request.id();
         List<MultipartFile> attachedFiles = request.attachedFiles();
-        if(attachedFiles.get(0).isEmpty() || !FileReferenceType.isValidFileType(referenceType, attachedFiles)){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
 
         List<FileInfo> storeFiles = fileStore.storeFiles(attachedFiles,id,referenceType);
         String storeFilename = storeFiles.get(0).getRealFilename();
@@ -48,19 +47,28 @@ public class FileController {
         return ResponseEntity.ok().body(storeFilename); // 바꾸기
     }
 
-    @GetMapping("/request-images/{UUID}")
-    public Resource downloadImage(@PathVariable(name = "UUID") String fileName) throws MalformedURLException {
+    @GetMapping(value = "/request-images/{UUID}", consumes = "application/json;charset=UTF-8")
+    public Resource downloadImage(@PathVariable(name = "UUID") String fileName) throws IOException {
+
         if(FileReferenceType.isValidFileType("image",fileName)){
-            return new UrlResource("file:"+ fileStore.getFullPath(fileName));
+            String originalFilename = fileStore.findOriginalFilename(fileName);
+            if(originalFilename == null){
+                throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
+            }
+            return s3Service.getFilesFromS3(fileName);
+            // return new UrlResource("file:"+ fileStore.getFullPath(fileName));
         }
         throw new InvalidFilenameExtensionException("등록된 이미지 파일 확장자로 온 요청이 아닙니다.");
     }
 
     @GetMapping(value = "/request-download-files/{UUID}", produces = "application/json")
-    public ResponseEntity<Resource> downloadFile(@PathVariable(name = "UUID") String fileName) throws MalformedURLException{
+    public ResponseEntity<Resource> downloadFile(@PathVariable(name = "UUID") String fileName) throws IOException {
         String originalFilename = fileStore.findOriginalFilename(fileName);
 
-        UrlResource resource = new UrlResource("file:" + fileStore.getFullPath(fileName));
+        if(originalFilename == null){
+            throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
+        }
+        Resource resource = s3Service.getFilesFromS3(fileName);
 
         String encodeDownloadFileName = UriUtils.encode(originalFilename, StandardCharsets.UTF_8);
         String contentDisposition = "attachment; filename:\"" + encodeDownloadFileName + "\"";
