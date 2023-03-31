@@ -9,6 +9,7 @@ import com.developlife.reviewtwits.repository.FileInfoRepository;
 import com.developlife.reviewtwits.repository.FileManagerRepository;
 import com.developlife.reviewtwits.type.FileReferenceType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileStoreService {
 
     @Value("${file.dir}")
@@ -40,6 +42,7 @@ public class FileStoreService {
         String originalFilename = multipartFile.getOriginalFilename();
         String storeFilename = createStoreFileName(originalFilename);
         try{
+            log.info("s3에 개별 파일 저장 시도");
             //multipartFile.transferTo(new File(getFullPath(storeFilename)));
             awsService.uploadToAWS(multipartFile, storeFilename);
         }catch(IOException e){
