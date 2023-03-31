@@ -40,5 +40,5 @@ out/
 /src/main/resources/email.properties
 /src/main/resources/application.properties
 /src/main/resources/application-prod.properties
-/src/main/resources/seleniumSettings.properties
+/src/main/resources/s3.properties
 keystore.p12
