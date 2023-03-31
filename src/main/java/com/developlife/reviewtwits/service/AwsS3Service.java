@@ -39,11 +39,16 @@ public class AwsS3Service {
     public String uploadToAWS(MultipartFile file, String storeFilename) throws IOException{
 
         try{
+            log.info("파일 저장을 위한 uploadToAWS 진입");
+            log.info("S3 Client 정보 = {}", s3Client);
+            log.info("bucketName : {}",bucketName);
+            log.info("url 정보 : {}", url);
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             PutObjectRequest request = new PutObjectRequest(bucketName, storeFilename, file.getInputStream(), metadata);
             request.withCannedAcl(CannedAccessControlList.AuthenticatedRead);
             s3Client.putObject(request);
+            log.info("S3 Client 에 파일 저장 요청 완료");
             return storeFilename;
         }catch(AmazonServiceException e){
             log.error("uploadToAWS AmazonServiceException error={}", e.getMessage());
