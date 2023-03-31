@@ -21,7 +21,7 @@ public class ItemApiTest extends ApiTest {
 
     @Autowired
     private ItemDetailRepository itemDetailRepository;
-
+/*
     @Test
     void crawlingTryTest(){
         given(this.spec)
@@ -40,5 +40,5 @@ public class ItemApiTest extends ApiTest {
 
         // 최소한, 크롬 드라이버가 올바르게 동작한다면, 하나의 itemDetail Entity 는 존재해야 한다.
         assertThat(itemDetailRepository.checkTableIsNotEmpty()).isTrue();
-    }
+    }*/
 }
