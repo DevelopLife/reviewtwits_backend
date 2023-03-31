@@ -2,9 +2,12 @@ package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.entity.FileManager;
+import com.developlife.reviewtwits.exception.file.FileEmptyException;
 import com.developlife.reviewtwits.exception.file.FileNotStoredException;
+import com.developlife.reviewtwits.exception.file.InvalidFilenameExtensionException;
 import com.developlife.reviewtwits.repository.FileInfoRepository;
 import com.developlife.reviewtwits.repository.FileManagerRepository;
+import com.developlife.reviewtwits.type.FileReferenceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ public class FileStoreService {
 
     private final FileInfoRepository fileInfoRepository;
     private final FileManagerRepository fileManagerRepository;
+    private final AwsS3Service awsService;
 
     @Transactional
     public FileInfo storeFile(MultipartFile multipartFile) {
@@ -36,7 +40,8 @@ public class FileStoreService {
         String originalFilename = multipartFile.getOriginalFilename();
         String storeFilename = createStoreFileName(originalFilename);
         try{
-            multipartFile.transferTo(new File(getFullPath(storeFilename)));
+            //multipartFile.transferTo(new File(getFullPath(storeFilename)));
+            awsService.uploadToAWS(multipartFile, storeFilename);
         }catch(IOException e){
             throw new FileNotStoredException("IOException 이 발생했습니다. 알려주세요");
         }
@@ -48,7 +53,12 @@ public class FileStoreService {
 
     public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, String referenceType) {
 
-        checkFolder();
+        if(multipartFiles.get(0).isEmpty()){
+            throw new FileEmptyException("파일 내역이 비워져 있습니다.");
+        }
+        if(!FileReferenceType.isValidFileType(referenceType, multipartFiles)){
+            throw new InvalidFilenameExtensionException("올바르지 않는 파일 타입입니다.");
+        }
 
         List<FileInfo> storeFileResult = new ArrayList<>();
         List<FileManager> fileManagerList = new ArrayList<>();
@@ -84,13 +94,6 @@ public class FileStoreService {
     public static String extractExt(String originalFilename) {
         int position = originalFilename.lastIndexOf(".");
         return originalFilename.substring(position + 1);
-    }
-
-    private void checkFolder(){
-        File folder = new File(fileDir);
-        if(!folder.exists()){
-            folder.mkdir();
-        }
     }
 
     public List<String> bringFileNameList(String referenceType, Long referenceID){

@@ -1,5 +1,7 @@
 package com.developlife.reviewtwits.user;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.entity.User;
@@ -16,6 +18,7 @@ import io.restassured.specification.MultiPartSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +29,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
+import static org.mockito.Mockito.verify;
 
 public class UserApiTest extends ApiTest {
     @Autowired
@@ -36,6 +40,9 @@ public class UserApiTest extends ApiTest {
     private UserRepository userRepository;
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private AmazonS3 s3Client;
 
     private RegisterUserRequest registerUserRequest;
     private RegisterUserRequest registerAdminRequest;
@@ -248,6 +255,8 @@ public class UserApiTest extends ApiTest {
             .body("nickname", equalTo("test"))
             .body("introduceText", equalTo("test"))
             .log().all().extract().response();
+
+        verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
@@ -312,6 +321,7 @@ public class UserApiTest extends ApiTest {
                 .log().all();
 
         assertThat(유저정보_프로필이미지_추출()).isNotNull();
+        verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     private String 유저정보_프로필이미지_추출() {
@@ -346,6 +356,8 @@ public class UserApiTest extends ApiTest {
                 .body("find{it.message == '입력된 파일이 이미지가 아닙니다.' " +
                         "&& it.errorType == 'ImageFile' && it.fieldName == 'imageFile' }",notNullValue())
                 .log().all();
+
+        verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test

@@ -5,13 +5,12 @@ import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Size;
-import java.util.List;
 
 /**
  * @author ghdic
  * @since 2023/02/25
  */
-@Builder
+
 public record RegisterUserInfoRequest(
     @Size(min = 2, max = 20, message = "닉네임은 2자리 이상, 20자리 이하로 입력해주세요")
     String nickname,
@@ -20,4 +19,9 @@ public record RegisterUserInfoRequest(
     @ImageFile
     MultipartFile profileImage
 ) {
+
+    @Builder
+    public RegisterUserInfoRequest{
+
+    }
 }

@@ -1,41 +1,51 @@
 package com.developlife.reviewtwits.file;
 
-import io.restassured.RestAssured;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.developlife.reviewtwits.entity.FileInfo;
+import com.developlife.reviewtwits.message.request.FileUpdateRequest;
+import com.developlife.reviewtwits.service.FileStoreService;
+import com.developlife.reviewtwits.type.MadeMultipartFile;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.*;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+
+import static org.mockito.Mockito.*;
 
 /**
  * @author WhalesBob
  * @since 2023-03-12
  */
+@SpringBootTest
 @Component
 public class FileDownloadSteps {
 
-    @Autowired
-    public TestRestTemplate restTemplate;
+    @MockBean
+    private AmazonS3 amazonS3;
 
-    public String textFileUpload(String inputContent, String filename, String suffix, Long id, String referenceType) throws IOException {
+    @Autowired
+    private FileStoreService fileStoreService;
+
+    public String textFileUpload(String inputContent, String filename,
+                                 String suffix, Long id, String referenceType) throws IOException {
 
         String fileFullName = filename + suffix;
         File targetFile = new File(System.getProperty("java.io.tmpdir"), fileFullName);
         Path path = targetFile.toPath();
 
         Files.write(path, inputContent.getBytes());
-        return fileResponse(id, referenceType, path).getBody();
+        return fileResponse(id, referenceType,fileFullName, path).getBody();
     }
 
     public String imageFileUpload(Long id, String referenceType) throws IOException{
@@ -45,23 +55,25 @@ public class FileDownloadSteps {
         BufferedImage image = new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB);
         ImageIO.write(image,"png",targetFile);
 
-        return fileResponse(id, referenceType, targetFile.toPath()).getBody();
+        return fileResponse(id, referenceType,fileFullName, targetFile.toPath()).getBody();
     }
 
-    private ResponseEntity<String> fileResponse(Long id, String referenceType, Path path) {
+    private ResponseEntity<String> fileResponse(Long id, String referenceType,String fileName, Path path) throws IOException {
 
-        // 요청 보내기
-        // MultiValueMap 생성
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("attachedFiles", new FileSystemResource(path));
-        body.add("id", id);
-        body.add("referenceType", referenceType);
+        FileUpdateRequest request = FileUpdateRequest.builder()
+                .attachedFiles(List.of(new MadeMultipartFile(Files.readAllBytes(path),fileName)))
+                .id(id)
+                .referenceType(referenceType)
+                .build();
 
-        // 요청 보내기
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        return restTemplate.postForEntity("/files/save", requestEntity, String.class);
+        return mockFileUploadProcess(request);
     }
 
+    public ResponseEntity<String> mockFileUploadProcess(FileUpdateRequest request){
+        doReturn(null).when(amazonS3).putObject(Mockito.any(PutObjectRequest.class));
+        List<FileInfo> fileInfoList = fileStoreService.storeFiles(request.attachedFiles(), request.id(), request.referenceType());
+
+        String storeFilename = fileInfoList.get(0).getRealFilename();
+        return ResponseEntity.ok().body(storeFilename);
+    }
 }
