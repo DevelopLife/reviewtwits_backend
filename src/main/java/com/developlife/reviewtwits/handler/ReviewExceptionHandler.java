@@ -1,7 +1,9 @@
 package com.developlife.reviewtwits.handler;
 
 import com.developlife.reviewtwits.exception.review.CannotHandleReviewException;
-import com.developlife.reviewtwits.exception.review.ReviewNotExistException;
+import com.developlife.reviewtwits.exception.review.CommentNotFoundException;
+import com.developlife.reviewtwits.exception.review.ReactionNotFoundException;
+import com.developlife.reviewtwits.exception.review.ReviewNotFoundException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,9 +27,9 @@ public class ReviewExceptionHandler {
         return makeErrorResponse(e, "X-AUTH-TOKEN");
     }
 
-    @ExceptionHandler(ReviewNotExistException.class)
+    @ExceptionHandler(ReviewNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public List<ErrorResponse> reviewNotExistExceptionHandler(CannotHandleReviewException e){
+    public List<ErrorResponse> reviewNotFoundExceptionHandler(ReviewNotFoundException e){
         return makeErrorResponse(e, "reviewId");
     }
 }
