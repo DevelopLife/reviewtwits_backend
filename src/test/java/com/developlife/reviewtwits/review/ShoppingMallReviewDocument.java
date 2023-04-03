@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.shoppingmallReview;
+package com.developlife.reviewtwits.review;
 
 import org.springframework.restdocs.snippet.Snippet;
 

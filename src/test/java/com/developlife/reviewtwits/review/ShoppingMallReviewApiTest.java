@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.shoppingmallReview;
+package com.developlife.reviewtwits.review;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -29,7 +29,7 @@ import org.springframework.http.MediaType;
 import java.io.IOException;
 import java.util.List;
 
-import static com.developlife.reviewtwits.shoppingmallReview.ShoppingMallReviewSteps.*;
+import static com.developlife.reviewtwits.review.ShoppingMallReviewSteps.*;
 import static io.restassured.RestAssured.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 import static org.assertj.core.api.Assertions.assertThat;

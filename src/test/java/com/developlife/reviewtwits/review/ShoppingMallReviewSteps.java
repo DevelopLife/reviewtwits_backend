@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.shoppingmallReview;
+package com.developlife.reviewtwits.review;
 
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
