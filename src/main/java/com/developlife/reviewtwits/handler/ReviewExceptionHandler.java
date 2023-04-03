@@ -32,4 +32,16 @@ public class ReviewExceptionHandler {
     public List<ErrorResponse> reviewNotFoundExceptionHandler(ReviewNotFoundException e){
         return makeErrorResponse(e, "reviewId");
     }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public List<ErrorResponse> commentNotFoundExceptionHandler(CommentNotFoundException e){
+        return makeErrorResponse(e, "comment");
+    }
+
+    @ExceptionHandler(ReactionNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public List<ErrorResponse> reactionNotFoundExceptionHandler(ReactionNotFoundException e){
+        return makeErrorResponse(e, "reaction");
+    }
 }
