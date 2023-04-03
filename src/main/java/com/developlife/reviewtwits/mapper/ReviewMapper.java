@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.mapper;
 
+import com.developlife.reviewtwits.entity.Comment;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
@@ -8,7 +9,7 @@ import com.developlife.reviewtwits.message.response.review.DetailSnsReviewRespon
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
@@ -40,6 +41,33 @@ public interface ReviewMapper {
                 .score(review.getScore())
                 .reviewImageNameList(review.getReviewImageNameList())
                 .exist(review.isExist())
+                .build();
+    }
+
+    @Named(value = "toDetailSnsReviewResponse")
+    default DetailSnsReviewResponse toDetailSnsReviewResponse(Review review, List<ReactionResponse> reactionResponses){
+        return DetailSnsReviewResponse.builder()
+                .createdDate(review.getCreatedDate())
+                .lastModifiedDate(review.getLastModifiedDate())
+                .reviewId(review.getReviewId())
+                .productName(review.getProductName())
+                .userInfo(mapUserToUserInfoResponse(review.getUser()))
+                .content(review.getContent())
+                .productUrl(review.getProductUrl())
+                .score(review.getScore())
+                .reviewImageNameList(review.getReviewImageNameList())
+                .commentCount(review.getCommentCount())
+                .reactionResponseList(reactionResponses)
+                .exist(review.isExist())
+                .build();
+    }
+
+    default CommentResponse toCommentResponse(Comment comment){
+        return CommentResponse.builder()
+                .commentId(comment.getCommentId())
+                .content(comment.getContent())
+                .parentCommentId(comment.getCommentGroup().getCommentId())
+                .userInfo(mapUserToUserInfoResponse(comment.getUser()))
                 .build();
     }
 }
