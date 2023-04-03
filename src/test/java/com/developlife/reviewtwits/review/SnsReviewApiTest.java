@@ -448,7 +448,8 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>리액션을 추가할 reviewId 는 필수값이며, path 에 같이 추가될 수 있습니다." +
                         "<br>X-AUTH_TOKEN 이 존재하지 않거나, 올바르지 않은 값이거나, 해당 리액션을 수정할 권한이 없는 경우 401 Unauthorized 가 반환됩니다." +
                         "<br>reviewId 가 존재하지 않은 경우, 404 Not Found 가 반환됩니다." +
-                        "<br>올바른 값이 모두 들어갔다면, 리액션이 삭제되고 200 OK 가 반환됩니다."))
+                        "<br>올바른 값이 모두 들어갔다면, 리액션이 삭제되고 200 OK 가 반환됩니다."
+                        ,"SNS피드리액션삭제",UserDocument.AccessTokenHeader,SnsReviewDocument.ReviewIdField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",registeredReviewId)
                 .when()
