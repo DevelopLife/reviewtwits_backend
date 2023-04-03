@@ -408,16 +408,9 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>리액션을 추가할 reviewId 는 필수값이며, path 에 같이 추가될 수 있습니다." +
                         "<br>리액션 내용은 Request Body 에 넣을 수 있습니다." +
                         "<br>리액션 내용으로 넣을 수 있는 요소는 아래와 같습니다." +
-                        "<br>    LOVE(\"\\uD83D\\uDE0D\")," +
-                        "    SUNGLASSES(\"\\uD83D\\uDE0E\")," +
-                        "    LAUGHING(\"\\uD83E\\uDD23\")," +
-                        "    SURPRISING(\"\\uD83D\\uDE32\")," +
-                        "    THINKING(\"\\uD83E\\uDD14\")," +
-                        "    PLEADING(\"\\uD83E\\uDD7A\")," +
-                        "    CHOCKING(\"\\uD83E\\uDEE2\")," +
-                        "    PRAYING(\"\\uD83D\\uDE4F\")," +
-                        "    GOOD(\"\\uD83D\\uDC4D\")," +
-                        "    NOTICING(\"\\uD83D\\uDC40\")","SNS리뷰리액션추가"
+                        "<br>LOVE,SUNGLASSES,LAUGHING,SURPRISING,THINKING," +
+                                "<br>PLEADING,CHOCKING,PRAYING,GOOD,NOTICING",
+                        "SNS리뷰리액션추가"
                         ,UserDocument.AccessTokenHeader,SnsReviewDocument.ReviewIdField,SnsReviewDocument.SnsReactionAddRequestField))
                 .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", registeredReviewId)
