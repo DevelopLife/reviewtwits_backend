@@ -2,7 +2,10 @@ package com.developlife.reviewtwits.mapper;
 
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
+import com.developlife.reviewtwits.message.response.review.CommentResponse;
+import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
+import com.developlife.reviewtwits.message.response.review.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,14 +21,15 @@ import java.util.List;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy =  NullValuePropertyMappingStrategy.IGNORE, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface ReviewMapper {
 
-    List<DetailReviewResponse> toDetailReviewResponseList(List<Review> reviews);
+    List<DetailShoppingMallReviewResponse> toDetailReviewResponseList(List<Review> reviews);
+    List<CommentResponse> toCommentResponseList(List<Comment> comments);
 
     default UserInfoResponse mapUserToUserInfoResponse(User user){
         return new UserInfoResponse(user.getNickname(),user.getAccountId(),user.getIntroduceText(),user.getProfileImage());
     }
 
-    default DetailReviewResponse mapReviewToDetailReviewResponse(Review review){
-        return DetailReviewResponse.builder()
+    default DetailShoppingMallReviewResponse mapReviewToDetailReviewResponse(Review review){
+        return DetailShoppingMallReviewResponse.builder()
                 .createdDate(review.getCreatedDate())
                 .lastModifiedDate(review.getLastModifiedDate())
                 .reviewId(review.getReviewId())

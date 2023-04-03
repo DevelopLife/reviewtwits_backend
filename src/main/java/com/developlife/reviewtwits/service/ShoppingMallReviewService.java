@@ -10,7 +10,7 @@ import com.developlife.reviewtwits.exception.review.ReviewNotExistException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
-import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
+import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
@@ -100,7 +100,7 @@ public class ShoppingMallReviewService {
                 .build();
     }
 
-    public List<DetailReviewResponse> findShoppingMallReviewList(String productURL){
+    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(String productURL){
         List<Review> reviews = reviewRepository.findReviewsByProductUrl(productURL);
         for(Review review : reviews){
             saveReviewImage(review);
@@ -108,7 +108,7 @@ public class ShoppingMallReviewService {
         return mapper.toDetailReviewResponseList(reviews);
     }
 
-    public DetailReviewResponse findOneShoppingMallReview(long reviewId){
+    public DetailShoppingMallReviewResponse findOneShoppingMallReview(long reviewId){
         Optional<Review> review = reviewRepository.findById(reviewId);
         if(review.isEmpty()){
             return null;
