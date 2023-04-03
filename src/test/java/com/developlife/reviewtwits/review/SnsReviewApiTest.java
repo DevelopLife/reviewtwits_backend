@@ -176,7 +176,7 @@ public class SnsReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         RequestSpecification request = given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"SNS 리뷰를 올바로 작성한 부분입니다."))
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
@@ -409,7 +409,7 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>리액션 내용은 Request Body 에 넣을 수 있습니다." +
                         "<br>리액션 내용으로 넣을 수 있는 요소는 아래와 같습니다." +
                         "<br>LOVE,SUNGLASSES,LAUGHING,SURPRISING,THINKING," +
-                                "<br>PLEADING,CHOCKING,PRAYING,GOOD,NOTICING",
+                                "<br>PLEADING,SHOCKING,PRAYING,GOOD,NOTICING",
                         "SNS리뷰리액션추가"
                         ,UserDocument.AccessTokenHeader,SnsReviewDocument.ReviewIdField,SnsReviewDocument.SnsReactionAddRequestField))
                 .header("X-AUTH-TOKEN", token)

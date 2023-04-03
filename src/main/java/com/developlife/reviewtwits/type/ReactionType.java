@@ -17,7 +17,7 @@ public enum ReactionType {
     SURPRISING("\uD83D\uDE32"),
     THINKING("\uD83E\uDD14"),
     PLEADING("\uD83E\uDD7A"),
-    CHOCKING("\uD83E\uDEE2"),
+    SHOCKING("\uD83E\uDEE2"),
     PRAYING("\uD83D\uDE4F"),
     GOOD("\uD83D\uDC4D"),
     NOTICING("\uD83D\uDC40");
