@@ -5,7 +5,7 @@ import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
-import com.developlife.reviewtwits.message.response.review.DetailReviewResponse;
+import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.service.ShoppingMallReviewService;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +50,7 @@ public class ShoppingMallReviewController {
     }
 
     @GetMapping(value = "/shopping/{reviewId}", produces = "application/json")
-    public DetailReviewResponse findOneShoppingMallReview(@PathVariable Long reviewId){
+    public DetailShoppingMallReviewResponse findOneShoppingMallReview(@PathVariable Long reviewId){
         return reviewService.findOneShoppingMallReview(reviewId);
     }
 
@@ -81,7 +81,7 @@ public class ShoppingMallReviewController {
     }
 
     @GetMapping(value = "/shopping/list", produces = "application/json;charset=UTF-8")
-    public List<DetailReviewResponse> findShoppingMallReviewList(@RequestHeader String productURL) throws BindException {
+    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(@RequestHeader String productURL) throws BindException {
         reviewService.checkProductURLIsValid(productURL);
         return reviewService.findShoppingMallReviewList(productURL);
     }

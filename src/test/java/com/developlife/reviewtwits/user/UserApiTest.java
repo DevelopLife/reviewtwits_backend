@@ -9,7 +9,7 @@ import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.user.UserService;
-import com.developlife.reviewtwits.shoppingmallReview.ShoppingMallReviewSteps;
+import com.developlife.reviewtwits.review.ShoppingMallReviewSteps;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.response.ExtractableResponse;

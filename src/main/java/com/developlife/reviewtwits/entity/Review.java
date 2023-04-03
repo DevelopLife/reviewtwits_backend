@@ -41,8 +41,13 @@ public class Review extends BaseEntity {
     private String content;
 
     private String productUrl;
+    private String productName;
 
     private int score;
+
+    @Builder.Default
+    @ColumnDefault(value = "0")
+    private int commentCount = 0;
 
     @Transient
     @Setter
