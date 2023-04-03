@@ -128,7 +128,7 @@ public class ShoppingMallReviewService {
         if(review.isEmpty()){
             throw new ReviewNotFoundException("입력된 리뷰아이디로 등록된 리뷰가 존재하지 않습니다");
         }
-        if(review.get().getUser().equals(user)){
+        if(!review.get().getUser().equals(user)){
             throw new CannotHandleReviewException("해당 유저의 권한으로 이 리뷰를 수정할 수 없습니다.");
         }
     }
