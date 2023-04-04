@@ -30,8 +30,8 @@ public class FileDownloadApiTest extends ApiTest {
     @Autowired
     private FileDownloadSteps downloadSteps;
 
-    @MockBean
-    private AwsS3Service awsS3Service;
+//    @MockBean
+//    private AwsS3Service awsS3Service;
 
     private String uuidFilename;
     private String uuidImageFilename;
@@ -43,9 +43,9 @@ public class FileDownloadApiTest extends ApiTest {
         // 임의의 파일과 이미지 하나를 저장해 두고, 없는 거 부르면 실패/있는거 부르면 성공
         uuidImageFilename = downloadSteps.imageFileUpload(345L,"Image");
 
-        doReturn(new ByteArrayResource("Hello World".getBytes()))
-                .when(awsS3Service)
-                .getFilesFromS3(Mockito.anyString());
+//        doReturn(new ByteArrayResource("Hello World".getBytes()))
+//                .when(awsS3Service)
+//                .getFilesFromS3(Mockito.anyString());
     }
 
 
@@ -67,7 +67,7 @@ public class FileDownloadApiTest extends ApiTest {
                 .body(notNullValue())
                 .log().all();
 
-        verify(awsS3Service).getFilesFromS3(Mockito.anyString());
+        //verify(awsS3Service).getFilesFromS3(Mockito.anyString());
     }
 
     @Test

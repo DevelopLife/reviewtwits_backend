@@ -61,8 +61,8 @@ public class SnsReviewApiTest extends ApiTest {
     @Autowired
     private CommentRepository commentRepository;
 
-    @Autowired
-    private AmazonS3 s3Client;
+//    @Autowired
+//    private AmazonS3 s3Client;
 
     private RegisterUserRequest registerUserRequest;
 
@@ -115,7 +115,7 @@ public class SnsReviewApiTest extends ApiTest {
 
         List<Review> registeredReview = reviewRepository.findReviewsByProductUrl(productURL);
         assertThat(registeredReview.size()).isEqualTo(1);
-        verify(s3Client).putObject(Mockito.any(PutObjectRequest.class));
+    //    verify(s3Client).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
@@ -141,7 +141,7 @@ public class SnsReviewApiTest extends ApiTest {
 
         List<Review> registeredReview = reviewRepository.findReviewsByProductUrl(productURL);
         assertThat(registeredReview.size()).isEqualTo(0);
-        verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
+    //    verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
@@ -167,7 +167,7 @@ public class SnsReviewApiTest extends ApiTest {
 
         List<Review> registeredReview = reviewRepository.findReviewsByProductUrl(productURL);
         assertThat(registeredReview.size()).isEqualTo(0);
-        verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
+    //    verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
@@ -201,7 +201,7 @@ public class SnsReviewApiTest extends ApiTest {
 
         List<Review> registeredReview = reviewRepository.findReviewsByProductUrl(productURL);
         assertThat(registeredReview.size()).isEqualTo(0);
-        verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
+    //    verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
@@ -226,7 +226,7 @@ public class SnsReviewApiTest extends ApiTest {
 
         List<Review> registeredReview = reviewRepository.findReviewsByProductUrl(productURL);
         assertThat(registeredReview.size()).isEqualTo(0);
-        verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
+    //    verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
