@@ -2,10 +2,15 @@ package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.ItemDetail;
 import com.developlife.reviewtwits.entity.RelatedProduct;
+import com.developlife.reviewtwits.entity.Review;
+import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.file.FileNotStoredException;
 import com.developlife.reviewtwits.repository.ItemDetailRepository;
 import com.developlife.reviewtwits.repository.RelatedProductRepository;
+import com.developlife.reviewtwits.repository.ReviewRepository;
+import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.MadeMultipartFile;
+import com.github.javafaker.Faker;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +18,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -31,9 +33,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,12 +54,13 @@ public class ItemService {
 
     private final RelatedProductRepository relatedProductRepository;
     private final ItemDetailRepository itemDetailRepository;
-
+    private final UserRepository userRepository;
     private final FileStoreService fileStoreService;
+    private final ReviewRepository reviewRepository;
+    private Faker faker = new Faker();
 
     private static final String site = "https://www.coupang.com";
     private static final String searchUrl = "https://www.coupang.com/np/search?q=";
-    private static final String ourImageRequestUrl = "https://reviewtwits.mcv.kr/request-images/";
 
     public String search(String productName) {
         if(productName == null) {
@@ -106,9 +113,100 @@ public class ItemService {
             storeDetailInfoImages(firstRelatedProduct, detail.getItemId(), fileSourceList);
             changeImageInfoInHtmlAndSave(targetDetailElement, detail, targetImages);
             log.info("자료 취합 완료");
+
+            // 리뷰 5개짜리 3개를 긁어옴
+            createReviewFromProduct(firstRelatedProduct.getProductUrl(), productName, 5, 5, chromeWebDriver);
         }finally{
             chromeWebDriver.close();
         }
+    }
+
+
+    private void createReviewFromProduct(String productUrl, String productName, int targetScore, int targetCount, WebDriver driver) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        driver.get(productUrl);
+        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+        // 상품평 클릭
+        int SCROLL_PAUSE_TIME = 1000;
+        Long lastHeight = (Long) js.executeScript("return document.body.scrollHeight");
+
+        while (true) {
+            js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+            try {
+                Thread.sleep(SCROLL_PAUSE_TIME);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            Long newHeight = (Long) js.executeScript("return document.body.scrollHeight");
+            if (newHeight.equals(lastHeight)) {
+                break;
+            }
+            lastHeight = newHeight;
+        }
+
+        driver.findElement(new By.ByCssSelector("#btfTab > ul.tab-titles > li:nth-child(2)")).click();
+        // 모든 별점 보기 박스 선택
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#btfTab > ul.tab-contents > li.product-review.tab-contents__content > div > div.sdp-review__article.js_reviewArticleContainer > section.sdp-review__article__order.js_reviewArticleOrderContainer.sdp-review__article__order--active > div.sdp-review__article__order__star.js_reviewArticleSearchStarSelectBtn")));
+        driver.findElement(new By.ByCssSelector("#btfTab > ul.tab-contents > li.product-review.tab-contents__content > div > div.sdp-review__article.js_reviewArticleContainer > section.sdp-review__article__order.js_reviewArticleOrderContainer.sdp-review__article__order--active > div.sdp-review__article__order__star.js_reviewArticleSearchStarSelectBtn")).click();
+        // 별점 선택
+        driver.findElement(new By.ByCssSelector(String.format("#btfTab > ul.tab-contents > li.product-review.tab-contents__content > div > div.sdp-review__article.js_reviewArticleContainer > section.sdp-review__article__order.js_reviewArticleOrderContainer.sdp-review__article__order--active > div.sdp-review__article__order__star.js_reviewArticleSearchStarSelectBtn > div.sdp-review__article__order__star__option.js_reviewArticleStarSelectOptionContainer > ul > li:nth-child(%d)", 6 - targetScore))).click();
+        // 해당 별점의 리뷰가 보일때까지 최대 5초 대기
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(String.format("#btfTab > ul.tab-contents > li.product-review.tab-contents__content > div > div.sdp-review__article.js_reviewArticleContainer > section.js_reviewArticleListContainer > article > div.sdp-review__article__list__info > div.sdp-review__article__list__info__product-info > div.sdp-review__article__list__info__product-info__star-gray > div[data-rating=\"%d\"]", targetScore))));
+        // artcle 태그에 묶여있는 리뷰들을 가져옴기
+        Element innerHTML = Jsoup.parse(driver.findElement(new By.ByCssSelector("#btfTab > ul.tab-contents > li.product-review.tab-contents__content > div > div.sdp-review__article.js_reviewArticleContainer > section.js_reviewArticleListContainer")).getAttribute("innerHTML")).body();
+        Elements articles = innerHTML.select("article");
+        for (Element review : articles) {
+            String profileImageUrl = review.selectFirst("div.sdp-review__article__list__info > div.sdp-review__article__list__info__profile > img").attr("src");
+            String nickname = review.selectFirst("div.sdp-review__article__list__info > div.sdp-review__article__list__info__user > span").text();
+            String score = review.selectFirst("div.sdp-review__article__list__info > div.sdp-review__article__list__info__product-info > div.sdp-review__article__list__info__product-info__star-gray > div").attr("data-rating");
+            String date = review.selectFirst("div.sdp-review__article__list__info > div.sdp-review__article__list__info__product-info > div.sdp-review__article__list__info__product-info__reg-date").text();
+            Elements images = review.select("div.sdp-review__article__list__attachment.js_reviewArticleListGalleryContainer > div > img");
+            List<String> imageUrls = new ArrayList<>();
+
+            for (Element image : images) {
+                imageUrls.add(image.attr("src"));
+            }
+            String content;
+            try {
+                content = review.selectFirst("div.js_reviewArticleContentContainer > div.js_reviewArticleContent").text();
+            } catch (NoSuchElementException e) {
+                content = "";
+            }
+            Optional<User> userOptional = userRepository.findByNickname(nickname);
+            User user;
+            if(userOptional.isPresent()) {
+                user = userOptional.get();
+            } else {
+                String phoneNumber;
+                do {
+                    phoneNumber = faker.phoneNumber().phoneNumber();
+                } while (userRepository.existsByPhoneNumber(phoneNumber));
+                user = User.builder()
+                    .nickname(nickname)
+                    .accountId(nickname + "@temp.com")
+                    .phoneNumber(faker.phoneNumber().phoneNumber())
+                    .build();
+                userRepository.save(user);
+                MultipartFile profileImageFile = getImageFileFromUrl( "https:" + profileImageUrl, user.getNickname());
+                fileStoreService.storeFiles(List.of(profileImageFile), user.getUserId(), "User");
+            }
+            Review registeredReview = Review.builder()
+                .content(content)
+                .user(user)
+                .score(Integer.parseInt(score))
+                .productName(productName)
+                .productUrl(productUrl)
+                .build();
+            reviewRepository.save(registeredReview);
+            registeredReview.setCreatedDate(LocalDateTime.parse(date + " 00:00:00", DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss")));
+            List<MultipartFile> imageFiles = new ArrayList<>();
+            for(String imageUrl : imageUrls) {
+                imageFiles.add(getImageFileFromUrl(imageUrl, String.format("%s_%s_%d", user.getNickname(), productName, imageFiles.size())));
+            }
+            fileStoreService.storeFiles(imageFiles, registeredReview.getReviewId(), "Review");
+        }
+
     }
 
     private RelatedProduct saveRelatedFiveProductAndGetFirstProduct(String productName, WebDriver chromeWebDriver){
@@ -116,7 +214,6 @@ public class ItemService {
 
         StringJoiner name = getNameForURL(productName);
         chromeWebDriver.get(searchUrl + name);
-        //setCookiesInDriver(chromeWebDriver);
 
         List<WebElement> webElements = chromeWebDriver.findElements(new By.ByClassName("search-product-link"));
 
@@ -193,7 +290,7 @@ public class ItemService {
         List<String> itemImageNameList = fileStoreService.bringFileNameList("ItemDetail", detail.getItemId());
 
         for(int i = 0; i < imgElements.size(); i++){
-            imgElements.get(i).attr("src",ourImageRequestUrl + itemImageNameList.get(i));
+            imgElements.get(i).attr("src","/" + itemImageNameList.get(i));
         }
 
         detail.setDetailInfo(targetDetailElement.html());
@@ -204,7 +301,10 @@ public class ItemService {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--remote-allow-origins=*");
-        options.addArguments("headless");
+        options.addArguments("--window-size=1920,1080");
+        // options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("-disable-gpu");
         options.addArguments("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.104 Whale/3.13.131.36 Safari/537.36");
         options.addArguments("--disable-blink-features=AutomationControlled");
         ChromeDriver driver = new ChromeDriver(options);
@@ -243,6 +343,7 @@ public class ItemService {
     }
 
     private MultipartFile getImageFileFromUrl(String uri, String productName) {
+        System.out.println(uri);
         WebClient webClient = WebClient.builder().
                 exchangeStrategies(ExchangeStrategies.builder()
                         .codecs(configurer -> configurer.defaultCodecs().
@@ -250,7 +351,7 @@ public class ItemService {
 
         byte[] imageBytes = webClient.get()
                 .uri(uri)
-                .accept(MediaType.IMAGE_JPEG)
+                .accept(new MediaType[]{MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG})
                 .retrieve()
                 .bodyToMono(byte[].class).block();
 

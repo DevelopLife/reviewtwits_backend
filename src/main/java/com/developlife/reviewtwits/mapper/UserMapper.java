@@ -43,6 +43,7 @@ public interface UserMapper {
     @Mapping(target = "nickname", ignore = true)
     @Mapping(target = "introduceText", ignore = true)
     @Mapping(target = "profileImage", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
     void updateUserFromRegisterOauthUserRequest(RegisterOauthUserRequest registerOauthUserRequest, @MappingTarget User user);
 
 

@@ -3,6 +3,7 @@ package com.developlife.reviewtwits.entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 @Getter
 @MappedSuperclass // 엔티티 속성만 상속
 public class BaseEntity {
+    @Setter
     @CreatedDate
     @Column(updatable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdDate;

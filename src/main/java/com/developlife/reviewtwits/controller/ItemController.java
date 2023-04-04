@@ -21,7 +21,7 @@ public class ItemController {
     }
 
     @PostMapping(value = "/register-crawling")
-    public void registerCrawling(@RequestParam String productName) throws IOException {
+    public void registerCrawling(@RequestParam String productName) {
         itemService.relateProductsCrawling(productName);
     }
 

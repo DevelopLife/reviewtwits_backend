@@ -94,7 +94,7 @@ public class UserService {
         String nickname;
         do {
             nickname = faker.name().username();
-        } while (userRepository.findByNickname(nickname).isPresent());
+        } while (nickname.length() > 20 || userRepository.findByNickname(nickname).isPresent());
 
         registeredUser.setNickname(nickname);
 
