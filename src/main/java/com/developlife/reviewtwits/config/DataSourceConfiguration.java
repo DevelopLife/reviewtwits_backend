@@ -1,23 +1,14 @@
 package com.developlife.reviewtwits.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.AbstractJpaVendorAdapter;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
@@ -31,11 +22,8 @@ public class DataSourceConfiguration {
 
     private static final String SOURCE_SERVER = "SOURCE";
     private static final String REPLICA_SERVER = "REPLICA";
-    private final JpaProperties jpaProperties;
+//    private final JpaProperties jpaProperties;
 
-    public DataSourceConfiguration(JpaProperties jpaProperties) {
-        this.jpaProperties = jpaProperties;
-    }
 
     @Bean
     @Qualifier(SOURCE_SERVER)
@@ -78,30 +66,30 @@ public class DataSourceConfiguration {
     }
 
     // JPA 에서 사용할 entityManager 설정
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        EntityManagerFactoryBuilder entityManagerFactoryBuilder = createEntityManagerFactoryBuilder(jpaProperties);
-        return entityManagerFactoryBuilder.dataSource(dataSource()).packages("com.developlife.reviewtwits").build();
-    }
-
-    private EntityManagerFactoryBuilder createEntityManagerFactoryBuilder(JpaProperties jpaProperties) {
-        AbstractJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        // jpaProperties는 properties에 있는 jpa.properties를 의미
-        return new EntityManagerFactoryBuilder(vendorAdapter, jpaProperties.getProperties(), null);
-    }
-
-
-    // JPA 에서 사용할 TransactionManager 설정
-    @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
-        JpaTransactionManager tm = new JpaTransactionManager();
-        tm.setEntityManagerFactory(entityManagerFactory);
-        return tm;
-    }
-
-    // jdbcTemplate 세팅
-    @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
-    }
+//    @Bean
+//    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+//        EntityManagerFactoryBuilder entityManagerFactoryBuilder = createEntityManagerFactoryBuilder(jpaProperties);
+//        return entityManagerFactoryBuilder.dataSource(dataSource()).packages("com.developlife.reviewtwits").build();
+//    }
+//
+//    private EntityManagerFactoryBuilder createEntityManagerFactoryBuilder(JpaProperties jpaProperties) {
+//        AbstractJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//        // jpaProperties는 properties에 있는 jpa.properties를 의미
+//        return new EntityManagerFactoryBuilder(vendorAdapter, jpaProperties.getProperties(), null);
+//    }
+//
+//
+//    // JPA 에서 사용할 TransactionManager 설정
+//    @Bean
+//    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+//        JpaTransactionManager tm = new JpaTransactionManager();
+//        tm.setEntityManagerFactory(entityManagerFactory);
+//        return tm;
+//    }
+//
+//    // jdbcTemplate 세팅
+//    @Bean
+//    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+//        return new JdbcTemplate(dataSource);
+//    }
 }
