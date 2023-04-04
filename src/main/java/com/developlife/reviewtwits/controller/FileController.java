@@ -13,11 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -48,13 +50,14 @@ public class FileController {
     }
 
     @GetMapping(value = "/request-images/{UUID}")
-    public Resource downloadImage(@PathVariable(name = "UUID") String fileName) throws IOException {
+    public Resource downloadImage(@PathVariable(name = "UUID") String fileName, HttpServletResponse response) throws IOException {
 
         if(FileReferenceType.isValidFileType("image",fileName)){
             String originalFilename = fileStore.findOriginalFilename(fileName);
             if(originalFilename == null){
                 throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
             }
+            response.setContentType(MediaType.IMAGE_JPEG.toString());
             return s3Service.getFilesFromS3(fileName);
             // return new UrlResource("file:"+ fileStore.getFullPath(fileName));
         }
