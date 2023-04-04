@@ -34,7 +34,7 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
 public class FileController {
 
     private final FileStoreService fileStore;
-    private final AwsS3Service s3Service;
+    // private final AwsS3Service s3Service;
 
     @PostMapping(value = "/files/save", produces = "application/json")
     public ResponseEntity<String> saveFile(@ModelAttribute FileUpdateRequest request) {
@@ -58,8 +58,8 @@ public class FileController {
                 throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
             }
             response.setContentType(MediaType.IMAGE_JPEG.toString());
-            return s3Service.getFilesFromS3(fileName);
-            // return new UrlResource("file:"+ fileStore.getFullPath(fileName));
+            // return s3Service.getFilesFromS3(fileName);
+            return new UrlResource("file:"+ fileStore.getFullPath(fileName));
         }
         throw new InvalidFilenameExtensionException("등록된 이미지 파일 확장자로 온 요청이 아닙니다.");
     }
@@ -71,7 +71,8 @@ public class FileController {
         if(originalFilename == null){
             throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
         }
-        Resource resource = s3Service.getFilesFromS3(fileName);
+        // Resource resource = s3Service.getFilesFromS3(fileName);
+        UrlResource resource = new UrlResource("file:" + fileStore.getFullPath(fileName));
 
         String encodeDownloadFileName = UriUtils.encode(originalFilename, StandardCharsets.UTF_8);
         String contentDisposition = "attachment; filename:\"" + encodeDownloadFileName + "\"";

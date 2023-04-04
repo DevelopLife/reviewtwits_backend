@@ -42,10 +42,11 @@ public class FileStoreService {
         String originalFilename = multipartFile.getOriginalFilename();
         String storeFilename = createStoreFileName(originalFilename);
         try{
-            log.info("s3에 개별 파일 저장 시도");
-            //multipartFile.transferTo(new File(getFullPath(storeFilename)));
-            awsService.uploadToAWS(multipartFile, storeFilename);
+            //log.info("s3에 개별 파일 저장 시도");
+            multipartFile.transferTo(new File(getFullPath(storeFilename)));
+            //awsService.uploadToAWS(multipartFile, storeFilename);
         }catch(IOException e){
+            e.printStackTrace();
             throw new FileNotStoredException("IOException 이 발생했습니다. 알려주세요");
         }
         FileInfo file = FileInfo.builder().filePath(getFullPath(storeFilename)).realFilename(storeFilename)
@@ -55,6 +56,8 @@ public class FileStoreService {
     }
 
     public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, String referenceType) {
+
+        checkFolder();
 
         if(multipartFiles.get(0).isEmpty()){
             throw new FileEmptyException("파일 내역이 비워져 있습니다.");
@@ -109,5 +112,12 @@ public class FileStoreService {
             info.setExist(false);
         }
         fileInfoRepository.saveAll(fileInfoList);
+    }
+
+    private void checkFolder(){
+        File folder = new File(fileDir);
+        if(!folder.exists()){
+            folder.mkdir();
+        }
     }
 }

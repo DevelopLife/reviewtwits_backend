@@ -41,8 +41,8 @@ public class UserApiTest extends ApiTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private AmazonS3 s3Client;
+//    @Autowired
+//    private AmazonS3 s3Client;
 
     private RegisterUserRequest registerUserRequest;
     private RegisterUserRequest registerAdminRequest;
@@ -256,7 +256,7 @@ public class UserApiTest extends ApiTest {
             .body("introduceText", equalTo("test"))
             .log().all().extract().response();
 
-        verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
+    //    verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
@@ -321,7 +321,7 @@ public class UserApiTest extends ApiTest {
                 .log().all();
 
         assertThat(유저정보_프로필이미지_추출()).isNotNull();
-        verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
+    //    verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     private String 유저정보_프로필이미지_추출() {
@@ -357,7 +357,7 @@ public class UserApiTest extends ApiTest {
                         "&& it.errorType == 'ImageFile' && it.fieldName == 'imageFile' }",notNullValue())
                 .log().all();
 
-        verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
+    //    verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test

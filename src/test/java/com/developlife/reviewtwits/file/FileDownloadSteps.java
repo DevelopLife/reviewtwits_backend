@@ -31,8 +31,8 @@ import static org.mockito.Mockito.*;
 @Component
 public class FileDownloadSteps {
 
-    @MockBean
-    private AmazonS3 amazonS3;
+//    @MockBean
+//    private AmazonS3 amazonS3;
 
     @Autowired
     private FileStoreService fileStoreService;
@@ -70,7 +70,7 @@ public class FileDownloadSteps {
     }
 
     public ResponseEntity<String> mockFileUploadProcess(FileUpdateRequest request){
-        doReturn(null).when(amazonS3).putObject(Mockito.any(PutObjectRequest.class));
+        // doReturn(null).when(amazonS3).putObject(Mockito.any(PutObjectRequest.class));
         List<FileInfo> fileInfoList = fileStoreService.storeFiles(request.attachedFiles(), request.id(), request.referenceType());
 
         String storeFilename = fileInfoList.get(0).getRealFilename();
