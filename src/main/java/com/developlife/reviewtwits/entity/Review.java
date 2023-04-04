@@ -38,8 +38,9 @@ public class Review extends BaseEntity {
     @ColumnDefault(value = "true")
     private boolean exist = true;
 
+    @Column(columnDefinition = "TEXT", length = 65535)
     private String content;
-
+    @Column(length = 1024)
     private String productUrl;
     private String productName;
 

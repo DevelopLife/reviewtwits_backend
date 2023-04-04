@@ -24,5 +24,6 @@ public interface ProjectMapper {
 
     ProjectSettingInfoResponse toProjectSettingInfoResponse(Project project);
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
     void updateProjectFromFixProjectRequest(FixProjectRequest fixProjectRequest, @MappingTarget Project project);
 }

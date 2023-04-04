@@ -1,10 +1,12 @@
 package com.developlife.reviewtwits.crawling;
 
 import com.developlife.reviewtwits.ApiTest;
+import com.developlife.reviewtwits.config.DataSourceConfiguration;
 import com.developlife.reviewtwits.repository.ItemDetailRepository;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
 
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;

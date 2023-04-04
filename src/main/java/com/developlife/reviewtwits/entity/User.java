@@ -27,6 +27,7 @@ public class User extends BaseEntity implements UserDetails {
     @Setter
     @Column(unique = true, length = 20)
     private String nickname;
+    @Column(unique = true, length = 255)
     private String accountId;
     @Setter
     private String accountPw;
@@ -34,7 +35,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(columnDefinition = "TIMESTAMP")
     private Date birthDate;
 
-    @Column(unique = true, length = 20)
+    @Column(unique = true, length = 30)
     private String phoneNumber;
 
     // 최초 업뎃만 가능하도록함
