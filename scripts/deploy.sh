@@ -16,7 +16,11 @@ else
   echo "> kill -15 $CURRENT_PID"
   kill -15 $CURRENT_PID
   sleep 5
+
+  echo "> nohup.out 삭제"
+  rm nohup.out
 fi
+"
 
 echo "> 새 애플리케이션 배포"
 
