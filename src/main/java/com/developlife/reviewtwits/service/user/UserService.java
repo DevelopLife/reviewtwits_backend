@@ -174,7 +174,7 @@ public class UserService {
     public void setProfileImage(User user){
         List<String> userProfileImage = fileStoreService.bringFileNameList("User", user.getUserId());
         if(!userProfileImage.isEmpty()){
-            user.setProfileImage(userProfileImage.get(0));
+            user.setProfileImage(userProfileImage.get(userProfileImage.size()-1));
         }
     }
 
