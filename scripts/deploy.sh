@@ -20,7 +20,7 @@ else
   echo "> nohup.out 삭제"
   rm nohup.out
 fi
-"
+
 
 echo "> 새 애플리케이션 배포"
 
