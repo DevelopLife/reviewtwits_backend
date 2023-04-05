@@ -14,6 +14,7 @@ import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author WhalesBob
@@ -45,7 +46,7 @@ public interface ReviewMapper {
     }
 
     @Named(value = "toDetailSnsReviewResponse")
-    default DetailSnsReviewResponse toDetailSnsReviewResponse(Review review, List<ReactionResponse> reactionResponses){
+    default DetailSnsReviewResponse toDetailSnsReviewResponse(Review review, Map<String, ReactionResponse> reactionResponses){
         return DetailSnsReviewResponse.builder()
                 .createdDate(review.getCreatedDate())
                 .lastModifiedDate(review.getLastModifiedDate())
@@ -57,7 +58,7 @@ public interface ReviewMapper {
                 .score(review.getScore())
                 .reviewImageNameList(review.getReviewImageNameList())
                 .commentCount(review.getCommentCount())
-                .reactionResponseList(reactionResponses)
+                .reactionResponses(reactionResponses)
                 .exist(review.isExist())
                 .build();
     }

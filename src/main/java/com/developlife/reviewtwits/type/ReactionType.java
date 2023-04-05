@@ -27,7 +27,7 @@ public enum ReactionType {
     ReactionType(String emoji) {
     }
     
-    public static List<ReactionResponse> classifyReactionResponses(User user,List<Reaction> reactionList){
+    public static Map<String, ReactionResponse> classifyReactionResponses(User user,List<Reaction> reactionList){
         ReactionType userReactionType = null;
         Map<ReactionType, Integer> reactionClassify = new HashMap<>();
         for(Reaction reaction : reactionList){
@@ -45,17 +45,17 @@ public enum ReactionType {
         }
         return mappingReactionResponse(userReactionType,reactionClassify);
     }
-    private static List<ReactionResponse> mappingReactionResponse(
-            ReactionType userReactionType,Map<ReactionType, Integer> reactionClassify){
 
-        List<ReactionResponse> response = new ArrayList<>();
+    private static Map<String, ReactionResponse> mappingReactionResponse
+            (ReactionType userReactionType,Map<ReactionType, Integer> reactionClassify){
+
+        Map<String, ReactionResponse> reactionMap = new HashMap<>();
         reactionClassify.forEach((reactionType, count) -> {
-            response.add(ReactionResponse.builder()
-                    .reactionType(reactionType)
-                    .count(count)
+            reactionMap.put(reactionType.toString(),ReactionResponse.builder()
                     .isReacted(reactionType == userReactionType)
+                    .count(count)
                     .build());
         });
-        return response;
+        return reactionMap;
     }
 }
