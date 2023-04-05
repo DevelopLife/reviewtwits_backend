@@ -39,7 +39,7 @@ public enum ReactionType {
                 reactionClassify.put(reaction.getReactionType(), 1);
             }
 
-            if(reaction.getUser().equals(user)){
+            if(reaction.getUser() != null && reaction.getUser().equals(user)){
                 userReactionType = reaction.getReactionType();
             }
         }
