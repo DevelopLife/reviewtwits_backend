@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -72,7 +73,7 @@ public class SnsReviewService {
         for(Review review : pageReviews){
             saveReviewImage(review);
             List<Reaction> reactionList = reactionRepository.findByReview(review);
-            List<ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(user,reactionList);
+            Map<String, ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(user, reactionList);
 
             snsResponse.add(mapper.toDetailSnsReviewResponse(review, collectedReactionResponse));
         }

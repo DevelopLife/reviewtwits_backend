@@ -8,8 +8,7 @@ import lombok.Builder;
  * @since 2023-04-02
  */
 
-public record ReactionResponse (ReactionType reactionType,
-                               boolean isReacted,
+public record ReactionResponse (boolean isReacted,
                                int count){
 
     @Builder

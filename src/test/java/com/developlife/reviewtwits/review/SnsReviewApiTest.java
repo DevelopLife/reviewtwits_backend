@@ -422,10 +422,8 @@ public class SnsReviewApiTest extends ApiTest {
                 .log().all();
 
         JsonPath jsonPath = 피드_리뷰_리액션_추출(token);
-        String reactionType = jsonPath.getString("[0].reactionResponseList[0].reactionType");
-        boolean isReacted = jsonPath.getBoolean("[0].reactionResponseList[0].isReacted");
+        boolean isReacted = jsonPath.getBoolean("[0].reactionResponses."+ reactionContent + ".isReacted");
 
-        assertThat(reactionType).isEqualTo(reactionContent);
         assertThat(isReacted).isEqualTo(true);
     }
 
@@ -453,7 +451,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .log().all();
 
         JsonPath jsonPath = 피드_리뷰_리액션_추출(token);
-        assertThat(jsonPath.getList("[0].reactionResponseList")).isEmpty();
+        assertThat(jsonPath.getMap("[0].reactionResponses")).isEmpty();
     }
 
     Long SNS_리뷰_작성(String token, String content) throws IOException {

@@ -5,6 +5,7 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author WhalesBob
@@ -20,7 +21,7 @@ public record DetailSnsReviewResponse(LocalDateTime createdDate,
                                       int score,
                                       List<String> reviewImageNameList,
                                       int commentCount,
-                                      List<ReactionResponse> reactionResponseList,
+                                      Map<String, ReactionResponse> reactionResponses,
                                       boolean exist) {
 
     @Builder
