@@ -2,18 +2,18 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.exception.user.TokenInvalidException;
 import com.developlife.reviewtwits.message.request.ImageUpdateRequest;
-import com.developlife.reviewtwits.message.request.user.RegisterUserInfoRequest;
-import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
+import com.developlife.reviewtwits.message.request.user.RegisterUserInfoRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.service.FileStoreService;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -21,7 +21,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
@@ -74,7 +73,11 @@ public class UserController {
     }
 
     @PostMapping(value = "/issue/access-token", produces = "application/json")
-    public JwtTokenResponse issueAccessToken(@CookieValue String refreshToken) {
+    public JwtTokenResponse issueAccessToken(@CookieValue(required = false) String refreshToken) {
+        if(refreshToken == null) {
+            throw new TokenInvalidException("refresh token이 없습니다. 로그인 후 진행해주세요");
+        }
+
         return JwtTokenResponse.builder()
                 .accessToken(jwtTokenProvider.reissueAccessToken(refreshToken))
                 .tokenType("Bearer")
