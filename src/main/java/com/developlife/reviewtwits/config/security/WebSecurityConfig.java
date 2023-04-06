@@ -66,7 +66,7 @@ public class WebSecurityConfig {
             .antMatchers("/sns/request-follow").hasRole("USER")
             .antMatchers("/sns/request-unfollow").hasRole("USER")
             .antMatchers("/sns/scrap/reviews").hasRole("USER")
-            .antMatchers("/sns/scrap/reviews/**").hasRole("USER")
+            .antMatchers("/sns/scrap-reviews/**").hasRole("USER")
             .anyRequest()
             .permitAll()
             .and()
