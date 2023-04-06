@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.controller;
 
+import com.developlife.reviewtwits.entity.ReviewScrap;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.annotation.review.ValidReaction;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
@@ -106,5 +107,23 @@ public class SnsReviewController {
     public void deleteReactions(@AuthenticationPrincipal User user,
                                 @PathVariable long reviewId) {
         snsReviewService.deleteReactionOnReview(user, reviewId);
+    }
+    @GetMapping("/scrap/reviews")
+    public List<ReviewScrap> getReviewScrapListOfUser(@AuthenticationPrincipal User user){
+
+    }
+
+    @PostMapping("/scrap-reviews/{reviewId}")
+    public void addReviewScrap(@AuthenticationPrincipal User user,
+                               @PathVariable long reviewId){
+
+
+
+    }
+
+    @DeleteMapping("/scrap-reviews/{reviewId}")
+    public void deleteReviewScrap(@AuthenticationPrincipal User user,
+                                  @PathVariable long reviewId){
+
     }
 }
