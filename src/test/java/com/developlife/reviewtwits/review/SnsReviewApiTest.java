@@ -84,7 +84,7 @@ public class SnsReviewApiTest extends ApiTest {
 
 
     @Test
-    void SNS_리뷰_작성_성공() throws IOException {
+    void SNS_리뷰_작성_성공() {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
