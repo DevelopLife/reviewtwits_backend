@@ -1,9 +1,6 @@
 package com.developlife.reviewtwits.handler;
 
-import com.developlife.reviewtwits.exception.review.CannotHandleReviewException;
-import com.developlife.reviewtwits.exception.review.CommentNotFoundException;
-import com.developlife.reviewtwits.exception.review.ReactionNotFoundException;
-import com.developlife.reviewtwits.exception.review.ReviewNotFoundException;
+import com.developlife.reviewtwits.exception.review.*;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -43,5 +40,11 @@ public class ReviewExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public List<ErrorResponse> reactionNotFoundExceptionHandler(ReactionNotFoundException e){
         return makeErrorResponse(e, "reaction");
+    }
+
+    @ExceptionHandler(ReviewScrapNotAddedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public List<ErrorResponse> reviewScrapNotAddedExceptionHandler(ReviewScrapNotAddedException e){
+        return makeErrorResponse(e, "");
     }
 }
