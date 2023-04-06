@@ -1,7 +1,5 @@
 package com.developlife.reviewtwits.review;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.entity.Comment;
@@ -12,6 +10,7 @@ import com.developlife.reviewtwits.repository.ReviewRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
+import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
@@ -20,12 +19,12 @@ import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static com.developlife.reviewtwits.review.SnsReviewSteps.productURL;
@@ -456,16 +455,12 @@ public class SnsReviewApiTest extends ApiTest {
 
     Long SNS_리뷰_작성(String token, String content) throws IOException {
 
-        RequestSpecification request = given(this.spec)
-                .config(config().encoderConfig(encoderConfig()
-                        .encodeContentTypeAs("multipart/form-data", ContentType.MULTIPART)
-                        .defaultContentCharset("UTF-8")))
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+        RequestSpecification request = given(this.spec).log().all()
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart("content", content)
+                .multiPart(multipartText("content", content))
                 .multiPart("score", starScore)
-                .multiPart("productName",productName);
+                .multiPart(multipartText("productName",productName));
 
         List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지_파일정보_생성();
 
@@ -473,13 +468,20 @@ public class SnsReviewApiTest extends ApiTest {
             request.multiPart(multiPartSpecification);
         }
 
-        request.when()
-                .post("/sns/reviews")
+        request.when().post("/sns/reviews")
                 .then()
                 .log().all();
 
         List<Review> reviewList = reviewRepository.findReviewsByProductUrl(productURL);
         return reviewList.get(reviewList.size()-1).getReviewId();
+    }
+
+    private MultiPartSpecification multipartText(String controlName, String textBody) {
+        return new MultiPartSpecBuilder(textBody)
+                .controlName(controlName)
+                .mimeType(String.valueOf(ContentType.TEXT))
+                .charset(StandardCharsets.UTF_8)
+                .build();
     }
 
     Long SNS_리뷰_댓글_작성(String token, long reviewId){
