@@ -26,8 +26,8 @@ public class SnsReviewSteps {
     final static String rightReviewText = "맛있고 좋아요! 어쩌구저쩌구.... 그랬어요!";
     final static String wrongReviewText = "좋아요";
     final static int starScore = 4;
-    final static String commentContent = "comments for test";
-    final static String changeCommentContent = "comments for modify";
+    final static String commentContent = "테스트 코멘트";
+    final static String changeCommentContent = "테스트를 위한 수정 코멘트";
     final static String reactionContent = "GOOD";
 
     public static List<MultiPartSpecification> 리뷰_이미지_파일정보_생성() throws IOException {
