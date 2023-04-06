@@ -4,9 +4,13 @@ import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.entity.Comment;
 import com.developlife.reviewtwits.entity.Review;
+import com.developlife.reviewtwits.entity.ReviewScrap;
+import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
+import com.developlife.reviewtwits.repository.ReviewScrapRepository;
+import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
@@ -26,6 +30,7 @@ import org.springframework.http.MediaType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 import static com.developlife.reviewtwits.review.SnsReviewSteps.productURL;
 import static com.developlife.reviewtwits.review.SnsReviewSteps.rightReviewText;
@@ -59,6 +64,12 @@ public class SnsReviewApiTest extends ApiTest {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private ReviewScrapRepository reviewScrapRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
 //    @Autowired
 //    private AmazonS3 s3Client;
@@ -508,6 +519,108 @@ public class SnsReviewApiTest extends ApiTest {
         assertThat(jsonPath.getMap("[0].reactionResponses")).isEmpty();
     }
 
+
+    @Test
+    void 리뷰_스크랩_추가_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+
+        given(this.spec)
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("reviewId",registeredReviewId)
+                .when()
+                .post("/sns/scrap-reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+        User user = userRepository.findByAccountId(UserSteps.accountId).get();
+        Review review = reviewRepository.findById(registeredReviewId).get();
+        Optional<ReviewScrap> foundReviewScrap = reviewScrapRepository.findByReviewAndUser(review, user);
+        assertThat(foundReviewScrap).isPresent();
+    }
+
+    @Test
+    void 리뷰_스크랩_추가_유저정보없음_401(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+
+        given(this.spec)
+                .pathParam("reviewId",registeredReviewId)
+                .when()
+                .post("/sns/scrap-reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all();
+    }
+
+    @Test
+    void 리뷰_스크랩_추가_리뷰존재안함_404(){
+        Long wrongReviewId = 9999L;
+
+        given(this.spec)
+                .pathParam("reviewId",wrongReviewId)
+                .when()
+                .post("/sns/scrap-reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all();
+    }
+
+    @Test
+    void 리뷰_스크랩_삭제_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        SNS_리뷰_스크랩_추가(token, registeredReviewId);
+
+        given(this.spec)
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("reviewId",registeredReviewId)
+                .when()
+                .delete("/sns/scrap-reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+        List<ReviewScrap> reviewScrapList = reviewScrapRepository.findAll();
+        assertThat(reviewScrapList).isEmpty();
+    }
+
+    @Test
+    void 리뷰_스크랩_삭제_유저정보없음_401(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        SNS_리뷰_스크랩_추가(token, registeredReviewId);
+
+        given(this.spec)
+                .pathParam("reviewId",registeredReviewId)
+                .when()
+                .delete("/sns/scrap-reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all();
+    }
+
+    @Test
+    void 리뷰_스크랩_삭제_이미스크랩안함_409(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+
+        given(this.spec)
+                .pathParam("reviewId",registeredReviewId)
+                .when()
+                .delete("/sns/scrap-reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .log().all();
+    }
+
     Long SNS_리뷰_작성(String token, String content) {
 
         RequestSpecification request = given(this.spec).log().all()
@@ -577,6 +690,16 @@ public class SnsReviewApiTest extends ApiTest {
                 .param("reaction",reactionContent)
                 .when()
                 .post("/sns/review-reaction/{reviewId}")
+                .then()
+                .log().all();
+    }
+
+    void SNS_리뷰_스크랩_추가(String token, Long reviewId){
+        given(this.spec)
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("reviewId",reviewId)
+                .when()
+                .post("/sns/scrap-reviews/{reviewId}")
                 .then()
                 .log().all();
     }

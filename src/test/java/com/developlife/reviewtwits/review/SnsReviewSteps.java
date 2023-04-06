@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class SnsReviewSteps {
             return createMultipartFileList(file);
         }catch (IOException e){
             e.printStackTrace();
-            return null;
+            return new ArrayList<>();
         }
     }
 
