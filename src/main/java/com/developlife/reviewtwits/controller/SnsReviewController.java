@@ -16,7 +16,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
@@ -108,22 +107,23 @@ public class SnsReviewController {
                                 @PathVariable long reviewId) {
         snsReviewService.deleteReactionOnReview(user, reviewId);
     }
-    @GetMapping("/scrap/reviews")
-    public List<ReviewScrap> getReviewScrapListOfUser(@AuthenticationPrincipal User user){
-
+    @GetMapping("/scrap-reviews")
+    public List<DetailSnsReviewResponse> getReviewScrapListOfUser(@AuthenticationPrincipal User user){
+        return snsReviewService.getReviewsInUserScrap(user);
     }
 
     @PostMapping("/scrap-reviews/{reviewId}")
     public void addReviewScrap(@AuthenticationPrincipal User user,
                                @PathVariable long reviewId){
 
-
-
+        snsReviewService.addReviewScrap(user, reviewId);
     }
 
     @DeleteMapping("/scrap-reviews/{reviewId}")
     public void deleteReviewScrap(@AuthenticationPrincipal User user,
                                   @PathVariable long reviewId){
+
+        snsReviewService.deleteReviewScrap(user, reviewId);
 
     }
 }
