@@ -298,7 +298,8 @@ public class SnsApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH, "팔로워 리스트를 요청합니다." +
                         "<br> 정상적인 이메일 형식의 아이디를 입력해 성공하면, 200 OK 코드와 함께 유저 정보 리스트가 반환됩니다." +
                         "<br> 이메일 형식의 아이디가 아니라면, 400 BAD REQUEST 와 함께 오류 메세지가 반환됩니다." +
-                        "<br> 가입되어 있지 않은 아이디가 입력되면, 404 Not Found 와 함께 오류 메세지가 반환됩니다.","팔로워리스트요청",SnsDocument.followIdField))
+                        "<br> 가입되어 있지 않은 아이디가 입력되면, 404 Not Found 와 함께 오류 메세지가 반환됩니다.",
+                        "팔로워리스트요청",SnsDocument.followIdField,SnsDocument.snsFollowResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .pathParam("accountId", SnsSteps.targetUserAccountId)
                 .when()
@@ -355,7 +356,8 @@ public class SnsApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH, "팔로잉 리스트를 요청합니다." +
                         "<br> 정상적인 이메일 형식의 아이디를 입력해 성공하면, 200 OK 코드와 함께 유저 정보 리스트가 반환됩니다." +
                         "<br> 이메일 형식의 아이디가 아니라면, 400 BAD REQUEST 와 함께 오류 메세지가 반환됩니다." +
-                        "<br> 가입되어 있지 않은 아이디가 입력되면, 404 Not Found 와 함께 오류 메세지가 반환됩니다.","팔로잉리스트요청",SnsDocument.followIdField))
+                        "<br> 가입되어 있지 않은 아이디가 입력되면, 404 Not Found 와 함께 오류 메세지가 반환됩니다."
+                        ,"팔로잉리스트요청",SnsDocument.followIdField,SnsDocument.snsFollowResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .pathParam("accountId", SnsSteps.userAccountId)
                 .when()
