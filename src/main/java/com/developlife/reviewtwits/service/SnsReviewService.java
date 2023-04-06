@@ -73,7 +73,6 @@ public class SnsReviewService {
 
             snsResponse.add(mapper.toDetailSnsReviewResponse(review, collectedReactionResponse));
         }
-        // 일단, 페이징 해서 만드는 것 먼저 해 보자.
         return snsResponse;
     }
 
@@ -236,7 +235,6 @@ public class SnsReviewService {
 
             userScrapResponse.add(mapper.toDetailSnsReviewResponse(review, collectedReactionResponse));
         }
-        // 일단, 페이징 해서 만드는 것 먼저 해 보자.
         return userScrapResponse;
     }
 }
