@@ -229,7 +229,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void SNS_리뷰_피드_200() throws IOException {
+    void SNS_리뷰_피드_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         for(int writeCount = 1; writeCount <= 3; writeCount++){
             SNS_리뷰_작성(token, "review count : " + writeCount);
@@ -277,7 +277,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void SNS_리뷰_수정_200() throws IOException {
+    void SNS_리뷰_수정_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
@@ -312,7 +312,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void SNS_리뷰_삭제_200() throws IOException {
+    void SNS_리뷰_삭제_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
@@ -331,7 +331,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void SNS_리뷰_댓글작성_200() throws IOException {
+    void SNS_리뷰_댓글작성_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
@@ -365,7 +365,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void SNS_리뷰_댓글확인_200() throws IOException {
+    void SNS_리뷰_댓글확인_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         SNS_리뷰_댓글_작성(token,registeredReviewId);
@@ -393,7 +393,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void SNS_리뷰_댓글_삭제_성공_200() throws IOException {
+    void SNS_리뷰_댓글_삭제_성공_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
@@ -420,7 +420,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void SNS_리뷰_댓글_수정_성공_200() throws IOException {
+    void SNS_리뷰_댓글_수정_성공_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
@@ -451,7 +451,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 피드_리액션_추가_성공_200() throws IOException {
+    void 피드_리액션_추가_성공_200() {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
@@ -482,7 +482,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 피드_리액션_삭제_성공_200() throws IOException {
+    void 피드_리액션_삭제_성공_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         SNS_리액션_추가(token, registeredReviewId);
@@ -508,7 +508,7 @@ public class SnsReviewApiTest extends ApiTest {
         assertThat(jsonPath.getMap("[0].reactionResponses")).isEmpty();
     }
 
-    Long SNS_리뷰_작성(String token, String content) throws IOException {
+    Long SNS_리뷰_작성(String token, String content) {
 
         RequestSpecification request = given(this.spec).log().all()
                 .header("X-AUTH-TOKEN", token)

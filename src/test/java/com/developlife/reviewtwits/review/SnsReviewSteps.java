@@ -30,14 +30,18 @@ public class SnsReviewSteps {
     final static String changeCommentContent = "테스트를 위한 수정 코멘트";
     final static String reactionContent = "GOOD";
 
-    public static List<MultiPartSpecification> 리뷰_이미지_파일정보_생성() throws IOException {
-        String fileFullName = "image.png";
-        File file = new File(System.getProperty("java.io.tmpdir"), fileFullName);
+    public static List<MultiPartSpecification> 리뷰_이미지_파일정보_생성() {
+        try{
+            String fileFullName = "image.png";
+            File file = new File(System.getProperty("java.io.tmpdir"), fileFullName);
 
-        BufferedImage image = new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB);
-        ImageIO.write(image,"png",file);
-
-        return createMultipartFileList(file);
+            BufferedImage image = new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB);
+            ImageIO.write(image,"png",file);
+            return createMultipartFileList(file);
+        }catch (IOException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static List<MultiPartSpecification> 리뷰_이미지아닌_파일정보_생성() throws IOException {
