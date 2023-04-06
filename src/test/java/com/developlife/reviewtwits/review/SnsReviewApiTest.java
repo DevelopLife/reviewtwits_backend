@@ -94,9 +94,9 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart("content", rightReviewText)
+                .multiPart(multipartText("content", rightReviewText))
                 .multiPart("score", starScore)
-                .multiPart("productName",productName);
+                .multiPart(multipartText("productName",productName));
 
 
         List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지_파일정보_생성();
@@ -127,8 +127,8 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart("content",rightReviewText)
-                .multiPart("productName", productName)
+                .multiPart(multipartText("content", rightReviewText))
+                .multiPart(multipartText("productName", productName))
                 .when()
                 .post("/sns/reviews")
                 .then()
@@ -152,9 +152,9 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart("content",wrongReviewText)
+                .multiPart(multipartText("content",wrongReviewText))
                 .multiPart("score", starScore)
-                .multiPart("productName", productName)
+                .multiPart(multipartText("productName", productName))
                 .when()
                 .post("/sns/reviews")
                 .then()
@@ -179,9 +179,9 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart("content",rightReviewText)
+                .multiPart(multipartText("content",rightReviewText))
                 .multiPart("score", starScore)
-                .multiPart("productName", productName);
+                .multiPart(multipartText("productName", productName));
 
         List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지아닌_파일정보_생성();
 
@@ -212,7 +212,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart("content",wrongReviewText)
+                .multiPart(multipartText("content",wrongReviewText))
                 .multiPart("score", starScore)
                 .when()
                 .post("/sns/reviews")
@@ -244,7 +244,7 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br> 무한 스크롤을 구현하기 위해, 이후의 review 요청에서는 리뷰 리스트의 마지막 부분의 reviewId 를 넘겨주어야 합니다." +
                         "<br> 이 때, 남은 리뷰의 갯수가 요청한 size 보다 작을 경우, 남은 review 를 모두 넘겨주게 됩니다. " +
                         "<br> 위 상황에서는 review List 의 크기가 size 보다 작을 수 있습니다.", "SNS리뷰피드요청",
-                        SnsReviewDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdAndSizeField))
+                        SnsReviewDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdAndSizeField,SnsReviewDocument.SnsReviewFeedResponseField))
                 .param("size", size)
                 .when()
                 .get("/sns/feeds")
@@ -319,7 +319,8 @@ public class SnsReviewApiTest extends ApiTest {
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰의 댓글을 확인하는 API 입니다." +
                         "리뷰 아이디가 path에 들어가며, 해당 아이디로 된 리뷰가 존재하지 않을 경우 404 Not Found 가 반환됩니다." +
-                        "리뷰가 존재한다면, 200 OK 와 함께 리뷰의 댓글 리스트들이 반환됩니다.","SNS리뷰댓글확인",SnsReviewDocument.ReviewIdField))
+                        "리뷰가 존재한다면, 200 OK 와 함께 리뷰의 댓글 리스트들이 반환됩니다.","SNS리뷰댓글확인"
+                        ,SnsReviewDocument.ReviewIdField,SnsReviewDocument.SnsReviewCommentResponseField))
                 .pathParam("reviewId", registeredReviewId)
                 .when()
                 .get("/sns/comments/{reviewId}")

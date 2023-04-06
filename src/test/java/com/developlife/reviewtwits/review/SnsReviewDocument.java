@@ -6,8 +6,7 @@ import org.springframework.restdocs.snippet.Snippet;
 import static com.developlife.reviewtwits.DocumentFormatProvider.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 
 /**
@@ -59,5 +58,33 @@ public class SnsReviewDocument {
     public static final Snippet SnsReactionAddRequestField = requestParameters(
             parameterWithName("reaction").attributes(required())
                     .description("추가하고자 하는 리액션 내용입니다.")
+    );
+
+    public static final Snippet SnsReviewFeedResponseField = responseFields(
+            fieldWithPath("[].createdDate").type(JsonFieldType.ARRAY).description("생성시간"),
+            fieldWithPath("[].lastModifiedDate").type(JsonFieldType.ARRAY).description("마지막수정시간"),
+            fieldWithPath("[].reviewId").type(JsonFieldType.NUMBER).description("리뷰 아이디"),
+            fieldWithPath("[].userInfo.nickname").type(JsonFieldType.STRING).description("유저닉네임"),
+            fieldWithPath("[].userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
+            fieldWithPath("[].userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
+            fieldWithPath("[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+            fieldWithPath("[].content").type(JsonFieldType.STRING).description("리뷰내용"),
+            fieldWithPath("[].productUrl").type(JsonFieldType.STRING).description("제품 URL"),
+            fieldWithPath("[].productName").type(JsonFieldType.STRING).description("제품이름"),
+            fieldWithPath("[].score").type(JsonFieldType.NUMBER).description("별점"),
+            fieldWithPath("[].reviewImageNameList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
+            fieldWithPath("[].commentCount").type(JsonFieldType.NUMBER).description("댓글갯수"),
+            fieldWithPath("[].reactionResponses").type(JsonFieldType.OBJECT).description("리액션"),
+            fieldWithPath("[].exist").type(JsonFieldType.BOOLEAN).description("존재여부")
+    );
+
+    public static final Snippet SnsReviewCommentResponseField = responseFields(
+        fieldWithPath("[].commentId").type(JsonFieldType.NUMBER).description("댓글아이디"),
+        fieldWithPath("[].userInfo.nickname").type(JsonFieldType.STRING).description("유저닉네임"),
+        fieldWithPath("[].userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
+        fieldWithPath("[].userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
+        fieldWithPath("[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+        fieldWithPath("[].content").type(JsonFieldType.STRING).description("댓글내용"),
+        fieldWithPath("[].parentCommentId").type(JsonFieldType.NUMBER).description("부모댓글아이디")
     );
 }

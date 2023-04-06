@@ -1,10 +1,14 @@
 package com.developlife.reviewtwits.review;
 
+import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.snippet.Snippet;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static com.developlife.reviewtwits.DocumentFormatProvider.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 
@@ -47,5 +51,29 @@ public class ShoppingMallReviewDocument {
     public static final Snippet deleteFileListField = requestParts(
             partWithName("deleteFileList").description("리뷰에서 삭제하고자 하는 파일의 이름 리스트입니다. 여러 개 등록할 수 있습니다." +
                     " 해당 이름으로 된 파일이 존재하지 않는 경우, 파일의 삭제 처리가 이루어지지 않습니다.")
+    );
+
+    public static final Snippet shoppingMallReviewInfoResponseField =  responseFields(
+            fieldWithPath("averageStarScore").type(JsonFieldType.NUMBER).description("평균별점"),
+            fieldWithPath("totalReviewCount").type(JsonFieldType.NUMBER).description("전체 리뷰 갯수"),
+            fieldWithPath("recentReviewCount").type(JsonFieldType.NUMBER).description("최근 리뷰 갯수"),
+            fieldWithPath("starScoreArray").type(JsonFieldType.ARRAY).description("별점 분포 퍼센트 배열")
+    );
+
+    public static final Snippet shoppingMallReviewListResponseField = responseFields(
+            fieldWithPath("[].createdDate").type(JsonFieldType.ARRAY).description("생성시간"),
+            fieldWithPath("[].lastModifiedDate").type(JsonFieldType.ARRAY).description("마지막수정시간"),
+            fieldWithPath("[].reviewId").type(JsonFieldType.NUMBER).description("리뷰 아이디"),
+            fieldWithPath("[].userInfo.nickname").type(JsonFieldType.STRING).description("유저닉네임"),
+            fieldWithPath("[].userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
+            fieldWithPath("[].userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
+            fieldWithPath("[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+            fieldWithPath("[].projectId").type(JsonFieldType.NUMBER).description("프로젝트 아이디"),
+            fieldWithPath("[].content").type(JsonFieldType.STRING).description("리뷰내용"),
+            fieldWithPath("[].productUrl").type(JsonFieldType.STRING).description("제품 URL"),
+            fieldWithPath("[].productName").type(JsonFieldType.STRING).description("제품이름").optional(),
+            fieldWithPath("[].score").type(JsonFieldType.NUMBER).description("별점"),
+            fieldWithPath("[].reviewImageNameList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
+            fieldWithPath("[].exist").type(JsonFieldType.BOOLEAN).description("존재여부")
     );
 }
