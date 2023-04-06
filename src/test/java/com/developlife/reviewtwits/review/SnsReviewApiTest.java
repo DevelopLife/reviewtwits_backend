@@ -312,6 +312,25 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
+    void SNS_리뷰_삭제_200() throws IOException {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
+
+        given(this.spec)
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", recentReviewId)
+                .when()
+                .delete("/sns/reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+        Review deletedReview = reviewRepository.findById(recentReviewId).get();
+        assertThat(deletedReview.isExist()).isFalse();
+    }
+
+    @Test
     void SNS_리뷰_댓글작성_200() throws IOException {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
