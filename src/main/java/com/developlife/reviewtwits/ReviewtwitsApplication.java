@@ -11,5 +11,4 @@ public class ReviewtwitsApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ReviewtwitsApplication.class, args);
 	}
-
 }
