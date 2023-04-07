@@ -26,4 +26,9 @@ public class ItemDetail {
 
     @Column(length = 10000)
     private String detailInfo;
+
+    @Builder.Default
+    private double score = 0;
+    @Builder.Default
+    private int reviewCount = 0;
 }

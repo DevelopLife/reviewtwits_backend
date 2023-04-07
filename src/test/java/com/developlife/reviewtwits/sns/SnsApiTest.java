@@ -7,12 +7,14 @@ import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.sns.FollowRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.FollowRepository;
+import com.developlife.reviewtwits.review.SnsReviewSteps;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserSteps;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,6 +41,8 @@ public class SnsApiTest extends ApiTest {
     private SnsSteps snsSteps;
     @Autowired
     private FollowRepository followRepository;
+    @Autowired
+    private SnsReviewSteps snsReviewSteps;
 
     private RegisterUserRequest registerUserRequest;
     private User user;
@@ -52,6 +56,11 @@ public class SnsApiTest extends ApiTest {
 
         registerUserRequest = userSteps.팔로우상대방_회원가입정보_생성();
         targetUser = userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        snsReviewSteps.아이템정보생성();
+        snsReviewSteps.SNS_리뷰_작성(token, "페로로쉐 초콜릿 좋아요");
     }
 
     @Test
@@ -403,5 +412,27 @@ public class SnsApiTest extends ApiTest {
                 .body("find{it.errorType == 'UserIdNotFoundException' " +
                         "&& it.fieldName == 'userId' }", notNullValue())
                 .log().all();
+    }
+
+    @Test
+    @DisplayName("SNS 검색")
+    void SNS검색_아이템과리뷰_200() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH, "리뷰와 상품에 대한 정보를 검색합니다(조회 가능 글자 범위는 2-20)",
+                "SNS 전체검색 기능",
+                SnsDocument.SearchAllSnsRequest
+//                SnsDocument.SearchAllSnsResponse
+            ))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("X-AUTH-TOKEN", token)
+            .param("searchKey", "페로로쉐")
+        .when()
+            .get("/sns/search")
+        .then()
+            .assertThat()
+            .statusCode(HttpStatus.OK.value())
+            .log().all();
     }
 }

@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.sns.FollowRequest;
+import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.service.SnsService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -45,5 +47,10 @@ public class SnsController {
     @GetMapping("/get-followings/{accountId}")
     public List<UserInfoResponse> getFollowings(@PathVariable @Email String accountId){
         return snsService.getFollowingList(accountId);
+    }
+
+    @GetMapping("/search")
+    public SearchAllResponse searchAll(@AuthenticationPrincipal User user, @Size(min=2, max=20) @RequestParam String searchKey){
+        return snsService.searchAll(searchKey, user);
     }
 }

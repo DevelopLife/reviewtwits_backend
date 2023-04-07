@@ -1,9 +1,8 @@
 package com.developlife.reviewtwits.review;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
+import com.developlife.reviewtwits.CommonSteps;
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.mapper.ProjectMapper;
@@ -14,8 +13,6 @@ import com.developlife.reviewtwits.repository.ProjectRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
-import io.restassured.builder.MultiPartSpecBuilder;
-import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -24,20 +21,18 @@ import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static com.developlife.reviewtwits.review.ShoppingMallReviewSteps.*;
-import static io.restassured.RestAssured.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
+import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Mockito.verify;
 
 
 /**
@@ -85,7 +80,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart(multipartText("content",rightReviewText))
+                .multiPart(CommonSteps.multipartText("content",rightReviewText))
                 .multiPart("score", starScore);
 
 
@@ -281,7 +276,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart(multipartText("content",rightReviewText))
+                .multiPart(CommonSteps.multipartText("content",rightReviewText))
                 .multiPart("score", starScore);
 
         List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지_파일정보_생성();
@@ -375,13 +370,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     //    verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
-    private MultiPartSpecification multipartText(String controlName, String textBody) {
-        return new MultiPartSpecBuilder(textBody)
-                .controlName(controlName)
-                .mimeType(String.valueOf(ContentType.TEXT))
-                .charset(StandardCharsets.UTF_8)
-                .build();
-    }
+
 /*
     @Test
     void 쇼핑몰리뷰작성_유효하지않은토큰_401(){

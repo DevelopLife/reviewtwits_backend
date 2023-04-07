@@ -1,9 +1,20 @@
 package com.developlife.reviewtwits.review;
 
+import com.developlife.reviewtwits.CommonSteps;
+import com.developlife.reviewtwits.entity.ItemDetail;
+import com.developlife.reviewtwits.entity.RelatedProduct;
+import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
+import com.developlife.reviewtwits.repository.ItemDetailRepository;
+import com.developlife.reviewtwits.repository.RelatedProductRepository;
+import com.developlife.reviewtwits.repository.ReviewRepository;
+import io.restassured.RestAssured;
 import io.restassured.builder.MultiPartSpecBuilder;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.specification.MultiPartSpecification;
+import io.restassured.specification.RequestSpecification;
 import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
@@ -17,10 +28,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.restassured.RestAssured.given;
+import static io.restassured.config.EncoderConfig.encoderConfig;
+
 /**
  * @author WhalesBob
  * @since 2023-03-31
  */
+@Component
 public class SnsReviewSteps {
     final static String productName = "리뷰제품제품";
     final static String productURL = "http://www.example.com/123";
@@ -30,12 +45,19 @@ public class SnsReviewSteps {
     final static String commentContent = "테스트 코멘트";
     final static String changeCommentContent = "테스트를 위한 수정 코멘트";
     final static String reactionContent = "GOOD";
+    final ReviewRepository reviewRepository;
+    final ItemDetailRepository itemDetailRepository;
+    final RelatedProductRepository relatedProductRepository;
 
+    public SnsReviewSteps(ReviewRepository reviewRepository, ItemDetailRepository itemDetailRepository, RelatedProductRepository relatedProductRepository) {
+        this.reviewRepository = reviewRepository;
+        this.itemDetailRepository = itemDetailRepository;
+        this.relatedProductRepository = relatedProductRepository;
+    }
     public static List<MultiPartSpecification> 리뷰_이미지_파일정보_생성() {
         try{
             String fileFullName = "image.png";
             File file = new File(System.getProperty("java.io.tmpdir"), fileFullName);
-
             BufferedImage image = new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB);
             ImageIO.write(image,"png",file);
             return createMultipartFileList(file);
@@ -79,5 +101,44 @@ public class SnsReviewSteps {
                 .build();
     }
 
+    public Long SNS_리뷰_작성(String token, String content){
+        RestAssured.config = new RestAssuredConfig().encoderConfig(encoderConfig().defaultContentCharset("UTF-8"));
+        RequestSpecification request = given()
+            .contentType("multipart/form-data")
+            .header("X-AUTH-TOKEN", token)
+            .multiPart("productURL", productURL)
+            .multiPart(CommonSteps.multipartText("content", content))
+            .multiPart("score", starScore)
+            .multiPart(CommonSteps.multipartText("productName",productName));
+        List<MultiPartSpecification> multiPartSpecList;
+        multiPartSpecList = 리뷰_이미지_파일정보_생성();
 
+        for(MultiPartSpecification multiPartSpecification : multiPartSpecList){
+            request.multiPart(multiPartSpecification);
+        }
+
+        request.when()
+            .post("/sns/reviews")
+            .then()
+            .log().all();
+
+        List<Review> reviewList = reviewRepository.findReviewsByProductUrl(productURL);
+        return reviewList.get(reviewList.size()-1).getReviewId();
+    }
+
+
+    public void 아이템정보생성() {
+        RelatedProduct relatedProduct = RelatedProduct.builder()
+            .productUrl("https://www.test.com")
+            .name("페로로쉐 초콜릿")
+            .price(10000)
+            .imagePath("https://www.test.com/image")
+            .build();
+        ItemDetail itemDetail = ItemDetail.builder()
+            .relatedProduct(relatedProduct)
+            .detailInfo("페로로쉐 초콜릿 상세정보")
+            .build();
+        relatedProductRepository.save(relatedProduct);
+        itemDetailRepository.save(itemDetail);
+    }
 }

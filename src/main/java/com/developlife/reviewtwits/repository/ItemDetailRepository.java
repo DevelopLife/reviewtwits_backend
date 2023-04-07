@@ -1,10 +1,14 @@
 package com.developlife.reviewtwits.repository;
 
 import com.developlife.reviewtwits.entity.ItemDetail;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface ItemDetailRepository extends JpaRepository<ItemDetail, Long> {
-    @Query("SELECT COUNT(i.itemId) > 0 FROM ItemDetail i")
-    boolean checkTableIsNotEmpty();
+
+    @Query("select i from ItemDetail i where i.relatedProduct.name like %:searchKey% or i.detailInfo like %:searchKey% ORDER BY i.itemId DESC")
+    List<ItemDetail> findByRelatedProduct_NameLikeOrDetailInfoLike(String searchKey, Pageable pageable);
 }
