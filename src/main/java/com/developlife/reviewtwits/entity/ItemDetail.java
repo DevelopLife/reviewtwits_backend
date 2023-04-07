@@ -15,7 +15,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemDetail {
+public class ItemDetail extends BaseEntity {
 
     @Id
     @GeneratedValue

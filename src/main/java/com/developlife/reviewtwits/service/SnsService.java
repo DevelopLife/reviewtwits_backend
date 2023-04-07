@@ -10,6 +10,7 @@ import com.developlife.reviewtwits.exception.user.UserIdNotFoundException;
 import com.developlife.reviewtwits.mapper.SnsMapper;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.message.response.sns.ItemResponse;
 import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.*;
@@ -106,5 +107,11 @@ public class SnsService {
         List<DetailSnsReviewResponse> snsReviewResponseList = snsReviewUtils.processAndExportReviewData(reviewList, user);
 
         return snsMapper.toSearchAllResponse(itemDetailList, snsReviewResponseList);
+    }
+
+    // TODO: 임시적으로 최근 생성된 3개를 반환하도록,, 추천 알고리즘 구현 필요
+    public List<ItemResponse> recommendProduct() {
+        List<ItemDetail> itemDetailList = itemDetailRepository.findAllByOrderByCreatedDateDesc(PageRequest.of(0, 3));
+        return itemDetailList.stream().map(itemDetail -> snsMapper.toItemResponse(itemDetail)).toList();
     }
 }

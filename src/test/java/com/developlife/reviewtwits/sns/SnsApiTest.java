@@ -435,4 +435,22 @@ public class SnsApiTest extends ApiTest {
             .statusCode(HttpStatus.OK.value())
             .log().all();
     }
+
+    @Test
+    @DisplayName("SNS 검색")
+    void SNS_상품추천_200() {
+
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH, "최대 3개의 상품을 추천해줍니다",
+                "SNS 상품추천",
+                SnsDocument.RecommendProductResponse
+            ))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/sns/recommend-product")
+            .then()
+            .assertThat()
+            .statusCode(HttpStatus.OK.value())
+            .log().all();
+    }
 }

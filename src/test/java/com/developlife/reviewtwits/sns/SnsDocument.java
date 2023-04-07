@@ -57,4 +57,11 @@ public class SnsDocument {
         fieldWithPath("reviewList[].reactionResponses").type(JsonFieldType.OBJECT).description("리액션"),
         fieldWithPath("reviewList[].isScrapped").type(JsonFieldType.BOOLEAN).description("스크랩여부")
     );
+    public static final Snippet RecommendProductResponse = responseFields(
+        fieldWithPath("[].itemId").type(JsonFieldType.NUMBER).description("아이템아이디"),
+        fieldWithPath("[].productName").type(JsonFieldType.STRING).description("상품이름"),
+        fieldWithPath("[].productImageUrl").type(JsonFieldType.STRING).description("상품이미지URL"),
+        fieldWithPath("[].score").type(JsonFieldType.NUMBER).description("평균평점"),
+        fieldWithPath("[].url").type(JsonFieldType.STRING).description("상품정보페이지URL")
+    );
 }
