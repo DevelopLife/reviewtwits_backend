@@ -55,6 +55,7 @@ public class FileStoreService {
         return file;
     }
 
+    @Transactional
     public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, String referenceType) {
 
         checkFolder();
@@ -81,6 +82,7 @@ public class FileStoreService {
         return storeFileResult;
     }
 
+    @Transactional(readOnly = true)
     public String findOriginalFilename(String storedFileName){
         Optional<FileInfo> fileInfo = fileInfoRepository.findFileInfoByRealFilename(storedFileName);
         return fileInfo.map(FileInfo::getOriginalFilename).orElse(null);
@@ -102,10 +104,12 @@ public class FileStoreService {
         return originalFilename.substring(position + 1);
     }
 
+    @Transactional
     public List<String> bringFileNameList(String referenceType, Long referenceID){
         return fileManagerRepository.findRealFileNameByReferenceIdAAndReferenceType(referenceID, referenceType);
     }
 
+    @Transactional
     public void checkDeleteFile(List<String> fileNames){
         List<FileInfo> fileInfoList = fileInfoRepository.findFileInfosByRealFilenameIn(fileNames);
         for(FileInfo info : fileInfoList){

@@ -12,6 +12,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ public class AwsS3Service {
     @Value("${aws.s3.commonUrl}")
     private String url;
 
+    @Transactional
     public String uploadToAWS(MultipartFile file, String storeFilename) throws IOException{
 
         try{

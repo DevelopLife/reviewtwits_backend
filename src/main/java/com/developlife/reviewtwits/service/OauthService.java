@@ -1,6 +1,5 @@
 package com.developlife.reviewtwits.service;
 
-import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.AccountIdAlreadyExistsException;
 import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
@@ -9,19 +8,16 @@ import com.developlife.reviewtwits.exception.user.RegisterDataNeedException;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.request.user.RegisterOauthUserRequest;
 import com.developlife.reviewtwits.message.response.oauth.OauthUserInfo;
-import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.utils.oauth.GoogleOAuth2Utils;
 import com.developlife.reviewtwits.utils.oauth.KakaoOauth2Utils;
 import com.developlife.reviewtwits.utils.oauth.NaverOauth2Utils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.transaction.Transactional;
 import java.util.Optional;
-
-import static com.developlife.reviewtwits.type.JwtProvider.*;
 
 /**
  * @author ghdic
@@ -38,6 +34,7 @@ public class OauthService {
         this.userMapper = userMapper;
     }
 
+    @Transactional
     public User authenticateToken(OauthUserInfo oauthUserInfo, JwtProvider jwtProvider) {
         Optional<User> optionalUser = userRepository.findByUuid(oauthUserInfo.sub());
         User user;

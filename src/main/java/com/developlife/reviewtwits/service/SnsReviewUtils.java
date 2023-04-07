@@ -13,6 +13,7 @@ import com.developlife.reviewtwits.repository.ReviewScrapRepository;
 import com.developlife.reviewtwits.type.ReactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class SnsReviewUtils {
     private final ReviewScrapRepository reviewScrapRepository;
     private final FileStoreService fileStoreService;
 
+    @Transactional(readOnly = true)
     public List<DetailSnsReviewResponse> processAndExportReviewData(List<Review> pageReviews, User user) {
         List<DetailSnsReviewResponse> snsResponse = new ArrayList<>();
         for(Review review : pageReviews){

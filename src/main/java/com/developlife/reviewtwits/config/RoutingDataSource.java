@@ -16,11 +16,11 @@ public class RoutingDataSource extends AbstractRoutingDataSource {
         // System.out.println("Transaction의 Read Only가 " + isReadOnly + " 입니다.");
 
         if (isReadOnly) {
-            // System.out.println("Replica 서버로 요청합니다.");
+            System.out.println("Replica 서버로 요청합니다.");
             return "replica";
         }
 
-        // System.out.println("Source 서버로 요청합니다.");
+        System.out.println("Source 서버로 요청합니다.");
         return "source";
     }
 }

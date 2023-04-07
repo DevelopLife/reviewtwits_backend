@@ -15,4 +15,6 @@ public interface EmailVerifyRepository extends JpaRepository<EmailVerify, Long> 
     Optional<EmailVerify> findByEmailAndType(String email, EmailType type);
 
     Optional<EmailVerify> findByVerifyCode(String verifyCode);
+
+    Optional<EmailVerify> findByVerifyCodeAndType(String verifyCode, EmailType type);
 }

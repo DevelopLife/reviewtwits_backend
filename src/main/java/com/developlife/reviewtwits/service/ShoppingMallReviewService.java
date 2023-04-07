@@ -17,6 +17,7 @@ import com.developlife.reviewtwits.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -40,6 +41,7 @@ public class ShoppingMallReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
 
+    @Transactional
     public void saveShoppingMallReview(ShoppingMallReviewWriteRequest writeRequest, User user) throws IOException {
 
         Project project = findProject(writeRequest.productURL());
@@ -61,6 +63,7 @@ public class ShoppingMallReviewService {
         }
     }
 
+    @Transactional(readOnly = true)
     public ShoppingMallReviewProductResponse findShoppingMallReviewTotalInfo(String productURL){
         if(!productRepository.existsProductByProductUrl(productURL)){
             return null;
@@ -100,6 +103,7 @@ public class ShoppingMallReviewService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(String productURL){
         List<Review> reviews = reviewRepository.findReviewsByProductUrl(productURL);
         for(Review review : reviews){
@@ -108,6 +112,7 @@ public class ShoppingMallReviewService {
         return mapper.toDetailReviewResponseList(reviews);
     }
 
+    @Transactional(readOnly = true)
     public DetailShoppingMallReviewResponse findOneShoppingMallReview(long reviewId){
         Optional<Review> review = reviewRepository.findById(reviewId);
         if(review.isEmpty()){
@@ -123,6 +128,7 @@ public class ShoppingMallReviewService {
         }
     }
 
+    @Transactional(readOnly = true)
     public void checkReviewCanEdit(User user, long reviewId){
         Optional<Review> review = reviewRepository.findById(reviewId);
         if(review.isEmpty()){
@@ -133,6 +139,7 @@ public class ShoppingMallReviewService {
         }
     }
 
+    @Transactional
     public void deleteShoppingMallReview(long reviewId){
         Optional<Review> foundReview = reviewRepository.findById(reviewId);
         if(foundReview.isPresent()){
@@ -142,6 +149,7 @@ public class ShoppingMallReviewService {
         }
     }
 
+    @Transactional
     public void restoreShoppingMallReview(long reviewId){
         Optional<Review> foundReview = reviewRepository.findById(reviewId);
         if(foundReview.isPresent()){
@@ -150,6 +158,7 @@ public class ShoppingMallReviewService {
         }
     }
 
+    @Transactional
     public void changeShoppingMallReview(long reviewId, ShoppingMallReviewChangeRequest changeRequest) throws IOException {
         Review review = reviewRepository.findById(reviewId).get();
         if(changeRequest.content() != null){
@@ -169,6 +178,7 @@ public class ShoppingMallReviewService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Project findProject(String productURL){
         Optional<Product> product = productRepository.findProductByProductUrl(productURL);
         if(product.isPresent()){

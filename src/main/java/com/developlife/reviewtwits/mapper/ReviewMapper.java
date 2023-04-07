@@ -28,9 +28,8 @@ public interface ReviewMapper {
     List<DetailShoppingMallReviewResponse> toDetailReviewResponseList(List<Review> reviews);
     List<CommentResponse> toCommentResponseList(List<Comment> comments);
 
-    default UserInfoResponse mapUserToUserInfoResponse(User user){
-        return new UserInfoResponse(user.getNickname(),user.getAccountId(),user.getIntroduceText(),user.getProfileImage());
-    }
+
+    UserInfoResponse mapUserToUserInfoResponse(User user);
 
     default DetailShoppingMallReviewResponse mapReviewToDetailReviewResponse(Review review){
         return DetailShoppingMallReviewResponse.builder()
