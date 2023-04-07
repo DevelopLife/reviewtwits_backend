@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 /**
@@ -64,14 +65,18 @@ public class SnsReviewService {
 
     public List<DetailSnsReviewResponse> getSnsReviews(User user,Long reviewId, int size){
         List<Review> pageReviews = findReviewsInPage(reviewId, size);
+        return processAndExportReviewData(pageReviews, user);
+    }
 
+    private List<DetailSnsReviewResponse> processAndExportReviewData(List<Review> pageReviews, User user) {
         List<DetailSnsReviewResponse> snsResponse = new ArrayList<>();
         for(Review review : pageReviews){
             saveReviewImage(review);
             List<Reaction> reactionList = reactionRepository.findByReview(review);
             Map<String, ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(user, reactionList);
 
-            snsResponse.add(mapper.toDetailSnsReviewResponse(review, collectedReactionResponse));
+            Optional<ReviewScrap> reviewScrap = reviewScrapRepository.findByReviewAndUser(review, user);
+            snsResponse.add(mapper.toDetailSnsReviewResponse(review, collectedReactionResponse,reviewScrap.isPresent()));
         }
         return snsResponse;
     }
@@ -227,14 +232,6 @@ public class SnsReviewService {
     public List<DetailSnsReviewResponse> getReviewsInUserScrap(User user) {
         List<Review> reviewOnUserScrap = reviewScrapRepository.findReviewByUser(user);
 
-        List<DetailSnsReviewResponse> userScrapResponse = new ArrayList<>();
-        for(Review review : reviewOnUserScrap){
-            saveReviewImage(review);
-            List<Reaction> reactionList = reactionRepository.findByReview(review);
-            Map<String, ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(user, reactionList);
-
-            userScrapResponse.add(mapper.toDetailSnsReviewResponse(review, collectedReactionResponse));
-        }
-        return userScrapResponse;
+        return processAndExportReviewData(reviewOnUserScrap, user);
     }
 }

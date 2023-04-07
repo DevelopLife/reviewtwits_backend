@@ -46,7 +46,8 @@ public interface ReviewMapper {
     }
 
     @Named(value = "toDetailSnsReviewResponse")
-    default DetailSnsReviewResponse toDetailSnsReviewResponse(Review review, Map<String, ReactionResponse> reactionResponses){
+    default DetailSnsReviewResponse toDetailSnsReviewResponse(Review review,
+                                                              Map<String, ReactionResponse> reactionResponses, boolean isScrapped){
         return DetailSnsReviewResponse.builder()
                 .createdDate(review.getCreatedDate())
                 .lastModifiedDate(review.getLastModifiedDate())
@@ -59,7 +60,7 @@ public interface ReviewMapper {
                 .reviewImageNameList(review.getReviewImageNameList())
                 .commentCount(review.getCommentCount())
                 .reactionResponses(reactionResponses)
-                .exist(review.isExist())
+                .isScrapped(isScrapped)
                 .build();
     }
 
