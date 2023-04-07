@@ -21,6 +21,7 @@ public class UserDocument {
     );
 
     public static final Snippet UserInfoResponseField = responseFields(
+            fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
             fieldWithPath("nickname").type(JsonFieldType.STRING).description("닉네임"),
             fieldWithPath("accountId").type(JsonFieldType.STRING).description("아이디"),
             fieldWithPath("introduceText").type(JsonFieldType.STRING).description("자기소개 한줄글").optional(),

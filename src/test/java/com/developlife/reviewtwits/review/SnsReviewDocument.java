@@ -71,6 +71,7 @@ public class SnsReviewDocument {
             fieldWithPath("[].createdDate").type(JsonFieldType.ARRAY).description("생성시간"),
             fieldWithPath("[].lastModifiedDate").type(JsonFieldType.ARRAY).description("마지막수정시간"),
             fieldWithPath("[].reviewId").type(JsonFieldType.NUMBER).description("리뷰 아이디"),
+            fieldWithPath("[].userInfo.userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
             fieldWithPath("[].userInfo.nickname").type(JsonFieldType.STRING).description("유저닉네임"),
             fieldWithPath("[].userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
             fieldWithPath("[].userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
@@ -87,6 +88,7 @@ public class SnsReviewDocument {
 
     public static final Snippet SnsReviewCommentResponseField = responseFields(
         fieldWithPath("[].commentId").type(JsonFieldType.NUMBER).description("댓글아이디"),
+        fieldWithPath("[].userInfo.userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
         fieldWithPath("[].userInfo.nickname").type(JsonFieldType.STRING).description("유저닉네임"),
         fieldWithPath("[].userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
         fieldWithPath("[].userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
