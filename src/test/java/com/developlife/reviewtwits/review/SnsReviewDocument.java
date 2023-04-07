@@ -82,7 +82,7 @@ public class SnsReviewDocument {
             fieldWithPath("[].reviewImageNameList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
             fieldWithPath("[].commentCount").type(JsonFieldType.NUMBER).description("댓글갯수"),
             fieldWithPath("[].reactionResponses").type(JsonFieldType.OBJECT).description("리액션"),
-            fieldWithPath("[].exist").type(JsonFieldType.BOOLEAN).description("존재여부")
+            fieldWithPath("[].isScrapped").type(JsonFieldType.BOOLEAN).description("스크랩여부")
     );
 
     public static final Snippet SnsReviewCommentResponseField = responseFields(

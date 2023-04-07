@@ -218,13 +218,20 @@ public class SnsReviewApiTest extends ApiTest {
     void SNS_리뷰작성_제품명미입력_400(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
-        given(this.spec).log().all()
+        RequestSpecification request = given(this.spec).log().all()
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart(multipartText("content",wrongReviewText))
-                .multiPart("score", starScore)
+                .multiPart(multipartText("content", rightReviewText))
+                .multiPart("score", starScore);
+
+        List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지_파일정보_생성();
+
+        for(MultiPartSpecification multiPartSpecification : multiPartSpecList){
+            request.multiPart(multiPartSpecification);
+        }
+        request
                 .when()
                 .post("/sns/reviews")
                 .then()
@@ -526,6 +533,12 @@ public class SnsReviewApiTest extends ApiTest {
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,"리뷰 스크랩 내용을 추가하는 API 입니다." +
+                        "<br> X-AUTH-TOKEN 을 header 에 넣어 주고, 존재하는 reviewId 를 path 에 추가하면" +
+                        "<br> 200 OK 와 함께 해당 리뷰가 유저에 스크랩됩니다." +
+                        "<br> X-AUTH-TOKEN 이 올바르지 않거나 입력되지 않았을 경우 403 에러가 표출되게 됩니다." +
+                        "<br> 해당 리뷰가 존재하지 않을 경우, 404 에러가 표출되게 됩니다.","리뷰스크랩추가",
+                        UserDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",registeredReviewId)
                 .when()
@@ -547,6 +560,7 @@ public class SnsReviewApiTest extends ApiTest {
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
                 .pathParam("reviewId",registeredReviewId)
                 .when()
                 .post("/sns/scrap-reviews/{reviewId}")
@@ -562,6 +576,7 @@ public class SnsReviewApiTest extends ApiTest {
         Long wrongReviewId = 9999L;
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",wrongReviewId)
                 .when()
@@ -569,6 +584,8 @@ public class SnsReviewApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
+                .body("find{it.errorType == 'ReviewNotFoundException' " +
+                        "&& it.fieldName == 'reviewId' " + "&& it.message == '스크랩하려는 리뷰 아이디가 존재하지 않습니다.'}", notNullValue())
                 .log().all();
     }
 
@@ -579,6 +596,12 @@ public class SnsReviewApiTest extends ApiTest {
         SNS_리뷰_스크랩_추가(token, registeredReviewId);
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "리뷰 스크랩을 취소하는 API 입니다." +
+                        "<br> X-AUTH-TOKEN 을 넣어 주고, 이미 스크랩한 리뷰 아이디를 넣어 주면 200 OK 와 함깨 해당 스크랩이 취소됩니다." +
+                        "<br> X-AUTH-TOKEN 이 올바르지 않거나 입력되지 않았을 경우 403 에러가 표출되게 됩니다." +
+                        "<br> 해당 리뷰가 존재하지 않을 경우, 404 에러가 표출되게 됩니다." +
+                        "<br> 해당 리뷰가 이미 스크랩되어 있지 않은 경우, 409 에러가 표출되게 됩니다.","리뷰스크랩취소",
+                        UserDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",registeredReviewId)
                 .when()
@@ -599,6 +622,7 @@ public class SnsReviewApiTest extends ApiTest {
         SNS_리뷰_스크랩_추가(token, registeredReviewId);
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
                 .pathParam("reviewId",registeredReviewId)
                 .when()
                 .delete("/sns/scrap-reviews/{reviewId}")
@@ -609,11 +633,32 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
+    void 리뷰_스크랩_삭제_리뷰없음_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long wrongReviewId = 9999L;
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("reviewId",wrongReviewId)
+                .when()
+                .delete("/sns/scrap-reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body("find{it.errorType == 'ReviewNotFoundException' " +
+                        "&& it.fieldName == 'reviewId' " + "&& it.message == '삭제하려는 리뷰가 존재하지 않습니다.'}", notNullValue())
+                .log().all();
+    }
+
+
+    @Test
     void 리뷰_스크랩_삭제_이미스크랩안함_409(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",registeredReviewId)
                 .when()
@@ -621,6 +666,8 @@ public class SnsReviewApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.CONFLICT.value())
+                .body("find{it.errorType == 'ReviewScrapNotAddedException' "
+                        + "&& it.message == '등록되지 않은 리뷰 스크랩입니다.'}", notNullValue())
                 .log().all();
     }
 
@@ -630,14 +677,21 @@ public class SnsReviewApiTest extends ApiTest {
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         SNS_리뷰_스크랩_추가(token, registeredReviewId);
 
-        given(this.spec)
-                .header("X-AUTH-TOKEN",token)
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "유저 정보를 기준으로 스크랩 정보를 찾아 보여주는 API 입니다." +
+                        "<br> 올바른 X-AUTH-TOKEN 을 header 에 넣어 주면, 해당 유저가 스크랩한 모든 리뷰 정보가 반환됩니다." +
+                        "<br> 올바르지 않은 X-AUTH-TOKEN 을 입력할 경우, 403 에러가 반환됩니다.","리뷰스크랩정보찾기",
+                        UserDocument.AccessTokenHeader, SnsReviewDocument.SnsReviewFeedResponseField))
+                .header("X-AUTH-TOKEN", token)
                 .when()
                 .get("/sns/scrap-reviews")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getBoolean("[0].isScrapped")).isTrue();
     }
 
     @Test
@@ -647,6 +701,7 @@ public class SnsReviewApiTest extends ApiTest {
         SNS_리뷰_스크랩_추가(token, registeredReviewId);
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
                 .when()
                 .get("/sns/scrap-reviews")
                 .then()
