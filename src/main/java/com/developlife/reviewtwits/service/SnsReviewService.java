@@ -8,8 +8,7 @@ import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest
 import com.developlife.reviewtwits.message.request.review.SnsReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
-import com.developlife.reviewtwits.message.response.review.DetailSnsReviewResponse;
-import com.developlife.reviewtwits.message.response.review.ReactionResponse;
+import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.ReactionRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
@@ -23,10 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 
 /**
@@ -45,6 +41,7 @@ public class SnsReviewService {
     private final CommentRepository commentRepository;
     private final ReactionRepository reactionRepository;
     private final ReviewScrapRepository reviewScrapRepository;
+    private final SnsReviewUtils snsReviewUtils;
 
     public void saveSnsReview(SnsReviewWriteRequest writeRequest, User user){
 
@@ -65,21 +62,9 @@ public class SnsReviewService {
 
     public List<DetailSnsReviewResponse> getSnsReviews(User user,Long reviewId, int size){
         List<Review> pageReviews = findReviewsInPage(reviewId, size);
-        return processAndExportReviewData(pageReviews, user);
+        return snsReviewUtils.processAndExportReviewData(pageReviews, user);
     }
 
-    private List<DetailSnsReviewResponse> processAndExportReviewData(List<Review> pageReviews, User user) {
-        List<DetailSnsReviewResponse> snsResponse = new ArrayList<>();
-        for(Review review : pageReviews){
-            saveReviewImage(review);
-            List<Reaction> reactionList = reactionRepository.findByReview(review);
-            Map<String, ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(user, reactionList);
-
-            Optional<ReviewScrap> reviewScrap = reviewScrapRepository.findByReviewAndUser(review, user);
-            snsResponse.add(mapper.toDetailSnsReviewResponse(review, collectedReactionResponse,reviewScrap.isPresent()));
-        }
-        return snsResponse;
-    }
 
     public List<CommentResponse> getCommentInfo(long reviewId){
         if(!reviewRepository.existsById(reviewId)){
@@ -166,10 +151,6 @@ public class SnsReviewService {
         reviewRepository.save(review);
     }
 
-    private void saveReviewImage(Review review){
-        review.setReviewImageNameList(fileStoreService.bringFileNameList("Review", review.getReviewId()));
-    }
-
     private List<Review> findReviewsInPage(Long reviewId, int size){
         Pageable pageable = PageRequest.of(0,size,Sort.by("reviewId").descending());
         if(reviewId == null){
@@ -232,6 +213,6 @@ public class SnsReviewService {
     public List<DetailSnsReviewResponse> getReviewsInUserScrap(User user) {
         List<Review> reviewOnUserScrap = reviewScrapRepository.findReviewByUser(user);
 
-        return processAndExportReviewData(reviewOnUserScrap, user);
+        return snsReviewUtils.processAndExportReviewData(reviewOnUserScrap, user);
     }
 }

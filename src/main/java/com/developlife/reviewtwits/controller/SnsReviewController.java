@@ -1,13 +1,12 @@
 package com.developlife.reviewtwits.controller;
 
-import com.developlife.reviewtwits.entity.ReviewScrap;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.annotation.review.ValidReaction;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
-import com.developlife.reviewtwits.message.response.review.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.service.SnsReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

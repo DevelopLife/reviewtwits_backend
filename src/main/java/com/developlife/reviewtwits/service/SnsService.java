@@ -1,16 +1,21 @@
 package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.Follow;
+import com.developlife.reviewtwits.entity.ItemDetail;
+import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.sns.FollowAlreadyExistsException;
 import com.developlife.reviewtwits.exception.sns.UnfollowAlreadyDoneException;
 import com.developlife.reviewtwits.exception.user.UserIdNotFoundException;
+import com.developlife.reviewtwits.mapper.SnsMapper;
 import com.developlife.reviewtwits.mapper.UserMapper;
+import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import com.developlife.reviewtwits.repository.FollowRepository;
-import com.developlife.reviewtwits.repository.UserRepository;
+import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,8 +31,15 @@ public class SnsService {
 
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final ReviewRepository reviewRepository;
+    private final ReactionRepository reactionRepository;
+    private final ItemDetailRepository itemDetailRepository;
+    private final ReviewScrapRepository reviewScrapRepository;
     private final UserService userService;
+    private final SnsReviewService snsReviewService;
+    private final SnsReviewUtils snsReviewUtils;
     private final UserMapper userMapper;
+    private final SnsMapper snsMapper;
 
     public void followProcess(User user, String targetUserAccountId){
         User targetUser = getTargetUser(targetUserAccountId);
@@ -85,5 +97,14 @@ public class SnsService {
             userService.setProfileImage(user);
         }
         return userMapper.toUserInfoResponseList(followersList);
+    }
+
+    public SearchAllResponse searchAll(String searchKey, User user) {
+        List<ItemDetail> itemDetailList = itemDetailRepository.findByRelatedProduct_NameLikeOrDetailInfoLike(searchKey, PageRequest.of(0, 3));
+
+        List<Review> reviewList = reviewRepository.findByProductNameLikeOrContentLike(searchKey, PageRequest.of(0, 10));
+        List<DetailSnsReviewResponse> snsReviewResponseList = snsReviewUtils.processAndExportReviewData(reviewList, user);
+
+        return snsMapper.toSearchAllResponse(itemDetailList, snsReviewResponseList);
     }
 }

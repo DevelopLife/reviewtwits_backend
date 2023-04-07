@@ -75,6 +75,8 @@ public class SnsReviewApiTest extends ApiTest {
 //    private AmazonS3 s3Client;
 
     private RegisterUserRequest registerUserRequest;
+    @Autowired
+    private SnsReviewSteps snsReviewSteps;
 
     @BeforeEach
     void settings(){
@@ -250,7 +252,7 @@ public class SnsReviewApiTest extends ApiTest {
     void SNS_리뷰_피드_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         for(int writeCount = 1; writeCount <= 3; writeCount++){
-            SNS_리뷰_작성(token, "review count : " + writeCount);
+            snsReviewSteps.SNS_리뷰_작성(token, "review count : " + writeCount);
         }
 
         int size = 2;
@@ -277,7 +279,7 @@ public class SnsReviewApiTest extends ApiTest {
         long reviewIdForSecondRequest = firstJsonPath.getLong("[1].reviewId");
 
         for(int writeCount = 4; writeCount <= 5; writeCount++){
-            SNS_리뷰_작성(token, "review count : " + writeCount);
+            snsReviewSteps.SNS_리뷰_작성(token, "review count : " + writeCount);
         }
 
         ExtractableResponse<Response> secondResponse = given(this.spec)
@@ -351,7 +353,7 @@ public class SnsReviewApiTest extends ApiTest {
     @Test
     void SNS_리뷰_댓글작성_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-        Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long recentReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
 
 
         given(this.spec)
@@ -385,7 +387,7 @@ public class SnsReviewApiTest extends ApiTest {
     @Test
     void SNS_리뷰_댓글확인_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
         SNS_리뷰_댓글_작성(token,registeredReviewId);
 
         ExtractableResponse<Response> response = given(this.spec)
@@ -413,7 +415,7 @@ public class SnsReviewApiTest extends ApiTest {
     @Test
     void SNS_리뷰_댓글_삭제_성공_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
 
         given(this.spec)
@@ -440,7 +442,7 @@ public class SnsReviewApiTest extends ApiTest {
     @Test
     void SNS_리뷰_댓글_수정_성공_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
 
         given(this.spec)
@@ -472,7 +474,7 @@ public class SnsReviewApiTest extends ApiTest {
     void 피드_리액션_추가_성공_200() {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "피드 리액션 추가를 위한 API 입니다." +
@@ -502,7 +504,7 @@ public class SnsReviewApiTest extends ApiTest {
     @Test
     void 피드_리액션_삭제_성공_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
         SNS_리액션_추가(token, registeredReviewId);
 
         given(this.spec)
@@ -525,7 +527,6 @@ public class SnsReviewApiTest extends ApiTest {
         JsonPath jsonPath = 피드_리뷰_리액션_추출(token);
         assertThat(jsonPath.getMap("[0].reactionResponses")).isEmpty();
     }
-
 
     @Test
     void 리뷰_스크랩_추가_성공_200(){
