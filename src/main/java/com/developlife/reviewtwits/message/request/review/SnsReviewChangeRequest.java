@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.message.request.review;
 
 import com.developlife.reviewtwits.message.annotation.file.ImageFiles;
+import com.developlife.reviewtwits.message.annotation.review.DeleteFileName;
 import com.developlife.reviewtwits.message.annotation.review.MultipartInteger;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,11 +24,11 @@ public record SnsReviewChangeRequest(
         @MultipartInteger
         String score,
         @Nullable
-        @NotBlank(message = "제품 이름이 입력되지 않았습니다.")
+        @Size(message= "제품 이름이 입력되지 않았습니다.", min = 1)
         String productName,
         @ImageFiles
         List<MultipartFile> multipartImageFiles,
-        @Nullable
+        @DeleteFileName
         List<String> deleteFileList
 ) {
 }

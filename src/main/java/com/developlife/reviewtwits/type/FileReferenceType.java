@@ -40,6 +40,18 @@ public enum FileReferenceType {
         return true;
     }
 
+    public static boolean isValidDeleteFileName(String referenceType, List<String> deleteFileName){
+        FileReferenceType fileType = FileReferenceType.valueOf(referenceType.toUpperCase(Locale.ROOT));
+        for(String name : deleteFileName){
+            int position = name.lastIndexOf(".");
+            String ext = name.substring(position + 1);
+            if(!fileType.filetypeList.contains(ext)){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static boolean isValidFileType(String referenceType, String fileName){
         FileReferenceType fileType = FileReferenceType.valueOf(referenceType.toUpperCase(Locale.ROOT));
         String ext = FileStoreService.extractExt(fileName);

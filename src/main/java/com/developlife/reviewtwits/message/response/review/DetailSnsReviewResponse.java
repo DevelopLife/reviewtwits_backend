@@ -22,7 +22,7 @@ public record DetailSnsReviewResponse(LocalDateTime createdDate,
                                       List<String> reviewImageNameList,
                                       int commentCount,
                                       Map<String, ReactionResponse> reactionResponses,
-                                      boolean exist) {
+                                      boolean isScrapped) {
 
     @Builder
     public DetailSnsReviewResponse{

@@ -1,13 +1,7 @@
 package com.developlife.reviewtwits.service;
 
-import com.developlife.reviewtwits.entity.Comment;
-import com.developlife.reviewtwits.entity.Reaction;
-import com.developlife.reviewtwits.entity.Review;
-import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.exception.review.CannotHandleReviewException;
-import com.developlife.reviewtwits.exception.review.CommentNotFoundException;
-import com.developlife.reviewtwits.exception.review.ReactionNotFoundException;
-import com.developlife.reviewtwits.exception.review.ReviewNotFoundException;
+import com.developlife.reviewtwits.entity.*;
+import com.developlife.reviewtwits.exception.review.*;
 import com.developlife.reviewtwits.exception.user.UnAuthorizedException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
@@ -19,6 +13,7 @@ import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.ReactionRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
+import com.developlife.reviewtwits.repository.ReviewScrapRepository;
 import com.developlife.reviewtwits.type.ReactionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 /**
@@ -48,6 +44,7 @@ public class SnsReviewService {
     private final ReviewRepository reviewRepository;
     private final CommentRepository commentRepository;
     private final ReactionRepository reactionRepository;
+    private final ReviewScrapRepository reviewScrapRepository;
 
     public void saveSnsReview(SnsReviewWriteRequest writeRequest, User user){
 
@@ -68,16 +65,19 @@ public class SnsReviewService {
 
     public List<DetailSnsReviewResponse> getSnsReviews(User user,Long reviewId, int size){
         List<Review> pageReviews = findReviewsInPage(reviewId, size);
+        return processAndExportReviewData(pageReviews, user);
+    }
 
+    private List<DetailSnsReviewResponse> processAndExportReviewData(List<Review> pageReviews, User user) {
         List<DetailSnsReviewResponse> snsResponse = new ArrayList<>();
         for(Review review : pageReviews){
             saveReviewImage(review);
             List<Reaction> reactionList = reactionRepository.findByReview(review);
             Map<String, ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(user, reactionList);
 
-            snsResponse.add(mapper.toDetailSnsReviewResponse(review, collectedReactionResponse));
+            Optional<ReviewScrap> reviewScrap = reviewScrapRepository.findByReviewAndUser(review, user);
+            snsResponse.add(mapper.toDetailSnsReviewResponse(review, collectedReactionResponse,reviewScrap.isPresent()));
         }
-        // 일단, 페이징 해서 만드는 것 먼저 해 보자.
         return snsResponse;
     }
 
@@ -205,5 +205,33 @@ public class SnsReviewService {
         if(changeRequest.deleteFileList() != null && !changeRequest.deleteFileList().isEmpty()){
             fileStoreService.checkDeleteFile(changeRequest.deleteFileList());
         }
+    }
+
+    public void addReviewScrap(User user, long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException("스크랩하려는 리뷰 아이디가 존재하지 않습니다."));
+
+        ReviewScrap reviewScrap = ReviewScrap.builder()
+                .review(review)
+                .user(user)
+                .build();
+
+        reviewScrapRepository.save(reviewScrap);
+    }
+
+    public void deleteReviewScrap(User user, long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리뷰가 존재하지 않습니다."));
+
+        ReviewScrap reviewScrap = reviewScrapRepository.findByReviewAndUser(review, user)
+                .orElseThrow(() -> new ReviewScrapNotAddedException("등록되지 않은 리뷰 스크랩입니다."));
+
+        reviewScrapRepository.delete(reviewScrap);
+    }
+
+    public List<DetailSnsReviewResponse> getReviewsInUserScrap(User user) {
+        List<Review> reviewOnUserScrap = reviewScrapRepository.findReviewByUser(user);
+
+        return processAndExportReviewData(reviewOnUserScrap, user);
     }
 }

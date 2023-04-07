@@ -36,6 +36,13 @@ public class SnsReviewDocument {
                     .description("검색에 등록된 리뷰 이름입니다.")
     );
 
+    public static final Snippet SnsReviewChangeRequestField = requestParts(
+            partWithName("content").description("리뷰 글입니다. 10자 이상 입력해야 합니다.").optional(),
+            partWithName("score").description("별점입니다. 0점부터 5점 사이의 정수로 입력할 수 있습니다").optional(),
+            partWithName("multipartImageFiles").description("리뷰에 등록하는 이미지 파일들입니다. 여러 장 등록할 수 있습니다.").optional(),
+            partWithName("deleteFileList").description("삭제할 이미지 파일 이름입니다.").optional()
+    );
+
     public static final Snippet ReviewIdField = pathParameters(
             parameterWithName("reviewId").attributes(required()).description("작성할 댓글의 리뷰 아이디")
     );
@@ -75,7 +82,7 @@ public class SnsReviewDocument {
             fieldWithPath("[].reviewImageNameList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
             fieldWithPath("[].commentCount").type(JsonFieldType.NUMBER).description("댓글갯수"),
             fieldWithPath("[].reactionResponses").type(JsonFieldType.OBJECT).description("리액션"),
-            fieldWithPath("[].exist").type(JsonFieldType.BOOLEAN).description("존재여부")
+            fieldWithPath("[].isScrapped").type(JsonFieldType.BOOLEAN).description("스크랩여부")
     );
 
     public static final Snippet SnsReviewCommentResponseField = responseFields(

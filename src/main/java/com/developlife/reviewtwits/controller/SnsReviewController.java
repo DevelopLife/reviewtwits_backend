@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.controller;
 
+import com.developlife.reviewtwits.entity.ReviewScrap;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.annotation.review.ValidReaction;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
@@ -15,7 +16,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
@@ -106,5 +106,24 @@ public class SnsReviewController {
     public void deleteReactions(@AuthenticationPrincipal User user,
                                 @PathVariable long reviewId) {
         snsReviewService.deleteReactionOnReview(user, reviewId);
+    }
+    @GetMapping("/scrap-reviews")
+    public List<DetailSnsReviewResponse> getReviewScrapListOfUser(@AuthenticationPrincipal User user){
+        return snsReviewService.getReviewsInUserScrap(user);
+    }
+
+    @PostMapping("/scrap-reviews/{reviewId}")
+    public void addReviewScrap(@AuthenticationPrincipal User user,
+                               @PathVariable long reviewId){
+
+        snsReviewService.addReviewScrap(user, reviewId);
+    }
+
+    @DeleteMapping("/scrap-reviews/{reviewId}")
+    public void deleteReviewScrap(@AuthenticationPrincipal User user,
+                                  @PathVariable long reviewId){
+
+        snsReviewService.deleteReviewScrap(user, reviewId);
+
     }
 }
