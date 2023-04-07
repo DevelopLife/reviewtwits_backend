@@ -25,6 +25,7 @@ public class SnsDocument {
     );
 
     public static final Snippet snsFollowResponseField = responseFields(
+            fieldWithPath("[].userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
             fieldWithPath("[].nickname").type(JsonFieldType.STRING).description("유저닉네임"),
             fieldWithPath("[].accountId").type(JsonFieldType.STRING).description("유저 계정"),
             fieldWithPath("[].introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
@@ -45,6 +46,7 @@ public class SnsDocument {
         fieldWithPath("reviewList[].createdDate").type(JsonFieldType.ARRAY).description("생성일"),
         fieldWithPath("reviewList[].lastModifiedDate").type(JsonFieldType.ARRAY).description("최근수정일"),
         fieldWithPath("reviewList[].userInfo.nickname").type(JsonFieldType.STRING).description("닉네임"),
+        fieldWithPath("reviewList[].userInfo.userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
         fieldWithPath("reviewList[].userInfo.accountId").type(JsonFieldType.STRING).description("아이디"),
         fieldWithPath("reviewList[].userInfo.introduceText").type(JsonFieldType.STRING).description("자기소개"),
         fieldWithPath("reviewList[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지URL").optional(),
