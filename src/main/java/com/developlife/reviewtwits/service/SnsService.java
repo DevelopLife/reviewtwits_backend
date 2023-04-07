@@ -10,6 +10,7 @@ import com.developlife.reviewtwits.exception.user.UserIdNotFoundException;
 import com.developlife.reviewtwits.mapper.SnsMapper;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.message.response.sns.ItemResponse;
 import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.*;
@@ -17,6 +18,7 @@ import com.developlife.reviewtwits.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +43,7 @@ public class SnsService {
     private final UserMapper userMapper;
     private final SnsMapper snsMapper;
 
+    @Transactional
     public void followProcess(User user, String targetUserAccountId){
         User targetUser = getTargetUser(targetUserAccountId);
         if(followRepository.existsByUserAndTargetUser(user, targetUser)){
@@ -60,6 +63,7 @@ public class SnsService {
         }
     }
 
+    @Transactional
     public void unfollowProcess(User user, String targetUserAccountId){
         User targetUser = getTargetUser(targetUserAccountId);
         Optional<Follow> foundFollow = followRepository.findByUserAndTargetUser(user, targetUser);
@@ -72,6 +76,7 @@ public class SnsService {
         followRepository.delete(foundFollow.get());
     }
 
+    @Transactional(readOnly = true)
     private User getTargetUser(String targetUserAccountId) {
         Optional<User> foundTargetUser = userRepository.findByAccountId(targetUserAccountId);
         if(foundTargetUser.isEmpty()){
@@ -80,25 +85,29 @@ public class SnsService {
         return foundTargetUser.get();
     }
 
+    @Transactional(readOnly = true)
     public List<UserInfoResponse> getFollowerList(String accountId){
         User targetUser = getTargetUser(accountId);
         List<User> followersList = followRepository.findUsersByTargetUser(targetUser);
         return getUserInfoResponses(followersList);
     }
 
+    @Transactional(readOnly = true)
     public List<UserInfoResponse> getFollowingList(String accountId){
         User targetUser = getTargetUser(accountId);
         List<User> followingsList = followRepository.findTargetUsersByUser(targetUser);
         return getUserInfoResponses(followingsList);
     }
 
-    private List<UserInfoResponse> getUserInfoResponses(List<User> followersList) {
+    @Transactional(readOnly = true)
+    public List<UserInfoResponse> getUserInfoResponses(List<User> followersList) {
         for(User user : followersList){
             userService.setProfileImage(user);
         }
         return userMapper.toUserInfoResponseList(followersList);
     }
 
+    @Transactional(readOnly = true)
     public SearchAllResponse searchAll(String searchKey, User user) {
         List<ItemDetail> itemDetailList = itemDetailRepository.findByRelatedProduct_NameLikeOrDetailInfoLike(searchKey, PageRequest.of(0, 3));
 
@@ -106,5 +115,12 @@ public class SnsService {
         List<DetailSnsReviewResponse> snsReviewResponseList = snsReviewUtils.processAndExportReviewData(reviewList, user);
 
         return snsMapper.toSearchAllResponse(itemDetailList, snsReviewResponseList);
+    }
+
+    // TODO: 임시적으로 최근 생성된 3개를 반환하도록,, 추천 알고리즘 구현 필요
+    @Transactional(readOnly = true)
+    public List<ItemResponse> recommendProduct() {
+        List<ItemDetail> itemDetailList = itemDetailRepository.findAllByOrderByCreatedDateDesc(PageRequest.of(0, 3));
+        return itemDetailList.stream().map(itemDetail -> snsMapper.toItemResponse(itemDetail)).toList();
     }
 }

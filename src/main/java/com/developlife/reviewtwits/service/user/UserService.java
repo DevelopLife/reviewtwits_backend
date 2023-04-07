@@ -2,7 +2,6 @@ package com.developlife.reviewtwits.service.user;
 
 import com.developlife.reviewtwits.entity.EmailVerify;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.exception.user.PhoneNumberAlreadyExistsException;
 import com.developlife.reviewtwits.exception.mail.VerifyCodeException;
 import com.developlife.reviewtwits.exception.user.*;
 import com.developlife.reviewtwits.mapper.UserMapper;
@@ -22,8 +21,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +54,7 @@ public class UserService {
         this.faker = new Faker();
     }
 
+    @Transactional(readOnly = true)
     public User login(LoginUserRequest loginUserRequest) {
         User user = getUser(loginUserRequest.accountId());
         if (!passwordEncoder.matches(loginUserRequest.accountPw(), user.getAccountPw())) {
@@ -64,6 +64,7 @@ public class UserService {
         return user;
     }
 
+    @Transactional
     public User register(RegisterUserRequest registerUserRequest, Set<UserRole> roles) {
         userRepository.findByAccountId(registerUserRequest.accountId()).ifPresent(
             user -> {throw new AccountIdAlreadyExistsException("중복된 이메일입니다");}
@@ -101,6 +102,7 @@ public class UserService {
         return userRepository.save(registeredUser);
     }
 
+    @Transactional
     private void authenticationCodeVerify(String accountId, String verifyCode) {
         EmailVerify emailVerify = emailVerifyRepository.findByEmail(accountId)
                 .orElseThrow(() -> new VerifyCodeException("인증코드 발급을 진행해주세요"));
@@ -133,6 +135,7 @@ public class UserService {
         return userMapper.toUserDetailInfoResponse(user);
     }
 
+    @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException("사용자를 찾을 수 없습니다."));
@@ -141,11 +144,13 @@ public class UserService {
         return userMapper.toUserInfoResponse(user);
     }
 
+    @Transactional(readOnly = true)
     public User getUser(String accountId) {
         return userRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new AccountIdNotFoundException("존재하지 않는 아이디입니다."));
     }
 
+    @Transactional
     public User grantedAdminPermission(String accountId) {
         User user = getUser(accountId);
         Set<UserRole> roles = user.getRoles();
@@ -155,6 +160,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public User confiscatedAdminPermission(String accountId) {
         User user = getUser(accountId);
         Set<UserRole> roles = user.getRoles();
@@ -171,6 +177,7 @@ public class UserService {
         );
     }
 
+    @Transactional
     public void setProfileImage(User user){
         List<String> userProfileImage = fileStoreService.bringFileNameList("User", user.getUserId());
         if(!userProfileImage.isEmpty()){

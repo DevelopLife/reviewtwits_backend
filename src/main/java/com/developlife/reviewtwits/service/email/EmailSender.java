@@ -27,7 +27,7 @@ public abstract class EmailSender {
     protected abstract MimeMessage createMessage(String email, String element) throws MessagingException, UnsupportedEncodingException;
 
     @Transactional
-    protected void sendMessage(String to, EmailType type) throws MessagingException, UnsupportedEncodingException {
+    public void sendMessage(String to, EmailType type) throws MessagingException, UnsupportedEncodingException {
 
         String key = storageVerifyInfo(to, type);
 

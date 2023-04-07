@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.sns.FollowRequest;
+import com.developlife.reviewtwits.message.response.sns.ItemResponse;
 import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.service.SnsService;
@@ -52,5 +53,10 @@ public class SnsController {
     @GetMapping("/search")
     public SearchAllResponse searchAll(@AuthenticationPrincipal User user, @Size(min=2, max=20) @RequestParam String searchKey){
         return snsService.searchAll(searchKey, user);
+    }
+
+    @GetMapping("/recommend-product")
+    public List<ItemResponse> recommendProduct(){
+        return snsService.recommendProduct();
     }
 }

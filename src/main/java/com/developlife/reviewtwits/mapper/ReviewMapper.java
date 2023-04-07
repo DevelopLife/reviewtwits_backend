@@ -1,22 +1,21 @@
 package com.developlife.reviewtwits.mapper;
 
-import com.developlife.reviewtwits.entity.*;
+import com.developlife.reviewtwits.entity.Comment;
+import com.developlife.reviewtwits.entity.Review;
+import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
 import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
-import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
+import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import com.developlife.reviewtwits.type.ReactionType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author WhalesBob
@@ -29,9 +28,8 @@ public interface ReviewMapper {
     List<DetailShoppingMallReviewResponse> toDetailReviewResponseList(List<Review> reviews);
     List<CommentResponse> toCommentResponseList(List<Comment> comments);
 
-    default UserInfoResponse mapUserToUserInfoResponse(User user){
-        return new UserInfoResponse(user.getNickname(),user.getAccountId(),user.getIntroduceText(),user.getProfileImage());
-    }
+
+    UserInfoResponse mapUserToUserInfoResponse(User user);
 
     default DetailShoppingMallReviewResponse mapReviewToDetailReviewResponse(Review review){
         return DetailShoppingMallReviewResponse.builder()

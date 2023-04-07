@@ -13,8 +13,8 @@ import com.developlife.reviewtwits.message.response.project.ProjectSettingInfoRe
 import com.developlife.reviewtwits.repository.ProjectRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 /**
@@ -41,6 +41,7 @@ public class ProjectService {
         projectRepository.save(project);
     }
 
+    @Transactional(readOnly = true)
     public List<ProjectInfoResponse> getProjectListByUser(User user) {
         List<Project> projectList = projectRepository.findProjectsByUser_AccountId(user.getAccountId());
         return projectMapper.toProjectInfoResponseList(projectList);
@@ -58,6 +59,7 @@ public class ProjectService {
         return projectMapper.toProjectSettingInfoResponse(project);
     }
 
+    @Transactional(readOnly = true)
     public Long getProjectIdFromAccountId(String accountId) {
         Project project = projectRepository.findFirstByUser_AccountId(accountId)
             .orElseThrow(() -> new AccountIdNotFoundException("해당 유저가 존재하지 않습니다."));

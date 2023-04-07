@@ -7,6 +7,7 @@ import lombok.Builder;
  * @since 2023/02/24
  */
 public record UserInfoResponse(
+        String userId,
         String nickname,
         String accountId,
         String introduceText,

@@ -422,8 +422,8 @@ public class SnsApiTest extends ApiTest {
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "리뷰와 상품에 대한 정보를 검색합니다(조회 가능 글자 범위는 2-20)",
                 "SNS 전체검색 기능",
-                SnsDocument.SearchAllSnsRequest
-//                SnsDocument.SearchAllSnsResponse
+                SnsDocument.SearchAllSnsRequest,
+                SnsDocument.SearchAllSnsResponse
             ))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
@@ -431,6 +431,24 @@ public class SnsApiTest extends ApiTest {
         .when()
             .get("/sns/search")
         .then()
+            .assertThat()
+            .statusCode(HttpStatus.OK.value())
+            .log().all();
+    }
+
+    @Test
+    @DisplayName("SNS 검색")
+    void SNS_상품추천_200() {
+
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH, "최대 3개의 상품을 추천해줍니다",
+                "SNS 상품추천",
+                SnsDocument.RecommendProductResponse
+            ))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/sns/recommend-product")
+            .then()
             .assertThat()
             .statusCode(HttpStatus.OK.value())
             .log().all();

@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -43,6 +44,7 @@ public class SnsReviewService {
     private final ReviewScrapRepository reviewScrapRepository;
     private final SnsReviewUtils snsReviewUtils;
 
+    @Transactional
     public void saveSnsReview(SnsReviewWriteRequest writeRequest, User user){
 
         Review review = Review.builder()
@@ -60,12 +62,13 @@ public class SnsReviewService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<DetailSnsReviewResponse> getSnsReviews(User user,Long reviewId, int size){
         List<Review> pageReviews = findReviewsInPage(reviewId, size);
         return snsReviewUtils.processAndExportReviewData(pageReviews, user);
     }
 
-
+    @Transactional(readOnly = true)
     public List<CommentResponse> getCommentInfo(long reviewId){
         if(!reviewRepository.existsById(reviewId)){
             throw new ReviewNotFoundException("댓글을 확인하려는 리뷰가 존재하지 않습니다.");
@@ -74,6 +77,7 @@ public class SnsReviewService {
         return mapper.toCommentResponseList(commentList);
     }
 
+    @Transactional
     public void saveComment(User user, long reviewId, SnsCommentWriteRequest request){
         long parentId = request.parentId();
 
@@ -96,6 +100,7 @@ public class SnsReviewService {
         reviewRepository.save(review);
     }
 
+    @Transactional
     public void deleteComment(User user,long commentId) {
         Comment foundComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("지우고자 하는 댓글이 존재하지 않습니다."));
@@ -112,6 +117,7 @@ public class SnsReviewService {
         reviewRepository.save(review);
     }
 
+    @Transactional
     public String changeComment(User user, long commentId, String content) {
         Comment foundComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("수정하고자 하는 댓글이 존재하지 않습니다."));
@@ -125,6 +131,7 @@ public class SnsReviewService {
         return content;
     }
 
+    @Transactional
     public void addReactionOnReview(User user, long reviewId, String reaction) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("공감을 누르려는 리뷰가 존재하지 않습니다."));
@@ -136,6 +143,7 @@ public class SnsReviewService {
                 .build());
     }
 
+    @Transactional
     public void deleteReactionOnReview(User user, long reviewId) {
         Reaction reaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user)
                 .orElseThrow(() -> new ReactionNotFoundException("삭제하려는 리액션이 존재하지 않습니다."));
@@ -143,6 +151,7 @@ public class SnsReviewService {
         reactionRepository.delete(reaction);
     }
 
+    @Transactional
     public void deleteSnsReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리뷰가 존재하지 않습니다."));
@@ -151,6 +160,7 @@ public class SnsReviewService {
         reviewRepository.save(review);
     }
 
+    @Transactional(readOnly = true)
     private List<Review> findReviewsInPage(Long reviewId, int size){
         Pageable pageable = PageRequest.of(0,size,Sort.by("reviewId").descending());
         if(reviewId == null){
@@ -160,6 +170,7 @@ public class SnsReviewService {
         return reviewInPage.getContent();
     }
 
+    @Transactional(readOnly = true)
     public void checkReviewCanEdit(User user, Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("입력된 리뷰아이디로 등록된 리뷰가 존재하지 않습니다."));
@@ -169,6 +180,7 @@ public class SnsReviewService {
         }
     }
 
+    @Transactional
     public void changeSnsReview(Long reviewId, SnsReviewChangeRequest changeRequest) {
         Review review = reviewRepository.findById(reviewId).get();
         if(changeRequest.content() != null){
@@ -188,6 +200,7 @@ public class SnsReviewService {
         }
     }
 
+    @Transactional
     public void addReviewScrap(User user, long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("스크랩하려는 리뷰 아이디가 존재하지 않습니다."));
@@ -200,6 +213,7 @@ public class SnsReviewService {
         reviewScrapRepository.save(reviewScrap);
     }
 
+    @Transactional
     public void deleteReviewScrap(User user, long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리뷰가 존재하지 않습니다."));
@@ -210,6 +224,7 @@ public class SnsReviewService {
         reviewScrapRepository.delete(reviewScrap);
     }
 
+    @Transactional(readOnly = true)
     public List<DetailSnsReviewResponse> getReviewsInUserScrap(User user) {
         List<Review> reviewOnUserScrap = reviewScrapRepository.findReviewByUser(user);
 

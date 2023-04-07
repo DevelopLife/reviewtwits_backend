@@ -4,7 +4,6 @@ import com.developlife.reviewtwits.entity.ItemDetail;
 import com.developlife.reviewtwits.entity.RelatedProduct;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.exception.file.FileNotStoredException;
 import com.developlife.reviewtwits.repository.ItemDetailRepository;
 import com.developlife.reviewtwits.repository.RelatedProductRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
@@ -15,7 +14,6 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.*;
@@ -23,15 +21,13 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
-
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -77,6 +73,7 @@ public class ItemService {
         return response;
     }
 
+    @Transactional
     public void relateProductsCrawling(String productName) {
 
         WebDriver chromeWebDriver = getDriverWithOptions();
@@ -122,7 +119,8 @@ public class ItemService {
     }
 
 
-    private void createReviewFromProduct(String productUrl, String productName, int targetScore, int targetCount, WebDriver driver) {
+    @Transactional
+    public void createReviewFromProduct(String productUrl, String productName, int targetScore, int targetCount, WebDriver driver) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         JavascriptExecutor js = (JavascriptExecutor) driver;
         driver.get(productUrl);
@@ -209,7 +207,8 @@ public class ItemService {
 
     }
 
-    private RelatedProduct saveRelatedFiveProductAndGetFirstProduct(String productName, WebDriver chromeWebDriver){
+    @Transactional
+    public RelatedProduct saveRelatedFiveProductAndGetFirstProduct(String productName, WebDriver chromeWebDriver){
         RelatedProduct firstRelatedProduct = null;
 
         StringJoiner name = getNameForURL(productName);
@@ -251,6 +250,7 @@ public class ItemService {
         return firstRelatedProduct;
     }
 
+
     private Element getTargetDetailElementFromSelenium(RelatedProduct firstRelatedProduct, WebDriver chromeWebDriver) {
         log.info("전체 body 를 들고 오는 시도 시작");
         chromeWebDriver.get(firstRelatedProduct.getProductUrl());
@@ -270,6 +270,7 @@ public class ItemService {
         return fileSourceList;
     }
 
+    @Transactional
     private void storeDetailInfoImages(RelatedProduct firstRelatedProduct, long itemDetailId, List<String> fileSourceList) {
         List<MultipartFile> multipartFileList = new ArrayList<>();
         for(int i = 0; i < fileSourceList.size(); i++){
@@ -286,6 +287,7 @@ public class ItemService {
         return m.matches();
     }
 
+    @Transactional
     private void changeImageInfoInHtmlAndSave(Element targetDetailElement, ItemDetail detail, Elements imgElements) {
         List<String> itemImageNameList = fileStoreService.bringFileNameList("ItemDetail", detail.getItemId());
 
