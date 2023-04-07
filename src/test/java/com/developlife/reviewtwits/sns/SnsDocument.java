@@ -36,22 +36,25 @@ public class SnsDocument {
     );
 
     public static final Snippet SearchAllSnsResponse = responseFields(
-        fieldWithPath("itemList.[].itemId").type(JsonFieldType.NUMBER).description("아이템아이디"),
-        fieldWithPath("itemList.[].productName").type(JsonFieldType.STRING).description("상품이름"),
-        fieldWithPath("itemList.[].productImageUrl").type(JsonFieldType.STRING).description("상품이미지URL"),
-        fieldWithPath("itemList.[].score").type(JsonFieldType.STRING).description("평균평점"),
-        fieldWithPath("itemList.[].url").type(JsonFieldType.STRING).description("상품정보페이지URL"),
-        fieldWithPath("reviewList.[].reviewId").type(JsonFieldType.NUMBER).description("리뷰아이디"),
-        fieldWithPath("reviewList.[].createdDate").type(JsonFieldType.STRING).description("생성일"),
-        fieldWithPath("reviewList.[].lastModifiedDate").type(JsonFieldType.STRING).description("최근수정일"),
-        fieldWithPath("reviewList.[].userInfo.nickname").type(JsonFieldType.STRING).description("닉네임"),
-        fieldWithPath("reviewList.[].userInfo.accountId").type(JsonFieldType.STRING).description("아이디"),
-        fieldWithPath("reviewList.[].userInfo.introduceText").type(JsonFieldType.STRING).description("자기소개"),
-        fieldWithPath("reviewList.[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지URL"),
-        fieldWithPath("reviewList.[].content").type(JsonFieldType.STRING).description("리뷰콘텐츠"),
-        fieldWithPath("reviewList.[].productUrl").type(JsonFieldType.STRING).description("리뷰상품구매URL"),
-        fieldWithPath("reviewList.[].productName").type(JsonFieldType.STRING).description("리뷰상품이름"),
-        fieldWithPath("reviewList.[].score").type(JsonFieldType.NUMBER).description("평점"),
-        fieldWithPath("reviewList.[].reactionResponses.[]").type(JsonFieldType.STRING).description("리뷰이미지")
+        fieldWithPath("itemList[].itemId").type(JsonFieldType.NUMBER).description("아이템아이디"),
+        fieldWithPath("itemList[].productName").type(JsonFieldType.STRING).description("상품이름"),
+        fieldWithPath("itemList[].productImageUrl").type(JsonFieldType.STRING).description("상품이미지URL"),
+        fieldWithPath("itemList[].score").type(JsonFieldType.NUMBER).description("평균평점"),
+        fieldWithPath("itemList[].url").type(JsonFieldType.STRING).description("상품정보페이지URL"),
+        fieldWithPath("reviewList[].reviewId").type(JsonFieldType.NUMBER).description("리뷰아이디"),
+        fieldWithPath("reviewList[].createdDate").type(JsonFieldType.ARRAY).description("생성일"),
+        fieldWithPath("reviewList[].lastModifiedDate").type(JsonFieldType.ARRAY).description("최근수정일"),
+        fieldWithPath("reviewList[].userInfo.nickname").type(JsonFieldType.STRING).description("닉네임"),
+        fieldWithPath("reviewList[].userInfo.accountId").type(JsonFieldType.STRING).description("아이디"),
+        fieldWithPath("reviewList[].userInfo.introduceText").type(JsonFieldType.STRING).description("자기소개"),
+        fieldWithPath("reviewList[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지URL").optional(),
+        fieldWithPath("reviewList[].content").type(JsonFieldType.STRING).description("리뷰콘텐츠").optional(),
+        fieldWithPath("reviewList[].productUrl").type(JsonFieldType.STRING).description("리뷰상품구매URL"),
+        fieldWithPath("reviewList[].productName").type(JsonFieldType.STRING).description("리뷰상품이름"),
+        fieldWithPath("reviewList[].score").type(JsonFieldType.NUMBER).description("평점"),
+        fieldWithPath("reviewList[].reviewImageNameList[]").type(JsonFieldType.ARRAY).description("리뷰이미지리스트"),
+        fieldWithPath("reviewList[].commentCount").type(JsonFieldType.NUMBER).description("댓글수"),
+        fieldWithPath("reviewList[].reactionResponses").type(JsonFieldType.OBJECT).description("리액션"),
+        fieldWithPath("reviewList[].isScrapped").type(JsonFieldType.BOOLEAN).description("스크랩여부")
     );
 }

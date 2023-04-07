@@ -422,8 +422,8 @@ public class SnsApiTest extends ApiTest {
         given(this.spec)
             .filter(document(DEFAULT_RESTDOC_PATH, "리뷰와 상품에 대한 정보를 검색합니다(조회 가능 글자 범위는 2-20)",
                 "SNS 전체검색 기능",
-                SnsDocument.SearchAllSnsRequest
-//                SnsDocument.SearchAllSnsResponse
+                SnsDocument.SearchAllSnsRequest,
+                SnsDocument.SearchAllSnsResponse
             ))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .header("X-AUTH-TOKEN", token)
