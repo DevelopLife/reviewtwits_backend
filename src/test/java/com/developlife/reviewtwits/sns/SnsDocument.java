@@ -66,4 +66,11 @@ public class SnsDocument {
         fieldWithPath("[].score").type(JsonFieldType.NUMBER).description("평균평점"),
         fieldWithPath("[].url").type(JsonFieldType.STRING).description("상품정보페이지URL")
     );
+    public static final Snippet FollowerRecommendResponse = responseFields(
+        fieldWithPath("[].userId").type(JsonFieldType.NUMBER).description("유저 아이디"),
+        fieldWithPath("[].nickname").type(JsonFieldType.STRING).description("유저닉네임"),
+        fieldWithPath("[].accountId").type(JsonFieldType.STRING).description("유저 계정"),
+        fieldWithPath("[].introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
+        fieldWithPath("[].profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional()
+    );
 }

@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.review;
 
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
+import com.developlife.reviewtwits.CommonSteps;
 import com.developlife.reviewtwits.entity.Comment;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.ReviewScrap;
@@ -14,7 +15,6 @@ import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
-import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
@@ -28,16 +28,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
-import static com.developlife.reviewtwits.review.SnsReviewSteps.productURL;
-import static com.developlife.reviewtwits.review.SnsReviewSteps.rightReviewText;
-import static com.developlife.reviewtwits.review.SnsReviewSteps.starScore;
-import static com.developlife.reviewtwits.review.SnsReviewSteps.wrongReviewText;
-import static com.developlife.reviewtwits.review.SnsReviewSteps.리뷰_이미지_파일정보_생성;
-import static com.developlife.reviewtwits.review.SnsReviewSteps.리뷰_이미지아닌_파일정보_생성;
 import static com.developlife.reviewtwits.review.SnsReviewSteps.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 import static io.restassured.RestAssured.config;
@@ -45,7 +38,6 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.EncoderConfig.encoderConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Mockito.verify;
 
 /**
  * @author WhalesBob
@@ -107,9 +99,9 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart(multipartText("content", rightReviewText))
+                .multiPart(CommonSteps.multipartText("content", rightReviewText))
                 .multiPart("score", starScore)
-                .multiPart(multipartText("productName",productName));
+                .multiPart(CommonSteps.multipartText("productName",productName));
 
 
         List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지_파일정보_생성();
@@ -140,8 +132,8 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart(multipartText("content", rightReviewText))
-                .multiPart(multipartText("productName", productName))
+                .multiPart(CommonSteps.multipartText("content", rightReviewText))
+                .multiPart(CommonSteps.multipartText("productName", productName))
                 .when()
                 .post("/sns/reviews")
                 .then()
@@ -165,9 +157,9 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart(multipartText("content",wrongReviewText))
+                .multiPart(CommonSteps.multipartText("content",wrongReviewText))
                 .multiPart("score", starScore)
-                .multiPart(multipartText("productName", productName))
+                .multiPart(CommonSteps.multipartText("productName", productName))
                 .when()
                 .post("/sns/reviews")
                 .then()
@@ -192,9 +184,9 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart(multipartText("content",rightReviewText))
+                .multiPart(CommonSteps.multipartText("content",rightReviewText))
                 .multiPart("score", starScore)
-                .multiPart(multipartText("productName", productName));
+                .multiPart(CommonSteps.multipartText("productName", productName));
 
         List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지아닌_파일정보_생성();
 
@@ -225,7 +217,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart(multipartText("content", rightReviewText))
+                .multiPart(CommonSteps.multipartText("content", rightReviewText))
                 .multiPart("score", starScore);
 
         List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지_파일정보_생성();
@@ -317,7 +309,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",recentReviewId)
-                .multiPart(multipartText("content",changeCommentContent))
+                .multiPart(CommonSteps.multipartText("content",changeCommentContent))
                 .multiPart("score",3)
                 .when()
                 .patch("/sns/reviews/{reviewId}")
@@ -716,9 +708,9 @@ public class SnsReviewApiTest extends ApiTest {
         RequestSpecification request = given(this.spec).log().all()
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
-                .multiPart(multipartText("content", content))
+                .multiPart(CommonSteps.multipartText("content", content))
                 .multiPart("score", starScore)
-                .multiPart(multipartText("productName",productName));
+                .multiPart(CommonSteps.multipartText("productName",productName));
 
         List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지_파일정보_생성();
 
@@ -732,14 +724,6 @@ public class SnsReviewApiTest extends ApiTest {
 
         List<Review> reviewList = reviewRepository.findReviewsByProductUrl(productURL);
         return reviewList.get(reviewList.size()-1).getReviewId();
-    }
-
-    private MultiPartSpecification multipartText(String controlName, String textBody) {
-        return new MultiPartSpecBuilder(textBody)
-                .controlName(controlName)
-                .mimeType(String.valueOf(ContentType.TEXT))
-                .charset(StandardCharsets.UTF_8)
-                .build();
     }
 
     Long SNS_리뷰_댓글_작성(String token, long reviewId){
