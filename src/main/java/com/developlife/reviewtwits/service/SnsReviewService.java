@@ -161,7 +161,7 @@ public class SnsReviewService {
     }
 
     @Transactional(readOnly = true)
-    private List<Review> findReviewsInPage(Long reviewId, int size){
+    public List<Review> findReviewsInPage(Long reviewId, int size){
         Pageable pageable = PageRequest.of(0,size,Sort.by("reviewId").descending());
         if(reviewId == null){
             return reviewRepository.findAll(pageable).getContent();
