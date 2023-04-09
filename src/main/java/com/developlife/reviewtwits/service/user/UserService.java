@@ -190,10 +190,10 @@ public class UserService {
         userRepository.findByNickname(registerUserInfoRequest.nickname()).ifPresent(
                 u -> {throw new NicknameAlreadyExistsException("중복된 닉네임입니다");}
         );
-
-        user.setNickname(registerUserInfoRequest.nickname());
-        user.setIntroduceText(registerUserInfoRequest.introduceText());
-        fileStoreService.storeFiles(List.of(registerUserInfoRequest.profileImage()),user.getUserId(),"User");
+        userMapper.updateUserFromRegisterUserInfoRequest(registerUserInfoRequest, user);
+        if(registerUserInfoRequest.profileImage() != null) {
+            fileStoreService.storeFiles(List.of(registerUserInfoRequest.profileImage()), user.getUserId(), "User");
+        }
         userRepository.save(user);
 
         setProfileImage(user);

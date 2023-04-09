@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.mapper;
 
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.RegisterOauthUserRequest;
+import com.developlife.reviewtwits.message.request.user.RegisterUserInfoRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
 import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
@@ -46,5 +47,6 @@ public interface UserMapper {
     @Mapping(target = "createdDate", ignore = true)
     void updateUserFromRegisterOauthUserRequest(RegisterOauthUserRequest registerOauthUserRequest, @MappingTarget User user);
 
-
+    @Mapping(target = "profileImage", ignore = true)
+    void updateUserFromRegisterUserInfoRequest(RegisterUserInfoRequest registerUserInfoRequest, @MappingTarget User user);
 }
