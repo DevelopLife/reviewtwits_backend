@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.sns;
 
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
+import com.developlife.reviewtwits.CommonSteps;
 import com.developlife.reviewtwits.entity.Follow;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.sns.FollowRequest;
@@ -9,11 +10,13 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.follow.FollowRepository;
 import com.developlife.reviewtwits.review.SnsReviewSteps;
 import com.developlife.reviewtwits.service.user.UserService;
-import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
+import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import io.restassured.specification.MultiPartSpecification;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,10 +24,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import java.util.List;
 import java.util.Optional;
 
+import static com.developlife.reviewtwits.review.SnsReviewSteps.*;
+import static com.developlife.reviewtwits.sns.SnsSteps.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
+import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.EncoderConfig.encoderConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -473,4 +481,70 @@ public class SnsApiTest extends ApiTest {
 //            .statusCode(HttpStatus.OK.value())
 //            .log().all();
 //    }
+
+    @Test
+    void SNS_개인페이지_프로필정보_요청_200(){
+        // 회원가입이 완료되어 있어야 함. o
+        // 한명, 다른한명 서로 맞팔되어 잇다고 하자.
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        팔로우요청_생성(token, snsSteps.팔로우정보_생성());
+
+        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
+        팔로우요청_생성(oppositeToken, snsSteps.팔로우정보_상대방측_생성());
+        // 리뷰도 하나 쓰여졌다고 해보자.
+
+        SNS_리뷰_작성(token);
+
+        given(this.spec)
+                .pathParam("nickName",UserSteps.nickname)
+                .when()
+                .get("/sns/profile/{nickName]")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+
+        // 이때, 1/1/1 이렇게 정보가 나와야 한다.
+
+        // 그리고 개인페이지에서 자기소개 상세 메세지를 쓸 수 있는 것으로 하자
+    }
+
+    @Test
+    void SNS_개인페이지_프로필정보_없는계정요청_404(){
+        given(this.spec)
+                .pathParam("nickName","notRegistered")
+                .when()
+                .get("/sns/profile/{nickName]")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all();
+    }
+
+    void SNS_리뷰_작성(String token) {
+
+        RequestSpecification request = given(this.spec)
+                .config(config().encoderConfig(encoderConfig()
+                        .encodeContentTypeAs("multipart/form-data", ContentType.MULTIPART)
+                        .defaultContentCharset("UTF-8")))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .multiPart("productURL", productURL)
+                .multiPart(CommonSteps.multipartText("content", rightReviewText))
+                .multiPart("score", starScore)
+                .multiPart(CommonSteps.multipartText("productName", productName));
+
+        List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지_파일정보_생성();
+
+        for(MultiPartSpecification multiPartSpecification : multiPartSpecList){
+            request.multiPart(multiPartSpecification);
+        }
+
+        request.when()
+                .post("/sns/reviews")
+                .then()
+                .log().all();
+    }
 }
