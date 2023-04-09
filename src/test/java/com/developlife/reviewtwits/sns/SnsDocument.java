@@ -33,7 +33,10 @@ public class SnsDocument {
             fieldWithPath("[].nickname").type(JsonFieldType.STRING).description("유저닉네임"),
             fieldWithPath("[].accountId").type(JsonFieldType.STRING).description("유저 계정"),
             fieldWithPath("[].introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
-            fieldWithPath("[].profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional()
+            fieldWithPath("[].profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+            fieldWithPath("[].reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
+            fieldWithPath("[].followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
+            fieldWithPath("[].followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional()
     );
 
     public static final Snippet SearchAllSnsRequest = requestParameters(
@@ -54,6 +57,9 @@ public class SnsDocument {
         fieldWithPath("reviewList[].userInfo.accountId").type(JsonFieldType.STRING).description("아이디"),
         fieldWithPath("reviewList[].userInfo.introduceText").type(JsonFieldType.STRING).description("자기소개"),
         fieldWithPath("reviewList[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지URL").optional(),
+        fieldWithPath("reviewList[].userInfo.reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
+        fieldWithPath("reviewList[].userInfo.followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
+        fieldWithPath("reviewList[].userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
         fieldWithPath("reviewList[].content").type(JsonFieldType.STRING).description("리뷰콘텐츠").optional(),
         fieldWithPath("reviewList[].productUrl").type(JsonFieldType.STRING).description("리뷰상품구매URL"),
         fieldWithPath("reviewList[].productName").type(JsonFieldType.STRING).description("리뷰상품이름"),
@@ -78,12 +84,12 @@ public class SnsDocument {
         fieldWithPath("[].profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional()
     );
     public static final Snippet UserProfileInfoResponse = responseFields(
-        fieldWithPath("userInfo.userId").type(JsonFieldType.NUMBER).description("유저 닉네임"),
-        fieldWithPath("userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
-        fieldWithPath("userInfo.nickname").type(JsonFieldType.STRING).description("유저 닉네임"),
-        fieldWithPath("userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개"),
-        fieldWithPath("userInfo.profileImage").type(JsonFieldType.STRING).description("유저 프로필이미지"),
-        fieldWithPath("userInfo.detailIntroduce").type(JsonFieldType.STRING).description("유저 상세소개").optional(),
+        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 닉네임"),
+        fieldWithPath("accountId").type(JsonFieldType.STRING).description("유저 계정"),
+        fieldWithPath("nickname").type(JsonFieldType.STRING).description("유저 닉네임"),
+        fieldWithPath("introduceText").type(JsonFieldType.STRING).description("유저 한줄소개"),
+        fieldWithPath("profileImage").type(JsonFieldType.STRING).description("유저 프로필이미지"),
+        fieldWithPath("detailIntroduce").type(JsonFieldType.STRING).description("유저 상세소개").optional(),
         fieldWithPath("reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수"),
         fieldWithPath("followers").type(JsonFieldType.NUMBER).description("팔로우 수"),
         fieldWithPath("followings").type(JsonFieldType.NUMBER).description("팔로잉 수")

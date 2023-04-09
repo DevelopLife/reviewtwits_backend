@@ -6,7 +6,6 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
 import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import com.developlife.reviewtwits.message.response.user.UserProfileInfoResponse;
 import org.mapstruct.*;
 
 import java.util.List;
@@ -21,6 +20,7 @@ public interface UserMapper {
     @Mapping(target = "birthDate", dateFormat = "yyyy-MM-dd")
     UserDetailInfoResponse toUserDetailInfoResponse(User user);
     UserInfoResponse toUserInfoResponse(User user);
+    UserInfoResponse toUserInfoResponse(User user, int followers, int followings, int reviewCount);
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "provider", ignore = true)
     @Mapping(target = "uuid", ignore = true)
@@ -48,12 +48,4 @@ public interface UserMapper {
     @Mapping(target = "createdDate", ignore = true)
     void updateUserFromRegisterOauthUserRequest(RegisterOauthUserRequest registerOauthUserRequest, @MappingTarget User user);
 
-    default UserProfileInfoResponse userProfileResponse(User user, int follower, int following, int reviewCount){
-        return UserProfileInfoResponse.builder()
-                .userInfo(toUserInfoResponse(user))
-                .reviewCount(reviewCount)
-                .followers(follower)
-                .followings(following)
-                .build();
-    }
 }

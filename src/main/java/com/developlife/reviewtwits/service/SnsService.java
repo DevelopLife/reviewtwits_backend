@@ -7,13 +7,13 @@ import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.sns.FollowAlreadyExistsException;
 import com.developlife.reviewtwits.exception.sns.UnfollowAlreadyDoneException;
 import com.developlife.reviewtwits.exception.user.UserIdNotFoundException;
+import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.mapper.SnsMapper;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.message.response.sns.ItemResponse;
 import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import com.developlife.reviewtwits.message.response.user.UserProfileInfoResponse;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.repository.follow.FollowRepository;
 import com.developlife.reviewtwits.service.user.UserService;
@@ -134,7 +134,7 @@ public class SnsService {
 //        return userList.stream().map(userInfo -> snsMapper.toUserInfoResponse(userInfo)).toList();
     }
 
-    public UserProfileInfoResponse findUserProfile(String nickname) {
+    public UserInfoResponse findUserProfile(String nickname) {
 
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 유저 닉네임으로 된 계정이 존재하지 않습니다."));
@@ -144,6 +144,6 @@ public class SnsService {
         List<Review> reviews = reviewRepository.findReviewsByUser(user);
 
         userService.setProfileImage(user);
-        return userMapper.userProfileResponse(user,followers.size(), followings.size(), reviews.size());
+        return userMapper.toUserInfoResponse(user,followers.size(), followings.size(),reviews.size());
     }
 }

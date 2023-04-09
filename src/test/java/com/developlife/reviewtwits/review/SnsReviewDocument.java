@@ -76,6 +76,9 @@ public class SnsReviewDocument {
             fieldWithPath("[].userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
             fieldWithPath("[].userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
             fieldWithPath("[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+            fieldWithPath("[].userInfo.reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
+            fieldWithPath("[].userInfo.followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
+            fieldWithPath("[].userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
             fieldWithPath("[].content").type(JsonFieldType.STRING).description("리뷰내용"),
             fieldWithPath("[].productUrl").type(JsonFieldType.STRING).description("제품 URL"),
             fieldWithPath("[].productName").type(JsonFieldType.STRING).description("제품이름"),
@@ -93,6 +96,9 @@ public class SnsReviewDocument {
         fieldWithPath("[].userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
         fieldWithPath("[].userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
         fieldWithPath("[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+        fieldWithPath("[].userInfo.reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
+        fieldWithPath("[].userInfo.followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
+        fieldWithPath("[].userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
         fieldWithPath("[].content").type(JsonFieldType.STRING).description("댓글내용"),
         fieldWithPath("[].parentCommentId").type(JsonFieldType.NUMBER).description("부모댓글아이디")
     );

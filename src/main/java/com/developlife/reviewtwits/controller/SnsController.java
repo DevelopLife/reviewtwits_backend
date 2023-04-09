@@ -5,7 +5,6 @@ import com.developlife.reviewtwits.message.request.sns.FollowRequest;
 import com.developlife.reviewtwits.message.response.sns.ItemResponse;
 import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import com.developlife.reviewtwits.message.response.user.UserProfileInfoResponse;
 import com.developlife.reviewtwits.service.SnsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +66,7 @@ public class SnsController {
     }
 
     @GetMapping("/profile/{nickname}")
-    public UserProfileInfoResponse findUserProfile(@PathVariable String nickname){
+    public UserInfoResponse findUserProfile(@PathVariable String nickname){
         return snsService.findUserProfile(nickname);
     }
 }

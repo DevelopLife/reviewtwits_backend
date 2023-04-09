@@ -501,7 +501,7 @@ public class SnsApiTest extends ApiTest {
                 .log().all().extract();
 
         JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getString("userInfo.nickname")).isEqualTo("whalesbob");
+        assertThat(jsonPath.getString("nickname")).isEqualTo("whalesbob");
         assertThat(jsonPath.getInt("reviewCount")).isEqualTo(1);
         assertThat(jsonPath.getInt("followers")).isEqualTo(1);
         assertThat(jsonPath.getInt("followings")).isEqualTo(1);
@@ -519,6 +519,21 @@ public class SnsApiTest extends ApiTest {
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .log().all();
     }
+/*
+    @Test
+    void SNS_개인페이지_리뷰리스트_요청_성공_200() throws IOException {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        추가회원가입정보_입력(token,"whalesbob");
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .pathParam("nickname", "whalesbob")
+                .when()
+                .get("/sns/profile/reviews/{nickname}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+    }*/
 
     void 추가회원가입정보_입력(String token, String nickname) throws IOException {
         MultiPartSpecification profileImage = ShoppingMallReviewSteps.프로필_이미지_파일정보생성();
