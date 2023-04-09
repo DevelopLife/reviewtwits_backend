@@ -9,6 +9,7 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.FollowRepository;
 import com.developlife.reviewtwits.review.SnsReviewSteps;
 import com.developlife.reviewtwits.service.user.UserService;
+import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
@@ -448,6 +449,25 @@ public class SnsApiTest extends ApiTest {
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .when()
             .get("/sns/recommend-product")
+            .then()
+            .assertThat()
+            .statusCode(HttpStatus.OK.value())
+            .log().all();
+    }
+
+    @Test
+    @DisplayName("팔로워 추천")
+    void SNS_팔로워추천_200() {
+        given(this.spec)
+            .filter(document(DEFAULT_RESTDOC_PATH,
+                "최대 5명의 팔로우를 추천해줍니다(페이징이 필요하면 말해주세요) 임시로 최근 만들어진 계정으로 반환합니다",
+                "SNS 팔로워추천",
+                UserDocument.AccessTokenHeader,
+                SnsDocument.FollowerRecommendResponse
+            ))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/sns/suggest-followers")
             .then()
             .assertThat()
             .statusCode(HttpStatus.OK.value())

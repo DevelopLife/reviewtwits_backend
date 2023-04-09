@@ -4,6 +4,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 buildscript {
 	ext {
 		restdocsApiSpecVersion = '0.16.2'
+		queryDslVersion = "5.0.0"
 	}
 }
 
@@ -13,6 +14,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id 'com.epages.restdocs-api-spec' version "${restdocsApiSpecVersion}"
 	id 'org.hidetake.swagger.generator' version '2.18.2'
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'com.developlife'
@@ -67,6 +69,9 @@ dependencies {
 	implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.429'
 	implementation 'com.amazonaws:aws-encryption-sdk-java:2.4.0'
 	implementation 'org.springframework.data:spring-data-commons:2.7.9'
+	//querydsl 추가
+	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+	implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
 	testImplementation 'org.projectlombok:lombok:1.18.22'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
@@ -88,6 +93,28 @@ dependencies {
 		}
 	}
 }
+
+//querydsl 추가 시작
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+sourceSets {
+	main.java.srcDir querydslDir
+}
+
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	querydsl.extendsFrom compileClasspath
+}
+//querydsl 추가 끝
 
 tasks.named('test') {
 	useJUnitPlatform()
