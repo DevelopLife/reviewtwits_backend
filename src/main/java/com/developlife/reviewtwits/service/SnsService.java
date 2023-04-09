@@ -13,6 +13,7 @@ import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.message.response.sns.ItemResponse;
 import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
+import com.developlife.reviewtwits.message.response.sns.SnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.repository.follow.FollowRepository;
@@ -45,6 +46,7 @@ public class SnsService {
     private final SnsReviewUtils snsReviewUtils;
     private final UserMapper userMapper;
     private final SnsMapper snsMapper;
+    private final ReviewMapper reviewMapper;
 
     @Transactional
     public void followProcess(User user, String targetUserAccountId){
@@ -145,5 +147,16 @@ public class SnsService {
 
         userService.setProfileImage(user);
         return userMapper.toUserInfoResponse(user,followers.size(), followings.size(),reviews.size());
+    }
+
+    public List<SnsReviewResponse> findReviewsOfUser(String nickname) {
+        User user = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 유저 닉네임으로 된 계정이 존재하지 않습니다."));
+
+        List<Review> reviews = reviewRepository.findReviewsByUser(user);
+        for(Review review : reviews){
+            snsReviewUtils.saveReviewImage(review);
+        }
+        return reviewMapper.toSnsReviewResponseList(reviews);
     }
 }
