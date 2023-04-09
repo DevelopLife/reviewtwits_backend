@@ -2,21 +2,19 @@ package com.developlife.reviewtwits.sns;
 
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
-import com.developlife.reviewtwits.CommonSteps;
 import com.developlife.reviewtwits.entity.Follow;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.sns.FollowRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.follow.FollowRepository;
+import com.developlife.reviewtwits.review.ShoppingMallReviewSteps;
 import com.developlife.reviewtwits.review.SnsReviewSteps;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserSteps;
-import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.specification.MultiPartSpecification;
-import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,15 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Optional;
 
-import static com.developlife.reviewtwits.review.SnsReviewSteps.*;
-import static com.developlife.reviewtwits.sns.SnsSteps.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
-import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
-import static io.restassured.config.EncoderConfig.encoderConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -266,7 +260,7 @@ public class SnsApiTest extends ApiTest {
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body("find{it.errorType == 'UserIdNotFoundException' " +
                         "&& it.fieldName == 'userId' }", notNullValue())
-                .log().all().extract();;
+                .log().all().extract();
     }
 
     @Test
@@ -483,67 +477,60 @@ public class SnsApiTest extends ApiTest {
 //    }
 
     @Test
-    void SNS_개인페이지_프로필정보_요청_200(){
-        // 회원가입이 완료되어 있어야 함. o
-        // 한명, 다른한명 서로 맞팔되어 잇다고 하자.
+    void SNS_개인페이지_프로필정보_요청_200() throws IOException {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        추가회원가입정보_입력(token,"whalesbob");
         팔로우요청_생성(token, snsSteps.팔로우정보_생성());
 
         final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
+        추가회원가입정보_입력(oppositeToken, "marinelife");
         팔로우요청_생성(oppositeToken, snsSteps.팔로우정보_상대방측_생성());
-        // 리뷰도 하나 쓰여졌다고 해보자.
 
-        SNS_리뷰_작성(token);
-
-        given(this.spec)
-                .pathParam("nickName",UserSteps.nickname)
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "SNS 개인 프로필을 요청하는 API 입니다." +
+                        "<br> 존재하는 유저의 닉네임으로 조회 시 200 OK 와 함께 유저 프로필 정보를 반환합니다." +
+                        "<br> 입력한 닉네임의 가입정보가 존재하지 않는 경우 404 Not Found 가 반한됩니다.",
+                        "개인프로필정보요청",SnsDocument.userNicknameField,SnsDocument.UserProfileInfoResponse))
+                .pathParam("nickname", "whalesbob")
                 .when()
-                .get("/sns/profile/{nickName]")
+                .get("/sns/profile/{nickname}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-
-        // 이때, 1/1/1 이렇게 정보가 나와야 한다.
-
-        // 그리고 개인페이지에서 자기소개 상세 메세지를 쓸 수 있는 것으로 하자
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("nickname")).isEqualTo("whalesbob");
+        assertThat(jsonPath.getInt("reviewCount")).isEqualTo(1);
+        assertThat(jsonPath.getInt("followers")).isEqualTo(1);
+        assertThat(jsonPath.getInt("followings")).isEqualTo(1);
     }
 
     @Test
     void SNS_개인페이지_프로필정보_없는계정요청_404(){
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .pathParam("nickName","notRegistered")
                 .when()
-                .get("/sns/profile/{nickName]")
+                .get("/sns/profile/{nickName}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .log().all();
     }
 
-    void SNS_리뷰_작성(String token) {
+    void 추가회원가입정보_입력(String token, String nickname) throws IOException {
+        MultiPartSpecification profileImage = ShoppingMallReviewSteps.프로필_이미지_파일정보생성();
 
-        RequestSpecification request = given(this.spec)
-                .config(config().encoderConfig(encoderConfig()
-                        .encodeContentTypeAs("multipart/form-data", ContentType.MULTIPART)
-                        .defaultContentCharset("UTF-8")))
+        given(this.spec)
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
-                .multiPart("productURL", productURL)
-                .multiPart(CommonSteps.multipartText("content", rightReviewText))
-                .multiPart("score", starScore)
-                .multiPart(CommonSteps.multipartText("productName", productName));
-
-        List<MultiPartSpecification> multiPartSpecList = 리뷰_이미지_파일정보_생성();
-
-        for(MultiPartSpecification multiPartSpecification : multiPartSpecList){
-            request.multiPart(multiPartSpecification);
-        }
-
-        request.when()
-                .post("/sns/reviews")
+                .multiPart("nickname", nickname)
+                .multiPart("introduceText", "test")
+                .multiPart(profileImage)
+                .when()
+                .post("/users/register-addition")
                 .then()
                 .log().all();
     }
