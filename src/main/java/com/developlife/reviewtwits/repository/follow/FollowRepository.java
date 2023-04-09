@@ -15,8 +15,8 @@ public interface FollowRepository extends JpaRepository<Follow, Long>, FollowCus
     boolean existsByUserAndTargetUser(User user, User targetUser);
 
     @Query("SELECT f.user FROM Follow f WHERE f.targetUser = :user")
-    List<User> findUsersByTargetUser(User user);
+    List<User> findFollowersOfUser(User user);
 
     @Query("SELECT f.targetUser FROM Follow f WHERE f.user = :user")
-    List<User> findTargetUsersByUser(User user);
+    List<User> findFollowingsOfUser(User user);
 }
