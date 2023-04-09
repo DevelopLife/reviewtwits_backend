@@ -7,6 +7,7 @@ import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.sns.FollowAlreadyExistsException;
 import com.developlife.reviewtwits.exception.sns.UnfollowAlreadyDoneException;
 import com.developlife.reviewtwits.exception.user.UserIdNotFoundException;
+import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.mapper.SnsMapper;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
@@ -18,6 +19,7 @@ import com.developlife.reviewtwits.repository.follow.FollowRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,14 +91,14 @@ public class SnsService {
     @Transactional(readOnly = true)
     public List<UserInfoResponse> getFollowerList(String accountId){
         User targetUser = getTargetUser(accountId);
-        List<User> followersList = followRepository.findUsersByTargetUser(targetUser);
+        List<User> followersList = followRepository.findFollowersOfUser(targetUser);
         return getUserInfoResponses(followersList);
     }
 
     @Transactional(readOnly = true)
     public List<UserInfoResponse> getFollowingList(String accountId){
         User targetUser = getTargetUser(accountId);
-        List<User> followingsList = followRepository.findTargetUsersByUser(targetUser);
+        List<User> followingsList = followRepository.findFollowingsOfUser(targetUser);
         return getUserInfoResponses(followingsList);
     }
 
@@ -130,5 +132,18 @@ public class SnsService {
         return null;
 //        List<User> userList = userRepository.findAllByOrderByCreatedDateDesc(PageRequest.of(0, 5));
 //        return userList.stream().map(userInfo -> snsMapper.toUserInfoResponse(userInfo)).toList();
+    }
+
+    public UserInfoResponse findUserProfile(String nickname) {
+
+        User user = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 유저 닉네임으로 된 계정이 존재하지 않습니다."));
+
+        List<User> followers = followRepository.findFollowersOfUser(user);
+        List<User> followings = followRepository.findFollowingsOfUser(user);
+        List<Review> reviews = reviewRepository.findReviewsByUser(user);
+
+        userService.setProfileImage(user);
+        return userMapper.toUserInfoResponse(user,followers.size(), followings.size(),reviews.size());
     }
 }

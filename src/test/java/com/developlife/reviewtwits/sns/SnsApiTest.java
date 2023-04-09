@@ -7,13 +7,14 @@ import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.sns.FollowRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.follow.FollowRepository;
+import com.developlife.reviewtwits.review.ShoppingMallReviewSteps;
 import com.developlife.reviewtwits.review.SnsReviewSteps;
 import com.developlife.reviewtwits.service.user.UserService;
-import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import io.restassured.specification.MultiPartSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
@@ -258,7 +260,7 @@ public class SnsApiTest extends ApiTest {
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body("find{it.errorType == 'UserIdNotFoundException' " +
                         "&& it.fieldName == 'userId' }", notNullValue())
-                .log().all().extract();;
+                .log().all().extract();
     }
 
     @Test
@@ -473,4 +475,78 @@ public class SnsApiTest extends ApiTest {
 //            .statusCode(HttpStatus.OK.value())
 //            .log().all();
 //    }
+
+    @Test
+    void SNS_개인페이지_프로필정보_요청_200() throws IOException {
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        추가회원가입정보_입력(token,"whalesbob");
+        팔로우요청_생성(token, snsSteps.팔로우정보_생성());
+
+        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
+        추가회원가입정보_입력(oppositeToken, "marinelife");
+        팔로우요청_생성(oppositeToken, snsSteps.팔로우정보_상대방측_생성());
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "SNS 개인 프로필을 요청하는 API 입니다." +
+                        "<br> 존재하는 유저의 닉네임으로 조회 시 200 OK 와 함께 유저 프로필 정보를 반환합니다." +
+                        "<br> 입력한 닉네임의 가입정보가 존재하지 않는 경우 404 Not Found 가 반한됩니다.",
+                        "개인프로필정보요청",SnsDocument.userNicknameField,SnsDocument.UserProfileInfoResponse))
+                .pathParam("nickname", "whalesbob")
+                .when()
+                .get("/sns/profile/{nickname}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("nickname")).isEqualTo("whalesbob");
+        assertThat(jsonPath.getInt("reviewCount")).isEqualTo(1);
+        assertThat(jsonPath.getInt("followers")).isEqualTo(1);
+        assertThat(jsonPath.getInt("followings")).isEqualTo(1);
+    }
+
+    @Test
+    void SNS_개인페이지_프로필정보_없는계정요청_404(){
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .pathParam("nickname","notRegistered")
+                .when()
+                .get("/sns/profile/{nickname}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all();
+    }
+/*
+    @Test
+    void SNS_개인페이지_리뷰리스트_요청_성공_200() throws IOException {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        추가회원가입정보_입력(token,"whalesbob");
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .pathParam("nickname", "whalesbob")
+                .when()
+                .get("/sns/profile/reviews/{nickname}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+    }*/
+
+    void 추가회원가입정보_입력(String token, String nickname) throws IOException {
+        MultiPartSpecification profileImage = ShoppingMallReviewSteps.프로필_이미지_파일정보생성();
+
+        given(this.spec)
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .multiPart("nickname", nickname)
+                .multiPart("introduceText", "test")
+                .multiPart(profileImage)
+                .when()
+                .post("/users/register-addition")
+                .then()
+                .log().all();
+    }
 }

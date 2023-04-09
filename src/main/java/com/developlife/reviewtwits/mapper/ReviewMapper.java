@@ -8,10 +8,7 @@ import com.developlife.reviewtwits.message.response.review.DetailShoppingMallRev
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.Named;
-import org.mapstruct.NullValueCheckStrategy;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -28,7 +25,9 @@ public interface ReviewMapper {
     List<DetailShoppingMallReviewResponse> toDetailReviewResponseList(List<Review> reviews);
     List<CommentResponse> toCommentResponseList(List<Comment> comments);
 
-
+    @Mapping(target = "reviewCount", ignore = true)
+    @Mapping(target = "followers", ignore = true)
+    @Mapping(target = "followings", ignore = true)
     UserInfoResponse mapUserToUserInfoResponse(User user);
 
     default DetailShoppingMallReviewResponse mapReviewToDetailReviewResponse(Review review){

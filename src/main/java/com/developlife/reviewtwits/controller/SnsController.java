@@ -64,4 +64,9 @@ public class SnsController {
     public List<UserInfoResponse> suggestFollowers(@AuthenticationPrincipal User user){
         return snsService.suggestFollowers(user);
     }
+
+    @GetMapping("/profile/{nickname}")
+    public UserInfoResponse findUserProfile(@PathVariable String nickname){
+        return snsService.findUserProfile(nickname);
+    }
 }

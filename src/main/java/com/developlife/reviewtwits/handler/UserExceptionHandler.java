@@ -3,6 +3,7 @@ package com.developlife.reviewtwits.handler;
 import com.developlife.reviewtwits.exception.user.*;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -58,6 +59,12 @@ public class UserExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public List<ErrorResponse> userIdNotFoundExceptionHandler(UserIdNotFoundException e){
         return makeErrorResponse(e, "userId");
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public List<ErrorResponse> usernameNotFoundExceptionHandler(UsernameNotFoundException e){
+        return makeErrorResponse(e,"nickname");
     }
 
     @ExceptionHandler(AccessResourceDeniedException.class)

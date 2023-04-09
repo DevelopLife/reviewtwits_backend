@@ -20,6 +20,7 @@ public interface UserMapper {
     @Mapping(target = "birthDate", dateFormat = "yyyy-MM-dd")
     UserDetailInfoResponse toUserDetailInfoResponse(User user);
     UserInfoResponse toUserInfoResponse(User user);
+    UserInfoResponse toUserInfoResponse(User user, int followers, int followings, int reviewCount);
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "provider", ignore = true)
     @Mapping(target = "uuid", ignore = true)
@@ -29,6 +30,7 @@ public interface UserMapper {
     @Mapping(target = "projectList", ignore = true)
     @Mapping(target = "nickname", ignore = true)
     @Mapping(target = "introduceText", ignore = true)
+    @Mapping(target = "detailIntroduce", ignore = true)
     User toUser(RegisterUserRequest registerUserRequest);
 
 
@@ -45,6 +47,5 @@ public interface UserMapper {
     @Mapping(target = "profileImage", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     void updateUserFromRegisterOauthUserRequest(RegisterOauthUserRequest registerOauthUserRequest, @MappingTarget User user);
-
 
 }
