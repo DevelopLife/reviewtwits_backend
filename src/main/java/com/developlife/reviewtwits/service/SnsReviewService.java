@@ -132,15 +132,18 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void addReactionOnReview(User user, long reviewId, String reaction) {
+    public void addReactionOnReview(User user, long reviewId, String inputReaction) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("공감을 누르려는 리뷰가 존재하지 않습니다."));
 
-        reactionRepository.save(Reaction.builder()
-                .reactionType(ReactionType.valueOf(reaction))
-                .review(review)
-                .user(user)
-                .build());
+        Reaction updatedReaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user)
+                .orElse(Reaction.builder()
+                        .reactionType(ReactionType.valueOf(inputReaction))
+                        .review(review)
+                        .user(user)
+                        .build());
+
+        reactionRepository.save(updatedReaction);
     }
 
     @Transactional
@@ -160,8 +163,7 @@ public class SnsReviewService {
         reviewRepository.save(review);
     }
 
-    @Transactional(readOnly = true)
-    public List<Review> findReviewsInPage(Long reviewId, int size){
+    private List<Review> findReviewsInPage(Long reviewId, int size){
         Pageable pageable = PageRequest.of(0,size,Sort.by("reviewId").descending());
         if(reviewId == null){
             return reviewRepository.findAll(pageable).getContent();
