@@ -79,7 +79,7 @@ public interface ReviewMapper {
         return SnsReviewResponse.builder()
                 .reviewId(review.getReviewId())
                 .userInfo(mapUserToUserInfoResponse(review.getUser()))
-                .reviewImage(review.getReviewImageNameList().get(0))
+                .reviewImageNameList(review.getReviewImageNameList())
                 .commentCount(review.getCommentCount())
                 .reactionCount(review.getReactionCount())
                 .build();

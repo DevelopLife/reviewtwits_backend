@@ -33,7 +33,7 @@ public class SnsDocument {
             fieldWithPath("[].nickname").type(JsonFieldType.STRING).description("유저닉네임"),
             fieldWithPath("[].accountId").type(JsonFieldType.STRING).description("유저 계정"),
             fieldWithPath("[].introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
-            fieldWithPath("[].profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+            fieldWithPath("[].profileImage").type(JsonFieldType.ARRAY).description("프로필이미지 파일이름").optional(),
             fieldWithPath("[].reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
             fieldWithPath("[].followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
             fieldWithPath("[].followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional()
@@ -106,7 +106,7 @@ public class SnsDocument {
             fieldWithPath("[].userInfo.reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
             fieldWithPath("[].userInfo.followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
             fieldWithPath("[].userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
-            fieldWithPath("[].reviewImage").type(JsonFieldType.STRING).description("대표리뷰사진"),
+            fieldWithPath("[].reviewImageNameList[]").type(JsonFieldType.ARRAY).description("리뷰사진 리스트"),
             fieldWithPath("[].commentCount").type(JsonFieldType.NUMBER).description("댓글개수"),
             fieldWithPath("[].reactionCount").type(JsonFieldType.NUMBER).description("리액션개수")
     );

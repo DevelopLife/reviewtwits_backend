@@ -543,7 +543,7 @@ public class SnsApiTest extends ApiTest {
         JsonPath jsonPath = response.jsonPath();
         assertThat(jsonPath.getInt("[0].commentCount")).isEqualTo(1);
         assertThat(jsonPath.getInt("[0].reactionCount")).isEqualTo(1);
-        assertThat(jsonPath.getString("[0].reviewImage")).isNotBlank();
+        assertThat(jsonPath.getString("[0].reviewImageNameList")).isNotEmpty();
     }
 
     @Test
