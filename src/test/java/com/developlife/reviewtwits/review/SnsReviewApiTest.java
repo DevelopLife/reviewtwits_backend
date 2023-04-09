@@ -703,6 +703,74 @@ public class SnsReviewApiTest extends ApiTest {
                 .log().all();
     }
 
+    @Test
+    void 댓글공감_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        given(this.spec)
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",commentId)
+                .when()
+                .post("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+    }
+
+    @Test
+    void 댓글공감_토큰없음_403(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        given(this.spec)
+                .pathParam("commentId",commentId)
+                .when()
+                .post("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all();
+    }
+
+    @Test
+    void 댓글공감_댓글없음_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long wrongCommentId = 9999L;
+
+
+        given(this.spec)
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",wrongCommentId)
+                .when()
+                .post("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all();
+    }
+
+    @Test
+    void 댓글공감_이미공감한댓글_409(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+        SNS_댓글공감_추가(token,commentId);
+
+        given(this.spec)
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",commentId)
+                .when()
+                .post("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .log().all();
+    }
+
     Long SNS_리뷰_작성(String token, String content) {
 
         RequestSpecification request = given(this.spec).log().all()
@@ -774,6 +842,15 @@ public class SnsReviewApiTest extends ApiTest {
                 .pathParam("reviewId",reviewId)
                 .when()
                 .post("/sns/scrap-reviews/{reviewId}")
+                .then()
+                .log().all();
+    }
+    void SNS_댓글공감_추가(String token, Long commentId){
+        given(this.spec)
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",commentId)
+                .when()
+                .post("/sns/comments-like/{commentId}")
                 .then()
                 .log().all();
     }
