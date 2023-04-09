@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.entity;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -29,4 +30,8 @@ public class Comment extends BaseEntity {
 
     @ManyToOne
     private Comment commentGroup;
+
+    @Builder.Default
+    @ColumnDefault(value = "0")
+    private int commentLike = 0;
 }
