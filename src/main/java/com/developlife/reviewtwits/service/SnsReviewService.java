@@ -144,15 +144,30 @@ public class SnsReviewService {
                         .build());
 
         reactionRepository.save(updatedReaction);
+
+        modifyReactionCountOnReview(review,1);
     }
 
     @Transactional
     public void deleteReactionOnReview(User user, long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리액션의 리뷰가 존재하지 않습니다."));
+
         Reaction reaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user)
                 .orElseThrow(() -> new ReactionNotFoundException("삭제하려는 리액션이 존재하지 않습니다."));
 
         reactionRepository.delete(reaction);
+
+        modifyReactionCountOnReview(review, -1);
     }
+
+
+    private void modifyReactionCountOnReview(Review review, int count) {
+        int reactionCount = review.getReactionCount();
+        review.setReactionCount(reactionCount + count);
+        reviewRepository.save(review);
+    }
+
 
     @Transactional
     public void deleteSnsReview(Long reviewId) {

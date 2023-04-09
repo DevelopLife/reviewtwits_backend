@@ -63,7 +63,9 @@ public class SnsApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         snsReviewSteps.아이템정보생성();
-        snsReviewSteps.SNS_리뷰_작성(token, "페로로쉐 초콜릿 좋아요");
+        Long reviewId = snsReviewSteps.SNS_리뷰_작성(token, "페로로쉐 초콜릿 좋아요");
+        snsReviewSteps.SNS_리뷰_댓글_작성(token, reviewId);
+        snsReviewSteps.SNS_리액션_추가(token,reviewId);
     }
 
     @Test
@@ -519,13 +521,17 @@ public class SnsApiTest extends ApiTest {
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .log().all();
     }
-/*
+
     @Test
     void SNS_개인페이지_리뷰리스트_요청_성공_200() throws IOException {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         추가회원가입정보_입력(token,"whalesbob");
 
         ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "개인 페이지에서의 리뷰 리스트를 요청하는 API 입니다." +
+                        "<br>알고 싶은 계정의 닉네임을 path 에 입력하면, 해당 계정이 작성한 리뷰들의 간략한 정보를 알 수 있습니다." +
+                        "<br>존재하지 않는 닉네임을 입력하면 404 Not Found 가 반환됩니다.","개인리뷰리스트요청",
+                        SnsDocument.userNicknameField, SnsDocument.UserSnsReviewResponse))
                 .pathParam("nickname", "whalesbob")
                 .when()
                 .get("/sns/profile/reviews/{nickname}")
@@ -533,7 +539,26 @@ public class SnsApiTest extends ApiTest {
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .log().all().extract();
-    }*/
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getInt("[0].commentCount")).isEqualTo(1);
+        assertThat(jsonPath.getInt("[0].reactionCount")).isEqualTo(1);
+        assertThat(jsonPath.getString("[0].reviewImageNameList")).isNotEmpty();
+    }
+
+    @Test
+    void SNS_개인페이지_리뷰리스트_존재하지않는계정_404() {
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .pathParam("nickname", "notRegistered")
+                .when()
+                .get("/sns/profile/reviews/{nickname}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all();
+    }
 
     void 추가회원가입정보_입력(String token, String nickname) throws IOException {
         MultiPartSpecification profileImage = ShoppingMallReviewSteps.프로필_이미지_파일정보생성();

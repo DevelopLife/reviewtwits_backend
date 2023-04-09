@@ -50,6 +50,10 @@ public class Review extends BaseEntity {
     @ColumnDefault(value = "0")
     private int commentCount = 0;
 
+    @Builder.Default
+    @ColumnDefault(value = "0")
+    private int reactionCount = 0;
+
     @Transient
     @Setter
     private List<String> reviewImageNameList;
