@@ -511,9 +511,9 @@ public class SnsApiTest extends ApiTest {
     void SNS_개인페이지_프로필정보_없는계정요청_404(){
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
-                .pathParam("nickName","notRegistered")
+                .pathParam("nickname","notRegistered")
                 .when()
-                .get("/sns/profile/{nickName}")
+                .get("/sns/profile/{nickname}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
