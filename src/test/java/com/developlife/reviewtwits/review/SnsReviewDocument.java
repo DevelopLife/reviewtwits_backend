@@ -54,7 +54,7 @@ public class SnsReviewDocument {
 
     public static final Snippet CommentIdField = pathParameters(
             parameterWithName("commentId").attributes(required())
-                    .description("수정 또는 삭제할 댓글의 아이디입니다.")
+                    .description("댓글의 아이디입니다.")
     );
 
     public static final Snippet SnsCommentChangeRequestField = requestParameters(
