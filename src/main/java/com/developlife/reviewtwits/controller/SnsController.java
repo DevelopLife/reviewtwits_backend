@@ -59,4 +59,9 @@ public class SnsController {
     public List<ItemResponse> recommendProduct(){
         return snsService.recommendProduct();
     }
+
+    @GetMapping("/sns/suggest-followers")
+    public List<UserInfoResponse> suggestFollowers(@AuthenticationPrincipal User user){
+        return snsService.suggestFollowers(user);
+    }
 }
