@@ -7,6 +7,7 @@ import com.developlife.reviewtwits.message.response.review.CommentResponse;
 import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.message.response.sns.SnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -24,6 +25,7 @@ public interface ReviewMapper {
     ReviewMapper INSTANCE = Mappers.getMapper(ReviewMapper.class);
     List<DetailShoppingMallReviewResponse> toDetailReviewResponseList(List<Review> reviews);
     List<CommentResponse> toCommentResponseList(List<Comment> comments);
+    List<SnsReviewResponse> toSnsReviewResponseList(List<Review> reviews);
 
     @Mapping(target = "reviewCount", ignore = true)
     @Mapping(target = "followers", ignore = true)
@@ -70,6 +72,16 @@ public interface ReviewMapper {
                 .content(comment.getContent())
                 .parentCommentId(comment.getCommentGroup().getCommentId())
                 .userInfo(mapUserToUserInfoResponse(comment.getUser()))
+                .build();
+    }
+
+    default SnsReviewResponse toSnsReviewResponse(Review review){
+        return SnsReviewResponse.builder()
+                .reviewId(review.getReviewId())
+                .userInfo(mapUserToUserInfoResponse(review.getUser()))
+                .reviewImage(review.getReviewImageNameList().get(0))
+                .commentCount(review.getCommentCount())
+                .reactionCount(review.getReactionCount())
                 .build();
     }
 }
