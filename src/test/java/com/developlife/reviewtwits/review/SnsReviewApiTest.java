@@ -707,7 +707,7 @@ public class SnsReviewApiTest extends ApiTest {
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"댓글에 곰감을 추가하는 API 입니다." +
+                .filter(document(DEFAULT_RESTDOC_PATH,"댓글에 공감을 추가하는 API 입니다." +
                         "<br>header 에 X-AUTH-TOKEN 을 넣고, path 에 commentId 를 올바르게 넣어 요청할 수 있습니다." +
                         "<br>header 에 토큰 값을 넣지 않았거나, 올바르지 않은 토큰을 입력했다면 403 Forbidden 이 반환됩니다." +
                         "<br>존재하지 않은 commentId 를 입력했다면 404 Not Found 가 반환됩니다." +
