@@ -501,7 +501,7 @@ public class SnsApiTest extends ApiTest {
                 .log().all().extract();
 
         JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getString("nickname")).isEqualTo("whalesbob");
+        assertThat(jsonPath.getString("userInfo.nickname")).isEqualTo("whalesbob");
         assertThat(jsonPath.getInt("reviewCount")).isEqualTo(1);
         assertThat(jsonPath.getInt("followers")).isEqualTo(1);
         assertThat(jsonPath.getInt("followings")).isEqualTo(1);

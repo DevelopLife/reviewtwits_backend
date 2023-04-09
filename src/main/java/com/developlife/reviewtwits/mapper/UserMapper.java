@@ -30,6 +30,7 @@ public interface UserMapper {
     @Mapping(target = "projectList", ignore = true)
     @Mapping(target = "nickname", ignore = true)
     @Mapping(target = "introduceText", ignore = true)
+    @Mapping(target = "detailIntroduce", ignore = true)
     User toUser(RegisterUserRequest registerUserRequest);
 
 
@@ -49,10 +50,7 @@ public interface UserMapper {
 
     default UserProfileInfoResponse userProfileResponse(User user, int follower, int following, int reviewCount){
         return UserProfileInfoResponse.builder()
-                .nickname(user.getNickname())
-                .introduceText(user.getIntroduceText())
-                .profileImage(user.getProfileImage())
-                .detailIntroduce(user.getDetailIntroduce())
+                .userInfo(toUserInfoResponse(user))
                 .reviewCount(reviewCount)
                 .followers(follower)
                 .followings(following)

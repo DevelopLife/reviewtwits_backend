@@ -78,10 +78,11 @@ public class SnsDocument {
         fieldWithPath("[].profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional()
     );
     public static final Snippet UserProfileInfoResponse = responseFields(
-        fieldWithPath("nickname").type(JsonFieldType.STRING).description("유저 닉네임"),
-        fieldWithPath("introduceText").type(JsonFieldType.STRING).description("유저 한줄소개"),
-        fieldWithPath("profileImage").type(JsonFieldType.STRING).description("유저 프로필이미지"),
-        fieldWithPath("detailIntroduce").type(JsonFieldType.STRING).description("유저 상세소개").optional(),
+        fieldWithPath("userInfo.userId").type(JsonFieldType.NUMBER).description("유저 닉네임"),
+        fieldWithPath("userInfo.nickname").type(JsonFieldType.STRING).description("유저 닉네임"),
+        fieldWithPath("userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개"),
+        fieldWithPath("userInfo.profileImage").type(JsonFieldType.STRING).description("유저 프로필이미지"),
+        fieldWithPath("userInfo.detailIntroduce").type(JsonFieldType.STRING).description("유저 상세소개").optional(),
         fieldWithPath("reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수"),
         fieldWithPath("followers").type(JsonFieldType.NUMBER).description("팔로우 수"),
         fieldWithPath("followings").type(JsonFieldType.NUMBER).description("팔로잉 수")

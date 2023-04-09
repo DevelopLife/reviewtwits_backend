@@ -7,10 +7,7 @@ import lombok.Builder;
  * @since 2023-04-09
  */
 public record UserProfileInfoResponse(
-        String nickname,
-        String introduceText,
-        String profileImage,
-        String detailIntroduce,
+        UserInfoResponse userInfo,
         int reviewCount,
         int followers,
         int followings
