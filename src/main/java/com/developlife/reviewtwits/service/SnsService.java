@@ -14,6 +14,7 @@ import com.developlife.reviewtwits.message.response.sns.ItemResponse;
 import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.*;
+import com.developlife.reviewtwits.repository.follow.FollowRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -122,5 +123,12 @@ public class SnsService {
     public List<ItemResponse> recommendProduct() {
         List<ItemDetail> itemDetailList = itemDetailRepository.findAllByOrderByCreatedDateDesc(PageRequest.of(0, 3));
         return itemDetailList.stream().map(itemDetail -> snsMapper.toItemResponse(itemDetail)).toList();
+    }
+
+    // TODO: 임시적으로 최근 생성된 5개를 반환하도록,, 추천 알고리즘 구현 필요
+    public List<UserInfoResponse> suggestFollowers(User user) {
+        return null;
+//        List<User> userList = userRepository.findAllByOrderByCreatedDateDesc(PageRequest.of(0, 5));
+//        return userList.stream().map(userInfo -> snsMapper.toUserInfoResponse(userInfo)).toList();
     }
 }

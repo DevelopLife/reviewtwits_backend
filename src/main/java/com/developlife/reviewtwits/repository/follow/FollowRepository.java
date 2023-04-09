@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.repository;
+package com.developlife.reviewtwits.repository.follow;
 
 import com.developlife.reviewtwits.entity.Follow;
 import com.developlife.reviewtwits.entity.User;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface FollowRepository extends JpaRepository<Follow, Long> {
+public interface FollowRepository extends JpaRepository<Follow, Long>, FollowCustomRepository {
     Optional<Follow> findByUserAndTargetUser(User user, User targetUser);
     boolean existsByUserAndTargetUser(User user, User targetUser);
 
