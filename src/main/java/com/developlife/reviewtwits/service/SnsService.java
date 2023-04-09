@@ -136,6 +136,7 @@ public class SnsService {
 //        return userList.stream().map(userInfo -> snsMapper.toUserInfoResponse(userInfo)).toList();
     }
 
+    @Transactional(readOnly = true)
     public UserInfoResponse findUserProfile(String nickname) {
 
         User user = userRepository.findByNickname(nickname)
@@ -149,6 +150,7 @@ public class SnsService {
         return userMapper.toUserInfoResponse(user,followers.size(), followings.size(),reviews.size());
     }
 
+    @Transactional(readOnly = true)
     public List<SnsReviewResponse> findReviewsOfUser(String nickname) {
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 유저 닉네임으로 된 계정이 존재하지 않습니다."));
