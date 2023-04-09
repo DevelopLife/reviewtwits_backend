@@ -3,15 +3,9 @@ package com.developlife.reviewtwits.review;
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.CommonSteps;
-import com.developlife.reviewtwits.entity.Comment;
-import com.developlife.reviewtwits.entity.Review;
-import com.developlife.reviewtwits.entity.ReviewScrap;
-import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.repository.CommentRepository;
-import com.developlife.reviewtwits.repository.ReviewRepository;
-import com.developlife.reviewtwits.repository.ReviewScrapRepository;
-import com.developlife.reviewtwits.repository.UserRepository;
+import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
@@ -62,6 +56,9 @@ public class SnsReviewApiTest extends ApiTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CommentLikeRepository commentLikeRepository;
 
 //    @Autowired
 //    private AmazonS3 s3Client;
@@ -703,6 +700,181 @@ public class SnsReviewApiTest extends ApiTest {
                 .log().all();
     }
 
+    @Test
+    void 댓글공감_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,"댓글에 공감을 추가하는 API 입니다." +
+                        "<br>header 에 X-AUTH-TOKEN 을 넣고, path 에 commentId 를 올바르게 넣어 요청할 수 있습니다." +
+                        "<br>header 에 토큰 값을 넣지 않았거나, 올바르지 않은 토큰을 입력했다면 403 Forbidden 이 반환됩니다." +
+                        "<br>존재하지 않은 commentId 를 입력했다면 404 Not Found 가 반환됩니다." +
+                        "<br>이미 좋아요를 누른 상태에서 다시 요청을 보내면, 409 Conflict 가 반환됩니다." +
+                        "<br>모두 올바른 값을 입력했다면, 해당 댓글에 좋아요가 처리되고 200 OK 가 반환됩니다.","댓글좋아요요청",
+                        UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",commentId)
+                .when()
+                .post("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+        User user = userRepository.findByAccountId(UserSteps.accountId).get();
+        Comment comment = commentRepository.findById(commentId).get();
+        Optional<CommentLike> foundComment = commentLikeRepository.findByUserAndComment(user, comment);
+
+        assertThat(foundComment).isPresent();
+        assertThat(comment.getCommentLike()).isEqualTo(1);
+    }
+
+    @Test
+    void 댓글공감_토큰없음_403(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .pathParam("commentId",commentId)
+                .when()
+                .post("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all();
+    }
+
+    @Test
+    void 댓글공감_댓글없음_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long wrongCommentId = 9999L;
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",wrongCommentId)
+                .when()
+                .post("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body("find{it.errorType == 'CommentNotFoundException' "
+                        + "&& it.message == '좋아요를 입력할 comment 가 존재하지 않습니다.'}", notNullValue())
+                .log().all();
+    }
+
+    @Test
+    void 댓글공감_이미공감한댓글_409(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+        SNS_댓글공감_추가(token,commentId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",commentId)
+                .when()
+                .post("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .body("find{it.errorType == 'CommentLikeAlreadyProcessedException' "
+                        + "&& it.message == '이미 해당 댓글에 좋아요를 누르셨습니다.'}", notNullValue())
+                .log().all();
+    }
+
+    @Test
+    void 댓글공감_취소_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+        SNS_댓글공감_추가(token,commentId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,"댓글에 공감을 취소하는 API 입니다." +
+                                "<br>header 에 X-AUTH-TOKEN 을 넣고, path 에 commentId 를 올바르게 넣어 요청할 수 있습니다." +
+                                "<br>header 에 토큰 값을 넣지 않았거나, 올바르지 않은 토큰을 입력했다면 403 Forbidden 이 반환됩니다." +
+                                "<br>존재하지 않은 commentId 를 입력했다면 404 Not Found 가 반환됩니다." +
+                                "<br>이미 좋아요를 추가하지 않았거나 좋아요를 취소한 상태에서 다시 취소 요청을 보내면, 409 Conflict 가 반환됩니다." +
+                                "<br>모두 올바른 값을 입력했다면, 해당 댓글에 좋아요가 처리되고 200 OK 가 반환됩니다.","댓글좋아요취소요청",
+                        UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",commentId)
+                .when()
+                .delete("/sns/comments-like/{commentId}")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+        User user = userRepository.findByAccountId(UserSteps.accountId).get();
+        Comment comment = commentRepository.findById(commentId).get();
+        Optional<CommentLike> foundComment = commentLikeRepository.findByUserAndComment(user, comment);
+
+        assertThat(foundComment).isNotPresent();
+        assertThat(comment.getCommentLike()).isEqualTo(0);
+    }
+
+    @Test
+    void 댓글공감_취소_토큰없음_403(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .pathParam("commentId",commentId)
+                .when()
+                .delete("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all();
+    }
+
+    @Test
+    void 댓글공감_취소_댓글없음_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long wrongCommentId = 9999L;
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",wrongCommentId)
+                .when()
+                .delete("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body("find{it.errorType == 'CommentNotFoundException' "
+                        + "&& it.message == '좋아요를 취소할 comment 가 존재하지 않습니다.'}", notNullValue())
+                .log().all();
+    }
+
+    @Test
+    void 댓글공감_취소_이미공감없음_409(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",commentId)
+                .when()
+                .delete("/sns/comments-like/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .body("find{it.errorType == 'CommentLikeAlreadyProcessedException' "
+                        + "&& it.message == '해당 댓글에 좋아요를 누르지 않으셨거나, 이미 취소한 좋아요입니다.'}", notNullValue())
+                .log().all();
+    }
+
     Long SNS_리뷰_작성(String token, String content) {
 
         RequestSpecification request = given(this.spec).log().all()
@@ -774,6 +946,15 @@ public class SnsReviewApiTest extends ApiTest {
                 .pathParam("reviewId",reviewId)
                 .when()
                 .post("/sns/scrap-reviews/{reviewId}")
+                .then()
+                .log().all();
+    }
+    void SNS_댓글공감_추가(String token, Long commentId){
+        given(this.spec)
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("commentId",commentId)
+                .when()
+                .post("/sns/comments-like/{commentId}")
                 .then()
                 .log().all();
     }

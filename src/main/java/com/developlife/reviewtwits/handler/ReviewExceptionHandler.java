@@ -47,4 +47,10 @@ public class ReviewExceptionHandler {
     public List<ErrorResponse> reviewScrapNotAddedExceptionHandler(ReviewScrapNotAddedException e){
         return makeErrorResponse(e, "");
     }
+
+    @ExceptionHandler(CommentLikeAlreadyProcessedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public List<ErrorResponse> commentLikeAlreadyProcessedExceptionHandler(CommentLikeAlreadyProcessedException e){
+        return makeErrorResponse(e,"");
+    }
 }
