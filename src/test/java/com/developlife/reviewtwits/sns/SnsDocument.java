@@ -79,6 +79,7 @@ public class SnsDocument {
     );
     public static final Snippet UserProfileInfoResponse = responseFields(
         fieldWithPath("userInfo.userId").type(JsonFieldType.NUMBER).description("유저 닉네임"),
+        fieldWithPath("userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
         fieldWithPath("userInfo.nickname").type(JsonFieldType.STRING).description("유저 닉네임"),
         fieldWithPath("userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개"),
         fieldWithPath("userInfo.profileImage").type(JsonFieldType.STRING).description("유저 프로필이미지"),
