@@ -77,6 +77,10 @@ public class User extends BaseEntity implements UserDetails {
     @Transient
     String profileImage;
 
+    @Setter
+    @Builder.Default
+    String detailIntroduce = "";
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles;
