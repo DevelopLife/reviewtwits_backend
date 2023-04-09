@@ -9,10 +9,7 @@ import com.developlife.reviewtwits.message.request.review.SnsReviewChangeRequest
 import com.developlife.reviewtwits.message.request.review.SnsReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
-import com.developlife.reviewtwits.repository.CommentRepository;
-import com.developlife.reviewtwits.repository.ReactionRepository;
-import com.developlife.reviewtwits.repository.ReviewRepository;
-import com.developlife.reviewtwits.repository.ReviewScrapRepository;
+import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.type.ReactionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,10 +35,13 @@ public class SnsReviewService {
 
     private final ReviewMapper mapper;
     private final FileStoreService fileStoreService;
+
     private final ReviewRepository reviewRepository;
     private final CommentRepository commentRepository;
     private final ReactionRepository reactionRepository;
     private final ReviewScrapRepository reviewScrapRepository;
+    private final CommentLikeRepository commentLikeRepository;
+
     private final SnsReviewUtils snsReviewUtils;
 
     @Transactional
@@ -246,5 +246,40 @@ public class SnsReviewService {
         List<Review> reviewOnUserScrap = reviewScrapRepository.findReviewByUser(user);
 
         return snsReviewUtils.processAndExportReviewData(reviewOnUserScrap, user);
+    }
+
+    @Transactional
+    public void addLikeOnComment(User user,Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("좋아요를 입력할 comment 가 존재하지 않습니다."));
+
+        if(commentLikeRepository.existsByUserAndComment(user, comment)){
+            throw new CommentLikeAlreadyProcessedException("이미 해당 댓글에 좋아요를 누르셨습니다.");
+        }
+
+        commentLikeRepository.save(CommentLike.builder()
+                .comment(comment)
+                .user(user)
+                .build());
+
+        saveLikeCount(comment, 1);
+    }
+
+    @Transactional
+    public void deleteLikeOnComment(User user, Long commentId){
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("좋아요를 취소할 comment 가 존재하지 않습니다."));
+
+        CommentLike commentLike = commentLikeRepository.findByUserAndComment(user, comment)
+                .orElseThrow(() -> new CommentLikeAlreadyProcessedException("해당 댓글에 좋아요를 누르지 않으셨거나, 이미 취소한 좋아요입니다."));
+
+        commentLikeRepository.delete(commentLike);
+        saveLikeCount(comment, -1);
+    }
+
+    private void saveLikeCount(Comment comment, int count){
+        int commentLike = comment.getCommentLike();
+        comment.setCommentLike(commentLike + count);
+        commentRepository.save(comment);
     }
 }
