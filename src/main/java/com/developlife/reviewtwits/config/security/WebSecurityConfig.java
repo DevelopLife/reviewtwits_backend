@@ -51,6 +51,7 @@ public class WebSecurityConfig {
             .authorizeRequests()
             .antMatchers("/users/admin").hasRole("ADMIN")
             .antMatchers("/users/me").hasRole("USER")
+            .antMatchers("/users/change-detail-messages").hasRole("USER")
             .antMatchers("/projects/**").hasRole("USER")
             .antMatchers(HttpMethod.POST,"/reviews/shopping").hasRole("USER")
             .antMatchers("/sns/review-reaction/**").hasRole("USER")

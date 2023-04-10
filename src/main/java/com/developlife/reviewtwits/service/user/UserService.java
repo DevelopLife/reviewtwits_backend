@@ -202,4 +202,9 @@ public class UserService {
         setProfileImage(user);
         return userMapper.toUserDetailInfoResponse(user);
     }
+
+    public void changeDetailIntroduce(User user, String detailInfo) {
+        user.setDetailIntroduce(detailInfo);
+        userRepository.save(user);
+    }
 }
