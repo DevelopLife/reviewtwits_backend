@@ -35,6 +35,8 @@ public class UserSteps {
 
     final static String targetAccountId = "whalesbob@naver.com";
 
+    final static String userDetailIntroduce = "저는 백앤드 개발자 고래밥입니다. 얼른 취업을 하고싶습니다. 이상이냐구요? 그럴까요?";
+
     final private EmailCodeSender emailSender;
 
     public UserSteps(EmailCodeSender emailSender) {
