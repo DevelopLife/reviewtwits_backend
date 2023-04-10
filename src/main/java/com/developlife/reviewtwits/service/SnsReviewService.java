@@ -222,6 +222,10 @@ public class SnsReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("스크랩하려는 리뷰 아이디가 존재하지 않습니다."));
 
+        if(reviewScrapRepository.existsByReviewAndUser(review,user)){
+            throw new ReviewScrapConflictException("이미 등록된 리뷰 스크랩입니다.");
+        }
+
         ReviewScrap reviewScrap = ReviewScrap.builder()
                 .review(review)
                 .user(user)
@@ -236,7 +240,7 @@ public class SnsReviewService {
                 .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리뷰가 존재하지 않습니다."));
 
         ReviewScrap reviewScrap = reviewScrapRepository.findByReviewAndUser(review, user)
-                .orElseThrow(() -> new ReviewScrapNotAddedException("등록되지 않은 리뷰 스크랩입니다."));
+                .orElseThrow(() -> new ReviewScrapConflictException("등록되지 않은 리뷰 스크랩입니다."));
 
         reviewScrapRepository.delete(reviewScrap);
     }

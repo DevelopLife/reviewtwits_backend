@@ -42,9 +42,9 @@ public class ReviewExceptionHandler {
         return makeErrorResponse(e, "reaction");
     }
 
-    @ExceptionHandler(ReviewScrapNotAddedException.class)
+    @ExceptionHandler(ReviewScrapConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public List<ErrorResponse> reviewScrapNotAddedExceptionHandler(ReviewScrapNotAddedException e){
+    public List<ErrorResponse> reviewScrapConflictExceptionHandler(ReviewScrapConflictException e){
         return makeErrorResponse(e, "");
     }
 
