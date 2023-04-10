@@ -15,4 +15,5 @@ public interface ItemDetailRepository extends JpaRepository<ItemDetail, Long> {
     List<ItemDetail> findByRelatedProduct_NameLikeOrDetailInfoLike(String searchKey, Pageable pageable);
 
     List<ItemDetail> findAllByOrderByCreatedDateDesc(Pageable pageable);
+
 }

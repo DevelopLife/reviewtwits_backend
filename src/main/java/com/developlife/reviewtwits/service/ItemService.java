@@ -14,6 +14,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.*;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -71,6 +73,23 @@ public class ItemService {
             .bodyToMono(String.class)
             .block();
         return response;
+    }
+
+    @Transactional
+    public RelatedProduct requestCrawlingProductInfo(String productName) {
+        try {
+            Document doc = Jsoup.connect(searchUrl + productName)
+                    .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.104 Whale/3.13.131.36 Safari/537.36")
+                    .header("sec-ch-ua-platform", "macOS")
+                    .cookie("PCID", "31489593180081104183684")
+                    .get();
+            Elements elements = doc.select("ul.search-product-list li.search-product");
+            System.out.println(elements.attr("innerHTML"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     @Transactional
@@ -271,7 +290,7 @@ public class ItemService {
     }
 
     @Transactional
-    private void storeDetailInfoImages(RelatedProduct firstRelatedProduct, long itemDetailId, List<String> fileSourceList) {
+    public void storeDetailInfoImages(RelatedProduct firstRelatedProduct, long itemDetailId, List<String> fileSourceList) {
         List<MultipartFile> multipartFileList = new ArrayList<>();
         for(int i = 0; i < fileSourceList.size(); i++){
             String fileName = firstRelatedProduct.getName() + "_" + i;
@@ -288,7 +307,7 @@ public class ItemService {
     }
 
     @Transactional
-    private void changeImageInfoInHtmlAndSave(Element targetDetailElement, ItemDetail detail, Elements imgElements) {
+    public void changeImageInfoInHtmlAndSave(Element targetDetailElement, ItemDetail detail, Elements imgElements) {
         List<String> itemImageNameList = fileStoreService.bringFileNameList("ItemDetail", detail.getItemId());
 
         for(int i = 0; i < imgElements.size(); i++){
