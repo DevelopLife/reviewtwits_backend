@@ -187,8 +187,14 @@ public class UserService {
 
     @Transactional
     public UserDetailInfoResponse registerAddition(RegisterUserInfoRequest registerUserInfoRequest, User user) {
+
         userRepository.findByNickname(registerUserInfoRequest.nickname()).ifPresent(
-                u -> {throw new NicknameAlreadyExistsException("중복된 닉네임입니다");}
+                u -> {
+                    // 유저 기존의 닉네임과 같은 경우 걸러줌
+                    if(!user.getNickname().equals(u.getNickname())) {
+                        throw new NicknameAlreadyExistsException("중복된 닉네임입니다");
+                    }
+                }
         );
         userMapper.updateUserFromRegisterUserInfoRequest(registerUserInfoRequest, user);
         if(registerUserInfoRequest.profileImage() != null) {
