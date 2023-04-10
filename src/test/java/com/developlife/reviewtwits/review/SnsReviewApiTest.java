@@ -527,7 +527,8 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br> X-AUTH-TOKEN 을 header 에 넣어 주고, 존재하는 reviewId 를 path 에 추가하면" +
                         "<br> 200 OK 와 함께 해당 리뷰가 유저에 스크랩됩니다." +
                         "<br> X-AUTH-TOKEN 이 올바르지 않거나 입력되지 않았을 경우 403 에러가 표출되게 됩니다." +
-                        "<br> 해당 리뷰가 존재하지 않을 경우, 404 에러가 표출되게 됩니다.","리뷰스크랩추가",
+                        "<br> 해당 리뷰가 존재하지 않을 경우, 404 에러가 표출되게 됩니다." +
+                        "<br>이미 스크랩한 리뷰의 경우, 409 에러가 표출되게 됩니다.","리뷰스크랩추가",
                         UserDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",registeredReviewId)
@@ -576,6 +577,26 @@ public class SnsReviewApiTest extends ApiTest {
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body("find{it.errorType == 'ReviewNotFoundException' " +
                         "&& it.fieldName == 'reviewId' " + "&& it.message == '스크랩하려는 리뷰 아이디가 존재하지 않습니다.'}", notNullValue())
+                .log().all();
+    }
+
+    @Test
+    void 리뷰_스크랩_추가_이미스크랩한리뷰_409(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        SNS_리뷰_스크랩_추가(token, registeredReviewId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("reviewId",registeredReviewId)
+                .when()
+                .post("/sns/scrap-reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .body("find{it.errorType == 'ReviewScrapConflictException' "
+                        + "&& it.message == '이미 등록된 리뷰 스크랩입니다.'}", notNullValue())
                 .log().all();
     }
 
@@ -656,7 +677,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.CONFLICT.value())
-                .body("find{it.errorType == 'ReviewScrapNotAddedException' "
+                .body("find{it.errorType == 'ReviewScrapConflictException' "
                         + "&& it.message == '등록되지 않은 리뷰 스크랩입니다.'}", notNullValue())
                 .log().all();
     }
