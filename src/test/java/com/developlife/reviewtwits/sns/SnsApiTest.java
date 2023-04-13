@@ -532,12 +532,23 @@ public class SnsApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         추가회원가입정보_입력(token,"whalesbob");
 
-        ExtractableResponse<Response> response = given(this.spec)
+        snsReviewSteps.SNS_리뷰_작성(token,"2번째 리뷰를 작성합니다.");
+        snsReviewSteps.SNS_리뷰_작성(token,"3번째 리뷰를 작성합니다.");
+
+        int size = 2;
+
+        ExtractableResponse<Response> firstResponse = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "개인 페이지에서의 리뷰 리스트를 요청하는 API 입니다." +
                         "<br>알고 싶은 계정의 닉네임을 path 에 입력하면, 해당 계정이 작성한 리뷰들의 간략한 정보를 알 수 있습니다." +
-                        "<br>존재하지 않는 닉네임을 입력하면 404 Not Found 가 반환됩니다.","개인리뷰리스트요청",
-                        SnsDocument.userNicknameField, SnsDocument.UserSnsReviewResponse))
+                        "<br>존재하지 않는 닉네임을 입력하면 404 Not Found 가 반환됩니다." +
+                        "<br>size 는 필수값입니다. 원하는 숫자 단위로 review 정보를 받을 수 있습니다." +
+                        "<br>받은 리뷰들 이전에 작성된 리뷰들을 받고 싶다면, reviewId 를 입력해 주셔야 합니다." +
+                        "<br>예를 들어, review 2개를 요청해 10번, 9번 reviewId 까지 받았다면, ?reviewId=9 를 입력하는 방식입니다." +
+                        "<br>size 와 reviewId 는 Query String 으로 입력해 주셔야 합니다. size 가 없다면, 400 이 리턴됩니다.",
+                        "개인리뷰리스트요청",
+                        SnsDocument.userNicknameField,SnsDocument.ReviewIdAndSizeField,SnsDocument.UserSnsReviewResponse))
                 .pathParam("nickname", "whalesbob")
+                .param("size",size)
                 .when()
                 .get("/sns/profile/reviews/{nickname}")
                 .then()
@@ -545,10 +556,31 @@ public class SnsApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .log().all().extract();
 
-        JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getInt("[0].commentCount")).isEqualTo(1);
-        assertThat(jsonPath.getInt("[0].reactionCount")).isEqualTo(1);
+        JsonPath jsonPath = firstResponse.jsonPath();
+
+        assertThat(jsonPath.getList("").size()).isEqualTo(size);
+        assertThat(jsonPath.getInt("[0].commentCount")).isEqualTo(0);
+        assertThat(jsonPath.getInt("[0].reactionCount")).isEqualTo(0);
         assertThat(jsonPath.getString("[0].reviewImageNameList")).isNotEmpty();
+
+        Long reviewId = jsonPath.getLong("[1].reviewId");
+
+        ExtractableResponse<Response> secondResponse = given()
+                .pathParam("nickname", "whalesbob")
+                .param("size", size)
+                .param("reviewId", reviewId)
+                .when()
+                .get("/sns/profile/reviews/{nickname}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath secondPath = secondResponse.jsonPath();
+
+        assertThat(secondPath.getList("").size()).isEqualTo(1);
+        assertThat(secondPath.getInt("[0].commentCount")).isEqualTo(1);
+        assertThat(secondPath.getInt("[0].reactionCount")).isEqualTo(1);
     }
 
     @Test
@@ -558,6 +590,7 @@ public class SnsApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .pathParam("nickname", "notRegistered")
                 .when()
+                .param("size",2)
                 .get("/sns/profile/reviews/{nickname}")
                 .then()
                 .assertThat()

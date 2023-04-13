@@ -117,4 +117,8 @@ public class SnsDocument {
             fieldWithPath("[].commentCount").type(JsonFieldType.NUMBER).description("댓글개수"),
             fieldWithPath("[].reactionCount").type(JsonFieldType.NUMBER).description("리액션개수")
     );
+    public static final Snippet ReviewIdAndSizeField = requestParameters(
+            parameterWithName("reviewId").description("리뷰의 아이디").optional(),
+            parameterWithName("size").attributes(required()).description("요청하는 페이지 사이즈")
+    );
 }

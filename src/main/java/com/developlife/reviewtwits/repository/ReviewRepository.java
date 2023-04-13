@@ -17,6 +17,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findByReviewIdLessThan(long reviewId, Pageable pageable);
 
     List<Review> findReviewsByUser(User user);
+    Page<Review> findReviewsByUser(User user, Pageable pageable);
+    Page<Review> findByReviewIdLessThanAndUser(long reviewId, User user, Pageable pageable);
 
     @Query("SELECT r FROM Review r WHERE r.exist = true AND (r.productName LIKE %:searchKey% OR r.content LIKE %:searchKey%) ORDER BY r.reviewId DESC")
     List<Review> findByProductNameLikeOrContentLike(@Param("searchKey")String searchKey, Pageable pageable);

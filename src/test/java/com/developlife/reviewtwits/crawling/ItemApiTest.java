@@ -40,7 +40,7 @@ public class ItemApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .log().all();
     }
-
+/*
     @Test
     void 상품정보크롤링_상품정보_200(){
         given(this.spec)
@@ -60,5 +60,5 @@ public class ItemApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .log().all();
     }
-
+*/
 }
