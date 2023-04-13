@@ -7,9 +7,9 @@ import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.mapper.ProjectMapper;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.repository.FileManagerRepository;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ProjectRepository;
+import com.developlife.reviewtwits.repository.file.FileManagerRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
@@ -230,7 +230,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         long reviewId = 리뷰아이디_추출();
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-        List<String> fileNameList = fileManagerRepository.findRealFileNameByReferenceIdAndReferenceType(reviewId,"Review");
+        List<String> fileNameList = fileManagerRepository.getRealFilename(reviewId,"Review");
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, UserDocument.AccessTokenHeader,

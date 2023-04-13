@@ -2,8 +2,8 @@ package com.developlife.reviewtwits.file;
 
 import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.entity.FileManager;
-import com.developlife.reviewtwits.repository.FileInfoRepository;
-import com.developlife.reviewtwits.repository.FileManagerRepository;
+import com.developlife.reviewtwits.repository.file.FileInfoRepository;
+import com.developlife.reviewtwits.repository.file.FileManagerRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -54,7 +54,7 @@ public class BasicFileUploadTest extends FileUploadTest {
         FileInfo updatedInfo = fileInfoRepository.findByOriginalFilename("testDB.txt").get();
         assertThat(updatedInfo.getFilePath()).isEqualTo(getStoredFullPath(response));
 
-        FileManager updatedFileManager = fileManagerRepository.findByFileInfo_FileID(updatedInfo.getFileID()).get();
+        FileManager updatedFileManager = fileManagerRepository.findByFileInfo_FileID(updatedInfo.getFileID());
         assertThat(updatedFileManager.getReferenceId()).isEqualTo(id);
         assertThat(updatedFileManager.getReferenceType()).isEqualTo(referenceType);
     }

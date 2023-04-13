@@ -5,8 +5,8 @@ import com.developlife.reviewtwits.entity.FileManager;
 import com.developlife.reviewtwits.exception.file.FileEmptyException;
 import com.developlife.reviewtwits.exception.file.FileNotStoredException;
 import com.developlife.reviewtwits.exception.file.InvalidFilenameExtensionException;
-import com.developlife.reviewtwits.repository.FileInfoRepository;
-import com.developlife.reviewtwits.repository.FileManagerRepository;
+import com.developlife.reviewtwits.repository.file.FileInfoRepository;
+import com.developlife.reviewtwits.repository.file.FileManagerRepository;
 import com.developlife.reviewtwits.type.FileReferenceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -123,7 +123,7 @@ public class FileStoreService {
 
     @Transactional
     public List<String> bringFileNameList(String referenceType, Long referenceID){
-        return fileManagerRepository.findRealFileNameByReferenceIdAndReferenceType(referenceID, referenceType);
+        return fileManagerRepository.getRealFilename(referenceID, referenceType);
     }
 
     @Transactional
