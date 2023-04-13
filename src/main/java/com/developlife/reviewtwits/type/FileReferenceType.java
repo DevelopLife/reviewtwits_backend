@@ -17,6 +17,8 @@ public enum FileReferenceType {
     USER(IMAGE.filetypeList),
     REVIEW(IMAGE.filetypeList),
     PRODUCT(IMAGE.filetypeList),
+    RELATED_PRODUCT(IMAGE.filetypeList),
+    ITEM_DETAIL(IMAGE.filetypeList),
     TEST(List.of("txt","mp4"));
 
     // enum 을 통해 관리되어야 하는 것
@@ -29,33 +31,31 @@ public enum FileReferenceType {
         this.filetypeList = filetypeList;
     }
 
-    public static boolean isValidFileType(String referenceType, List<MultipartFile> files){
-        FileReferenceType fileType = FileReferenceType.valueOf(referenceType.toUpperCase(Locale.ROOT));
+    public static boolean isValidFileType(FileReferenceType referenceType, List<MultipartFile> files){
+
         for(MultipartFile file : files){
             String ext = FileStoreService.extractExt(file.getOriginalFilename());
-            if(!fileType.filetypeList.contains(ext)){
+            if(!referenceType.filetypeList.contains(ext)){
                 return false;
             }
         }
         return true;
     }
 
-    public static boolean isValidDeleteFileName(String referenceType, List<String> deleteFileName){
-        FileReferenceType fileType = FileReferenceType.valueOf(referenceType.toUpperCase(Locale.ROOT));
+    public static boolean isValidDeleteFileName(FileReferenceType referenceType, List<String> deleteFileName){
         for(String name : deleteFileName){
             int position = name.lastIndexOf(".");
             String ext = name.substring(position + 1);
-            if(!fileType.filetypeList.contains(ext)){
+            if(!referenceType.filetypeList.contains(ext)){
                 return false;
             }
         }
         return true;
     }
 
-    public static boolean isValidFileType(String referenceType, String fileName){
-        FileReferenceType fileType = FileReferenceType.valueOf(referenceType.toUpperCase(Locale.ROOT));
+    public static boolean isValidFileType(FileReferenceType referenceType, String fileName){
         String ext = FileStoreService.extractExt(fileName);
-        return fileType.filetypeList.contains(ext);
+        return referenceType.filetypeList.contains(ext);
     }
 
     public static String getContentType(String fileName){

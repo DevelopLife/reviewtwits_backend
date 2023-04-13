@@ -23,7 +23,11 @@ public class FollowCustomRepositoryImpl implements FollowCustomRepository {
     public FollowCustomRepositoryImpl(JPAQueryFactory jpaQueryFactory) {
         this.jpaQueryFactory = jpaQueryFactory;
     }
+    /*
+   // 최근에 만들어진 계정 중에 팔로우 하지 않은 계정을 추천
+    SELECT user_id From User
 
+     */
     @Override
     public List<User> recommendFollow(long userId, int limit) {
         return jpaQueryFactory.selectFrom(user)
@@ -31,16 +35,10 @@ public class FollowCustomRepositoryImpl implements FollowCustomRepository {
                     JPAExpressions.selectFrom(follow)
                         .where(follow.targetUser.eq(user).and(follow.user.userId.eq(userId)))
                         .notExists()
+                            .and(user.userId.ne(userId))
                 )
+                .orderBy(user.createdDate.desc())
+                .limit(limit)
                 .fetch();
     }
 }
-/*
-SELECT user_id
-FROM users
-WHERE NOT EXISTS (
-  SELECT 1
-  FROM followers
-  WHERE followers.followed_id = users.user_id AND followers.follower_id = <current_user_id>
-)
- */

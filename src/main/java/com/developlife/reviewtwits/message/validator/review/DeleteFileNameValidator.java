@@ -17,6 +17,6 @@ public class DeleteFileNameValidator implements ConstraintValidator<DeleteFileNa
         if(value == null || value.isEmpty()){
             return true;
         }
-        return FileReferenceType.isValidDeleteFileName("image",value);
+        return FileReferenceType.isValidDeleteFileName(FileReferenceType.IMAGE,value);
     }
 }

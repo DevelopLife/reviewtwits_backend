@@ -19,6 +19,6 @@ public class ImagesFileValidator implements ConstraintValidator<ImageFiles,List<
         if(value == null || value.isEmpty()){
             return true;
         }
-        return FileReferenceType.isValidFileType("image",value);
+        return FileReferenceType.isValidFileType(FileReferenceType.IMAGE, value);
     }
 }

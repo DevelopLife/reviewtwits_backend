@@ -82,7 +82,7 @@ public class SnsService {
     }
 
     @Transactional(readOnly = true)
-    private User getTargetUser(String targetUserAccountId) {
+    public User getTargetUser(String targetUserAccountId) {
         Optional<User> foundTargetUser = userRepository.findByAccountId(targetUserAccountId);
         if(foundTargetUser.isEmpty()){
             throw new UserIdNotFoundException("요청한 팔로우 계정이 존재하지 않습니다.");
@@ -130,10 +130,10 @@ public class SnsService {
     }
 
     // TODO: 임시적으로 최근 생성된 5개를 반환하도록,, 추천 알고리즘 구현 필요
+    @Transactional(readOnly = true)
     public List<UserInfoResponse> suggestFollowers(User user) {
-        return null;
-//        List<User> userList = userRepository.findAllByOrderByCreatedDateDesc(PageRequest.of(0, 5));
-//        return userList.stream().map(userInfo -> snsMapper.toUserInfoResponse(userInfo)).toList();
+        List<User> userList = followRepository.recommendFollow(user.getUserId(), 5);
+        return userMapper.toUserInfoResponseList(userList);
     }
 
     @Transactional(readOnly = true)

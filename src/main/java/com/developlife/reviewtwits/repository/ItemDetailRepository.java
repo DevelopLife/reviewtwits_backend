@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ItemDetailRepository extends JpaRepository<ItemDetail, Long> {
@@ -15,4 +16,6 @@ public interface ItemDetailRepository extends JpaRepository<ItemDetail, Long> {
     List<ItemDetail> findByRelatedProduct_NameLikeOrDetailInfoLike(String searchKey, Pageable pageable);
 
     List<ItemDetail> findAllByOrderByCreatedDateDesc(Pageable pageable);
+
+    Optional<ItemDetail> findByProductNameLike(String productName);
 }

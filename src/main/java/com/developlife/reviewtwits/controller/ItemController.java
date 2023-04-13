@@ -1,9 +1,11 @@
 package com.developlife.reviewtwits.controller;
 
+import com.developlife.reviewtwits.entity.RelatedProduct;
 import com.developlife.reviewtwits.service.ItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 
 /**
@@ -20,13 +22,15 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-    @PostMapping(value = "/register-crawling")
-    public void registerCrawling(@RequestParam String productName) {
-        itemService.relateProductsCrawling(productName);
+    @PostMapping(value = "/request-crawling")
+    public RelatedProduct registerCrawling(@RequestParam String productName) {
+        return itemService.requestCrawlingProductInfo(productName);
     }
 
     @GetMapping(value = "/search", produces = "application/json; charset=utf8")
-    public String search(@RequestParam String productName) {
+    public String search(@RequestParam
+                         @NotBlank(message = "검색할 상품이름을 입력해주세요")
+                         String productName) {
         return itemService.search(productName);
     }
 }
