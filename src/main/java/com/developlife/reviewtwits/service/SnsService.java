@@ -19,7 +19,10 @@ import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.repository.follow.FollowRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -151,14 +154,23 @@ public class SnsService {
     }
 
     @Transactional(readOnly = true)
-    public List<SnsReviewResponse> findReviewsOfUser(String nickname) {
+    public List<SnsReviewResponse> findReviewsOfUser(String nickname,Long reviewId, int size) {
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 유저 닉네임으로 된 계정이 존재하지 않습니다."));
 
-        List<Review> reviews = reviewRepository.findReviewsByUser(user);
+        List<Review> reviews = findReviewsByUserInPage(user,reviewId,size);
         for(Review review : reviews){
             snsReviewUtils.saveReviewImage(review);
         }
         return reviewMapper.toSnsReviewResponseList(reviews);
+    }
+
+    private List<Review> findReviewsByUserInPage(User user,Long reviewId, int size){
+        Pageable pageable = PageRequest.of(0,size, Sort.by("reviewId").descending());
+        if(reviewId == null){
+            return reviewRepository.findReviewsByUser(user,pageable).getContent();
+        }
+        Page<Review> reviewInPage = reviewRepository.findByReviewIdLessThanAndUser(reviewId,user,pageable);
+        return reviewInPage.getContent();
     }
 }
