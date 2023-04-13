@@ -48,6 +48,7 @@ public class SnsReviewSteps {
     final static String commentContent = "테스트 코멘트";
     final static String changeCommentContent = "테스트를 위한 수정 코멘트";
     final static String reactionContent = "GOOD";
+    final static String newReactionContent = "SUNGLASSES";
     final ReviewRepository reviewRepository;
     final ItemDetailRepository itemDetailRepository;
     final RelatedProductRepository relatedProductRepository;
