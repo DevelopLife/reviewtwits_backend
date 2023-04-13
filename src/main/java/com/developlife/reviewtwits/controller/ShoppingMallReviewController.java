@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.io.IOException;
 import java.net.BindException;
 import java.util.List;
 
@@ -33,9 +32,9 @@ public class ShoppingMallReviewController {
     private final ShoppingMallReviewService reviewService;
 
     @PostMapping(value = "/shopping", consumes = "multipart/form-data;charset=UTF-8")
-    public void writeShoppingMallReview(@Valid @ModelAttribute ShoppingMallReviewWriteRequest request,
-                                        @AuthenticationPrincipal User user) throws IOException {
-        reviewService.saveShoppingMallReview(request, user);
+    public DetailShoppingMallReviewResponse writeShoppingMallReview(@Valid @ModelAttribute ShoppingMallReviewWriteRequest request,
+                                        @AuthenticationPrincipal User user) {
+        return reviewService.saveShoppingMallReview(request, user);
     }
 
     @GetMapping(value = "/shopping", produces = "application/json")
@@ -56,28 +55,28 @@ public class ShoppingMallReviewController {
 
 
     @DeleteMapping(value = "/shopping/{reviewId}")
-    public void deleteShoppingMallReview(@NotBlank @PathVariable Long reviewId,
+    public DetailShoppingMallReviewResponse deleteShoppingMallReview(@NotBlank @PathVariable Long reviewId,
                                          @AuthenticationPrincipal User user){
 
         reviewService.checkReviewCanEdit(user,reviewId);
-        reviewService.deleteShoppingMallReview(reviewId);
+        return reviewService.deleteShoppingMallReview(reviewId);
     }
 
     @PatchMapping(value = "/shopping/{reviewId}", consumes = "multipart/form-data;charset=UTF-8")
-    public void changeShoppingMallReview(@PathVariable Long reviewId,
+    public DetailShoppingMallReviewResponse changeShoppingMallReview(@PathVariable Long reviewId,
                                          @AuthenticationPrincipal User user,
-                                         @Valid @ModelAttribute ShoppingMallReviewChangeRequest request) throws IOException {
+                                         @Valid @ModelAttribute ShoppingMallReviewChangeRequest request){
 
         reviewService.checkReviewCanEdit(user, reviewId);
-        reviewService.changeShoppingMallReview(reviewId, request);
+        return reviewService.changeShoppingMallReview(reviewId, request);
     }
 
     @PutMapping(value = "/shopping/{reviewId}")
-    public void restoreShoppingMallReview(@PathVariable Long reviewId,
+    public DetailShoppingMallReviewResponse restoreShoppingMallReview(@PathVariable Long reviewId,
                                           @AuthenticationPrincipal User user){
 
         reviewService.checkReviewCanEdit(user,reviewId);
-        reviewService.restoreShoppingMallReview(reviewId);
+        return reviewService.restoreShoppingMallReview(reviewId);
     }
 
     @GetMapping(value = "/shopping/list", produces = "application/json;charset=UTF-8")
