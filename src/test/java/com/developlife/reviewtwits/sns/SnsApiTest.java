@@ -10,6 +10,7 @@ import com.developlife.reviewtwits.repository.follow.FollowRepository;
 import com.developlife.reviewtwits.review.ShoppingMallReviewSteps;
 import com.developlife.reviewtwits.review.SnsReviewSteps;
 import com.developlife.reviewtwits.service.user.UserService;
+import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;

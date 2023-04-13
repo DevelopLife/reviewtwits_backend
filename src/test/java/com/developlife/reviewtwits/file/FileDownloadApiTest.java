@@ -41,7 +41,7 @@ public class FileDownloadApiTest extends ApiTest {
 
         uuidFilename = downloadSteps.textFileUpload("example","example",".txt",12L,"TEST");
         // 임의의 파일과 이미지 하나를 저장해 두고, 없는 거 부르면 실패/있는거 부르면 성공
-        uuidImageFilename = downloadSteps.imageFileUpload(345L,"Image");
+        uuidImageFilename = downloadSteps.imageFileUpload(345L,"IMAGE");
 
 //        doReturn(new ByteArrayResource("Hello World".getBytes()))
 //                .when(awsS3Service)

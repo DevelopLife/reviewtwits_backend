@@ -10,7 +10,7 @@ import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.ReactionRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
 import com.developlife.reviewtwits.repository.ReviewScrapRepository;
-import com.developlife.reviewtwits.type.FileReferenceType;
+import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.ReactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -50,6 +50,6 @@ public class SnsReviewUtils {
     }
 
     public void saveReviewImage(Review review){
-        review.setReviewImageNameList(fileStoreService.bringFileNameList(FileReferenceType.REVIEW, review.getReviewId()));
+        review.setReviewImageNameList(fileStoreService.bringFileNameList(ReferenceType.REVIEW, review.getReviewId()));
     }
 }

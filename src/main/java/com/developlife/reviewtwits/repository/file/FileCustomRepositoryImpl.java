@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.repository.file;
 
+import com.developlife.reviewtwits.type.ReferenceType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +24,7 @@ public class FileCustomRepositoryImpl implements FileCustomRepository{
     //    // AND fm.reference_type LIKE ?2 AND fs.exist = true
 
     @Override
-    public List<String> getRealFilename(Long referenceId, String referenceType) {
+    public List<String> getRealFilename(Long referenceId, ReferenceType referenceType) {
         return jpaQueryFactory.select(fileInfo.realFilename).from(fileInfo)
                 .innerJoin(fileManager)
                 .on(fileInfo.eq(fileManager.fileInfo))

@@ -1,6 +1,6 @@
 package com.developlife.reviewtwits.entity;
 
-import com.developlife.reviewtwits.type.FileReferenceType;
+import com.developlife.reviewtwits.type.ReferenceType;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -21,12 +21,12 @@ public class FileManager {
     private Long referenceId;
 
     @Enumerated(EnumType.STRING)
-    private FileReferenceType referenceType;
+    private ReferenceType referenceType;
 
     public FileManager() {
     }
 
-    public FileManager(FileInfo fileInfo, Long referenceId, FileReferenceType referenceType) {
+    public FileManager(FileInfo fileInfo, Long referenceId, ReferenceType referenceType) {
         this.fileInfo = fileInfo;
         this.referenceId = referenceId;
         this.referenceType = referenceType;

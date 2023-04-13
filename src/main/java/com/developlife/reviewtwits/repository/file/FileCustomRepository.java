@@ -1,5 +1,7 @@
 package com.developlife.reviewtwits.repository.file;
 
+import com.developlife.reviewtwits.type.ReferenceType;
+
 import java.util.List;
 
 /**
@@ -7,5 +9,5 @@ import java.util.List;
  * @since 2023-04-12
  */
 public interface FileCustomRepository {
-    List<String> getRealFilename(Long referenceId, String referenceType);
+    List<String> getRealFilename(Long referenceId, ReferenceType referenceType);
 }

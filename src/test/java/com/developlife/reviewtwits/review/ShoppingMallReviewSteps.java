@@ -7,6 +7,7 @@ import com.developlife.reviewtwits.message.request.review.ReviewProductURLReques
 import com.developlife.reviewtwits.project.ProjectSteps;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ProjectRepository;
+import com.developlife.reviewtwits.type.MadeMultipartFile;
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.specification.MultiPartSpecification;
 import org.apache.commons.fileupload.disk.DiskFileItem;
@@ -105,10 +106,8 @@ public class ShoppingMallReviewSteps {
     }
 
     public static MultiPartSpecification createMultipartFile(File file, String contentName) throws IOException {
-        DiskFileItem fileItem = new DiskFileItem("file", "application/octet-stream", false, file.getName(), (int) file.length() , file.getParentFile());
-        fileItem.getOutputStream().write(Files.readAllBytes(file.toPath()));
 
-        MultipartFile multipartFile = new CommonsMultipartFile(fileItem);
+        MultipartFile multipartFile = new MadeMultipartFile(Files.readAllBytes(file.toPath()),file.getName());
         return new MultiPartSpecBuilder(multipartFile.getBytes())
                 .controlName(contentName)
                 .fileName(multipartFile.getOriginalFilename())

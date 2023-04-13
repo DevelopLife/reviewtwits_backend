@@ -11,7 +11,7 @@ import java.util.Locale;
  * @since 2023-02-26
  */
 
-public enum FileReferenceType {
+public enum ReferenceType {
 
     IMAGE(List.of("jpg","png","svg","gif")),
     USER(IMAGE.filetypeList),
@@ -27,11 +27,11 @@ public enum FileReferenceType {
     private List<String> filetypeList;
 
 
-    FileReferenceType(List<String> filetypeList) {
+    ReferenceType(List<String> filetypeList) {
         this.filetypeList = filetypeList;
     }
 
-    public static boolean isValidFileType(FileReferenceType referenceType, List<MultipartFile> files){
+    public static boolean isValidFileType(ReferenceType referenceType, List<MultipartFile> files){
 
         for(MultipartFile file : files){
             String ext = FileStoreService.extractExt(file.getOriginalFilename());
@@ -42,7 +42,7 @@ public enum FileReferenceType {
         return true;
     }
 
-    public static boolean isValidDeleteFileName(FileReferenceType referenceType, List<String> deleteFileName){
+    public static boolean isValidDeleteFileName(ReferenceType referenceType, List<String> deleteFileName){
         for(String name : deleteFileName){
             int position = name.lastIndexOf(".");
             String ext = name.substring(position + 1);
@@ -53,14 +53,14 @@ public enum FileReferenceType {
         return true;
     }
 
-    public static boolean isValidFileType(FileReferenceType referenceType, String fileName){
+    public static boolean isValidFileType(ReferenceType referenceType, String fileName){
         String ext = FileStoreService.extractExt(fileName);
         return referenceType.filetypeList.contains(ext);
     }
 
     public static String getContentType(String fileName){
         String ext = FileStoreService.extractExt(fileName);
-        for(FileReferenceType type : FileReferenceType.values()){
+        for(ReferenceType type : ReferenceType.values()){
             if(type.filetypeList.contains(ext)){
                 return type.name().toLowerCase(Locale.ROOT) + "/" + ext;
             }

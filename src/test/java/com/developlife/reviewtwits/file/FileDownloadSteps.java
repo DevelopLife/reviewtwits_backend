@@ -1,16 +1,12 @@
 package com.developlife.reviewtwits.file;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.message.request.FileUpdateRequest;
 import com.developlife.reviewtwits.service.FileStoreService;
-import com.developlife.reviewtwits.type.FileReferenceType;
+import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.MadeMultipartFile;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
-import static org.mockito.Mockito.*;
 
 /**
  * @author WhalesBob
@@ -72,15 +66,14 @@ public class FileDownloadSteps {
 
     public ResponseEntity<String> mockFileUploadProcess(FileUpdateRequest request){
         // doReturn(null).when(amazonS3).putObject(Mockito.any(PutObjectRequest.class));
-        FileReferenceType fileReferenceType = null;
+
         try {
-            FileReferenceType.valueOf(request.referenceType());
+            ReferenceType referenceType = ReferenceType.valueOf(request.referenceType());
+            List<FileInfo> fileInfoList = fileStoreService.storeFiles(request.attachedFiles(), request.id(), referenceType);
+            String storeFilename = fileInfoList.get(0).getRealFilename();
+            return ResponseEntity.ok().body(storeFilename);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("잘못된 referenceType 입니다.");
         }
-        List<FileInfo> fileInfoList = fileStoreService.storeFiles(request.attachedFiles(), request.id(), fileReferenceType);
-
-        String storeFilename = fileInfoList.get(0).getRealFilename();
-        return ResponseEntity.ok().body(storeFilename);
     }
 }
