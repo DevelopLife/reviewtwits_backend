@@ -101,6 +101,13 @@ public class UserController {
 
         fileStoreService.storeFiles(List.of(request.imageFile()),user.getUserId(), FileReferenceType.USER);
     }
+
+
+    @PostMapping("/change-detail-messages")
+    public void changeDetailMessageOfUserProfile(@AuthenticationPrincipal User user,
+                                                 @RequestBody String detailInfo){
+        userService.changeDetailIntroduce(user, detailInfo);
+    }
     // admin권한 부여를 받을수 있는 테스트용 메소드
 //    @PostMapping(value = "/permission", produces = "application/json")
     public User addAdminPermission() {

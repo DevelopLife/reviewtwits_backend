@@ -197,13 +197,27 @@ public class UserService {
                     }
                 }
         );
+
         userMapper.updateUserFromRegisterUserInfoRequest(registerUserInfoRequest, user);
         if(registerUserInfoRequest.profileImage() != null) {
             fileStoreService.storeFiles(List.of(registerUserInfoRequest.profileImage()), user.getUserId(), FileReferenceType.USER);
         }
+
+        user.setNickname(registerUserInfoRequest.nickname());
+        user.setIntroduceText(registerUserInfoRequest.introduceText());
+//        if(registerUserInfoRequest.profileImage() != null){
+//            fileStoreService.storeFiles(List.of(registerUserInfoRequest.profileImage()),user.getUserId(),"User");
+//        }
+        fileStoreService.storeFile(registerUserInfoRequest.profileImage(),user.getUserId(),"User");
+
         userRepository.save(user);
 
         setProfileImage(user);
         return userMapper.toUserDetailInfoResponse(user);
+    }
+
+    public void changeDetailIntroduce(User user, String detailInfo) {
+        user.setDetailIntroduce(detailInfo);
+        userRepository.save(user);
     }
 }

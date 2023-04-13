@@ -58,14 +58,23 @@ public class FileStoreService {
     @Transactional
     public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, FileReferenceType referenceType) {
 
-        checkFolder();
+        if(multipartFile == null){
+            return null;
+        }
+        checkFolderAndValidFiles(List.of(multipartFile),referenceType);
 
+        FileInfo fileInfo = storeFile(multipartFile);
+        fileManagerRepository.save(new FileManager(fileInfo,referenceId,referenceType));
+        return fileInfo;
+    }
+
+    @Transactional
+    public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, String referenceType) {
         if(multipartFiles.get(0).isEmpty()){
             throw new FileEmptyException("파일 내역이 비워져 있습니다.");
         }
-        if(!FileReferenceType.isValidFileType(referenceType, multipartFiles)){
-            throw new InvalidFilenameExtensionException("올바르지 않는 파일 타입입니다.");
-        }
+
+        checkFolderAndValidFiles(multipartFiles, referenceType);
 
         List<FileInfo> storeFileResult = new ArrayList<>();
         List<FileManager> fileManagerList = new ArrayList<>();
@@ -80,6 +89,14 @@ public class FileStoreService {
         fileManagerRepository.saveAll(fileManagerList);
 
         return storeFileResult;
+    }
+
+    private void checkFolderAndValidFiles(List<MultipartFile> multipartFiles, String referenceType) {
+        checkFolder();
+
+        if(!FileReferenceType.isValidFileType(referenceType, multipartFiles)){
+            throw new InvalidFilenameExtensionException("올바르지 않는 파일 타입입니다.");
+        }
     }
 
     @Transactional(readOnly = true)

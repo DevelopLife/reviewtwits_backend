@@ -11,7 +11,11 @@ public record UserInfoResponse(
         String nickname,
         String accountId,
         String introduceText,
-        String profileImage
+        String profileImage,
+        String detailIntroduce,
+        int reviewCount,
+        int followers,
+        int followings
 ) {
     @Builder
     public UserInfoResponse {

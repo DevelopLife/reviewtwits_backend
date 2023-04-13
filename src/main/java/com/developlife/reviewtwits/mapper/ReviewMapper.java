@@ -7,11 +7,9 @@ import com.developlife.reviewtwits.message.response.review.CommentResponse;
 import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.message.response.sns.SnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.Named;
-import org.mapstruct.NullValueCheckStrategy;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -27,8 +25,11 @@ public interface ReviewMapper {
     ReviewMapper INSTANCE = Mappers.getMapper(ReviewMapper.class);
     List<DetailShoppingMallReviewResponse> toDetailReviewResponseList(List<Review> reviews);
     List<CommentResponse> toCommentResponseList(List<Comment> comments);
+    List<SnsReviewResponse> toSnsReviewResponseList(List<Review> reviews);
 
-
+    @Mapping(target = "reviewCount", ignore = true)
+    @Mapping(target = "followers", ignore = true)
+    @Mapping(target = "followings", ignore = true)
     UserInfoResponse mapUserToUserInfoResponse(User user);
 
     default DetailShoppingMallReviewResponse mapReviewToDetailReviewResponse(Review review){
@@ -71,6 +72,16 @@ public interface ReviewMapper {
                 .content(comment.getContent())
                 .parentCommentId(comment.getCommentGroup().getCommentId())
                 .userInfo(mapUserToUserInfoResponse(comment.getUser()))
+                .build();
+    }
+
+    default SnsReviewResponse toSnsReviewResponse(Review review){
+        return SnsReviewResponse.builder()
+                .reviewId(review.getReviewId())
+                .userInfo(mapUserToUserInfoResponse(review.getUser()))
+                .reviewImageNameList(review.getReviewImageNameList())
+                .commentCount(review.getCommentCount())
+                .reactionCount(review.getReactionCount())
                 .build();
     }
 }

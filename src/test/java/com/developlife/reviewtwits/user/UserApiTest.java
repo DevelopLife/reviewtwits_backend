@@ -11,6 +11,7 @@ import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.review.ShoppingMallReviewSteps;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.http.ContentType;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -25,7 +26,9 @@ import org.springframework.http.MediaType;
 
 import java.io.IOException;
 
+import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.EncoderConfig.encoderConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
@@ -375,6 +378,46 @@ public class UserApiTest extends ApiTest {
                 .assertThat()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("find{it.errorType == 'FileUploadException' && it.fieldName == 'file' }",notNullValue())
+                .log().all();
+    }
+
+    @Test
+    void 유저프로필_상세소개_수정_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,"유저 프로필에서 상세 소개를 변경하는 API 입니다." +
+                        "header 에 X-AUTH-TOKEN 을, body 에 소개 내용만을 넣어 주면, 200 OK 와 함께 유저의 상세 소개가 변경됩니다." +
+                        "잘못된 X-AUTH-TOKEN 을 입력하거나, token을 입력하지 않았을 경우, 403 에러가 반환됩니다."
+                        ,"유저프로필상세소개수정요청",UserDocument.AccessTokenHeader))
+                .config(config().encoderConfig(encoderConfig()
+                        .encodeContentTypeAs("text/plain", ContentType.TEXT)
+                        .defaultContentCharset("UTF-8")))
+                .header("X-AUTH-TOKEN",token)
+                .body(UserSteps.userDetailIntroduce)
+                .when()
+                .post("/users/change-detail-messages")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
+
+        User user = userRepository.findByAccountId(UserSteps.accountId).get();
+        assertThat(user.getDetailIntroduce()).isEqualTo(UserSteps.userDetailIntroduce);
+    }
+
+    @Test
+    void 유저프로필_상세소개_수정_헤더정보없음_403(){
+        given(this.spec)
+                .config(config().encoderConfig(encoderConfig()
+                        .encodeContentTypeAs("text/plain", ContentType.TEXT)
+                        .defaultContentCharset("UTF-8")))
+                .body(UserSteps.userDetailIntroduce)
+                .when()
+                .post("/users/change-detail-messages")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
                 .log().all();
     }
 }

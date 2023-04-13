@@ -1,10 +1,12 @@
 package com.developlife.reviewtwits.review;
 
 import com.developlife.reviewtwits.CommonSteps;
+import com.developlife.reviewtwits.entity.Comment;
 import com.developlife.reviewtwits.entity.ItemDetail;
 import com.developlife.reviewtwits.entity.RelatedProduct;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
+import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.ItemDetailRepository;
 import com.developlife.reviewtwits.repository.RelatedProductRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
@@ -14,6 +16,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
@@ -48,11 +51,14 @@ public class SnsReviewSteps {
     final ReviewRepository reviewRepository;
     final ItemDetailRepository itemDetailRepository;
     final RelatedProductRepository relatedProductRepository;
+    final CommentRepository commentRepository;
 
-    public SnsReviewSteps(ReviewRepository reviewRepository, ItemDetailRepository itemDetailRepository, RelatedProductRepository relatedProductRepository) {
+    public SnsReviewSteps(ReviewRepository reviewRepository, ItemDetailRepository itemDetailRepository,
+                          RelatedProductRepository relatedProductRepository, CommentRepository commentRepository) {
         this.reviewRepository = reviewRepository;
         this.itemDetailRepository = itemDetailRepository;
         this.relatedProductRepository = relatedProductRepository;
+        this.commentRepository = commentRepository;
     }
     public static List<MultiPartSpecification> 리뷰_이미지_파일정보_생성() {
         try{
@@ -124,6 +130,33 @@ public class SnsReviewSteps {
 
         List<Review> reviewList = reviewRepository.findReviewsByProductUrl(productURL);
         return reviewList.get(reviewList.size()-1).getReviewId();
+    }
+
+    public Long SNS_리뷰_댓글_작성(String token, long reviewId){
+
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("reviewId", reviewId)
+                .body(SnsReviewSteps.댓글_작성정보_생성())
+                .when()
+                .post("/sns/comments/{reviewId}")
+                .then()
+                .log().all();
+
+        List<Comment> recentComments = commentRepository.findByReview_ReviewId(reviewId);
+        return recentComments.get(recentComments.size()-1).getCommentId();
+    }
+
+    public void SNS_리액션_추가(String token, long registeredReviewId){
+        given()
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", registeredReviewId)
+                .param("reaction",reactionContent)
+                .when()
+                .post("/sns/review-reaction/{reviewId}")
+                .then()
+                .log().all();
     }
 
 

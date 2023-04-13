@@ -24,12 +24,20 @@ public class SnsDocument {
             parameterWithName("accountId").attributes(required()).description("유저 계정 아이디")
     );
 
+    public static final Snippet userNicknameField = pathParameters(
+            parameterWithName("nickname").attributes(required()).description("유저 닉네임")
+    );
+
     public static final Snippet snsFollowResponseField = responseFields(
             fieldWithPath("[].userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
             fieldWithPath("[].nickname").type(JsonFieldType.STRING).description("유저닉네임"),
             fieldWithPath("[].accountId").type(JsonFieldType.STRING).description("유저 계정"),
             fieldWithPath("[].introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
-            fieldWithPath("[].profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional()
+            fieldWithPath("[].detailIntroduce").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
+            fieldWithPath("[].profileImage").type(JsonFieldType.ARRAY).description("프로필이미지 파일이름").optional(),
+            fieldWithPath("[].reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
+            fieldWithPath("[].followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
+            fieldWithPath("[].followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional()
     );
 
     public static final Snippet SearchAllSnsRequest = requestParameters(
@@ -49,14 +57,19 @@ public class SnsDocument {
         fieldWithPath("reviewList[].userInfo.userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
         fieldWithPath("reviewList[].userInfo.accountId").type(JsonFieldType.STRING).description("아이디"),
         fieldWithPath("reviewList[].userInfo.introduceText").type(JsonFieldType.STRING).description("자기소개"),
+        fieldWithPath("reviewList[].userInfo.detailIntroduce").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
         fieldWithPath("reviewList[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지URL").optional(),
+        fieldWithPath("reviewList[].userInfo.reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
+        fieldWithPath("reviewList[].userInfo.followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
+        fieldWithPath("reviewList[].userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
         fieldWithPath("reviewList[].content").type(JsonFieldType.STRING).description("리뷰콘텐츠").optional(),
         fieldWithPath("reviewList[].productUrl").type(JsonFieldType.STRING).description("리뷰상품구매URL"),
         fieldWithPath("reviewList[].productName").type(JsonFieldType.STRING).description("리뷰상품이름"),
         fieldWithPath("reviewList[].score").type(JsonFieldType.NUMBER).description("평점"),
         fieldWithPath("reviewList[].reviewImageNameList[]").type(JsonFieldType.ARRAY).description("리뷰이미지리스트"),
         fieldWithPath("reviewList[].commentCount").type(JsonFieldType.NUMBER).description("댓글수"),
-        fieldWithPath("reviewList[].reactionResponses").type(JsonFieldType.OBJECT).description("리액션"),
+        fieldWithPath("reviewList[].reactionResponses.*.isReacted").type(JsonFieldType.BOOLEAN).description("테스트용1"),
+        fieldWithPath("reviewList[].reactionResponses.*.count").type(JsonFieldType.NUMBER).description("테스트용2"),
         fieldWithPath("reviewList[].isScrapped").type(JsonFieldType.BOOLEAN).description("스크랩여부")
     );
     public static final Snippet RecommendProductResponse = responseFields(
@@ -72,5 +85,32 @@ public class SnsDocument {
         fieldWithPath("[].accountId").type(JsonFieldType.STRING).description("유저 계정"),
         fieldWithPath("[].introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
         fieldWithPath("[].profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional()
+    );
+    public static final Snippet UserProfileInfoResponse = responseFields(
+        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 닉네임"),
+        fieldWithPath("accountId").type(JsonFieldType.STRING).description("유저 계정"),
+        fieldWithPath("nickname").type(JsonFieldType.STRING).description("유저 닉네임"),
+        fieldWithPath("introduceText").type(JsonFieldType.STRING).description("유저 한줄소개"),
+        fieldWithPath("profileImage").type(JsonFieldType.STRING).description("유저 프로필이미지"),
+        fieldWithPath("detailIntroduce").type(JsonFieldType.STRING).description("유저 상세소개").optional(),
+        fieldWithPath("reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수"),
+        fieldWithPath("followers").type(JsonFieldType.NUMBER).description("팔로우 수"),
+        fieldWithPath("followings").type(JsonFieldType.NUMBER).description("팔로잉 수")
+    );
+
+    public static final Snippet UserSnsReviewResponse = responseFields(
+            fieldWithPath("[].reviewId").type(JsonFieldType.NUMBER).description("리뷰아이디"),
+            fieldWithPath("[].userInfo.nickname").type(JsonFieldType.STRING).description("닉네임"),
+            fieldWithPath("[].userInfo.userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
+            fieldWithPath("[].userInfo.accountId").type(JsonFieldType.STRING).description("아이디"),
+            fieldWithPath("[].userInfo.introduceText").type(JsonFieldType.STRING).description("자기소개"),
+            fieldWithPath("[].userInfo.detailIntroduce").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
+            fieldWithPath("[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지URL").optional(),
+            fieldWithPath("[].userInfo.reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
+            fieldWithPath("[].userInfo.followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
+            fieldWithPath("[].userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
+            fieldWithPath("[].reviewImageNameList[]").type(JsonFieldType.ARRAY).description("리뷰사진 리스트"),
+            fieldWithPath("[].commentCount").type(JsonFieldType.NUMBER).description("댓글개수"),
+            fieldWithPath("[].reactionCount").type(JsonFieldType.NUMBER).description("리액션개수")
     );
 }

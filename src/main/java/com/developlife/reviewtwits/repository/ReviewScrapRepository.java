@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReviewScrapRepository extends JpaRepository<ReviewScrap, Long> {
+    boolean existsByReviewAndUser(Review review, User user);
     Optional<ReviewScrap> findByReviewAndUser(Review review, User user);
 
     @Query("SELECT rs.review FROM ReviewScrap rs WHERE rs.user = :user")

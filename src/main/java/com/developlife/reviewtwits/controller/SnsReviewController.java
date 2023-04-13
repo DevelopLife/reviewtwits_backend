@@ -125,4 +125,16 @@ public class SnsReviewController {
         snsReviewService.deleteReviewScrap(user, reviewId);
 
     }
+
+    @PostMapping("/comments-like/{commentId}")
+    public void addLikeOnComments(@AuthenticationPrincipal User user,
+                                  @PathVariable Long commentId){
+        snsReviewService.addLikeOnComment(user,commentId);
+    }
+
+    @DeleteMapping("/comments-like/{commentId}")
+    public void deleteLikeOnComments(@AuthenticationPrincipal User user,
+                                     @PathVariable Long commentId){
+        snsReviewService.deleteLikeOnComment(user,commentId);
+    }
 }
