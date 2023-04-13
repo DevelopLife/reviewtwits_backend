@@ -56,7 +56,7 @@ public class FileStoreService {
     }
 
     @Transactional
-    public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, String referenceType) {
+    public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, FileReferenceType referenceType) {
 
         checkFolder();
 
@@ -105,8 +105,8 @@ public class FileStoreService {
     }
 
     @Transactional
-    public List<String> bringFileNameList(String referenceType, Long referenceID){
-        return fileManagerRepository.findRealFileNameByReferenceIdAndReferenceType(referenceID, referenceType);
+    public List<String> bringFileNameList(FileReferenceType referenceType, Long referenceID){
+        return fileManagerRepository.findRealFileNameByReferenceIdAndReferenceType(referenceID, referenceType.name());
     }
 
     @Transactional

@@ -13,6 +13,7 @@ import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.ReactionRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
 import com.developlife.reviewtwits.repository.ReviewScrapRepository;
+import com.developlife.reviewtwits.type.FileReferenceType;
 import com.developlife.reviewtwits.type.ReactionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,7 @@ public class SnsReviewService {
         reviewRepository.save(review);
 
         if(writeRequest.multipartImageFiles() != null) {
-            fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(),"Review");
+            fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(), FileReferenceType.REVIEW);
         }
     }
 
@@ -192,7 +193,7 @@ public class SnsReviewService {
         reviewRepository.save(review);
 
         if(changeRequest.multipartImageFiles() != null && !changeRequest.multipartImageFiles().isEmpty()){
-            fileStoreService.storeFiles(changeRequest.multipartImageFiles(),review.getReviewId(),"Review");
+            fileStoreService.storeFiles(changeRequest.multipartImageFiles(),review.getReviewId(),FileReferenceType.REVIEW);
         }
 
         if(changeRequest.deleteFileList() != null && !changeRequest.deleteFileList().isEmpty()){

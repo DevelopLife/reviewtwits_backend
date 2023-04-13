@@ -14,6 +14,7 @@ import com.developlife.reviewtwits.repository.EmailVerifyRepository;
 import com.developlife.reviewtwits.repository.RefreshTokenRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.FileStoreService;
+import com.developlife.reviewtwits.type.FileReferenceType;
 import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
 import com.github.javafaker.Faker;
@@ -103,7 +104,7 @@ public class UserService {
     }
 
     @Transactional
-    private void authenticationCodeVerify(String accountId, String verifyCode) {
+    public void authenticationCodeVerify(String accountId, String verifyCode) {
         EmailVerify emailVerify = emailVerifyRepository.findByEmail(accountId)
                 .orElseThrow(() -> new VerifyCodeException("인증코드 발급을 진행해주세요"));
         LocalDateTime expiredDate = emailVerify.getVerifyDate().plusHours(1);
@@ -179,7 +180,7 @@ public class UserService {
 
     @Transactional
     public void setProfileImage(User user){
-        List<String> userProfileImage = fileStoreService.bringFileNameList("User", user.getUserId());
+        List<String> userProfileImage = fileStoreService.bringFileNameList(FileReferenceType.USER, user.getUserId());
         if(!userProfileImage.isEmpty()){
             user.setProfileImage(userProfileImage.get(userProfileImage.size()-1));
         }
@@ -198,7 +199,7 @@ public class UserService {
         );
         userMapper.updateUserFromRegisterUserInfoRequest(registerUserInfoRequest, user);
         if(registerUserInfoRequest.profileImage() != null) {
-            fileStoreService.storeFiles(List.of(registerUserInfoRequest.profileImage()), user.getUserId(), "User");
+            fileStoreService.storeFiles(List.of(registerUserInfoRequest.profileImage()), user.getUserId(), FileReferenceType.USER);
         }
         userRepository.save(user);
 

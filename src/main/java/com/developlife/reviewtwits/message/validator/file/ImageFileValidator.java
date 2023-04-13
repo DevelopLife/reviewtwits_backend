@@ -20,6 +20,6 @@ public class ImageFileValidator implements ConstraintValidator<ImageFile, Multip
         if(value == null){
             return true;
         }
-        return FileReferenceType.isValidFileType("image", List.of(value));
+        return FileReferenceType.isValidFileType(FileReferenceType.IMAGE, List.of(value));
     }
 }
