@@ -12,7 +12,7 @@ import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.service.FileStoreService;
 import com.developlife.reviewtwits.service.user.UserService;
-import com.developlife.reviewtwits.type.FileReferenceType;
+import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +99,7 @@ public class UserController {
     @PostMapping(value = "/save-profile-image", consumes = "multipart/form-data", produces = "application/json")
     public void saveProfileImage(@AuthenticationPrincipal User user, @Valid @ModelAttribute ImageUpdateRequest request){
 
-        fileStoreService.storeFiles(List.of(request.imageFile()),user.getUserId(), FileReferenceType.USER);
+        fileStoreService.storeFiles(List.of(request.imageFile()),user.getUserId(), ReferenceType.USER);
     }
 
 

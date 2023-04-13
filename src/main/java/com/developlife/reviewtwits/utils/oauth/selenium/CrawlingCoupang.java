@@ -9,7 +9,7 @@ import com.developlife.reviewtwits.repository.RelatedProductRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.FileStoreService;
-import com.developlife.reviewtwits.type.FileReferenceType;
+import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.MadeMultipartFile;
 import com.github.javafaker.Faker;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -133,7 +132,7 @@ public class CrawlingCoupang {
                         .build();
                 userRepository.save(user);
                 MultipartFile profileImageFile = getImageFileFromUrl( "https:" + profileImageUrl, user.getNickname());
-                fileStoreService.storeFiles(List.of(profileImageFile), user.getUserId(), FileReferenceType.USER);
+                fileStoreService.storeFiles(List.of(profileImageFile), user.getUserId(), ReferenceType.USER);
             }
             Review registeredReview = Review.builder()
                     .content(content)
@@ -148,7 +147,7 @@ public class CrawlingCoupang {
             for(String imageUrl : imageUrls) {
                 imageFiles.add(getImageFileFromUrl(imageUrl, String.format("%s_%s_%d", user.getNickname(), productName, imageFiles.size())));
             }
-            fileStoreService.storeFiles(imageFiles, registeredReview.getReviewId(), FileReferenceType.REVIEW);
+            fileStoreService.storeFiles(imageFiles, registeredReview.getReviewId(), ReferenceType.REVIEW);
         }
 
     }
@@ -209,7 +208,7 @@ public class CrawlingCoupang {
 
         for(RelatedProduct crawler : crawlerList){
             MultipartFile multipartFile = getImageFileFromUrl(crawler.getImagePath(),crawler.getName());
-            fileStoreService.storeFiles(List.of(multipartFile),crawler.getProductId(), FileReferenceType.RELATED_PRODUCT);
+            fileStoreService.storeFiles(List.of(multipartFile),crawler.getProductId(), ReferenceType.RELATED_PRODUCT);
         }
 
         return firstRelatedProduct;
@@ -243,7 +242,7 @@ public class CrawlingCoupang {
             MultipartFile multipartFile = getImageFileFromUrl("https:" + fileSourceList.get(i),fileName);
             multipartFileList.add(multipartFile);
         }
-        fileStoreService.storeFiles(multipartFileList, itemDetailId, FileReferenceType.ITEM_DETAIL);
+        fileStoreService.storeFiles(multipartFileList, itemDetailId, ReferenceType.ITEM_DETAIL);
     }
 
     private boolean checkCompleteUrl(String url) {
@@ -254,7 +253,7 @@ public class CrawlingCoupang {
 
     @Transactional
     public void changeImageInfoInHtmlAndSave(Element targetDetailElement, ItemDetail detail, Elements imgElements) {
-        List<String> itemImageNameList = fileStoreService.bringFileNameList(FileReferenceType.ITEM_DETAIL, detail.getItemId());
+        List<String> itemImageNameList = fileStoreService.bringFileNameList(ReferenceType.ITEM_DETAIL, detail.getItemId());
 
         for(int i = 0; i < imgElements.size(); i++){
             imgElements.get(i).attr("src","/" + itemImageNameList.get(i));

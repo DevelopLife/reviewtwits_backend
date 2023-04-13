@@ -13,10 +13,18 @@ public class MadeMultipartFile implements MultipartFile {
 
     byte[] input;
     String name;
+    String contentType;
 
     public MadeMultipartFile(byte[] input, String name) {
         this.input = input;
         this.name = name;
+        this.contentType = "image/png";
+    }
+
+    public MadeMultipartFile(byte[] input, String name, String contentType){
+        this.input = input;
+        this.name = name;
+        this.contentType = contentType;
     }
 
     @Override
@@ -31,7 +39,7 @@ public class MadeMultipartFile implements MultipartFile {
 
     @Override
     public String getContentType() {
-        return null;
+        return this.contentType;
     }
 
     @Override

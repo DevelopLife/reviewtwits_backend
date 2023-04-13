@@ -14,7 +14,7 @@ import com.developlife.reviewtwits.repository.EmailVerifyRepository;
 import com.developlife.reviewtwits.repository.RefreshTokenRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.FileStoreService;
-import com.developlife.reviewtwits.type.FileReferenceType;
+import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
 import com.github.javafaker.Faker;
@@ -180,7 +180,7 @@ public class UserService {
 
     @Transactional
     public void setProfileImage(User user){
-        List<String> userProfileImage = fileStoreService.bringFileNameList(FileReferenceType.USER, user.getUserId());
+        List<String> userProfileImage = fileStoreService.bringFileNameList(ReferenceType.USER, user.getUserId());
         if(!userProfileImage.isEmpty()){
             user.setProfileImage(userProfileImage.get(userProfileImage.size()-1));
         }
@@ -199,16 +199,10 @@ public class UserService {
         );
 
         userMapper.updateUserFromRegisterUserInfoRequest(registerUserInfoRequest, user);
-        if(registerUserInfoRequest.profileImage() != null) {
-            fileStoreService.storeFiles(List.of(registerUserInfoRequest.profileImage()), user.getUserId(), FileReferenceType.USER);
-        }
 
         user.setNickname(registerUserInfoRequest.nickname());
         user.setIntroduceText(registerUserInfoRequest.introduceText());
-//        if(registerUserInfoRequest.profileImage() != null){
-//            fileStoreService.storeFiles(List.of(registerUserInfoRequest.profileImage()),user.getUserId(),"User");
-//        }
-        fileStoreService.storeFile(registerUserInfoRequest.profileImage(),user.getUserId(),"User");
+        fileStoreService.storeFile(registerUserInfoRequest.profileImage(),user.getUserId(), ReferenceType.USER);
 
         userRepository.save(user);
 

@@ -2,8 +2,8 @@ package com.developlife.reviewtwits.file;
 
 import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.entity.FileManager;
-import com.developlife.reviewtwits.repository.FileInfoRepository;
-import com.developlife.reviewtwits.repository.FileManagerRepository;
+import com.developlife.reviewtwits.repository.file.FileInfoRepository;
+import com.developlife.reviewtwits.repository.file.FileManagerRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -31,7 +31,7 @@ public class BasicFileUploadTest extends FileUploadTest {
             String filename = "test2";
             String suffix = ".txt";
 
-            ResponseEntity<String> response = fileUpload(inputContent,filename,suffix, 12L, "Test");
+            ResponseEntity<String> response = fileUpload(inputContent,filename,suffix, 12L, "TEST");
             System.out.println("response.getStatusCode = " +  response.getStatusCode());
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
@@ -47,15 +47,15 @@ public class BasicFileUploadTest extends FileUploadTest {
     void checkFileUpload_existInFileTable() throws IOException {
         String inputContent = "test for DB";
         Long id = 23L;
-        String referenceType = "Test";
+        String referenceType = "TEST";
         ResponseEntity<String> response = fileUpload(inputContent,"testDB",".txt", id, referenceType);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         FileInfo updatedInfo = fileInfoRepository.findByOriginalFilename("testDB.txt").get();
         assertThat(updatedInfo.getFilePath()).isEqualTo(getStoredFullPath(response));
 
-        FileManager updatedFileManager = fileManagerRepository.findByFileInfo_FileID(updatedInfo.getFileID()).get();
+        FileManager updatedFileManager = fileManagerRepository.findByFileInfo_FileID(updatedInfo.getFileID());
         assertThat(updatedFileManager.getReferenceId()).isEqualTo(id);
-        assertThat(updatedFileManager.getReferenceType()).isEqualTo(referenceType);
+        assertThat(updatedFileManager.getReferenceType().name()).isEqualTo(referenceType);
     }
 }

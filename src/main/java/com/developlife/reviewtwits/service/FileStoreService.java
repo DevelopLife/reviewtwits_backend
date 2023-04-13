@@ -5,9 +5,9 @@ import com.developlife.reviewtwits.entity.FileManager;
 import com.developlife.reviewtwits.exception.file.FileEmptyException;
 import com.developlife.reviewtwits.exception.file.FileNotStoredException;
 import com.developlife.reviewtwits.exception.file.InvalidFilenameExtensionException;
-import com.developlife.reviewtwits.repository.FileInfoRepository;
-import com.developlife.reviewtwits.repository.FileManagerRepository;
-import com.developlife.reviewtwits.type.FileReferenceType;
+import com.developlife.reviewtwits.repository.file.FileInfoRepository;
+import com.developlife.reviewtwits.repository.file.FileManagerRepository;
+import com.developlife.reviewtwits.type.ReferenceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +56,7 @@ public class FileStoreService {
     }
 
     @Transactional
-    public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, FileReferenceType referenceType) {
+    public FileInfo storeFile(MultipartFile multipartFile, Long referenceId, ReferenceType referenceType){
 
         if(multipartFile == null){
             return null;
@@ -69,7 +69,7 @@ public class FileStoreService {
     }
 
     @Transactional
-    public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, String referenceType) {
+    public List<FileInfo> storeFiles(List<MultipartFile> multipartFiles, Long referenceID, ReferenceType referenceType) {
         if(multipartFiles.get(0).isEmpty()){
             throw new FileEmptyException("파일 내역이 비워져 있습니다.");
         }
@@ -91,10 +91,10 @@ public class FileStoreService {
         return storeFileResult;
     }
 
-    private void checkFolderAndValidFiles(List<MultipartFile> multipartFiles, String referenceType) {
+    private void checkFolderAndValidFiles(List<MultipartFile> multipartFiles, ReferenceType referenceType) {
         checkFolder();
 
-        if(!FileReferenceType.isValidFileType(referenceType, multipartFiles)){
+        if(!ReferenceType.isValidFileType(referenceType, multipartFiles)){
             throw new InvalidFilenameExtensionException("올바르지 않는 파일 타입입니다.");
         }
     }
@@ -122,8 +122,8 @@ public class FileStoreService {
     }
 
     @Transactional
-    public List<String> bringFileNameList(FileReferenceType referenceType, Long referenceID){
-        return fileManagerRepository.findRealFileNameByReferenceIdAndReferenceType(referenceID, referenceType.name());
+    public List<String> bringFileNameList(ReferenceType referenceType, Long referenceID){
+        return fileManagerRepository.getRealFilename(referenceID, referenceType);
     }
 
     @Transactional

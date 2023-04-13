@@ -4,9 +4,8 @@ import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.exception.file.InvalidFilenameExtensionException;
 import com.developlife.reviewtwits.message.request.FileUpdateRequest;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
-import com.developlife.reviewtwits.service.AwsS3Service;
 import com.developlife.reviewtwits.service.FileStoreService;
-import com.developlife.reviewtwits.type.FileReferenceType;
+import com.developlife.reviewtwits.type.ReferenceType;
 import com.google.common.net.HttpHeaders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,6 @@ import org.springframework.web.util.UriUtils;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -40,9 +38,9 @@ public class FileController {
     public ResponseEntity<String> saveFile(@ModelAttribute FileUpdateRequest request) {
 
         String referenceType = request.referenceType();
-        FileReferenceType fileReferenceType = null;
+        ReferenceType fileReferenceType = null;
         try{
-            fileReferenceType = FileReferenceType.valueOf(referenceType);
+            fileReferenceType = ReferenceType.valueOf(referenceType);
         } catch (IllegalArgumentException e){
             throw new InvalidFilenameExtensionException("허용된 파일 엔티티가 아닙니다.");
         }
@@ -58,7 +56,7 @@ public class FileController {
     @GetMapping(value = "/request-images/{UUID}")
     public Resource downloadImage(@PathVariable(name = "UUID") String fileName, HttpServletResponse response) throws IOException {
 
-        if(FileReferenceType.isValidFileType(FileReferenceType.IMAGE, fileName)){
+        if(ReferenceType.isValidFileType(ReferenceType.IMAGE, fileName)){
             String originalFilename = fileStore.findOriginalFilename(fileName);
             if(originalFilename == null){
                 throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
@@ -85,7 +83,7 @@ public class FileController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-                .header(HttpHeaders.CONTENT_TYPE, FileReferenceType.getContentType(fileName))
+                .header(HttpHeaders.CONTENT_TYPE, ReferenceType.getContentType(fileName))
                 .body(resource);
     }
 

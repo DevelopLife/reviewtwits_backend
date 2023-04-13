@@ -1,7 +1,7 @@
 package com.developlife.reviewtwits.message.validator.file;
 
 import com.developlife.reviewtwits.message.annotation.file.ImageFiles;
-import com.developlife.reviewtwits.type.FileReferenceType;
+import com.developlife.reviewtwits.type.ReferenceType;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.ConstraintValidator;
@@ -19,6 +19,6 @@ public class ImagesFileValidator implements ConstraintValidator<ImageFiles,List<
         if(value == null || value.isEmpty()){
             return true;
         }
-        return FileReferenceType.isValidFileType(FileReferenceType.IMAGE, value);
+        return ReferenceType.isValidFileType(ReferenceType.IMAGE, value);
     }
 }

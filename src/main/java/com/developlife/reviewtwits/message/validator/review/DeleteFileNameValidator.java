@@ -1,7 +1,7 @@
 package com.developlife.reviewtwits.message.validator.review;
 
 import com.developlife.reviewtwits.message.annotation.review.DeleteFileName;
-import com.developlife.reviewtwits.type.FileReferenceType;
+import com.developlife.reviewtwits.type.ReferenceType;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -17,6 +17,6 @@ public class DeleteFileNameValidator implements ConstraintValidator<DeleteFileNa
         if(value == null || value.isEmpty()){
             return true;
         }
-        return FileReferenceType.isValidDeleteFileName(FileReferenceType.IMAGE,value);
+        return ReferenceType.isValidDeleteFileName(ReferenceType.IMAGE,value);
     }
 }
