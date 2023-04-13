@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.message.request.FileUpdateRequest;
 import com.developlife.reviewtwits.service.FileStoreService;
+import com.developlife.reviewtwits.type.FileReferenceType;
 import com.developlife.reviewtwits.type.MadeMultipartFile;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +72,13 @@ public class FileDownloadSteps {
 
     public ResponseEntity<String> mockFileUploadProcess(FileUpdateRequest request){
         // doReturn(null).when(amazonS3).putObject(Mockito.any(PutObjectRequest.class));
-        List<FileInfo> fileInfoList = fileStoreService.storeFiles(request.attachedFiles(), request.id(), request.referenceType());
+        FileReferenceType fileReferenceType = null;
+        try {
+            FileReferenceType.valueOf(request.referenceType());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("잘못된 referenceType 입니다.");
+        }
+        List<FileInfo> fileInfoList = fileStoreService.storeFiles(request.attachedFiles(), request.id(), fileReferenceType);
 
         String storeFilename = fileInfoList.get(0).getRealFilename();
         return ResponseEntity.ok().body(storeFilename);

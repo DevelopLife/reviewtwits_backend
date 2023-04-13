@@ -21,6 +21,8 @@ public class ItemDetail extends BaseEntity {
     @GeneratedValue
     private long itemId;
 
+    private String productName;
+
     @OneToOne
     private RelatedProduct relatedProduct;
 

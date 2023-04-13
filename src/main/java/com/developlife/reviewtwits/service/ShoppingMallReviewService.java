@@ -14,6 +14,7 @@ import com.developlife.reviewtwits.message.response.review.DetailShoppingMallRev
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ReviewRepository;
+import com.developlife.reviewtwits.type.FileReferenceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -59,7 +60,7 @@ public class ShoppingMallReviewService {
         log.info("writeRequest.multipartImageFiles() = {}",writeRequest.multipartImageFiles());
         log.info("writeRequest.multipartImageFiles() null 여부 = {}", writeRequest.multipartImageFiles() == null);
         if(writeRequest.multipartImageFiles() != null) {
-            fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(),"Review");
+            fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(), FileReferenceType.REVIEW);
         }
     }
 
@@ -170,7 +171,7 @@ public class ShoppingMallReviewService {
         reviewRepository.save(review);
 
         if(changeRequest.multipartImageFiles() != null && !changeRequest.multipartImageFiles().isEmpty()){
-            fileStoreService.storeFiles(changeRequest.multipartImageFiles(),review.getReviewId(),"Review");
+            fileStoreService.storeFiles(changeRequest.multipartImageFiles(),review.getReviewId(),FileReferenceType.REVIEW);
         }
 
         if(changeRequest.deleteFileList() != null && !changeRequest.deleteFileList().isEmpty()){
@@ -189,6 +190,6 @@ public class ShoppingMallReviewService {
     }
 
     private void saveReviewImage(Review review){
-        review.setReviewImageNameList(fileStoreService.bringFileNameList("Review", review.getReviewId()));
+        review.setReviewImageNameList(fileStoreService.bringFileNameList(FileReferenceType.REVIEW, review.getReviewId()));
     }
 }

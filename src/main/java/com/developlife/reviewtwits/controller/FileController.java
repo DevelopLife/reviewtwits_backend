@@ -40,10 +40,16 @@ public class FileController {
     public ResponseEntity<String> saveFile(@ModelAttribute FileUpdateRequest request) {
 
         String referenceType = request.referenceType();
+        FileReferenceType fileReferenceType = null;
+        try{
+            fileReferenceType = FileReferenceType.valueOf(referenceType);
+        } catch (IllegalArgumentException e){
+            throw new InvalidFilenameExtensionException("허용된 파일 엔티티가 아닙니다.");
+        }
         Long id = request.id();
         List<MultipartFile> attachedFiles = request.attachedFiles();
 
-        List<FileInfo> storeFiles = fileStore.storeFiles(attachedFiles,id,referenceType);
+        List<FileInfo> storeFiles = fileStore.storeFiles(attachedFiles,id, fileReferenceType);
         String storeFilename = storeFiles.get(0).getRealFilename();
 
         return ResponseEntity.ok().body(storeFilename); // 바꾸기
@@ -52,7 +58,7 @@ public class FileController {
     @GetMapping(value = "/request-images/{UUID}")
     public Resource downloadImage(@PathVariable(name = "UUID") String fileName, HttpServletResponse response) throws IOException {
 
-        if(FileReferenceType.isValidFileType("image",fileName)){
+        if(FileReferenceType.isValidFileType(FileReferenceType.IMAGE, fileName)){
             String originalFilename = fileStore.findOriginalFilename(fileName);
             if(originalFilename == null){
                 throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
