@@ -532,12 +532,18 @@ public class SnsApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         추가회원가입정보_입력(token,"whalesbob");
 
-        ExtractableResponse<Response> response = given(this.spec)
+        snsReviewSteps.SNS_리뷰_작성(token,"2번째 리뷰를 작성합니다.");
+        snsReviewSteps.SNS_리뷰_작성(token,"3번째 리뷰를 작성합니다.");
+
+        int size = 2;
+
+        ExtractableResponse<Response> firstResponse = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "개인 페이지에서의 리뷰 리스트를 요청하는 API 입니다." +
                         "<br>알고 싶은 계정의 닉네임을 path 에 입력하면, 해당 계정이 작성한 리뷰들의 간략한 정보를 알 수 있습니다." +
                         "<br>존재하지 않는 닉네임을 입력하면 404 Not Found 가 반환됩니다.","개인리뷰리스트요청",
                         SnsDocument.userNicknameField, SnsDocument.UserSnsReviewResponse))
                 .pathParam("nickname", "whalesbob")
+                .param("size",size)
                 .when()
                 .get("/sns/profile/reviews/{nickname}")
                 .then()
@@ -545,10 +551,31 @@ public class SnsApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .log().all().extract();
 
-        JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getInt("[0].commentCount")).isEqualTo(1);
-        assertThat(jsonPath.getInt("[0].reactionCount")).isEqualTo(1);
+        JsonPath jsonPath = firstResponse.jsonPath();
+
+        assertThat(jsonPath.getList("").size()).isEqualTo(size);
+        assertThat(jsonPath.getInt("[0].commentCount")).isEqualTo(0);
+        assertThat(jsonPath.getInt("[0].reactionCount")).isEqualTo(0);
         assertThat(jsonPath.getString("[0].reviewImageNameList")).isNotEmpty();
+
+        Long reviewId = jsonPath.getLong("[1].reviewId");
+
+        ExtractableResponse<Response> secondResponse = given()
+                .pathParam("nickname", "whalesbob")
+                .param("size", size)
+                .param("reviewId", reviewId)
+                .when()
+                .get("/sns/profile/reviews/{nickname}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath secondPath = secondResponse.jsonPath();
+
+        assertThat(secondPath.getList("").size()).isEqualTo(1);
+        assertThat(secondPath.getInt("[0].commentCount")).isEqualTo(1);
+        assertThat(secondPath.getInt("[0].reactionCount")).isEqualTo(1);
     }
 
     @Test
