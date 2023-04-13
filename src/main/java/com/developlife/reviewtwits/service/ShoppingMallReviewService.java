@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.BindException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -139,6 +140,8 @@ public class ShoppingMallReviewService {
             Review review = foundReview.get();
             review.setExist(false);
             reviewRepository.save(review);
+
+            review.setReviewImageNameList(new ArrayList<>());
             return mapper.mapReviewToDetailReviewResponse(review);
         }
 

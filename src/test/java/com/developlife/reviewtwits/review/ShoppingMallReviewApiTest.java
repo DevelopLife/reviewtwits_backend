@@ -164,6 +164,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH, "입력한 리뷰 아이디의 리뷰를 삭제 처리합니다." +
                         "<br>입력된 아이디로 등록된 리뷰가 없는 경우 404 Not Found 가 리턴됩니다." +
                         "<br>해당 리뷰를 수정할 권한이 없는 경우, 401 Unauthorized 가 리턴됩니다", "쇼핑몰리뷰삭제",
+                        UserDocument.AccessTokenHeader,
                         ShoppingMallReviewDocument.ReviewIdField,
                         ShoppingMallReviewDocument.shoppingMallReviewResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
