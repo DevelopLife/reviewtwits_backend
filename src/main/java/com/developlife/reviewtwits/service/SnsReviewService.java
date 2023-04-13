@@ -143,9 +143,17 @@ public class SnsReviewService {
                         .user(user)
                         .build());
 
-        reactionRepository.save(updatedReaction);
+        if(isNewReaction(updatedReaction, inputReaction)){
+            modifyReactionCountOnReview(review,1);
+        }else{
+            updatedReaction.setReactionType(ReactionType.valueOf(inputReaction));
+        }
 
-        modifyReactionCountOnReview(review,1);
+        reactionRepository.save(updatedReaction);
+    }
+
+    private boolean isNewReaction(Reaction updatedReaction, String inputReaction) {
+        return updatedReaction.getReactionType().equals(ReactionType.valueOf(inputReaction));
     }
 
     @Transactional
