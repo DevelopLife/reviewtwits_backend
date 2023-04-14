@@ -5,8 +5,10 @@ import com.developlife.reviewtwits.message.annotation.review.ValidReaction;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.CommentLikeResultResponse;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
 import com.developlife.reviewtwits.message.response.review.DetailReactionResponse;
+import com.developlife.reviewtwits.message.response.review.ReviewScrapResultResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.service.SnsReviewService;
 import lombok.RequiredArgsConstructor;
@@ -112,29 +114,28 @@ public class SnsReviewController {
     }
 
     @PostMapping("/scrap-reviews/{reviewId}")
-    public void addReviewScrap(@AuthenticationPrincipal User user,
-                               @PathVariable long reviewId){
+    public ReviewScrapResultResponse addReviewScrap(@AuthenticationPrincipal User user,
+                                                    @PathVariable long reviewId){
 
-        snsReviewService.addReviewScrap(user, reviewId);
+        return snsReviewService.addReviewScrap(user, reviewId);
     }
 
     @DeleteMapping("/scrap-reviews/{reviewId}")
-    public void deleteReviewScrap(@AuthenticationPrincipal User user,
+    public ReviewScrapResultResponse deleteReviewScrap(@AuthenticationPrincipal User user,
                                   @PathVariable long reviewId){
 
-        snsReviewService.deleteReviewScrap(user, reviewId);
-
+        return snsReviewService.deleteReviewScrap(user, reviewId);
     }
 
     @PostMapping("/comments-like/{commentId}")
-    public void addLikeOnComments(@AuthenticationPrincipal User user,
-                                  @PathVariable Long commentId){
-        snsReviewService.addLikeOnComment(user,commentId);
+    public CommentLikeResultResponse addLikeOnComments(@AuthenticationPrincipal User user,
+                                                       @PathVariable Long commentId){
+        return snsReviewService.addLikeOnComment(user,commentId);
     }
 
     @DeleteMapping("/comments-like/{commentId}")
-    public void deleteLikeOnComments(@AuthenticationPrincipal User user,
+    public CommentLikeResultResponse deleteLikeOnComments(@AuthenticationPrincipal User user,
                                      @PathVariable Long commentId){
-        snsReviewService.deleteLikeOnComment(user,commentId);
+        return snsReviewService.deleteLikeOnComment(user,commentId);
     }
 }
