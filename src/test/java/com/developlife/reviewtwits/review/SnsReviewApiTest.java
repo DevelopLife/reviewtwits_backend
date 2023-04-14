@@ -369,7 +369,10 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br> parentId 가 0인 경우, 부모 댓글로 간주받게 되며, parentId 가 0이 아닐 경우, 부모 댓글의 대댓글로 간주됩니다." +
                         "<br> token 을 제외한 위의 규칙이 지켜지지 않을 경우, 400 Bad Request 가 반환됩니다." +
                         "<br> 모든 조건이 지켜진 상태라면, 댓글 저장과 함께 200 OK 가 반환됩니다.","SNS댓글작성",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField, SnsReviewDocument.SnsCommentWriteRequestField))
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsCommentWriteRequestField,
+                        SnsReviewDocument.SnsCommentResultResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId", recentReviewId)
@@ -429,7 +432,8 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>해당 유저가 댓글을 삭제할 권한이 없다면, 401 Unauthorized 가 반환됩니다." +
                         "<br>지우고자 하는 댓글이 존재하지 않으면, 404 Not Found 가 반환됩니다." +
                         "<br>정상적으로 삭제되었다면, 200 OK 가 반환됩니다.", "SNS리뷰댓글삭제"
-                        ,UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField))
+                        ,UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField,
+                        SnsReviewDocument.SnsCommentResultResponseField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("commentId", commentId)
                 .when()
@@ -458,7 +462,10 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>수정할 commentId 가 존재하지 않으면, 404 Not Found 가 반환됩니다." +
                         "<br>댓글 내용이 존재하지 않으면, 400 Bad Request 가 반환됩니다." +
                         "<br>댓글이 성공적으로 수정되었다면 200 OK 가 반환됩니다","SNS리뷰댓글수정",
-                        UserDocument.AccessTokenHeader,SnsReviewDocument.CommentIdField, SnsReviewDocument.SnsCommentChangeRequestField))
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.CommentIdField,
+                        SnsReviewDocument.SnsCommentChangeRequestField,
+                        SnsReviewDocument.SnsCommentResultResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("commentId", commentId)
