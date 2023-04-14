@@ -487,33 +487,36 @@ public class SnsReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
 
-        given(this.spec)
+        ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "피드 리액션 추가 및 수정을 위한 API 입니다." +
-                        "<br>X-AUTH-TOKEN 은 필수 값으로 header 에 들어가야 합니다." +
-                        "<br>리액션을 추가할 reviewId 는 필수값이며, path 에 같이 추가될 수 있습니다." +
-                        "<br>리액션 내용은 Request Body 에 넣을 수 있습니다." +
-                        "<br>리액션 내용으로 넣을 수 있는 요소는 아래와 같습니다." +
-                        "<br>LOVE,SUNGLASSES,LAUGHING,SURPRISING,THINKING," +
-                        "<br>PLEADING,SHOCKING,PRAYING,GOOD,NOTICING" +
-                        "<br><br> 존재하는 리액션에 다시 리액션을 추가하면, 리액션이 수정됩니다. 같은 리액션을 다시 한번 보내는 것은 막아주세요!",
+                                "<br>X-AUTH-TOKEN 은 필수 값으로 header 에 들어가야 합니다." +
+                                "<br>리액션을 추가할 reviewId 는 필수값이며, path 에 같이 추가될 수 있습니다." +
+                                "<br>리액션 내용은 Request Body 에 넣을 수 있습니다." +
+                                "<br>리액션 내용으로 넣을 수 있는 요소는 아래와 같습니다." +
+                                "<br>LOVE,SUNGLASSES,LAUGHING,SURPRISING,THINKING," +
+                                "<br>PLEADING,SHOCKING,PRAYING,GOOD,NOTICING" +
+                                "<br><br> 존재하는 리액션에 다시 리액션을 추가하면, 리액션이 수정됩니다. 같은 리액션을 다시 한번 보내는 것은 막아주세요!",
                         "SNS리뷰리액션추가"
-                        ,UserDocument.AccessTokenHeader,
+                        , UserDocument.AccessTokenHeader,
                         SnsReviewDocument.ReviewIdField,
                         SnsReviewDocument.SnsReactionAddRequestField,
                         SnsReviewDocument.SnsReactionResponseField))
                 .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", registeredReviewId)
-                .param("reaction",reactionContent)
+                .param("reaction", reactionContent)
                 .when()
                 .post("/sns/review-reaction/{reviewId}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        JsonPath jsonPath = 피드_리뷰_리액션_추출(token);
-        boolean isReacted = jsonPath.getBoolean("[0].reactionResponses."+ reactionContent + ".isReacted");
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("reactionType")).isEqualTo(reactionContent);
 
-        assertThat(isReacted).isEqualTo(true);
+        User user = userRepository.findById(jsonPath.getLong("userId")).get();
+        assertThat(user.getAccountId()).isEqualTo(UserSteps.accountId);
+
+        assertThat(jsonPath.getLong("reviewId")).isEqualTo(registeredReviewId);
     }
 
     @Test

@@ -84,6 +84,7 @@ public interface ReviewMapper {
     default DetailReactionResponse toDetailReactionResponse(Reaction reaction){
         return DetailReactionResponse.builder()
                 .reactionId(reaction.getReactionId())
+                .reviewId(reaction.getReview().getReviewId())
                 .reactionType(reaction.getReactionType())
                 .userId(reaction.getUser().getUserId())
                 .build();
