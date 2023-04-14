@@ -8,7 +8,7 @@ import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest
 import com.developlife.reviewtwits.message.request.review.SnsReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
-import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
+import com.developlife.reviewtwits.message.response.review.DetailReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.type.ReferenceType;
@@ -143,7 +143,7 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void addReactionOnReview(User user, long reviewId, String inputReaction) {
+    public DetailReactionResponse addReactionOnReview(User user, long reviewId, String inputReaction) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("공감을 누르려는 리뷰가 존재하지 않습니다."));
 
@@ -161,6 +161,8 @@ public class SnsReviewService {
         }
 
         reactionRepository.save(updatedReaction);
+
+        return mapper.toDetailReactionResponse(updatedReaction);
     }
 
     private boolean isNewReaction(Reaction updatedReaction, String inputReaction) {
@@ -168,7 +170,7 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void deleteReactionOnReview(User user, long reviewId) {
+    public DetailReactionResponse deleteReactionOnReview(User user, long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리액션의 리뷰가 존재하지 않습니다."));
 
@@ -178,6 +180,8 @@ public class SnsReviewService {
         reactionRepository.delete(reaction);
 
         modifyReactionCountOnReview(review, -1);
+
+        return mapper.toDetailReactionResponse(reaction);
     }
 
 

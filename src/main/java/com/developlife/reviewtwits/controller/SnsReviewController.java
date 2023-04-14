@@ -6,6 +6,7 @@ import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest
 import com.developlife.reviewtwits.message.request.review.SnsReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
+import com.developlife.reviewtwits.message.response.review.DetailReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.service.SnsReviewService;
 import lombok.RequiredArgsConstructor;
@@ -92,18 +93,18 @@ public class SnsReviewController {
     }
 
     @PostMapping(value = "/review-reaction/{reviewId}")
-    public void addReactions(@AuthenticationPrincipal User user,
-                             @PathVariable long reviewId,
-                             @RequestParam @ValidReaction String reaction
-                             ){
+    public DetailReactionResponse addReactions(@AuthenticationPrincipal User user,
+                                               @PathVariable long reviewId,
+                                               @RequestParam @ValidReaction String reaction
+    ){
 
-        snsReviewService.addReactionOnReview(user, reviewId, reaction);
+        return snsReviewService.addReactionOnReview(user, reviewId, reaction);
     }
 
     @DeleteMapping("/review-reaction/{reviewId}")
-    public void deleteReactions(@AuthenticationPrincipal User user,
+    public DetailReactionResponse deleteReactions(@AuthenticationPrincipal User user,
                                 @PathVariable long reviewId) {
-        snsReviewService.deleteReactionOnReview(user, reviewId);
+        return snsReviewService.deleteReactionOnReview(user, reviewId);
     }
     @GetMapping("/scrap-reviews")
     public List<DetailSnsReviewResponse> getReviewScrapListOfUser(@AuthenticationPrincipal User user){

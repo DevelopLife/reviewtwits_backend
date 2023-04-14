@@ -497,7 +497,10 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>PLEADING,SHOCKING,PRAYING,GOOD,NOTICING" +
                         "<br><br> 존재하는 리액션에 다시 리액션을 추가하면, 리액션이 수정됩니다. 같은 리액션을 다시 한번 보내는 것은 막아주세요!",
                         "SNS리뷰리액션추가"
-                        ,UserDocument.AccessTokenHeader,SnsReviewDocument.ReviewIdField,SnsReviewDocument.SnsReactionAddRequestField))
+                        ,UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReactionAddRequestField,
+                        SnsReviewDocument.SnsReactionResponseField))
                 .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", registeredReviewId)
                 .param("reaction",reactionContent)
@@ -548,7 +551,10 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>X-AUTH_TOKEN 이 존재하지 않거나, 올바르지 않은 값이거나, 해당 리액션을 수정할 권한이 없는 경우 401 Unauthorized 가 반환됩니다." +
                         "<br>reviewId 가 존재하지 않은 경우, 404 Not Found 가 반환됩니다." +
                         "<br>올바른 값이 모두 들어갔다면, 리액션이 삭제되고 200 OK 가 반환됩니다."
-                        ,"SNS피드리액션삭제",UserDocument.AccessTokenHeader,SnsReviewDocument.ReviewIdField))
+                        ,"SNS피드리액션삭제",
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReactionResponseField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",registeredReviewId)
                 .when()

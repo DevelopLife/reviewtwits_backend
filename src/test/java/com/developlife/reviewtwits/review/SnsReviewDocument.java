@@ -142,4 +142,11 @@ public class SnsReviewDocument {
         fieldWithPath("content").type(JsonFieldType.STRING).description("댓글내용"),
         fieldWithPath("parentCommentId").type(JsonFieldType.NUMBER).description("부모댓글아이디")
     );
+
+    public static final Snippet SnsReactionResponseField = responseFields(
+        fieldWithPath("reactionId").type(JsonFieldType.NUMBER).description("리액션아이디"),
+        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
+        fieldWithPath("reviewId").type(JsonFieldType.NUMBER).description("리뷰아이디"),
+        fieldWithPath("reactionType").type(JsonFieldType.STRING).description("리액션타입")
+    );
 }
