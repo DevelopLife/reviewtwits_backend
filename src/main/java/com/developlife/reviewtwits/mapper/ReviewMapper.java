@@ -1,9 +1,11 @@
 package com.developlife.reviewtwits.mapper;
 
 import com.developlife.reviewtwits.entity.Comment;
+import com.developlife.reviewtwits.entity.Reaction;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
+import com.developlife.reviewtwits.message.response.review.DetailReactionResponse;
 import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
@@ -82,6 +84,14 @@ public interface ReviewMapper {
                 .reviewImageNameList(review.getReviewImageNameList())
                 .commentCount(review.getCommentCount())
                 .reactionCount(review.getReactionCount())
+                .build();
+    }
+
+    default DetailReactionResponse toDetailReactionResponse(Reaction reaction){
+        return DetailReactionResponse.builder()
+                .reactionId(reaction.getReactionId())
+                .reactionType(reaction.getReactionType())
+                .userId(reaction.getUser().getUserId())
                 .build();
     }
 }
