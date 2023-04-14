@@ -33,10 +33,10 @@ public class SnsReviewController {
     private final SnsReviewService snsReviewService;
 
     @PostMapping(value = "/reviews")
-    public void writeSnsReview(@Valid @ModelAttribute SnsReviewWriteRequest request,
+    public DetailSnsReviewResponse writeSnsReview(@Valid @ModelAttribute SnsReviewWriteRequest request,
                                @AuthenticationPrincipal User user){
 
-        snsReviewService.saveSnsReview(request, user);
+        return snsReviewService.saveSnsReview(request, user);
     }
 
     @GetMapping("/feeds")
@@ -48,19 +48,19 @@ public class SnsReviewController {
     }
 
     @DeleteMapping("/reviews/{reviewId}")
-    public void deleteSnsReview(@AuthenticationPrincipal User user,
+    public DetailSnsReviewResponse deleteSnsReview(@AuthenticationPrincipal User user,
                                 @PathVariable Long reviewId){
         snsReviewService.checkReviewCanEdit(user, reviewId);
-        snsReviewService.deleteSnsReview(reviewId);
+        return snsReviewService.deleteSnsReview(reviewId);
     }
 
     @PatchMapping("/reviews/{reviewId}")
-    public void changeSnsReview(@AuthenticationPrincipal User user,
+    public DetailSnsReviewResponse changeSnsReview(@AuthenticationPrincipal User user,
                                 @PathVariable Long reviewId,
                                 @Valid @ModelAttribute SnsReviewChangeRequest request){
 
         snsReviewService.checkReviewCanEdit(user, reviewId);
-        snsReviewService.changeSnsReview(reviewId, request);
+        return snsReviewService.changeSnsReview(reviewId, request);
     }
 
 
