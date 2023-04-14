@@ -70,26 +70,25 @@ public class SnsReviewController {
     }
 
     @PostMapping("/comments/{reviewId}")
-    public void writeCommentOnSnsReview(@AuthenticationPrincipal User user,
+    public CommentResponse writeCommentOnSnsReview(@AuthenticationPrincipal User user,
                                         @PathVariable long reviewId,
                                         @Valid @RequestBody SnsCommentWriteRequest request) {
-        snsReviewService.saveComment(user, reviewId, request);
+        return snsReviewService.saveComment(user, reviewId, request);
     }
 
     @DeleteMapping("/comments/{commentId}")
-    public void deleteCommentsOnSnsReview(@AuthenticationPrincipal User user,
+    public CommentResponse deleteCommentsOnSnsReview(@AuthenticationPrincipal User user,
                                           @PathVariable long commentId){
 
-        snsReviewService.deleteComment(user,commentId);
+        return snsReviewService.deleteComment(user,commentId);
     }
 
     @PatchMapping(value= "/comments/{commentId}",consumes = "application/json")
-    public String changeCommentsOnSnsReview(@AuthenticationPrincipal User user,
+    public CommentResponse changeCommentsOnSnsReview(@AuthenticationPrincipal User user,
                                           @PathVariable long commentId,
                                             @RequestParam @NotBlank String content){
 
         return snsReviewService.changeComment(user, commentId, content);
-
     }
 
     @PostMapping(value = "/review-reaction/{reviewId}")

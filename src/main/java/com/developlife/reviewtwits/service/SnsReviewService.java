@@ -110,7 +110,7 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void deleteComment(User user,long commentId) {
+    public CommentResponse deleteComment(User user,long commentId) {
         Comment foundComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("지우고자 하는 댓글이 존재하지 않습니다."));
 
@@ -124,10 +124,12 @@ public class SnsReviewService {
         int currentCommentCount = review.getCommentCount();
         review.setCommentCount(currentCommentCount - 1);
         reviewRepository.save(review);
+
+        return mapper.toCommentResponse(foundComment);
     }
 
     @Transactional
-    public String changeComment(User user, long commentId, String content) {
+    public CommentResponse changeComment(User user, long commentId, String content) {
         Comment foundComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("수정하고자 하는 댓글이 존재하지 않습니다."));
 
@@ -137,7 +139,7 @@ public class SnsReviewService {
 
         foundComment.setContent(content);
         commentRepository.save(foundComment);
-        return content;
+        return mapper.toCommentResponse(foundComment);
     }
 
     @Transactional
