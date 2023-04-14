@@ -149,4 +149,16 @@ public class SnsReviewDocument {
         fieldWithPath("reviewId").type(JsonFieldType.NUMBER).description("리뷰아이디"),
         fieldWithPath("reactionType").type(JsonFieldType.STRING).description("리액션타입")
     );
+
+    public static final Snippet SnsReviewScrapResultResponseField = responseFields(
+        fieldWithPath("reviewScrapId").type(JsonFieldType.NUMBER).description("스크랩아이디"),
+        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
+        fieldWithPath("reviewId").type(JsonFieldType.NUMBER).description("리뷰아이디")
+    );
+
+    public static final Snippet SnsCommentLikeResultResponseField = responseFields(
+        fieldWithPath("commentLikeId").type(JsonFieldType.NUMBER).description("좋아요아이디"),
+        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
+        fieldWithPath("commentId").type(JsonFieldType.NUMBER).description("댓글아이디")
+    );
 }

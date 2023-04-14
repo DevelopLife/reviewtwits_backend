@@ -573,25 +573,33 @@ public class SnsReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"리뷰 스크랩 내용을 추가하는 API 입니다." +
-                        "<br> X-AUTH-TOKEN 을 header 에 넣어 주고, 존재하는 reviewId 를 path 에 추가하면" +
-                        "<br> 200 OK 와 함께 해당 리뷰가 유저에 스크랩됩니다." +
-                        "<br> X-AUTH-TOKEN 이 올바르지 않거나 입력되지 않았을 경우 403 에러가 표출되게 됩니다." +
-                        "<br> 해당 리뷰가 존재하지 않을 경우, 404 에러가 표출되게 됩니다." +
-                        "<br>이미 스크랩한 리뷰의 경우, 409 에러가 표출되게 됩니다.","리뷰스크랩추가",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField))
-                .header("X-AUTH-TOKEN",token)
-                .pathParam("reviewId",registeredReviewId)
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "리뷰 스크랩 내용을 추가하는 API 입니다." +
+                                "<br> X-AUTH-TOKEN 을 header 에 넣어 주고, 존재하는 reviewId 를 path 에 추가하면" +
+                                "<br> 200 OK 와 함께 해당 리뷰가 유저에 스크랩됩니다." +
+                                "<br> X-AUTH-TOKEN 이 올바르지 않거나 입력되지 않았을 경우 403 에러가 표출되게 됩니다." +
+                                "<br> 해당 리뷰가 존재하지 않을 경우, 404 에러가 표출되게 됩니다." +
+                                "<br>이미 스크랩한 리뷰의 경우, 409 에러가 표출되게 됩니다.", "리뷰스크랩추가",
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReviewScrapResultResponseField))
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", registeredReviewId)
                 .when()
                 .post("/sns/scrap-reviews/{reviewId}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        User user = userRepository.findByAccountId(UserSteps.accountId).get();
-        Review review = reviewRepository.findById(registeredReviewId).get();
+        JsonPath jsonPath = response.jsonPath();
+        Long foundUserId = jsonPath.getLong("userId");
+        Long foundReviewId = jsonPath.getLong("reviewId");
+
+        assertThat(foundReviewId).isEqualTo(registeredReviewId);
+
+        User user = userRepository.findById(foundUserId).get();
+        Review review = reviewRepository.findById(foundReviewId).get();
         Optional<ReviewScrap> foundReviewScrap = reviewScrapRepository.findByReviewAndUser(review, user);
         assertThat(foundReviewScrap).isPresent();
     }
@@ -663,7 +671,9 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br> X-AUTH-TOKEN 이 올바르지 않거나 입력되지 않았을 경우 403 에러가 표출되게 됩니다." +
                         "<br> 해당 리뷰가 존재하지 않을 경우, 404 에러가 표출되게 됩니다." +
                         "<br> 해당 리뷰가 이미 스크랩되어 있지 않은 경우, 409 에러가 표출되게 됩니다.","리뷰스크랩취소",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField))
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReviewScrapResultResponseField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",registeredReviewId)
                 .when()
@@ -773,34 +783,36 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 댓글공감_성공_200(){
+    void 댓글공감_성공_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"댓글에 공감을 추가하는 API 입니다." +
-                        "<br>header 에 X-AUTH-TOKEN 을 넣고, path 에 commentId 를 올바르게 넣어 요청할 수 있습니다." +
-                        "<br>header 에 토큰 값을 넣지 않았거나, 올바르지 않은 토큰을 입력했다면 403 Forbidden 이 반환됩니다." +
-                        "<br>존재하지 않은 commentId 를 입력했다면 404 Not Found 가 반환됩니다." +
-                        "<br>이미 좋아요를 누른 상태에서 다시 요청을 보내면, 409 Conflict 가 반환됩니다." +
-                        "<br>모두 올바른 값을 입력했다면, 해당 댓글에 좋아요가 처리되고 200 OK 가 반환됩니다.","댓글좋아요요청",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField))
-                .header("X-AUTH-TOKEN",token)
-                .pathParam("commentId",commentId)
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "댓글에 공감을 추가하는 API 입니다." +
+                                "<br>header 에 X-AUTH-TOKEN 을 넣고, path 에 commentId 를 올바르게 넣어 요청할 수 있습니다." +
+                                "<br>header 에 토큰 값을 넣지 않았거나, 올바르지 않은 토큰을 입력했다면 403 Forbidden 이 반환됩니다." +
+                                "<br>존재하지 않은 commentId 를 입력했다면 404 Not Found 가 반환됩니다." +
+                                "<br>이미 좋아요를 누른 상태에서 다시 요청을 보내면, 409 Conflict 가 반환됩니다." +
+                                "<br>모두 올바른 값을 입력했다면, 해당 댓글에 좋아요가 처리되고 200 OK 가 반환됩니다.", "댓글좋아요요청",
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.CommentIdField,
+                        SnsReviewDocument.SnsCommentLikeResultResponseField))
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("commentId", commentId)
                 .when()
                 .post("/sns/comments-like/{commentId}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        User user = userRepository.findByAccountId(UserSteps.accountId).get();
-        Comment comment = commentRepository.findById(commentId).get();
-        Optional<CommentLike> foundComment = commentLikeRepository.findByUserAndComment(user, comment);
+        JsonPath jsonPath = response.jsonPath();
 
-        assertThat(foundComment).isPresent();
-        assertThat(comment.getCommentLike()).isEqualTo(1);
+        Long foundCommentLikeId = jsonPath.getLong("commentLikeId");
+
+        CommentLike commentLike = commentLikeRepository.findById(foundCommentLikeId).get();
+        assertThat(commentLike.getComment().getCommentId()).isEqualTo(commentId);
     }
 
     @Test
@@ -867,28 +879,38 @@ public class SnsReviewApiTest extends ApiTest {
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
         SNS_댓글공감_추가(token,commentId);
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"댓글에 공감을 취소하는 API 입니다." +
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "댓글에 공감을 취소하는 API 입니다." +
                                 "<br>header 에 X-AUTH-TOKEN 을 넣고, path 에 commentId 를 올바르게 넣어 요청할 수 있습니다." +
                                 "<br>header 에 토큰 값을 넣지 않았거나, 올바르지 않은 토큰을 입력했다면 403 Forbidden 이 반환됩니다." +
                                 "<br>존재하지 않은 commentId 를 입력했다면 404 Not Found 가 반환됩니다." +
                                 "<br>이미 좋아요를 추가하지 않았거나 좋아요를 취소한 상태에서 다시 취소 요청을 보내면, 409 Conflict 가 반환됩니다." +
-                                "<br>모두 올바른 값을 입력했다면, 해당 댓글에 좋아요가 처리되고 200 OK 가 반환됩니다.","댓글좋아요취소요청",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField))
-                .header("X-AUTH-TOKEN",token)
-                .pathParam("commentId",commentId)
+                                "<br>모두 올바른 값을 입력했다면, 해당 댓글에 좋아요가 처리되고 200 OK 가 반환됩니다.", "댓글좋아요취소요청",
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.CommentIdField,
+                        SnsReviewDocument.SnsCommentLikeResultResponseField))
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("commentId", commentId)
                 .when()
                 .delete("/sns/comments-like/{commentId}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+
+        Long commentLikeId = jsonPath.getLong("commentLikeId");
 
         User user = userRepository.findByAccountId(UserSteps.accountId).get();
-        Comment comment = commentRepository.findById(commentId).get();
-        Optional<CommentLike> foundComment = commentLikeRepository.findByUserAndComment(user, comment);
+        assertThat(jsonPath.getLong("userId")).isEqualTo(user.getUserId());
 
+
+        Optional<CommentLike> foundComment = commentLikeRepository.findById(commentLikeId);
         assertThat(foundComment).isNotPresent();
-        assertThat(comment.getCommentLike()).isEqualTo(0);
+
+        commentRepository.findById(jsonPath.getLong("commentId")).ifPresent(comment -> {
+            assertThat(comment.getCommentLike()).isEqualTo(0);
+        });
     }
 
     @Test

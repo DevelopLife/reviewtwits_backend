@@ -7,8 +7,10 @@ import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.CommentLikeResultResponse;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
 import com.developlife.reviewtwits.message.response.review.DetailReactionResponse;
+import com.developlife.reviewtwits.message.response.review.ReviewScrapResultResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.type.ReferenceType;
@@ -247,7 +249,7 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void addReviewScrap(User user, long reviewId) {
+    public ReviewScrapResultResponse addReviewScrap(User user, long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("스크랩하려는 리뷰 아이디가 존재하지 않습니다."));
 
@@ -261,10 +263,12 @@ public class SnsReviewService {
                 .build();
 
         reviewScrapRepository.save(reviewScrap);
+
+        return mapper.toReviewScrapResultResponse(reviewScrap);
     }
 
     @Transactional
-    public void deleteReviewScrap(User user, long reviewId) {
+    public ReviewScrapResultResponse deleteReviewScrap(User user, long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리뷰가 존재하지 않습니다."));
 
@@ -272,6 +276,8 @@ public class SnsReviewService {
                 .orElseThrow(() -> new ReviewScrapConflictException("등록되지 않은 리뷰 스크랩입니다."));
 
         reviewScrapRepository.delete(reviewScrap);
+
+        return mapper.toReviewScrapResultResponse(reviewScrap);
     }
 
     @Transactional(readOnly = true)
@@ -282,24 +288,27 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void addLikeOnComment(User user,Long commentId) {
+    public CommentLikeResultResponse addLikeOnComment(User user, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("좋아요를 입력할 comment 가 존재하지 않습니다."));
 
         if(commentLikeRepository.existsByUserAndComment(user, comment)){
             throw new CommentLikeAlreadyProcessedException("이미 해당 댓글에 좋아요를 누르셨습니다.");
         }
-
-        commentLikeRepository.save(CommentLike.builder()
+        CommentLike commentLike = CommentLike.builder()
                 .comment(comment)
                 .user(user)
-                .build());
+                .build();
+
+        commentLikeRepository.save(commentLike);
 
         saveLikeCount(comment, 1);
+
+        return mapper.toCommentLikeResultResponse(commentLike);
     }
 
     @Transactional
-    public void deleteLikeOnComment(User user, Long commentId){
+    public CommentLikeResultResponse deleteLikeOnComment(User user, Long commentId){
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("좋아요를 취소할 comment 가 존재하지 않습니다."));
 
@@ -308,6 +317,8 @@ public class SnsReviewService {
 
         commentLikeRepository.delete(commentLike);
         saveLikeCount(comment, -1);
+
+        return mapper.toCommentLikeResultResponse(commentLike);
     }
 
     private void saveLikeCount(Comment comment, int count){
