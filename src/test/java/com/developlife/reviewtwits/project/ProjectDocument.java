@@ -54,4 +54,13 @@ public class ProjectDocument {
     public static final Snippet ProjectIdPathParam = pathParameters(
         RequestDocumentation.parameterWithName("projectId").description("프로젝트아이디")
     );
+
+    public static final Snippet ProjectInfoResponseField = responseFields(
+        fieldWithPath("projectId").type(JsonFieldType.STRING).description("프로젝트 아이디"),
+        fieldWithPath("projectName").type(JsonFieldType.STRING).description("프로젝트 이름 최대(최소2글자 최대 50글자)"),
+        fieldWithPath("projectDescription").type(JsonFieldType.STRING).description("프로젝트 설명(최대 200글자)"),
+        fieldWithPath("projectColor").type(JsonFieldType.STRING).description("프로젝트 색깔 hex코드"),
+        fieldWithPath("reviewCount").type(JsonFieldType.STRING).description("리뷰 수"),
+        fieldWithPath("category").type(JsonFieldType.STRING).description("카테고리")
+    );
 }

@@ -35,10 +35,12 @@ public class ProjectService {
     }
 
     @Transactional
-    public void registerProject(RegisterProjectRequest registerProjectRequest, User user) {
+    public ProjectInfoResponse registerProject(RegisterProjectRequest registerProjectRequest, User user) {
         Project project = projectMapper.toProject(registerProjectRequest);
         project.setUser(user);
         projectRepository.save(project);
+
+        return projectMapper.toProjectInfoResponse(project);
     }
 
     @Transactional(readOnly = true)

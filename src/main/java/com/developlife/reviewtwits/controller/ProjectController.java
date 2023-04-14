@@ -29,9 +29,9 @@ public class ProjectController {
     }
 
     @PostMapping(value = "", produces = "application/json")
-    public void registerProject(@RequestBody @Valid RegisterProjectRequest registerProjectRequest,
+    public ProjectInfoResponse registerProject(@RequestBody @Valid RegisterProjectRequest registerProjectRequest,
                                 @AuthenticationPrincipal User user) {
-        projectService.registerProject(registerProjectRequest, user);
+        return projectService.registerProject(registerProjectRequest, user);
     }
 
     @GetMapping(value = "", produces = "application/json")
