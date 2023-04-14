@@ -8,6 +8,7 @@ import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest
 import com.developlife.reviewtwits.message.request.review.SnsReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
+import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.type.ReferenceType;
@@ -21,6 +22,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -46,7 +49,7 @@ public class SnsReviewService {
     private final SnsReviewUtils snsReviewUtils;
 
     @Transactional
-    public void saveSnsReview(SnsReviewWriteRequest writeRequest, User user){
+    public DetailSnsReviewResponse saveSnsReview(SnsReviewWriteRequest writeRequest, User user){
 
         Review review = Review.builder()
                 .user(user)
@@ -61,6 +64,9 @@ public class SnsReviewService {
         if(writeRequest.multipartImageFiles() != null) {
             fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(), ReferenceType.REVIEW);
         }
+
+        snsReviewUtils.saveReviewImage(review);
+        return mapper.toDetailSnsReviewResponse(review, new HashMap<>(), false);
     }
 
     @Transactional(readOnly = true)
@@ -79,7 +85,7 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void saveComment(User user, long reviewId, SnsCommentWriteRequest request){
+    public CommentResponse saveComment(User user, long reviewId, SnsCommentWriteRequest request){
         long parentId = request.parentId();
 
         Review review = reviewRepository.findById(reviewId)
@@ -99,6 +105,8 @@ public class SnsReviewService {
         review.setCommentCount(currentCommentCount + 1);
 
         reviewRepository.save(review);
+
+        return mapper.toCommentResponse(newComment);
     }
 
     @Transactional
@@ -179,12 +187,15 @@ public class SnsReviewService {
 
 
     @Transactional
-    public void deleteSnsReview(Long reviewId) {
+    public DetailSnsReviewResponse deleteSnsReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리뷰가 존재하지 않습니다."));
 
         review.setExist(false);
         reviewRepository.save(review);
+
+        review.setReviewImageNameList(new ArrayList<>());
+        return mapper.toDetailSnsReviewResponse(review, new HashMap<>(), false);
     }
 
     private List<Review> findReviewsInPage(Long reviewId, int size){
@@ -207,7 +218,7 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void changeSnsReview(Long reviewId, SnsReviewChangeRequest changeRequest) {
+    public DetailSnsReviewResponse changeSnsReview(Long reviewId, SnsReviewChangeRequest changeRequest) {
         Review review = reviewRepository.findById(reviewId).get();
         if(changeRequest.content() != null){
             review.setContent(changeRequest.content());
@@ -224,6 +235,9 @@ public class SnsReviewService {
         if(changeRequest.deleteFileList() != null && !changeRequest.deleteFileList().isEmpty()){
             fileStoreService.checkDeleteFile(changeRequest.deleteFileList());
         }
+
+        snsReviewUtils.saveReviewImage(review);
+        return mapper.toDetailSnsReviewResponse(review, new HashMap<>(), false);
     }
 
     @Transactional
