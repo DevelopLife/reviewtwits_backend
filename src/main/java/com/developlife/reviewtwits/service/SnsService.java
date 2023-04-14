@@ -7,13 +7,11 @@ import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.sns.FollowAlreadyExistsException;
 import com.developlife.reviewtwits.exception.sns.UnfollowAlreadyDoneException;
 import com.developlife.reviewtwits.exception.user.UserIdNotFoundException;
+import com.developlife.reviewtwits.mapper.FollowMapper;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.mapper.SnsMapper;
 import com.developlife.reviewtwits.mapper.UserMapper;
-import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
-import com.developlife.reviewtwits.message.response.sns.ItemResponse;
-import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
-import com.developlife.reviewtwits.message.response.sns.SnsReviewResponse;
+import com.developlife.reviewtwits.message.response.sns.*;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.repository.follow.FollowRepository;
@@ -50,9 +48,10 @@ public class SnsService {
     private final UserMapper userMapper;
     private final SnsMapper snsMapper;
     private final ReviewMapper reviewMapper;
+    private final FollowMapper followMapper;
 
     @Transactional
-    public void followProcess(User user, String targetUserAccountId){
+    public FollowResultResponse followProcess(User user, String targetUserAccountId){
         User targetUser = getTargetUser(targetUserAccountId);
         if(followRepository.existsByUserAndTargetUser(user, targetUser)){
             throw new FollowAlreadyExistsException("이미 수행된 팔로우 요청입니다");
@@ -69,10 +68,12 @@ public class SnsService {
         }else{
             followRepository.save(newFollow);
         }
+
+        return followMapper.toFollowResultResponse(newFollow);
     }
 
     @Transactional
-    public void unfollowProcess(User user, String targetUserAccountId){
+    public FollowResultResponse unfollowProcess(User user, String targetUserAccountId){
         User targetUser = getTargetUser(targetUserAccountId);
         Optional<Follow> foundFollow = followRepository.findByUserAndTargetUser(user, targetUser);
         if(foundFollow.isEmpty()){
@@ -82,6 +83,8 @@ public class SnsService {
         Optional<Follow> foundBackFollow = followRepository.findByUserAndTargetUser(targetUser, user);
         foundBackFollow.ifPresent(follow -> follow.setFollowBackFlag(false));
         followRepository.delete(foundFollow.get());
+
+        return followMapper.toFollowResultResponse(foundFollow.get());
     }
 
     @Transactional(readOnly = true)

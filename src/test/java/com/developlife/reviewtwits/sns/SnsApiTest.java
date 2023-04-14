@@ -74,13 +74,14 @@ public class SnsApiTest extends ApiTest {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"팔로우 요청을 보냅니다." +
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "팔로우 요청을 보냅니다." +
                         "<br>팔로우가 정상적으로 이루어졌다면 200 OK 가 반환됩니다." +
                         "<br>입력된 아이디로 등록된 계정이 없는 경우 404 Not Found 가 반환됩니다." +
                         "<br>이미 요청되어 성사되어 있는 팔로우를 다시 요청하면 409 Conflict 가 반환됩니다" +
                         "<br>이메일 형식의 아이디가 아닌 경우, 400 Bad Request 가 반환됩니다." +
-                        "<br>유효한 access token 이 아닐 경우, 401 Unauthorized 가 반환됩니다.","팔로우요청", SnsDocument.followRequestField))
+                        "<br>유효한 access token 이 아닐 경우, 401 Unauthorized 가 반환됩니다.", "팔로우요청",
+                        UserDocument.AccessTokenHeader,SnsDocument.followRequestField, SnsDocument.followResultResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .body(snsSteps.팔로우정보_생성())
@@ -88,10 +89,12 @@ public class SnsApiTest extends ApiTest {
                 .post("/sns/request-follow")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.OK.value());
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
 
-        Optional<Follow> newFollow = followRepository.findByUserAndTargetUser(user, targetUser);
-        assertThat(newFollow.isPresent()).isTrue();
+        JsonPath jsonPath = response.jsonPath();
+
+        assertThat(jsonPath.getString("targetUserInfoResponse.accountId")).isEqualTo(SnsSteps.targetUserAccountId);
     }
 
     @Test
@@ -102,8 +105,8 @@ public class SnsApiTest extends ApiTest {
 
         final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,SnsDocument.followRequestField))
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,UserDocument.AccessTokenHeader,SnsDocument.followRequestField,SnsDocument.followResultResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN", oppositeToken)
                 .body(snsSteps.팔로우정보_상대방측_생성())
@@ -111,13 +114,15 @@ public class SnsApiTest extends ApiTest {
                 .post("/sns/request-follow")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.OK.value());
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
 
         Optional<Follow> newFollow = followRepository.findByUserAndTargetUser(user, targetUser);
         assertThat(newFollow.isPresent()).isTrue();
 
-        Follow followInfo = newFollow.get();
-        assertThat(followInfo.isFollowBackFlag()).isTrue();
+        assertThat(jsonPath.getBoolean("followBackFlag")).isTrue();
     }
 
 
@@ -205,7 +210,8 @@ public class SnsApiTest extends ApiTest {
                         "<br>입력된 아이디로 등록된 계정이 없는 경우 404 Not Found 가 반환됩니다." +
                         "<br>이미 팔로우되어 있지 않은 계정에 언팔로우를 요청하면 409 Conflict 가 반환됩니다" +
                         "<br>이메일 형식의 아이디가 아닌 경우, 400 Bad Request 가 반환됩니다." +
-                        "<br>유효한 access token 이 아닐 경우, 401 Unauthorized 가 반환됩니다.","언팔로우요청", SnsDocument.followRequestField))
+                        "<br>유효한 access token 이 아닐 경우, 401 Unauthorized 가 반환됩니다.","언팔로우요청",
+                        UserDocument.AccessTokenHeader,SnsDocument.followRequestField,SnsDocument.followResultResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .body(snsSteps.팔로우정보_생성())
@@ -228,7 +234,8 @@ public class SnsApiTest extends ApiTest {
         팔로우요청_생성(oppositeToken, snsSteps.팔로우정보_상대방측_생성());
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, SnsDocument.followRequestField))
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        UserDocument.AccessTokenHeader,SnsDocument.followRequestField,SnsDocument.followResultResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .body(snsSteps.팔로우정보_생성())
@@ -236,7 +243,8 @@ public class SnsApiTest extends ApiTest {
                 .post("/sns/request-unfollow")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.OK.value());
+                .statusCode(HttpStatus.OK.value())
+                .log().all();
 
         Optional<Follow> follow = followRepository.findByUserAndTargetUser(user, targetUser);
         Optional<Follow> backFollow = followRepository.findByUserAndTargetUser(targetUser, user);
