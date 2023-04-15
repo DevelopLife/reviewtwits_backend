@@ -1,10 +1,12 @@
 package com.developlife.reviewtwits.service.user;
 
 import com.developlife.reviewtwits.entity.EmailVerify;
+import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.mail.VerifyCodeException;
 import com.developlife.reviewtwits.exception.user.*;
 import com.developlife.reviewtwits.mapper.UserMapper;
+import com.developlife.reviewtwits.message.request.ImageUpdateRequest;
 import com.developlife.reviewtwits.message.request.user.LoginUserRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserInfoRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
@@ -25,7 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -210,8 +214,9 @@ public class UserService {
         return userMapper.toUserDetailInfoResponse(user);
     }
 
-    public void changeDetailIntroduce(User user, String detailInfo) {
+    public UserInfoResponse changeDetailIntroduce(User user, String detailInfo) {
         user.setDetailIntroduce(detailInfo);
         userRepository.save(user);
+        return userMapper.toUserInfoResponse(user);
     }
 }
