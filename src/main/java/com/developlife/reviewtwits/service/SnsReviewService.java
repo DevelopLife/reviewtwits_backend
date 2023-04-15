@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -145,46 +146,51 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public DetailReactionResponse addReactionOnReview(User user, long reviewId, String inputReaction) {
+    public DetailReactionResponse reactionOnReview(User user, long reviewId, String inputReaction) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("공감을 누르려는 리뷰가 존재하지 않습니다."));
 
-        Reaction updatedReaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user)
-                .orElse(Reaction.builder()
-                        .reactionType(ReactionType.valueOf(inputReaction))
-                        .review(review)
-                        .user(user)
-                        .build());
+        Optional<Reaction> foundReaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user);
 
-        if(isNewReaction(updatedReaction, inputReaction)){
-            modifyReactionCountOnReview(review,1);
+        Reaction toUpdateReaction;
+        if(foundReaction.isPresent()){
+            toUpdateReaction = foundReaction.get();
+            if(toUpdateReaction.getReactionType().equals(ReactionType.valueOf(inputReaction))){
+                reactionRepository.delete(toUpdateReaction);
+                modifyReactionCountOnReview(review,-1);
+                return mapper.toDetailReactionResponse(toUpdateReaction);
+            }
+
+            toUpdateReaction.setReactionType(ReactionType.valueOf(inputReaction));
         }else{
-            updatedReaction.setReactionType(ReactionType.valueOf(inputReaction));
+            toUpdateReaction = Reaction.builder()
+                    .reactionType(ReactionType.valueOf(inputReaction))
+                    .review(review)
+                    .user(user)
+                    .build();
+
+            modifyReactionCountOnReview(review,1);
         }
 
-        reactionRepository.save(updatedReaction);
+        reactionRepository.save(toUpdateReaction);
 
-        return mapper.toDetailReactionResponse(updatedReaction);
+        return mapper.toDetailReactionResponse(toUpdateReaction);
     }
 
-    private boolean isNewReaction(Reaction updatedReaction, String inputReaction) {
-        return updatedReaction.getReactionType().equals(ReactionType.valueOf(inputReaction));
-    }
-
-    @Transactional
-    public DetailReactionResponse deleteReactionOnReview(User user, long reviewId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리액션의 리뷰가 존재하지 않습니다."));
-
-        Reaction reaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user)
-                .orElseThrow(() -> new ReactionNotFoundException("삭제하려는 리액션이 존재하지 않습니다."));
-
-        reactionRepository.delete(reaction);
-
-        modifyReactionCountOnReview(review, -1);
-
-        return mapper.toDetailReactionResponse(reaction);
-    }
+//    @Transactional
+//    public DetailReactionResponse deleteReactionOnReview(User user, long reviewId) {
+//        Review review = reviewRepository.findById(reviewId)
+//                .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리액션의 리뷰가 존재하지 않습니다."));
+//
+//        Reaction reaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user)
+//                .orElseThrow(() -> new ReactionNotFoundException("삭제하려는 리액션이 존재하지 않습니다."));
+//
+//        reactionRepository.delete(reaction);
+//
+//        modifyReactionCountOnReview(review, -1);
+//
+//        return mapper.toDetailReactionResponse(reaction);
+//    }
 
 
     private void modifyReactionCountOnReview(Review review, int count) {

@@ -95,19 +95,19 @@ public class SnsReviewController {
     }
 
     @PostMapping(value = "/review-reaction/{reviewId}")
-    public DetailReactionResponse addReactions(@AuthenticationPrincipal User user,
-                                               @PathVariable long reviewId,
-                                               @RequestParam @ValidReaction String reaction
+    public DetailReactionResponse reactionProcess(@AuthenticationPrincipal User user,
+                                                  @PathVariable long reviewId,
+                                                  @RequestParam @ValidReaction String reaction
     ){
 
-        return snsReviewService.addReactionOnReview(user, reviewId, reaction);
+        return snsReviewService.reactionOnReview(user, reviewId, reaction);
     }
 
-    @DeleteMapping("/review-reaction/{reviewId}")
-    public DetailReactionResponse deleteReactions(@AuthenticationPrincipal User user,
-                                @PathVariable long reviewId) {
-        return snsReviewService.deleteReactionOnReview(user, reviewId);
-    }
+//    @DeleteMapping("/review-reaction/{reviewId}")
+//    public DetailReactionResponse deleteReactions(@AuthenticationPrincipal User user,
+//                                @PathVariable long reviewId) {
+//        return snsReviewService.deleteReactionOnReview(user, reviewId);
+//    }
     @GetMapping("/scrap-reviews")
     public List<DetailSnsReviewResponse> getReviewScrapListOfUser(@AuthenticationPrincipal User user){
         return snsReviewService.getReviewsInUserScrap(user);

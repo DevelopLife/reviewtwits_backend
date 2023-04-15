@@ -60,6 +60,9 @@ public class SnsReviewApiTest extends ApiTest {
     @Autowired
     private CommentLikeRepository commentLikeRepository;
 
+    @Autowired
+    private ReactionRepository reactionRepository;
+
 //    @Autowired
 //    private AmazonS3 s3Client;
 
@@ -495,7 +498,8 @@ public class SnsReviewApiTest extends ApiTest {
                                 "<br>리액션 내용으로 넣을 수 있는 요소는 아래와 같습니다." +
                                 "<br>LOVE,SUNGLASSES,LAUGHING,SURPRISING,THINKING," +
                                 "<br>PLEADING,SHOCKING,PRAYING,GOOD,NOTICING" +
-                                "<br><br> 존재하는 리액션에 다시 리액션을 추가하면, 리액션이 수정됩니다. 같은 리액션을 다시 한번 보내는 것은 막아주세요!",
+                                "<br><br> 존재하는 리액션에 다시 리액션을 추가하면, 리액션이 수정됩니다." +
+                                "<br>이미 완전히 똑같은 리액션의 내용으로 다시 API 를 호출하면, 리액션이 삭제됩니다.",
                         "SNS리뷰리액션추가"
                         , UserDocument.AccessTokenHeader,
                         SnsReviewDocument.ReviewIdField,
@@ -517,6 +521,10 @@ public class SnsReviewApiTest extends ApiTest {
         assertThat(user.getAccountId()).isEqualTo(UserSteps.accountId);
 
         assertThat(jsonPath.getLong("reviewId")).isEqualTo(registeredReviewId);
+
+        reactionRepository.findById(jsonPath.getLong("reactionId")).ifPresent(reaction -> {
+            assertThat(reaction.getReactionType().toString()).isEqualTo(reactionContent);
+        });
     }
 
     @Test
@@ -526,6 +534,7 @@ public class SnsReviewApiTest extends ApiTest {
         SNS_리액션_추가(token, registeredReviewId);
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
                 .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", registeredReviewId)
                 .param("reaction",newReactionContent)
@@ -548,20 +557,16 @@ public class SnsReviewApiTest extends ApiTest {
         SNS_리액션_추가(token, registeredReviewId);
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰에 생성한 리액션을 취소하는 API 입니다." +
-                        "<br>X-AUTH-TOKEN 은 필수 값으로 header 에 들어가야 합니다." +
-                        "<br>리액션을 추가할 reviewId 는 필수값이며, path 에 같이 추가될 수 있습니다." +
-                        "<br>X-AUTH_TOKEN 이 존재하지 않거나, 올바르지 않은 값이거나, 해당 리액션을 수정할 권한이 없는 경우 401 Unauthorized 가 반환됩니다." +
-                        "<br>reviewId 가 존재하지 않은 경우, 404 Not Found 가 반환됩니다." +
-                        "<br>올바른 값이 모두 들어갔다면, 리액션이 삭제되고 200 OK 가 반환됩니다."
+                .filter(document(DEFAULT_RESTDOC_PATH
                         ,"SNS피드리액션삭제",
                         UserDocument.AccessTokenHeader,
                         SnsReviewDocument.ReviewIdField,
                         SnsReviewDocument.SnsReactionResponseField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",registeredReviewId)
+                .param("reaction",reactionContent)
                 .when()
-                .delete("/sns/review-reaction/{reviewId}")
+                .post("/sns/review-reaction/{reviewId}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
