@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
+import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.TokenInvalidException;
 import com.developlife.reviewtwits.message.request.ImageUpdateRequest;
@@ -12,8 +13,8 @@ import com.developlife.reviewtwits.message.response.user.UserDetailInfoResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.service.FileStoreService;
 import com.developlife.reviewtwits.service.user.UserService;
-import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.JwtProvider;
+import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -97,16 +97,17 @@ public class UserController {
     }
 
     @PostMapping(value = "/save-profile-image", consumes = "multipart/form-data", produces = "application/json")
-    public void saveProfileImage(@AuthenticationPrincipal User user, @Valid @ModelAttribute ImageUpdateRequest request){
+    public String saveProfileImage(@AuthenticationPrincipal User user, @Valid @ModelAttribute ImageUpdateRequest request){
 
-        fileStoreService.storeFiles(List.of(request.imageFile()),user.getUserId(), ReferenceType.USER);
+        FileInfo fileInfo = fileStoreService.storeFile(request.imageFile(), user.getUserId(), ReferenceType.USER);
+        return fileInfo.getRealFilename();
     }
 
 
     @PostMapping("/change-detail-messages")
-    public void changeDetailMessageOfUserProfile(@AuthenticationPrincipal User user,
+    public UserInfoResponse changeDetailMessageOfUserProfile(@AuthenticationPrincipal User user,
                                                  @RequestBody String detailInfo){
-        userService.changeDetailIntroduce(user, detailInfo);
+        return userService.changeDetailIntroduce(user, detailInfo);
     }
     // admin권한 부여를 받을수 있는 테스트용 메소드
 //    @PostMapping(value = "/permission", produces = "application/json")

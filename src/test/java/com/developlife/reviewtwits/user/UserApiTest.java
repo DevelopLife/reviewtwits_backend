@@ -13,6 +13,7 @@ import com.developlife.reviewtwits.review.ShoppingMallReviewSteps;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import io.restassured.matcher.RestAssuredMatchers;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.specification.MultiPartSpecification;
@@ -306,25 +307,29 @@ public class UserApiTest extends ApiTest {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"프로필 이미지를 업로드하는 API입니다. " +
-                        "<br>정상적으로 업로드 되었다면 200 OK 를 받을 수 있습니다." +
-                        "<br>등록된 이미지 파일 확장자가 아닌 다른 확장자를 입력하면, 400 Bad Request 가 반환됩니다." +
-                        "<br>이미지 multipart/form-data 는 필수값입니다. 입력하지 않을 시 400 Bad Request 가 반환됩니다." +
-                        "<br>유저의 토큰 값 역시 필수값입니다. 입력하지 않을 시 403 Forbidden 이 반환됩니다.",
-                        "프로필이미지업로드", UserDocument.AccessTokenHeader,UserDocument.ImageUpdateRequestField))
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "프로필 이미지를 업로드하는 API입니다. " +
+                                "<br>정상적으로 업로드 되었다면 200 OK 를 받을 수 있습니다." +
+                                "<br>등록된 이미지 파일 확장자가 아닌 다른 확장자를 입력하면, 400 Bad Request 가 반환됩니다." +
+                                "<br>이미지 multipart/form-data 는 필수값입니다. 입력하지 않을 시 400 Bad Request 가 반환됩니다." +
+                                "<br>유저의 토큰 값 역시 필수값입니다. 입력하지 않을 시 403 Forbidden 이 반환됩니다.",
+                        "프로필이미지업로드", UserDocument.AccessTokenHeader, UserDocument.ImageUpdateRequestField))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .header("X-AUTH-TOKEN",token)
+                .header("X-AUTH-TOKEN", token)
                 .multiPart(UserSteps.프로필_이미지_파일정보_생성())
                 .when()
                 .post("/users/save-profile-image")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        assertThat(유저정보_프로필이미지_추출()).isNotNull();
-    //    verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
+        String foundInBody = response.body().asString();
+        String foundProfileImage = 유저정보_프로필이미지_추출();
+
+        assertThat(foundInBody).isEqualTo(foundProfileImage);
+
+        //    verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     private String 유저정보_프로필이미지_추출() {
@@ -371,13 +376,13 @@ public class UserApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .header("X-AUTH-TOKEN",token)
+                .header("X-AUTH-TOKEN", token)
                 .when()
                 .post("/users/save-profile-image")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("find{it.errorType == 'FileUploadException' && it.fieldName == 'file' }",notNullValue())
+                .body("find{it.errorType == 'FileUploadException' && it.fieldName == 'file' }", notNullValue())
                 .log().all();
     }
 
@@ -385,22 +390,25 @@ public class UserApiTest extends ApiTest {
     void 유저프로필_상세소개_수정_성공_200(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"유저 프로필에서 상세 소개를 변경하는 API 입니다." +
-                        "header 에 X-AUTH-TOKEN 을, body 에 소개 내용만을 넣어 주면, 200 OK 와 함께 유저의 상세 소개가 변경됩니다." +
-                        "잘못된 X-AUTH-TOKEN 을 입력하거나, token을 입력하지 않았을 경우, 403 에러가 반환됩니다."
-                        ,"유저프로필상세소개수정요청",UserDocument.AccessTokenHeader))
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "유저 프로필에서 상세 소개를 변경하는 API 입니다." +
+                                "header 에 X-AUTH-TOKEN 을, body 에 소개 내용만을 넣어 주면, 200 OK 와 함께 유저의 상세 소개가 변경됩니다." +
+                                "잘못된 X-AUTH-TOKEN 을 입력하거나, token을 입력하지 않았을 경우, 403 에러가 반환됩니다."
+                        , "유저프로필상세소개수정요청", UserDocument.AccessTokenHeader))
                 .config(config().encoderConfig(encoderConfig()
                         .encodeContentTypeAs("text/plain", ContentType.TEXT)
                         .defaultContentCharset("UTF-8")))
-                .header("X-AUTH-TOKEN",token)
+                .header("X-AUTH-TOKEN", token)
                 .body(UserSteps.userDetailIntroduce)
                 .when()
                 .post("/users/change-detail-messages")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("detailIntroduce")).isEqualTo(UserSteps.userDetailIntroduce);
 
         User user = userRepository.findByAccountId(UserSteps.accountId).get();
         assertThat(user.getDetailIntroduce()).isEqualTo(UserSteps.userDetailIntroduce);
