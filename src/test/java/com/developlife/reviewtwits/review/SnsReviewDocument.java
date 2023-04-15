@@ -90,6 +90,29 @@ public class SnsReviewDocument {
             fieldWithPath("[].isScrapped").type(JsonFieldType.BOOLEAN).description("스크랩여부")
     );
 
+    public static final Snippet SnsReviewResultResponseField = responseFields(
+            fieldWithPath("createdDate").type(JsonFieldType.ARRAY).description("생성시간"),
+            fieldWithPath("lastModifiedDate").type(JsonFieldType.ARRAY).description("마지막수정시간"),
+            fieldWithPath("reviewId").type(JsonFieldType.NUMBER).description("리뷰 아이디"),
+            fieldWithPath("userInfo.userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
+            fieldWithPath("userInfo.nickname").type(JsonFieldType.STRING).description("유저닉네임"),
+            fieldWithPath("userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
+            fieldWithPath("userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
+            fieldWithPath("userInfo.detailIntroduce").type(JsonFieldType.STRING).description("유저 상세소개").optional(),
+            fieldWithPath("userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+            fieldWithPath("userInfo.reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
+            fieldWithPath("userInfo.followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
+            fieldWithPath("userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
+            fieldWithPath("content").type(JsonFieldType.STRING).description("리뷰내용"),
+            fieldWithPath("productUrl").type(JsonFieldType.STRING).description("제품 URL"),
+            fieldWithPath("productName").type(JsonFieldType.STRING).description("제품이름"),
+            fieldWithPath("score").type(JsonFieldType.NUMBER).description("별점"),
+            fieldWithPath("reviewImageNameList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
+            fieldWithPath("commentCount").type(JsonFieldType.NUMBER).description("댓글갯수"),
+            fieldWithPath("reactionResponses").type(JsonFieldType.OBJECT).description("리액션"),
+            fieldWithPath("isScrapped").type(JsonFieldType.BOOLEAN).description("스크랩여부")
+    );
+
     public static final Snippet SnsReviewCommentResponseField = responseFields(
         fieldWithPath("[].commentId").type(JsonFieldType.NUMBER).description("댓글아이디"),
         fieldWithPath("[].userInfo.userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
@@ -103,5 +126,39 @@ public class SnsReviewDocument {
         fieldWithPath("[].userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
         fieldWithPath("[].content").type(JsonFieldType.STRING).description("댓글내용"),
         fieldWithPath("[].parentCommentId").type(JsonFieldType.NUMBER).description("부모댓글아이디")
+    );
+
+    public static final Snippet SnsCommentResultResponseField = responseFields(
+        fieldWithPath("commentId").type(JsonFieldType.NUMBER).description("댓글아이디"),
+        fieldWithPath("userInfo.userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
+        fieldWithPath("userInfo.nickname").type(JsonFieldType.STRING).description("유저닉네임"),
+        fieldWithPath("userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
+        fieldWithPath("userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
+        fieldWithPath("userInfo.detailIntroduce").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
+        fieldWithPath("userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+        fieldWithPath("userInfo.reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
+        fieldWithPath("userInfo.followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
+        fieldWithPath("userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
+        fieldWithPath("content").type(JsonFieldType.STRING).description("댓글내용"),
+        fieldWithPath("parentCommentId").type(JsonFieldType.NUMBER).description("부모댓글아이디")
+    );
+
+    public static final Snippet SnsReactionResponseField = responseFields(
+        fieldWithPath("reactionId").type(JsonFieldType.NUMBER).description("리액션아이디"),
+        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
+        fieldWithPath("reviewId").type(JsonFieldType.NUMBER).description("리뷰아이디"),
+        fieldWithPath("reactionType").type(JsonFieldType.STRING).description("리액션타입")
+    );
+
+    public static final Snippet SnsReviewScrapResultResponseField = responseFields(
+        fieldWithPath("reviewScrapId").type(JsonFieldType.NUMBER).description("스크랩아이디"),
+        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
+        fieldWithPath("reviewId").type(JsonFieldType.NUMBER).description("리뷰아이디")
+    );
+
+    public static final Snippet SnsCommentLikeResultResponseField = responseFields(
+        fieldWithPath("commentLikeId").type(JsonFieldType.NUMBER).description("좋아요아이디"),
+        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
+        fieldWithPath("commentId").type(JsonFieldType.NUMBER).description("댓글아이디")
     );
 }

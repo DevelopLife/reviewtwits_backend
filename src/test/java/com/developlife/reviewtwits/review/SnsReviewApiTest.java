@@ -60,6 +60,9 @@ public class SnsReviewApiTest extends ApiTest {
     @Autowired
     private CommentLikeRepository commentLikeRepository;
 
+    @Autowired
+    private ReactionRepository reactionRepository;
+
 //    @Autowired
 //    private AmazonS3 s3Client;
 
@@ -92,7 +95,9 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br> productName 도 필수 값입니다. " +
                         "<br> SNS 리뷰에서는 이미지 파일이 필수입니다." +
                         "<br> 필수 값들이 입력되지 않았다면, 400 Bad Request 가 반환되며, 리뷰가 저장되지 않습니다,",
-                        "SNS리뷰작성", UserDocument.AccessTokenHeader, SnsReviewDocument.SnsReviewWriteRequestField))
+                        "SNS리뷰작성", UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.SnsReviewWriteRequestField,
+                        SnsReviewDocument.SnsReviewResultResponseField))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
@@ -107,16 +112,16 @@ public class SnsReviewApiTest extends ApiTest {
             request.multiPart(multiPartSpecification);
         }
 
-        request.when()
+        ExtractableResponse<Response> response = request.when()
                 .post("/sns/reviews")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        List<Review> registeredReview = reviewRepository.findReviewsByProductUrl(productURL);
-        assertThat(registeredReview.size()).isEqualTo(1);
-    //    verify(s3Client).putObject(Mockito.any(PutObjectRequest.class));
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("content")).isEqualTo(rightReviewText);
+        assertThat(jsonPath.getString("productName")).isEqualTo(productName);
     }
 
     @Test
@@ -290,34 +295,40 @@ public class SnsReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"SNS 리뷰를 수정하는 API 입니다. " +
-                        "<br> X-AUTH-TOKEN 을 Header 로 받고, 아래 조건을 모두 맞추면 200 OK 와 함께 SNS 리뷰가 수정됩니다." +
-                        "<br> X-AUTH-TOKEN 이 들어가지 않았거나, 리뷰를 수정할 권한이 없다면 401 Unauthorized 를 받게 됩니다." +
-                        "<br> content 는 선택적으로 입력할 수 있으며, 10 자 이상으로 작성해야 합니다." +
-                        "<br> score(별점) 또한 선택 값이며, 0~5 점 사이로 입력할 수 있습니다." +
-                        "<br> productName 도 선택 값입니다. " +
-                        "<br> SNS 리뷰에서는 이미지 파일이 선택 값입니다. 이미지 확장자로 된 파일을 넣어야 합니다." +
-                        "<br> 기존의 사진을 삭제하고 싶다면, 조회했을 때 들어간 리뷰 사진의 이름을 multipart form 에 이름을 하나하나 담아 넘겨주면 삭제 처리 됩니다." +
-                        "<br> 파일 삭제를 위한 리스트의 이름은 반드시 이미지 확장자로 끝나야 합니다." +
-                        "<br> 위의 조건이 충족되지 않으면, 400 Bad Request 가 반환되며, 리뷰가 수정되지 않습니다." +
-                        "<br> 수정하려는 리뷰가 존재하지 않는다면, 404 Not Found 가 반환됩니다."
-                ,"SNS리뷰수정", UserDocument.AccessTokenHeader, SnsReviewDocument.SnsReviewChangeRequestField))
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰를 수정하는 API 입니다. " +
+                                "<br> X-AUTH-TOKEN 을 Header 로 받고, 아래 조건을 모두 맞추면 200 OK 와 함께 SNS 리뷰가 수정됩니다." +
+                                "<br> X-AUTH-TOKEN 이 들어가지 않았거나, 리뷰를 수정할 권한이 없다면 401 Unauthorized 를 받게 됩니다." +
+                                "<br> content 는 선택적으로 입력할 수 있으며, 10 자 이상으로 작성해야 합니다." +
+                                "<br> score(별점) 또한 선택 값이며, 0~5 점 사이로 입력할 수 있습니다." +
+                                "<br> productName 도 선택 값입니다. " +
+                                "<br> SNS 리뷰에서는 이미지 파일이 선택 값입니다. 이미지 확장자로 된 파일을 넣어야 합니다." +
+                                "<br> 기존의 사진을 삭제하고 싶다면, 조회했을 때 들어간 리뷰 사진의 이름을 multipart form 에 이름을 하나하나 담아 넘겨주면 삭제 처리 됩니다." +
+                                "<br> 파일 삭제를 위한 리스트의 이름은 반드시 이미지 확장자로 끝나야 합니다." +
+                                "<br> 위의 조건이 충족되지 않으면, 400 Bad Request 가 반환되며, 리뷰가 수정되지 않습니다." +
+                                "<br> 수정하려는 리뷰가 존재하지 않는다면, 404 Not Found 가 반환됩니다."
+                        , "SNS리뷰수정", UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.SnsReviewChangeRequestField,
+                        SnsReviewDocument.SnsReviewResultResponseField))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .header("X-AUTH-TOKEN",token)
-                .pathParam("reviewId",recentReviewId)
-                .multiPart(CommonSteps.multipartText("content",changeCommentContent))
-                .multiPart("score",3)
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", recentReviewId)
+                .multiPart(CommonSteps.multipartText("content", changeCommentContent))
+                .multiPart("score", 3)
                 .when()
                 .patch("/sns/reviews/{reviewId}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
         Review changedReview = reviewRepository.findById(recentReviewId).get();
         assertThat(changedReview.getContent()).isEqualTo(changeCommentContent);
         assertThat(changedReview.getScore()).isEqualTo(3);
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("content")).isEqualTo(changeCommentContent);
+        assertThat(jsonPath.getLong("score")).isEqualTo(3);
     }
 
     @Test
@@ -326,6 +337,13 @@ public class SnsReviewApiTest extends ApiTest {
         Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰를 삭제하는 API 입니다. " +
+                                "<br> X-AUTH-TOKEN 을 Header 로 받고, 아래 조건을 모두 맞추면 200 OK 와 함께 SNS 리뷰가 삭제됩니다." +
+                                "<br> X-AUTH-TOKEN 이 들어가지 않았거나, 리뷰를 삭제할 권한이 없다면 401 Unauthorized 를 받게 됩니다." +
+                                "<br> 삭제하려는 리뷰가 존재하지 않는다면, 404 Not Found 가 반환됩니다."
+                        , "SNS리뷰삭제", UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReviewResultResponseField))
                 .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", recentReviewId)
                 .when()
@@ -333,7 +351,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
         Review deletedReview = reviewRepository.findById(recentReviewId).get();
         assertThat(deletedReview.isExist()).isFalse();
@@ -354,7 +372,10 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br> parentId 가 0인 경우, 부모 댓글로 간주받게 되며, parentId 가 0이 아닐 경우, 부모 댓글의 대댓글로 간주됩니다." +
                         "<br> token 을 제외한 위의 규칙이 지켜지지 않을 경우, 400 Bad Request 가 반환됩니다." +
                         "<br> 모든 조건이 지켜진 상태라면, 댓글 저장과 함께 200 OK 가 반환됩니다.","SNS댓글작성",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField, SnsReviewDocument.SnsCommentWriteRequestField))
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsCommentWriteRequestField,
+                        SnsReviewDocument.SnsCommentResultResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId", recentReviewId)
@@ -414,7 +435,8 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>해당 유저가 댓글을 삭제할 권한이 없다면, 401 Unauthorized 가 반환됩니다." +
                         "<br>지우고자 하는 댓글이 존재하지 않으면, 404 Not Found 가 반환됩니다." +
                         "<br>정상적으로 삭제되었다면, 200 OK 가 반환됩니다.", "SNS리뷰댓글삭제"
-                        ,UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField))
+                        ,UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField,
+                        SnsReviewDocument.SnsCommentResultResponseField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("commentId", commentId)
                 .when()
@@ -443,7 +465,10 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>수정할 commentId 가 존재하지 않으면, 404 Not Found 가 반환됩니다." +
                         "<br>댓글 내용이 존재하지 않으면, 400 Bad Request 가 반환됩니다." +
                         "<br>댓글이 성공적으로 수정되었다면 200 OK 가 반환됩니다","SNS리뷰댓글수정",
-                        UserDocument.AccessTokenHeader,SnsReviewDocument.CommentIdField, SnsReviewDocument.SnsCommentChangeRequestField))
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.CommentIdField,
+                        SnsReviewDocument.SnsCommentChangeRequestField,
+                        SnsReviewDocument.SnsCommentResultResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("commentId", commentId)
@@ -465,30 +490,41 @@ public class SnsReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
 
-        given(this.spec)
+        ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "피드 리액션 추가 및 수정을 위한 API 입니다." +
-                        "<br>X-AUTH-TOKEN 은 필수 값으로 header 에 들어가야 합니다." +
-                        "<br>리액션을 추가할 reviewId 는 필수값이며, path 에 같이 추가될 수 있습니다." +
-                        "<br>리액션 내용은 Request Body 에 넣을 수 있습니다." +
-                        "<br>리액션 내용으로 넣을 수 있는 요소는 아래와 같습니다." +
-                        "<br>LOVE,SUNGLASSES,LAUGHING,SURPRISING,THINKING," +
-                        "<br>PLEADING,SHOCKING,PRAYING,GOOD,NOTICING" +
-                        "<br><br> 존재하는 리액션에 다시 리액션을 추가하면, 리액션이 수정됩니다. 같은 리액션을 다시 한번 보내는 것은 막아주세요!",
-                        "SNS리뷰리액션추가"
-                        ,UserDocument.AccessTokenHeader,SnsReviewDocument.ReviewIdField,SnsReviewDocument.SnsReactionAddRequestField))
+                                "<br>X-AUTH-TOKEN 은 필수 값으로 header 에 들어가야 합니다." +
+                                "<br>리액션을 추가할 reviewId 는 필수값이며, path 에 같이 추가될 수 있습니다." +
+                                "<br>리액션 내용은 Request Body 에 넣을 수 있습니다." +
+                                "<br>리액션 내용으로 넣을 수 있는 요소는 아래와 같습니다." +
+                                "<br>LOVE,SUNGLASSES,LAUGHING,SURPRISING,THINKING," +
+                                "<br>PLEADING,SHOCKING,PRAYING,GOOD,NOTICING" +
+                                "<br><br> 존재하는 리액션에 다시 리액션을 추가하면, 리액션이 수정됩니다." +
+                                "<br>이미 완전히 똑같은 리액션의 내용으로 다시 API 를 호출하면, 리액션이 삭제됩니다.",
+                        "SNS리뷰리액션"
+                        , UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReactionAddRequestField,
+                        SnsReviewDocument.SnsReactionResponseField))
                 .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", registeredReviewId)
-                .param("reaction",reactionContent)
+                .param("reaction", reactionContent)
                 .when()
                 .post("/sns/review-reaction/{reviewId}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        JsonPath jsonPath = 피드_리뷰_리액션_추출(token);
-        boolean isReacted = jsonPath.getBoolean("[0].reactionResponses."+ reactionContent + ".isReacted");
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("reactionType")).isEqualTo(reactionContent);
 
-        assertThat(isReacted).isEqualTo(true);
+        User user = userRepository.findById(jsonPath.getLong("userId")).get();
+        assertThat(user.getAccountId()).isEqualTo(UserSteps.accountId);
+
+        assertThat(jsonPath.getLong("reviewId")).isEqualTo(registeredReviewId);
+
+        reactionRepository.findById(jsonPath.getLong("reactionId")).ifPresent(reaction -> {
+            assertThat(reaction.getReactionType().toString()).isEqualTo(reactionContent);
+        });
     }
 
     @Test
@@ -498,6 +534,7 @@ public class SnsReviewApiTest extends ApiTest {
         SNS_리액션_추가(token, registeredReviewId);
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
                 .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", registeredReviewId)
                 .param("reaction",newReactionContent)
@@ -520,17 +557,15 @@ public class SnsReviewApiTest extends ApiTest {
         SNS_리액션_추가(token, registeredReviewId);
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰에 생성한 리액션을 취소하는 API 입니다." +
-                        "<br>X-AUTH-TOKEN 은 필수 값으로 header 에 들어가야 합니다." +
-                        "<br>리액션을 추가할 reviewId 는 필수값이며, path 에 같이 추가될 수 있습니다." +
-                        "<br>X-AUTH_TOKEN 이 존재하지 않거나, 올바르지 않은 값이거나, 해당 리액션을 수정할 권한이 없는 경우 401 Unauthorized 가 반환됩니다." +
-                        "<br>reviewId 가 존재하지 않은 경우, 404 Not Found 가 반환됩니다." +
-                        "<br>올바른 값이 모두 들어갔다면, 리액션이 삭제되고 200 OK 가 반환됩니다."
-                        ,"SNS피드리액션삭제",UserDocument.AccessTokenHeader,SnsReviewDocument.ReviewIdField))
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReactionResponseField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",registeredReviewId)
+                .param("reaction",reactionContent)
                 .when()
-                .delete("/sns/review-reaction/{reviewId}")
+                .post("/sns/review-reaction/{reviewId}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
@@ -545,25 +580,33 @@ public class SnsReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"리뷰 스크랩 내용을 추가하는 API 입니다." +
-                        "<br> X-AUTH-TOKEN 을 header 에 넣어 주고, 존재하는 reviewId 를 path 에 추가하면" +
-                        "<br> 200 OK 와 함께 해당 리뷰가 유저에 스크랩됩니다." +
-                        "<br> X-AUTH-TOKEN 이 올바르지 않거나 입력되지 않았을 경우 403 에러가 표출되게 됩니다." +
-                        "<br> 해당 리뷰가 존재하지 않을 경우, 404 에러가 표출되게 됩니다." +
-                        "<br>이미 스크랩한 리뷰의 경우, 409 에러가 표출되게 됩니다.","리뷰스크랩추가",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField))
-                .header("X-AUTH-TOKEN",token)
-                .pathParam("reviewId",registeredReviewId)
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "리뷰 스크랩 내용을 추가하는 API 입니다." +
+                                "<br> X-AUTH-TOKEN 을 header 에 넣어 주고, 존재하는 reviewId 를 path 에 추가하면" +
+                                "<br> 200 OK 와 함께 해당 리뷰가 유저에 스크랩됩니다." +
+                                "<br> X-AUTH-TOKEN 이 올바르지 않거나 입력되지 않았을 경우 403 에러가 표출되게 됩니다." +
+                                "<br> 해당 리뷰가 존재하지 않을 경우, 404 에러가 표출되게 됩니다." +
+                                "<br>이미 스크랩한 리뷰의 경우, 409 에러가 표출되게 됩니다.", "리뷰스크랩추가",
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReviewScrapResultResponseField))
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", registeredReviewId)
                 .when()
                 .post("/sns/scrap-reviews/{reviewId}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        User user = userRepository.findByAccountId(UserSteps.accountId).get();
-        Review review = reviewRepository.findById(registeredReviewId).get();
+        JsonPath jsonPath = response.jsonPath();
+        Long foundUserId = jsonPath.getLong("userId");
+        Long foundReviewId = jsonPath.getLong("reviewId");
+
+        assertThat(foundReviewId).isEqualTo(registeredReviewId);
+
+        User user = userRepository.findById(foundUserId).get();
+        Review review = reviewRepository.findById(foundReviewId).get();
         Optional<ReviewScrap> foundReviewScrap = reviewScrapRepository.findByReviewAndUser(review, user);
         assertThat(foundReviewScrap).isPresent();
     }
@@ -635,7 +678,9 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br> X-AUTH-TOKEN 이 올바르지 않거나 입력되지 않았을 경우 403 에러가 표출되게 됩니다." +
                         "<br> 해당 리뷰가 존재하지 않을 경우, 404 에러가 표출되게 됩니다." +
                         "<br> 해당 리뷰가 이미 스크랩되어 있지 않은 경우, 409 에러가 표출되게 됩니다.","리뷰스크랩취소",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField))
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReviewScrapResultResponseField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",registeredReviewId)
                 .when()
@@ -745,34 +790,36 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 댓글공감_성공_200(){
+    void 댓글공감_성공_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"댓글에 공감을 추가하는 API 입니다." +
-                        "<br>header 에 X-AUTH-TOKEN 을 넣고, path 에 commentId 를 올바르게 넣어 요청할 수 있습니다." +
-                        "<br>header 에 토큰 값을 넣지 않았거나, 올바르지 않은 토큰을 입력했다면 403 Forbidden 이 반환됩니다." +
-                        "<br>존재하지 않은 commentId 를 입력했다면 404 Not Found 가 반환됩니다." +
-                        "<br>이미 좋아요를 누른 상태에서 다시 요청을 보내면, 409 Conflict 가 반환됩니다." +
-                        "<br>모두 올바른 값을 입력했다면, 해당 댓글에 좋아요가 처리되고 200 OK 가 반환됩니다.","댓글좋아요요청",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField))
-                .header("X-AUTH-TOKEN",token)
-                .pathParam("commentId",commentId)
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "댓글에 공감을 추가하는 API 입니다." +
+                                "<br>header 에 X-AUTH-TOKEN 을 넣고, path 에 commentId 를 올바르게 넣어 요청할 수 있습니다." +
+                                "<br>header 에 토큰 값을 넣지 않았거나, 올바르지 않은 토큰을 입력했다면 403 Forbidden 이 반환됩니다." +
+                                "<br>존재하지 않은 commentId 를 입력했다면 404 Not Found 가 반환됩니다." +
+                                "<br>이미 좋아요를 누른 상태에서 다시 요청을 보내면, 409 Conflict 가 반환됩니다." +
+                                "<br>모두 올바른 값을 입력했다면, 해당 댓글에 좋아요가 처리되고 200 OK 가 반환됩니다.", "댓글좋아요요청",
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.CommentIdField,
+                        SnsReviewDocument.SnsCommentLikeResultResponseField))
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("commentId", commentId)
                 .when()
                 .post("/sns/comments-like/{commentId}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        User user = userRepository.findByAccountId(UserSteps.accountId).get();
-        Comment comment = commentRepository.findById(commentId).get();
-        Optional<CommentLike> foundComment = commentLikeRepository.findByUserAndComment(user, comment);
+        JsonPath jsonPath = response.jsonPath();
 
-        assertThat(foundComment).isPresent();
-        assertThat(comment.getCommentLike()).isEqualTo(1);
+        Long foundCommentLikeId = jsonPath.getLong("commentLikeId");
+
+        CommentLike commentLike = commentLikeRepository.findById(foundCommentLikeId).get();
+        assertThat(commentLike.getComment().getCommentId()).isEqualTo(commentId);
     }
 
     @Test
@@ -839,28 +886,38 @@ public class SnsReviewApiTest extends ApiTest {
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
         SNS_댓글공감_추가(token,commentId);
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"댓글에 공감을 취소하는 API 입니다." +
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "댓글에 공감을 취소하는 API 입니다." +
                                 "<br>header 에 X-AUTH-TOKEN 을 넣고, path 에 commentId 를 올바르게 넣어 요청할 수 있습니다." +
                                 "<br>header 에 토큰 값을 넣지 않았거나, 올바르지 않은 토큰을 입력했다면 403 Forbidden 이 반환됩니다." +
                                 "<br>존재하지 않은 commentId 를 입력했다면 404 Not Found 가 반환됩니다." +
                                 "<br>이미 좋아요를 추가하지 않았거나 좋아요를 취소한 상태에서 다시 취소 요청을 보내면, 409 Conflict 가 반환됩니다." +
-                                "<br>모두 올바른 값을 입력했다면, 해당 댓글에 좋아요가 처리되고 200 OK 가 반환됩니다.","댓글좋아요취소요청",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField))
-                .header("X-AUTH-TOKEN",token)
-                .pathParam("commentId",commentId)
+                                "<br>모두 올바른 값을 입력했다면, 해당 댓글에 좋아요가 처리되고 200 OK 가 반환됩니다.", "댓글좋아요취소요청",
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.CommentIdField,
+                        SnsReviewDocument.SnsCommentLikeResultResponseField))
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("commentId", commentId)
                 .when()
                 .delete("/sns/comments-like/{commentId}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+
+        Long commentLikeId = jsonPath.getLong("commentLikeId");
 
         User user = userRepository.findByAccountId(UserSteps.accountId).get();
-        Comment comment = commentRepository.findById(commentId).get();
-        Optional<CommentLike> foundComment = commentLikeRepository.findByUserAndComment(user, comment);
+        assertThat(jsonPath.getLong("userId")).isEqualTo(user.getUserId());
 
+
+        Optional<CommentLike> foundComment = commentLikeRepository.findById(commentLikeId);
         assertThat(foundComment).isNotPresent();
-        assertThat(comment.getCommentLike()).isEqualTo(0);
+
+        commentRepository.findById(jsonPath.getLong("commentId")).ifPresent(comment -> {
+            assertThat(comment.getCommentLike()).isEqualTo(0);
+        });
     }
 
     @Test

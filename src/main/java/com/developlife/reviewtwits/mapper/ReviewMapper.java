@@ -1,11 +1,7 @@
 package com.developlife.reviewtwits.mapper;
 
-import com.developlife.reviewtwits.entity.Comment;
-import com.developlife.reviewtwits.entity.Review;
-import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.message.response.review.CommentResponse;
-import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
-import com.developlife.reviewtwits.message.response.review.ReactionResponse;
+import com.developlife.reviewtwits.entity.*;
+import com.developlife.reviewtwits.message.response.review.*;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.message.response.sns.SnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
@@ -82,6 +78,31 @@ public interface ReviewMapper {
                 .reviewImageNameList(review.getReviewImageNameList())
                 .commentCount(review.getCommentCount())
                 .reactionCount(review.getReactionCount())
+                .build();
+    }
+
+    default DetailReactionResponse toDetailReactionResponse(Reaction reaction){
+        return DetailReactionResponse.builder()
+                .reactionId(reaction.getReactionId())
+                .reviewId(reaction.getReview().getReviewId())
+                .reactionType(reaction.getReactionType())
+                .userId(reaction.getUser().getUserId())
+                .build();
+    }
+
+    default ReviewScrapResultResponse toReviewScrapResultResponse(ReviewScrap reviewScrap){
+        return ReviewScrapResultResponse.builder()
+                .reviewScrapId(reviewScrap.getReviewScrapId())
+                .reviewId(reviewScrap.getReview().getReviewId())
+                .userId(reviewScrap.getUser().getUserId())
+                .build();
+    }
+
+    default CommentLikeResultResponse toCommentLikeResultResponse(CommentLike commentLike){
+        return CommentLikeResultResponse.builder()
+                .commentLikeId(commentLike.getCommentLikeId())
+                .commentId(commentLike.getComment().getCommentId())
+                .userId(commentLike.getUser().getUserId())
                 .build();
     }
 }

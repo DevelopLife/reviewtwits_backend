@@ -141,4 +141,13 @@ public class FileStoreService {
             folder.mkdir();
         }
     }
+
+    public List<String> getFileNameList(List<FileInfo> fileInfoList) {
+
+        List<String> fileNameList = new ArrayList<>();
+        for(FileInfo fileInfo : fileInfoList){
+            fileNameList.add(fileInfo.getRealFilename());
+        }
+        return fileNameList;
+    }
 }

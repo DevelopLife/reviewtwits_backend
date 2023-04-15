@@ -77,7 +77,10 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         RequestSpecification request = given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"쇼핑몰 리뷰를 작성합니다. 필수값이 입력되지 않았을 경우 400이 반환됩니다.","쇼핑몰리뷰작성", UserDocument.AccessTokenHeader ,ShoppingMallReviewDocument.ShoppingMallReviewWriteRequestField))
+                .filter(document(DEFAULT_RESTDOC_PATH,"쇼핑몰 리뷰를 작성합니다. 필수값이 입력되지 않았을 경우 400이 반환됩니다.",
+                        "쇼핑몰리뷰작성", UserDocument.AccessTokenHeader,
+                        ShoppingMallReviewDocument.ShoppingMallReviewWriteRequestField,
+                        ShoppingMallReviewDocument.shoppingMallReviewResponseField))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .multiPart("productURL", productURL)
@@ -91,15 +94,20 @@ public class ShoppingMallReviewApiTest extends ApiTest {
             request.multiPart(multiPartSpecification);
         }
 
-        request
+        ExtractableResponse<Response> response = request
                 .when()
                 .post("/reviews/shopping")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-      //  verify(s3Client).putObject(Mockito.any(PutObjectRequest.class));
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("content")).isEqualTo(rightReviewText);
+        assertThat(jsonPath.getInt("score")).isEqualTo(starScore);
+        assertThat(jsonPath.getString("productUrl")).isEqualTo(productURL);
+
+        //  verify(s3Client).putObject(Mockito.any(PutObjectRequest.class));
     }
 
     @Test
@@ -152,22 +160,25 @@ public class ShoppingMallReviewApiTest extends ApiTest {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,"입력한 리뷰 아이디의 리뷰를 삭제 처리합니다." +
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "입력한 리뷰 아이디의 리뷰를 삭제 처리합니다." +
                         "<br>입력된 아이디로 등록된 리뷰가 없는 경우 404 Not Found 가 리턴됩니다." +
-                        "<br>해당 리뷰를 수정할 권한이 없는 경우, 401 Unauthorized 가 리턴됩니다","쇼핑몰리뷰삭제", ShoppingMallReviewDocument.ReviewIdField))
+                        "<br>해당 리뷰를 수정할 권한이 없는 경우, 401 Unauthorized 가 리턴됩니다", "쇼핑몰리뷰삭제",
+                        UserDocument.AccessTokenHeader,
+                        ShoppingMallReviewDocument.ReviewIdField,
+                        ShoppingMallReviewDocument.shoppingMallReviewResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN", token)
-                .pathParam("reviewId",reviewId)
+                .pathParam("reviewId", reviewId)
                 .when()
                 .delete("/reviews/shopping/{reviewId}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
-        assertThat(jsonPath.getBoolean("[0].exist")).isFalse();
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getBoolean("exist")).isFalse();
     }
     @Test
     void 쇼핑몰_리뷰_별점_수정_200() throws IOException {
@@ -177,14 +188,16 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         long newScore = 5;
 
-        given(this.spec)
+        ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "쇼핑몰 리뷰를 수정하는 API 기능입니다. " +
                                 "<br>고치지 않을 부분은 입력하지 않으면 고쳐지지 않으며, 고쳐지는 부분은 작성때와 똑같은 규칙을 작용받습니다" +
                                 "<br>X-AUTH-TOKEN 을 입력해야 하며, 유저가 해당 리뷰를 작성하지 않아 리뷰를 수정/삭제할 권한이 존재하지 않는 경우 401 에러를 반환합니다." +
                                 "<br>등록되지 않은 리뷰 아이디를 입력했다면, 404 에러를 반환합니다." +
                                 "<br>기존의 사진을 삭제하고 싶다면, 조회했을 때 들어간 리뷰 사진의 이름을 multipart form 에 이름을 하나하나 담아 넘겨주면 삭제 처리 됩니다." +
-                                "<br>수정이 성공적으로 이루어졌다면 200 OK 가 반환됩니다.", "쇼핑몰리뷰수정",UserDocument.AccessTokenHeader,
-                        ShoppingMallReviewDocument.ReviewIdField, ShoppingMallReviewDocument.scoreField))
+                                "<br>수정이 성공적으로 이루어졌다면 200 OK 가 반환됩니다.", "쇼핑몰리뷰수정", UserDocument.AccessTokenHeader,
+                        ShoppingMallReviewDocument.ReviewIdField,
+                        ShoppingMallReviewDocument.scoreField,
+                        ShoppingMallReviewDocument.shoppingMallReviewResponseField))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", reviewId)
@@ -194,10 +207,10 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
-        assertThat(jsonPath.getInt("[0].score")).isEqualTo(newScore);
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getInt("score")).isEqualTo(newScore);
     }
 
     @Test
@@ -207,9 +220,10 @@ public class ShoppingMallReviewApiTest extends ApiTest {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
-        given(this.spec)
+        ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, UserDocument.AccessTokenHeader,
-                        ShoppingMallReviewDocument.ReviewIdField, ShoppingMallReviewDocument.imageFileFiend))
+                        ShoppingMallReviewDocument.ReviewIdField, ShoppingMallReviewDocument.imageFileFiend,
+                        ShoppingMallReviewDocument.shoppingMallReviewResponseField))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", reviewId)
@@ -219,10 +233,10 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
-        assertThat(jsonPath.getList("[0].reviewImageNameList").size()).isEqualTo(2);
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getList("reviewImageNameList").size()).isEqualTo(2);
     }
 
     @Test
@@ -233,23 +247,24 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         List<String> fileNameList = fileManagerRepository.getRealFilename(reviewId, ReferenceType.REVIEW);
 
-        given(this.spec)
+        ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, UserDocument.AccessTokenHeader,
-                        ShoppingMallReviewDocument.ReviewIdField, ShoppingMallReviewDocument.deleteFileListField))
+                        ShoppingMallReviewDocument.ReviewIdField, ShoppingMallReviewDocument.deleteFileListField,
+                        ShoppingMallReviewDocument.shoppingMallReviewResponseField))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", reviewId)
-                .multiPart("deleteFileList",fileNameList.get(0))
+                .multiPart("deleteFileList", fileNameList.get(0))
                 .when()
                 .patch("reviews/shopping/{reviewId}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
 
-        JsonPath jsonPath = 리뷰리스트_JSONPath_추출();
-        assertThat(jsonPath.getList("[0].reviewImageNameList").size()).isEqualTo(0);
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getList("reviewImageNameList").size()).isEqualTo(0);
     }
 
     private JsonPath 리뷰리스트_JSONPath_추출() {

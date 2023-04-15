@@ -7,7 +7,10 @@ import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.CommentLikeResultResponse;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
+import com.developlife.reviewtwits.message.response.review.DetailReactionResponse;
+import com.developlife.reviewtwits.message.response.review.ReviewScrapResultResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.type.ReferenceType;
@@ -21,7 +24,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -46,7 +52,7 @@ public class SnsReviewService {
     private final SnsReviewUtils snsReviewUtils;
 
     @Transactional
-    public void saveSnsReview(SnsReviewWriteRequest writeRequest, User user){
+    public DetailSnsReviewResponse saveSnsReview(SnsReviewWriteRequest writeRequest, User user){
 
         Review review = Review.builder()
                 .user(user)
@@ -61,6 +67,9 @@ public class SnsReviewService {
         if(writeRequest.multipartImageFiles() != null) {
             fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(), ReferenceType.REVIEW);
         }
+
+        snsReviewUtils.saveReviewImage(review);
+        return mapper.toDetailSnsReviewResponse(review, new HashMap<>(), false);
     }
 
     @Transactional(readOnly = true)
@@ -79,7 +88,7 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void saveComment(User user, long reviewId, SnsCommentWriteRequest request){
+    public CommentResponse saveComment(User user, long reviewId, SnsCommentWriteRequest request){
         long parentId = request.parentId();
 
         Review review = reviewRepository.findById(reviewId)
@@ -99,10 +108,12 @@ public class SnsReviewService {
         review.setCommentCount(currentCommentCount + 1);
 
         reviewRepository.save(review);
+
+        return mapper.toCommentResponse(newComment);
     }
 
     @Transactional
-    public void deleteComment(User user,long commentId) {
+    public CommentResponse deleteComment(User user,long commentId) {
         Comment foundComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("지우고자 하는 댓글이 존재하지 않습니다."));
 
@@ -116,10 +127,12 @@ public class SnsReviewService {
         int currentCommentCount = review.getCommentCount();
         review.setCommentCount(currentCommentCount - 1);
         reviewRepository.save(review);
+
+        return mapper.toCommentResponse(foundComment);
     }
 
     @Transactional
-    public String changeComment(User user, long commentId, String content) {
+    public CommentResponse changeComment(User user, long commentId, String content) {
         Comment foundComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("수정하고자 하는 댓글이 존재하지 않습니다."));
 
@@ -129,46 +142,55 @@ public class SnsReviewService {
 
         foundComment.setContent(content);
         commentRepository.save(foundComment);
-        return content;
+        return mapper.toCommentResponse(foundComment);
     }
 
     @Transactional
-    public void addReactionOnReview(User user, long reviewId, String inputReaction) {
+    public DetailReactionResponse reactionOnReview(User user, long reviewId, String inputReaction) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("공감을 누르려는 리뷰가 존재하지 않습니다."));
 
-        Reaction updatedReaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user)
-                .orElse(Reaction.builder()
-                        .reactionType(ReactionType.valueOf(inputReaction))
-                        .review(review)
-                        .user(user)
-                        .build());
+        Optional<Reaction> foundReaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user);
 
-        if(isNewReaction(updatedReaction, inputReaction)){
-            modifyReactionCountOnReview(review,1);
+        Reaction toUpdateReaction;
+        if(foundReaction.isPresent()){
+            toUpdateReaction = foundReaction.get();
+            if(toUpdateReaction.getReactionType().equals(ReactionType.valueOf(inputReaction))){
+                reactionRepository.delete(toUpdateReaction);
+                modifyReactionCountOnReview(review,-1);
+                return mapper.toDetailReactionResponse(toUpdateReaction);
+            }
+
+            toUpdateReaction.setReactionType(ReactionType.valueOf(inputReaction));
         }else{
-            updatedReaction.setReactionType(ReactionType.valueOf(inputReaction));
+            toUpdateReaction = Reaction.builder()
+                    .reactionType(ReactionType.valueOf(inputReaction))
+                    .review(review)
+                    .user(user)
+                    .build();
+
+            modifyReactionCountOnReview(review,1);
         }
 
-        reactionRepository.save(updatedReaction);
+        reactionRepository.save(toUpdateReaction);
+
+        return mapper.toDetailReactionResponse(toUpdateReaction);
     }
 
-    private boolean isNewReaction(Reaction updatedReaction, String inputReaction) {
-        return updatedReaction.getReactionType().equals(ReactionType.valueOf(inputReaction));
-    }
-
-    @Transactional
-    public void deleteReactionOnReview(User user, long reviewId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리액션의 리뷰가 존재하지 않습니다."));
-
-        Reaction reaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user)
-                .orElseThrow(() -> new ReactionNotFoundException("삭제하려는 리액션이 존재하지 않습니다."));
-
-        reactionRepository.delete(reaction);
-
-        modifyReactionCountOnReview(review, -1);
-    }
+//    @Transactional
+//    public DetailReactionResponse deleteReactionOnReview(User user, long reviewId) {
+//        Review review = reviewRepository.findById(reviewId)
+//                .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리액션의 리뷰가 존재하지 않습니다."));
+//
+//        Reaction reaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user)
+//                .orElseThrow(() -> new ReactionNotFoundException("삭제하려는 리액션이 존재하지 않습니다."));
+//
+//        reactionRepository.delete(reaction);
+//
+//        modifyReactionCountOnReview(review, -1);
+//
+//        return mapper.toDetailReactionResponse(reaction);
+//    }
 
 
     private void modifyReactionCountOnReview(Review review, int count) {
@@ -179,12 +201,15 @@ public class SnsReviewService {
 
 
     @Transactional
-    public void deleteSnsReview(Long reviewId) {
+    public DetailSnsReviewResponse deleteSnsReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리뷰가 존재하지 않습니다."));
 
         review.setExist(false);
         reviewRepository.save(review);
+
+        review.setReviewImageNameList(new ArrayList<>());
+        return mapper.toDetailSnsReviewResponse(review, new HashMap<>(), false);
     }
 
     private List<Review> findReviewsInPage(Long reviewId, int size){
@@ -207,7 +232,7 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void changeSnsReview(Long reviewId, SnsReviewChangeRequest changeRequest) {
+    public DetailSnsReviewResponse changeSnsReview(Long reviewId, SnsReviewChangeRequest changeRequest) {
         Review review = reviewRepository.findById(reviewId).get();
         if(changeRequest.content() != null){
             review.setContent(changeRequest.content());
@@ -224,10 +249,13 @@ public class SnsReviewService {
         if(changeRequest.deleteFileList() != null && !changeRequest.deleteFileList().isEmpty()){
             fileStoreService.checkDeleteFile(changeRequest.deleteFileList());
         }
+
+        snsReviewUtils.saveReviewImage(review);
+        return mapper.toDetailSnsReviewResponse(review, new HashMap<>(), false);
     }
 
     @Transactional
-    public void addReviewScrap(User user, long reviewId) {
+    public ReviewScrapResultResponse addReviewScrap(User user, long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("스크랩하려는 리뷰 아이디가 존재하지 않습니다."));
 
@@ -241,10 +269,12 @@ public class SnsReviewService {
                 .build();
 
         reviewScrapRepository.save(reviewScrap);
+
+        return mapper.toReviewScrapResultResponse(reviewScrap);
     }
 
     @Transactional
-    public void deleteReviewScrap(User user, long reviewId) {
+    public ReviewScrapResultResponse deleteReviewScrap(User user, long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리뷰가 존재하지 않습니다."));
 
@@ -252,6 +282,8 @@ public class SnsReviewService {
                 .orElseThrow(() -> new ReviewScrapConflictException("등록되지 않은 리뷰 스크랩입니다."));
 
         reviewScrapRepository.delete(reviewScrap);
+
+        return mapper.toReviewScrapResultResponse(reviewScrap);
     }
 
     @Transactional(readOnly = true)
@@ -262,24 +294,27 @@ public class SnsReviewService {
     }
 
     @Transactional
-    public void addLikeOnComment(User user,Long commentId) {
+    public CommentLikeResultResponse addLikeOnComment(User user, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("좋아요를 입력할 comment 가 존재하지 않습니다."));
 
         if(commentLikeRepository.existsByUserAndComment(user, comment)){
             throw new CommentLikeAlreadyProcessedException("이미 해당 댓글에 좋아요를 누르셨습니다.");
         }
-
-        commentLikeRepository.save(CommentLike.builder()
+        CommentLike commentLike = CommentLike.builder()
                 .comment(comment)
                 .user(user)
-                .build());
+                .build();
+
+        commentLikeRepository.save(commentLike);
 
         saveLikeCount(comment, 1);
+
+        return mapper.toCommentLikeResultResponse(commentLike);
     }
 
     @Transactional
-    public void deleteLikeOnComment(User user, Long commentId){
+    public CommentLikeResultResponse deleteLikeOnComment(User user, Long commentId){
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("좋아요를 취소할 comment 가 존재하지 않습니다."));
 
@@ -288,6 +323,8 @@ public class SnsReviewService {
 
         commentLikeRepository.delete(commentLike);
         saveLikeCount(comment, -1);
+
+        return mapper.toCommentLikeResultResponse(commentLike);
     }
 
     private void saveLikeCount(Comment comment, int count){

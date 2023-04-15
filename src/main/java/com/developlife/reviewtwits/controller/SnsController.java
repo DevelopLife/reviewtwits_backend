@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.sns.FollowRequest;
+import com.developlife.reviewtwits.message.response.sns.FollowResultResponse;
 import com.developlife.reviewtwits.message.response.sns.ItemResponse;
 import com.developlife.reviewtwits.message.response.sns.SearchAllResponse;
 import com.developlife.reviewtwits.message.response.sns.SnsReviewResponse;
@@ -32,13 +33,13 @@ public class SnsController {
     private final SnsService snsService;
 
     @PostMapping("/request-follow")
-    public void followProcess(@AuthenticationPrincipal User user, @Valid @RequestBody FollowRequest request){
-        snsService.followProcess(user, request.targetUserAccountId());
+    public FollowResultResponse followProcess(@AuthenticationPrincipal User user, @Valid @RequestBody FollowRequest request){
+        return snsService.followProcess(user, request.targetUserAccountId());
     }
 
     @PostMapping("/request-unfollow")
-    public void unfollowProcess(@AuthenticationPrincipal User user, @Valid @RequestBody FollowRequest request){
-        snsService.unfollowProcess(user, request.targetUserAccountId());
+    public FollowResultResponse unfollowProcess(@AuthenticationPrincipal User user, @Valid @RequestBody FollowRequest request){
+        return snsService.unfollowProcess(user, request.targetUserAccountId());
     }
 
     @GetMapping("/get-followers/{accountId}")

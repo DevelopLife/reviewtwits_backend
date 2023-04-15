@@ -7,6 +7,9 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.service.ProjectService;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserSteps;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +20,7 @@ import org.springframework.http.MediaType;
 import java.util.stream.IntStream;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 
@@ -59,17 +63,27 @@ public class ProjectApiTest extends ApiTest {
         final var request = ProjectSteps.프로젝트생성요청_생성();
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
-        given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성", CommonDocument.AccessTokenHeader, ProjectDocument.RegisterProjectRequestField))
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("X-AUTH-TOKEN", token)
-            .body(request)
-        .when()
-            .post("/projects")
-        .then()
-            .assertThat()
-            .statusCode(HttpStatus.OK.value())
-            .log().all();
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성",
+                        CommonDocument.AccessTokenHeader,
+                        ProjectDocument.RegisterProjectRequestField,
+                        ProjectDocument.ProjectInfoResponseField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .body(request)
+                .when()
+                .post("/projects")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("projectName")).isEqualTo(request.projectName());
+        assertThat(jsonPath.getString("projectDescription")).isEqualTo(request.projectDescription());
+        assertThat(jsonPath.getString("projectDescription")).isEqualTo(request.projectDescription());
+        assertThat(jsonPath.getString("projectColor")).isEqualTo(request.projectColor());
+        assertThat(jsonPath.getString("category")).isEqualTo(request.category());
     }
 
     @Test

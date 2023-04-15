@@ -1,9 +1,6 @@
 package com.developlife.reviewtwits.service;
 
-import com.developlife.reviewtwits.entity.Product;
-import com.developlife.reviewtwits.entity.Project;
-import com.developlife.reviewtwits.entity.Review;
-import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
 import com.developlife.reviewtwits.exception.review.CannotHandleReviewException;
 import com.developlife.reviewtwits.exception.review.ReviewNotFoundException;
@@ -18,11 +15,10 @@ import com.developlife.reviewtwits.type.ReferenceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.net.BindException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -42,8 +38,7 @@ public class ShoppingMallReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
 
-    @Transactional
-    public void saveShoppingMallReview(ShoppingMallReviewWriteRequest writeRequest, User user) throws IOException {
+    public DetailShoppingMallReviewResponse saveShoppingMallReview(ShoppingMallReviewWriteRequest writeRequest, User user) {
 
         Project project = findProject(writeRequest.productURL());
 
@@ -55,16 +50,18 @@ public class ShoppingMallReviewService {
                 .score(Integer.parseInt(writeRequest.score()))
                 .build();
 
-        reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
+        List<String> fileNames;
 
-        log.info("writeRequest.multipartImageFiles() = {}",writeRequest.multipartImageFiles());
-        log.info("writeRequest.multipartImageFiles() null 여부 = {}", writeRequest.multipartImageFiles() == null);
         if(writeRequest.multipartImageFiles() != null) {
-            fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(), ReferenceType.REVIEW);
+            List<FileInfo> fileInfoList = fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(), ReferenceType.REVIEW);
+            fileNames = fileStoreService.getFileNameList(fileInfoList);
+            savedReview.setReviewImageNameList(fileNames);
         }
+
+        return mapper.mapReviewToDetailReviewResponse(savedReview);
     }
 
-    @Transactional(readOnly = true)
     public ShoppingMallReviewProductResponse findShoppingMallReviewTotalInfo(String productURL){
         if(!productRepository.existsProductByProductUrl(productURL)){
             return null;
@@ -85,7 +82,7 @@ public class ShoppingMallReviewService {
                 totalReviewCount++;
                 starScoreArray[review.getScore()-1]++;
                 starScoreSum += review.getScore();
-                if(review.getCreatedDate().toLocalDate() == LocalDate.now()){
+                if(review.getCreatedDate().toLocalDate().equals(LocalDate.now())){
                     recentReviewCount++;
                 }
             }
@@ -104,7 +101,6 @@ public class ShoppingMallReviewService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
     public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(String productURL){
         List<Review> reviews = reviewRepository.findReviewsByProductUrl(productURL);
         for(Review review : reviews){
@@ -113,7 +109,6 @@ public class ShoppingMallReviewService {
         return mapper.toDetailReviewResponseList(reviews);
     }
 
-    @Transactional(readOnly = true)
     public DetailShoppingMallReviewResponse findOneShoppingMallReview(long reviewId){
         Optional<Review> review = reviewRepository.findById(reviewId);
         if(review.isEmpty()){
@@ -129,7 +124,6 @@ public class ShoppingMallReviewService {
         }
     }
 
-    @Transactional(readOnly = true)
     public void checkReviewCanEdit(User user, long reviewId){
         Optional<Review> review = reviewRepository.findById(reviewId);
         if(review.isEmpty()){
@@ -140,27 +134,34 @@ public class ShoppingMallReviewService {
         }
     }
 
-    @Transactional
-    public void deleteShoppingMallReview(long reviewId){
+    public DetailShoppingMallReviewResponse deleteShoppingMallReview(long reviewId){
         Optional<Review> foundReview = reviewRepository.findById(reviewId);
         if(foundReview.isPresent()){
             Review review = foundReview.get();
             review.setExist(false);
             reviewRepository.save(review);
+
+            review.setReviewImageNameList(new ArrayList<>());
+            return mapper.mapReviewToDetailReviewResponse(review);
         }
+
+        return null;
     }
 
-    @Transactional
-    public void restoreShoppingMallReview(long reviewId){
+    public DetailShoppingMallReviewResponse restoreShoppingMallReview(long reviewId){
         Optional<Review> foundReview = reviewRepository.findById(reviewId);
         if(foundReview.isPresent()){
             Review review = foundReview.get();
             review.setExist(true);
+            reviewRepository.save(review);
+
+            saveReviewImage(review);
+            return mapper.mapReviewToDetailReviewResponse(review);
         }
+        return null;
     }
 
-    @Transactional
-    public void changeShoppingMallReview(long reviewId, ShoppingMallReviewChangeRequest changeRequest) throws IOException {
+    public DetailShoppingMallReviewResponse changeShoppingMallReview(long reviewId, ShoppingMallReviewChangeRequest changeRequest){
         Review review = reviewRepository.findById(reviewId).get();
         if(changeRequest.content() != null){
             review.setContent(changeRequest.content());
@@ -171,15 +172,17 @@ public class ShoppingMallReviewService {
         reviewRepository.save(review);
 
         if(changeRequest.multipartImageFiles() != null && !changeRequest.multipartImageFiles().isEmpty()){
-            fileStoreService.storeFiles(changeRequest.multipartImageFiles(),review.getReviewId(), ReferenceType.REVIEW);
+            fileStoreService.storeFiles(changeRequest.multipartImageFiles(),review.getReviewId(),ReferenceType.REVIEW);
         }
 
         if(changeRequest.deleteFileList() != null && !changeRequest.deleteFileList().isEmpty()){
             fileStoreService.checkDeleteFile(changeRequest.deleteFileList());
         }
+
+        saveReviewImage(review);
+        return mapper.mapReviewToDetailReviewResponse(review);
     }
 
-    @Transactional(readOnly = true)
     public Project findProject(String productURL){
         Optional<Product> product = productRepository.findProductByProductUrl(productURL);
         if(product.isPresent()){
