@@ -500,7 +500,7 @@ public class SnsReviewApiTest extends ApiTest {
                                 "<br>PLEADING,SHOCKING,PRAYING,GOOD,NOTICING" +
                                 "<br><br> 존재하는 리액션에 다시 리액션을 추가하면, 리액션이 수정됩니다." +
                                 "<br>이미 완전히 똑같은 리액션의 내용으로 다시 API 를 호출하면, 리액션이 삭제됩니다.",
-                        "SNS리뷰리액션추가"
+                        "SNS리뷰리액션"
                         , UserDocument.AccessTokenHeader,
                         SnsReviewDocument.ReviewIdField,
                         SnsReviewDocument.SnsReactionAddRequestField,
@@ -557,8 +557,7 @@ public class SnsReviewApiTest extends ApiTest {
         SNS_리액션_추가(token, registeredReviewId);
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH
-                        ,"SNS피드리액션삭제",
+                .filter(document(DEFAULT_RESTDOC_PATH,
                         UserDocument.AccessTokenHeader,
                         SnsReviewDocument.ReviewIdField,
                         SnsReviewDocument.SnsReactionResponseField))
