@@ -8,7 +8,8 @@ import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.ReactionRepository;
-import com.developlife.reviewtwits.repository.ReviewRepository;
+import com.developlife.reviewtwits.repository.review.ReviewMappingDTO;
+import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.repository.ReviewScrapRepository;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.ReactionType;
@@ -45,6 +46,24 @@ public class SnsReviewUtils {
 
             Optional<ReviewScrap> reviewScrap = reviewScrapRepository.findByReviewAndUser(review, user);
             snsResponse.add(reviewMapper.toDetailSnsReviewResponse(review, collectedReactionResponse,reviewScrap.isPresent()));
+        }
+        return snsResponse;
+    }
+
+    @Transactional(readOnly = true)
+    public List<DetailSnsReviewResponse> processExportReviewData(List<ReviewMappingDTO> reviewData, User user){
+        List<DetailSnsReviewResponse> snsResponse = new ArrayList<>();
+        for(ReviewMappingDTO reviewMappingDTO : reviewData){
+            Review review = reviewMappingDTO.getReview();
+            review.setReviewImageNameList(reviewMappingDTO.getReviewImageNameList());
+
+            Map<String, ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(
+                    user,
+                    reviewMappingDTO.getReactionList()
+            );
+
+            boolean isScrapped = !reviewMappingDTO.getReviewScrap().isEmpty();
+            snsResponse.add(reviewMapper.toDetailSnsReviewResponse(review, collectedReactionResponse,isScrapped));
         }
         return snsResponse;
     }
