@@ -6,7 +6,7 @@ import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.repository.ItemDetailRepository;
 import com.developlife.reviewtwits.repository.RelatedProductRepository;
-import com.developlife.reviewtwits.repository.ReviewRepository;
+import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.service.FileStoreService;
 import com.developlife.reviewtwits.type.ReferenceType;
