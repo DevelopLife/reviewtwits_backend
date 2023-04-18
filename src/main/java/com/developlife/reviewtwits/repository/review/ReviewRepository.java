@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.repository;
+package com.developlife.reviewtwits.repository.review;
 
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;

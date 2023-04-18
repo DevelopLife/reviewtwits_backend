@@ -9,7 +9,7 @@ import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest
 import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.ItemDetailRepository;
 import com.developlife.reviewtwits.repository.RelatedProductRepository;
-import com.developlife.reviewtwits.repository.ReviewRepository;
+import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import io.restassured.RestAssured;
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
