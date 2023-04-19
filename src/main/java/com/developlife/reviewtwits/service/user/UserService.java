@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -208,5 +209,13 @@ public class UserService {
         user.setDetailIntroduce(detailInfo);
         userRepository.save(user);
         return userMapper.toUserInfoResponse(user);
+    }
+
+    @Transactional
+    public String saveProfileImage(User user, MultipartFile imageFile) {
+        FileInfo fileInfo = fileStoreService.storeFile(imageFile, user.getUserId(), ReferenceType.USER);
+        user.setProfileImage(fileInfo.getRealFilename());
+        userRepository.save(user);
+        return fileInfo.getRealFilename();
     }
 }
