@@ -260,6 +260,12 @@ public class UserApiTest extends ApiTest {
             .body("introduceText", equalTo("test"))
             .log().all().extract().response();
 
+        userRepository.findByAccountId(UserSteps.accountId).ifPresent(user -> {
+            assertThat(user.getNickname()).isEqualTo("test");
+            assertThat(user.getIntroduceText()).isEqualTo("test");
+            assertThat(user.getProfileImage()).isNotEmpty();
+        });
+
     //    verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
     }
 

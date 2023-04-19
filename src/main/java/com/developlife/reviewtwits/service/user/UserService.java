@@ -136,7 +136,6 @@ public class UserService {
             throw new AccountIdNotFoundException("사용자를 찾을 수 없습니다.");
         }
 
-        setProfileImage(user);
         return userMapper.toUserDetailInfoResponse(user);
     }
 
@@ -145,7 +144,6 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException("사용자를 찾을 수 없습니다."));
 
-        setProfileImage(user);
         return userMapper.toUserInfoResponse(user);
     }
 
@@ -183,14 +181,6 @@ public class UserService {
     }
 
     @Transactional
-    public void setProfileImage(User user){
-        List<String> userProfileImage = fileStoreService.bringFileNameList(ReferenceType.USER, user.getUserId());
-        if(!userProfileImage.isEmpty()){
-            user.setProfileImage(userProfileImage.get(userProfileImage.size()-1));
-        }
-    }
-
-    @Transactional
     public UserDetailInfoResponse registerAddition(RegisterUserInfoRequest registerUserInfoRequest, User user) {
 
         userRepository.findByNickname(registerUserInfoRequest.nickname()).ifPresent(
@@ -206,11 +196,11 @@ public class UserService {
 
         user.setNickname(registerUserInfoRequest.nickname());
         user.setIntroduceText(registerUserInfoRequest.introduceText());
-        fileStoreService.storeFile(registerUserInfoRequest.profileImage(),user.getUserId(), ReferenceType.USER);
+        FileInfo fileInfo = fileStoreService.storeFile(registerUserInfoRequest.profileImage(), user.getUserId(), ReferenceType.USER);
+
+        user.setProfileImage(fileInfo.getRealFilename());
 
         userRepository.save(user);
-
-        setProfileImage(user);
         return userMapper.toUserDetailInfoResponse(user);
     }
 

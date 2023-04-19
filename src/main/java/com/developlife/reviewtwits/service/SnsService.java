@@ -113,9 +113,6 @@ public class SnsService {
 
     @Transactional(readOnly = true)
     public List<UserInfoResponse> getUserInfoResponses(List<User> followersList) {
-        for(User user : followersList){
-            userService.setProfileImage(user);
-        }
         return userMapper.toUserInfoResponseList(followersList);
     }
 
@@ -153,7 +150,6 @@ public class SnsService {
         List<User> followings = followRepository.findFollowingsOfUser(user);
         List<Review> reviews = reviewRepository.findReviewsByUser(user);
 
-        userService.setProfileImage(user);
         return userMapper.toUserInfoResponse(user,followers.size(), followings.size(),reviews.size());
     }
 
