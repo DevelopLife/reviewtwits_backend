@@ -14,4 +14,5 @@ import java.util.List;
 public interface ReviewMappingRepository {
     List<DetailSnsReviewResponse> findMappingReviewByUser(User user, Pageable pageable);
     List<DetailSnsReviewResponse> findMappingReviewById(User user,Long reviewId, Pageable pageable);
+    List<DetailSnsReviewResponse> findMappingReviewByProductNameLikeOrContentLike(String searchKey, User reviewSearcher, Pageable pageable);
 }

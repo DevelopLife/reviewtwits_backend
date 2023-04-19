@@ -506,7 +506,8 @@ public class SnsApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH, "SNS 개인 프로필을 요청하는 API 입니다." +
                         "<br> 존재하는 유저의 닉네임으로 조회 시 200 OK 와 함께 유저 프로필 정보를 반환합니다." +
                         "<br> 입력한 닉네임의 가입정보가 존재하지 않는 경우 404 Not Found 가 반한됩니다.",
-                        "개인프로필정보요청",SnsDocument.userNicknameField,SnsDocument.UserProfileInfoResponse))
+                        "개인프로필정보요청",SnsDocument.userNicknameField,
+                        SnsDocument.UserProfileInfoResponse ))
                 .pathParam("nickname", "whalesbob")
                 .when()
                 .get("/sns/profile/{nickname}")
@@ -569,7 +570,7 @@ public class SnsApiTest extends ApiTest {
         assertThat(jsonPath.getList("").size()).isEqualTo(size);
         assertThat(jsonPath.getInt("[0].commentCount")).isEqualTo(0);
         assertThat(jsonPath.getInt("[0].reactionCount")).isEqualTo(0);
-        assertThat(jsonPath.getString("[0].reviewImageNameList")).isNotEmpty();
+        assertThat(jsonPath.getString("[0].reviewImageUrlList")).isNotEmpty();
 
         Long reviewId = jsonPath.getLong("[1].reviewId");
 

@@ -19,7 +19,7 @@ public record DetailShoppingMallReviewResponse(LocalDateTime createdDate,
                                                String productUrl,
                                                String productName,
                                                int score,
-                                               List<String> reviewImageNameList,
+                                               List<String> reviewImageUrlList,
                                                boolean exist){
 
     @Builder

@@ -263,7 +263,7 @@ public class UserApiTest extends ApiTest {
         userRepository.findByAccountId(UserSteps.accountId).ifPresent(user -> {
             assertThat(user.getNickname()).isEqualTo("test");
             assertThat(user.getIntroduceText()).isEqualTo("test");
-            assertThat(user.getProfileImage()).isNotEmpty();
+            assertThat(user.getProfileImageUuid()).isNotEmpty();
         });
 
     //    verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
@@ -333,7 +333,7 @@ public class UserApiTest extends ApiTest {
         String foundInBody = response.body().asString();
         String foundProfileImage = 유저정보_프로필이미지_추출();
 
-        assertThat(foundInBody).isEqualTo(foundProfileImage);
+        assertThat("/request-images/" + foundInBody).isEqualTo(foundProfileImage);
 
         //    verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
     }
@@ -349,7 +349,7 @@ public class UserApiTest extends ApiTest {
                 .then()
                 .log().all().extract();
 
-        return response.jsonPath().get("profileImage");
+        return response.jsonPath().getString("profileImageUrl");
     }
 
     @Test

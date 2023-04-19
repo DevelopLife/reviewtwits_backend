@@ -7,7 +7,9 @@ import com.developlife.reviewtwits.message.response.sns.SnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +19,8 @@ import java.util.Map;
  */
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy =  NullValuePropertyMappingStrategy.IGNORE, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface ReviewMapper {
+
+    String imageUrl = "/request-images/";
 
     ReviewMapper INSTANCE = Mappers.getMapper(ReviewMapper.class);
     List<DetailShoppingMallReviewResponse> toDetailReviewResponseList(List<Review> reviews);
@@ -28,6 +32,13 @@ public interface ReviewMapper {
     @Mapping(target = "followings", ignore = true)
     UserInfoResponse mapUserToUserInfoResponse(User user);
 
+    default List<String> mapImageUuidToUrlList(List<String> imageUuidList){
+        ArrayList<String> imageUrlList = new ArrayList<>();
+        for(String imageUuid : imageUuidList)
+            imageUrlList.add(imageUrl + imageUuid);
+        return imageUrlList;
+    }
+
     default DetailShoppingMallReviewResponse mapReviewToDetailReviewResponse(Review review){
         return DetailShoppingMallReviewResponse.builder()
                 .createdDate(review.getCreatedDate())
@@ -38,7 +49,7 @@ public interface ReviewMapper {
                 .content(review.getContent())
                 .productUrl(review.getProductUrl())
                 .score(review.getScore())
-                .reviewImageNameList(review.getReviewImageNameList())
+                .reviewImageUrlList(mapImageUuidToUrlList(review.getReviewImageUuidList()))
                 .exist(review.isExist())
                 .build();
     }
@@ -55,7 +66,7 @@ public interface ReviewMapper {
                 .content(review.getContent())
                 .productUrl(review.getProductUrl())
                 .score(review.getScore())
-                .reviewImageNameList(review.getReviewImageNameList())
+                .reviewImageUrlList(mapImageUuidToUrlList(review.getReviewImageUuidList()))
                 .commentCount(review.getCommentCount())
                 .reactionResponses(reactionResponses)
                 .isScrapped(isScrapped)
@@ -75,7 +86,7 @@ public interface ReviewMapper {
         return SnsReviewResponse.builder()
                 .reviewId(review.getReviewId())
                 .userInfo(mapUserToUserInfoResponse(review.getUser()))
-                .reviewImageNameList(review.getReviewImageNameList())
+                .reviewImageUrlList(mapImageUuidToUrlList(review.getReviewImageUuidList()))
                 .commentCount(review.getCommentCount())
                 .reactionCount(review.getReactionCount())
                 .build();

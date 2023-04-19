@@ -49,8 +49,7 @@ public class SnsReviewUtils {
         return snsResponse;
     }
 
-
     public void saveReviewImage(Review review){
-        review.setReviewImageNameList(fileStoreService.bringFileNameList(ReferenceType.REVIEW, review.getReviewId()));
+        review.setReviewImageUuidList(fileStoreService.bringFileNameList(ReferenceType.REVIEW, review.getReviewId()));
     }
 }

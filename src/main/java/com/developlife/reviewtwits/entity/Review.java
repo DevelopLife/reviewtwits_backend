@@ -56,5 +56,5 @@ public class Review extends BaseEntity {
 
     @Transient
     @Setter
-    private List<String> reviewImageNameList;
+    private List<String> reviewImageUuidList;
 }

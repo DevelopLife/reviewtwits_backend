@@ -199,7 +199,7 @@ public class UserService {
         user.setIntroduceText(registerUserInfoRequest.introduceText());
         FileInfo fileInfo = fileStoreService.storeFile(registerUserInfoRequest.profileImage(), user.getUserId(), ReferenceType.USER);
 
-        user.setProfileImage(fileInfo.getRealFilename());
+        user.setProfileImageUuid(fileInfo.getRealFilename());
 
         userRepository.save(user);
         return userMapper.toUserDetailInfoResponse(user);
@@ -214,7 +214,7 @@ public class UserService {
     @Transactional
     public String saveProfileImage(User user, MultipartFile imageFile) {
         FileInfo fileInfo = fileStoreService.storeFile(imageFile, user.getUserId(), ReferenceType.USER);
-        user.setProfileImage(fileInfo.getRealFilename());
+        user.setProfileImageUuid(fileInfo.getRealFilename());
         userRepository.save(user);
         return fileInfo.getRealFilename();
     }

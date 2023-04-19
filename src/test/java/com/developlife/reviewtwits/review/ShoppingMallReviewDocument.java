@@ -69,7 +69,7 @@ public class ShoppingMallReviewDocument {
             fieldWithPath("[].userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
             fieldWithPath("[].userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
             fieldWithPath("[].userInfo.detailIntroduce").type(JsonFieldType.STRING).description("유저 상세소개").optional(),
-            fieldWithPath("[].userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+            fieldWithPath("[].userInfo.profileImageUrl").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
             fieldWithPath("[].userInfo.reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
             fieldWithPath("[].userInfo.followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
             fieldWithPath("[].userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
@@ -78,7 +78,7 @@ public class ShoppingMallReviewDocument {
             fieldWithPath("[].productUrl").type(JsonFieldType.STRING).description("제품 URL"),
             fieldWithPath("[].productName").type(JsonFieldType.STRING).description("제품이름").optional(),
             fieldWithPath("[].score").type(JsonFieldType.NUMBER).description("별점"),
-            fieldWithPath("[].reviewImageNameList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
+            fieldWithPath("[].reviewImageUrlList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
             fieldWithPath("[].exist").type(JsonFieldType.BOOLEAN).description("존재여부")
     );
 
@@ -91,7 +91,7 @@ public class ShoppingMallReviewDocument {
             fieldWithPath("userInfo.accountId").type(JsonFieldType.STRING).description("유저 계정"),
             fieldWithPath("userInfo.introduceText").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
             fieldWithPath("userInfo.detailIntroduce").type(JsonFieldType.STRING).description("유저 상세소개").optional(),
-            fieldWithPath("userInfo.profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
+            fieldWithPath("userInfo.profileImageUrl").type(JsonFieldType.STRING).description("프로필이미지 파일이름").optional(),
             fieldWithPath("userInfo.reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
             fieldWithPath("userInfo.followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
             fieldWithPath("userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
@@ -100,7 +100,7 @@ public class ShoppingMallReviewDocument {
             fieldWithPath("productUrl").type(JsonFieldType.STRING).description("제품 URL"),
             fieldWithPath("productName").type(JsonFieldType.STRING).description("제품이름").optional(),
             fieldWithPath("score").type(JsonFieldType.NUMBER).description("별점"),
-            fieldWithPath("reviewImageNameList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
+            fieldWithPath("reviewImageUrlList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
             fieldWithPath("exist").type(JsonFieldType.BOOLEAN).description("존재여부")
     );
 }

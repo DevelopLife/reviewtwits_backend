@@ -26,7 +26,7 @@ public class UserDocument {
             fieldWithPath("accountId").type(JsonFieldType.STRING).description("아이디"),
             fieldWithPath("introduceText").type(JsonFieldType.STRING).description("자기소개 한줄글").optional(),
             fieldWithPath("detailIntroduce").type(JsonFieldType.STRING).description("유저 한줄소개").optional(),
-            fieldWithPath("profileImage").type(JsonFieldType.STRING).description("프로필이미지 파일명").optional(),
+            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필이미지 파일명").optional(),
             fieldWithPath("reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
             fieldWithPath("followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
             fieldWithPath("followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional()
@@ -43,7 +43,7 @@ public class UserDocument {
                     .attributes(getGenderFormat()).description("성별").optional(),
             fieldWithPath("provider").type(JsonFieldType.STRING).description("Oauth 가입 제공자").optional(),
             fieldWithPath("uuid").type(JsonFieldType.STRING).description("Oauth Sub값").optional(),
-            fieldWithPath("profileImage").type(JsonFieldType.STRING).description("프로필 이미지 파일 이름").optional(),
+            fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필 이미지 파일 이름").optional(),
             fieldWithPath("introduceText").type(JsonFieldType.STRING).description("자기소개 한줄글").optional()
     );
     public static final Snippet RegisterUserRequestField = requestFields(

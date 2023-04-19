@@ -20,7 +20,7 @@ public record DetailSnsReviewResponse(LocalDateTime createdDate,
                                       String productUrl,
                                       String productName,
                                       int score,
-                                      List<String> reviewImageNameList,
+                                      List<String> reviewImageUrlList,
                                       int commentCount,
                                       Map<String, ReactionResponse> reactionResponses,
                                       boolean isScrapped) {

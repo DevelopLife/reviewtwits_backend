@@ -48,15 +48,35 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         return findMappingReview(null, user,reviewId, pageable);
     }
 
+    @Override
+    public List<DetailSnsReviewResponse> findMappingReviewByProductNameLikeOrContentLike(String searchKey, User reviewSearcher, Pageable pageable) {
+        QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean();
+
+        BooleanExpression findProductNameOrContent = review.exist.isTrue().and(review.productName.like(searchKey).or(review.content.like(searchKey)));
+
+        jpaQueryFactory.select(bean)
+                .from(review, fileInfo, fileManager)
+                .leftJoin(reaction).on(review.eq(reaction.review))
+                .leftJoin(reviewScrap).on(reviewScrap.review.eq(review).and(reviewScrap.user.eq(reviewSearcher)))
+                .where(findProductNameOrContent
+                        .and(fileInfo.eq(fileManager.fileInfo))
+                        .and(fileInfo.exist.isTrue())
+                        .and(fileManager.referenceId.eq(review.reviewId)
+                                .and(fileManager.referenceType.eq(ReferenceType.REVIEW))))
+                .orderBy(review.reviewId.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .transform(
+                        groupBy(review).as(
+                                list(fileInfo.realFilename),
+                                list(reaction),
+                                set(reviewScrap)));
+        return null;
+    }
+
     public List<DetailSnsReviewResponse> findMappingReview(User reviewWriter,User reviewSearcher, Long reviewId, Pageable pageable){
 
-        QBean<ReviewMappingDTO> bean = Projections.bean(
-                ReviewMappingDTO.class,
-                review,
-                list(fileInfo.realFilename).as("reviewImageNameList"),
-                list(reaction).as("reactionList"),
-                set(reviewScrap).as("reviewScrap")
-        );
+        QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean();
 
         BooleanExpression lessThanReviewId = getExpressionOfId(reviewId);
         BooleanExpression findByUser = getExpressionOfUser(reviewWriter);
@@ -80,6 +100,21 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
                                 list(reaction),
                                 set(reviewScrap)));
 
+        return getDetailSnsReviewResponses(reviewSearcher, transform);
+    }
+
+    private QBean<ReviewMappingDTO> getReviewMappingDTOQBean() {
+        QBean<ReviewMappingDTO> bean = Projections.bean(
+                ReviewMappingDTO.class,
+                review,
+                list(fileInfo.realFilename).as("reviewImageNameList"),
+                list(reaction).as("reactionList"),
+                set(reviewScrap).as("reviewScrap")
+        );
+        return bean;
+    }
+
+    private List<DetailSnsReviewResponse> getDetailSnsReviewResponses(User reviewSearcher, Map<Review, Group> transform) {
         List<ReviewMappingDTO> reviewMappingList = transform.entrySet().stream()
                 .map(entry -> new ReviewMappingDTO(
                         entry.getKey(),
@@ -91,7 +126,7 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
 
         for(ReviewMappingDTO reviewMappingDTO : reviewMappingList){
             Review review = reviewMappingDTO.getReview();
-            review.setReviewImageNameList(reviewMappingDTO.getReviewImageNameList());
+            review.setReviewImageUuidList(reviewMappingDTO.getReviewImageNameList());
 
             Map<String, ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(
                     reviewSearcher,

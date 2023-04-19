@@ -17,7 +17,7 @@ public record UserDetailInfoResponse(
         Gender gender,
         String provider,
         String uuid,
-        String profileImage,
+        String profileImageUrl,
         String introduceText
 ) {
     @Builder

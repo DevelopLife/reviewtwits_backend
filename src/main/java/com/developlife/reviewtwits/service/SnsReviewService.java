@@ -211,7 +211,7 @@ public class SnsReviewService {
         review.setExist(false);
         reviewRepository.save(review);
 
-        review.setReviewImageNameList(new ArrayList<>());
+        review.setReviewImageUuidList(new ArrayList<>());
         return mapper.toDetailSnsReviewResponse(review, new HashMap<>(), false);
     }
 

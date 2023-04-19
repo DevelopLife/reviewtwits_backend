@@ -11,7 +11,7 @@ public record UserInfoResponse(
         String nickname,
         String accountId,
         String introduceText,
-        String profileImage,
+        String profileImageUrl,
         String detailIntroduce,
         int reviewCount,
         int followers,

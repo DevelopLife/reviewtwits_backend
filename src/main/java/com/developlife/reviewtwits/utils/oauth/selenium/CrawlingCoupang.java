@@ -1,9 +1,6 @@
 package com.developlife.reviewtwits.utils.oauth.selenium;
 
-import com.developlife.reviewtwits.entity.ItemDetail;
-import com.developlife.reviewtwits.entity.RelatedProduct;
-import com.developlife.reviewtwits.entity.Review;
-import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.repository.ItemDetailRepository;
 import com.developlife.reviewtwits.repository.RelatedProductRepository;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
@@ -208,8 +205,11 @@ public class CrawlingCoupang {
 
         for(RelatedProduct crawler : crawlerList){
             MultipartFile multipartFile = getImageFileFromUrl(crawler.getImagePath(),crawler.getName());
-            fileStoreService.storeFiles(List.of(multipartFile),crawler.getProductId(), ReferenceType.RELATED_PRODUCT);
+            FileInfo fileInfo = fileStoreService.storeFile(multipartFile, crawler.getProductId(), ReferenceType.RELATED_PRODUCT);
+            crawler.setImageUuid(fileInfo.getRealFilename());
         }
+
+        relatedProductRepository.saveAll(crawlerList);
 
         return firstRelatedProduct;
     }
