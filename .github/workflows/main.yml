@@ -47,6 +47,14 @@ jobs:
         cat ./s3.properties
       shell: bash
 
+    - name: Setup Redis
+      run: sudo apt-get install -y redis-tools redis-server
+
+    - name: Install Google Chrome for Selenium
+      run: |
+        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        sudo apt install ./google-chrome-stable_current_amd64.deb
+
 #    - name : Setup MariaDB
 #      uses: getong/mariadb-action@v1.1
 #      with:
