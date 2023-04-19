@@ -12,7 +12,7 @@ import java.util.List;
  * @since 2023-04-16
  */
 public interface ReviewMappingRepository {
-    List<DetailSnsReviewResponse> findMappingReviewByUser(User user, Pageable pageable);
+    List<DetailSnsReviewResponse> findMappingReviewScrappedByUser(User user, Pageable pageable);
     List<DetailSnsReviewResponse> findMappingReviewById(User user,Long reviewId, Pageable pageable);
     List<DetailSnsReviewResponse> findMappingReviewByProductNameLikeOrContentLike(String searchKey, User reviewSearcher, Pageable pageable);
 }
