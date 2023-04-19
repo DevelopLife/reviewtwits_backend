@@ -74,7 +74,6 @@ public class User extends BaseEntity implements UserDetails {
     String introduceText = "";
 
     @Setter
-    @Transient
     String profileImage;
 
     @Setter
