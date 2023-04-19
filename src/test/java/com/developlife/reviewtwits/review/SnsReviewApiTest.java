@@ -5,8 +5,8 @@ import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.CommonSteps;
 import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.*;
-import com.developlife.reviewtwits.repository.review.ReviewMappingDTO;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
@@ -994,7 +994,7 @@ public class SnsReviewApiTest extends ApiTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("reviewId").descending());
 
         User user = userRepository.findByAccountId(UserSteps.accountId).get();
-        List<ReviewMappingDTO> allReviews = reviewRepository.findMappingReviewById(user,null,pageable);
+        List<DetailSnsReviewResponse> allReviews = reviewRepository.findMappingReviewById(user,null,pageable);
         assertThat(allReviews).isNotEmpty();
     }
 

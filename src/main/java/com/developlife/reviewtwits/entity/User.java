@@ -74,7 +74,7 @@ public class User extends BaseEntity implements UserDetails {
     String introduceText = "";
 
     @Setter
-    String profileImage;
+    String profileImageUuid;
 
     @Setter
     @Builder.Default

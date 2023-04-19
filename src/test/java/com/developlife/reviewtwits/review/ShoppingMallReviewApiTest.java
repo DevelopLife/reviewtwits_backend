@@ -236,7 +236,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .log().all().extract();
 
         JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getList("reviewImageNameList").size()).isEqualTo(2);
+        assertThat(jsonPath.getList("reviewImageUrlList").size()).isEqualTo(2);
     }
 
     @Test
@@ -262,9 +262,8 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .log().all().extract();
 
-
         JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getList("reviewImageNameList").size()).isEqualTo(0);
+        assertThat(jsonPath.getList("reviewImageUrlList").size()).isEqualTo(0);
     }
 
     private JsonPath 리뷰리스트_JSONPath_추출() {

@@ -56,7 +56,7 @@ public class ShoppingMallReviewService {
         if(writeRequest.multipartImageFiles() != null) {
             List<FileInfo> fileInfoList = fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(), ReferenceType.REVIEW);
             fileNames = fileStoreService.getFileNameList(fileInfoList);
-            savedReview.setReviewImageNameList(fileNames);
+            savedReview.setReviewImageUuidList(fileNames);
         }
 
         return mapper.mapReviewToDetailReviewResponse(savedReview);
@@ -141,7 +141,7 @@ public class ShoppingMallReviewService {
             review.setExist(false);
             reviewRepository.save(review);
 
-            review.setReviewImageNameList(new ArrayList<>());
+            review.setReviewImageUuidList(new ArrayList<>());
             return mapper.mapReviewToDetailReviewResponse(review);
         }
 
@@ -193,6 +193,6 @@ public class ShoppingMallReviewService {
     }
 
     private void saveReviewImage(Review review){
-        review.setReviewImageNameList(fileStoreService.bringFileNameList(ReferenceType.REVIEW, review.getReviewId()));
+        review.setReviewImageUuidList(fileStoreService.bringFileNameList(ReferenceType.REVIEW, review.getReviewId()));
     }
 }

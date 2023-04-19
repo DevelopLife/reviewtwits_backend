@@ -1,14 +1,10 @@
 package com.developlife.reviewtwits.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 
 /**
  * @author WhalesBob
@@ -18,6 +14,7 @@ import javax.persistence.Transient;
 @Entity
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class RelatedProduct {
@@ -34,6 +31,5 @@ public class RelatedProduct {
 
     private String imagePath;
 
-    @Transient
-    private String fileName;
+    private String imageUuid;
 }

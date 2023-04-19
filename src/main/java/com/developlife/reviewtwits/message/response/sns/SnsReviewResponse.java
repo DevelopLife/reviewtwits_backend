@@ -11,7 +11,7 @@ import java.util.List;
  */
 public record SnsReviewResponse(long reviewId,
                                 UserInfoResponse userInfo,
-                                List<String> reviewImageNameList,
+                                List<String> reviewImageUrlList,
                                 int commentCount,
                                 int reactionCount) {
     @Builder
