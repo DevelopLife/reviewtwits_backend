@@ -99,8 +99,8 @@ public class UserController {
     @PostMapping(value = "/save-profile-image", consumes = "multipart/form-data", produces = "application/json")
     public String saveProfileImage(@AuthenticationPrincipal User user, @Valid @ModelAttribute ImageUpdateRequest request){
 
-        FileInfo fileInfo = fileStoreService.storeFile(request.imageFile(), user.getUserId(), ReferenceType.USER);
-        return fileInfo.getRealFilename();
+        return userService.saveProfileImage(user, request.imageFile());
+
     }
 
 
