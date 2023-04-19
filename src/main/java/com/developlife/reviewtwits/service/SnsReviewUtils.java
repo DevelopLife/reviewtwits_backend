@@ -8,7 +8,6 @@ import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.ReactionRepository;
-import com.developlife.reviewtwits.repository.review.ReviewMappingDTO;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.repository.ReviewScrapRepository;
 import com.developlife.reviewtwits.type.ReferenceType;
@@ -50,23 +49,6 @@ public class SnsReviewUtils {
         return snsResponse;
     }
 
-    @Transactional(readOnly = true)
-    public List<DetailSnsReviewResponse> processExportReviewData(List<ReviewMappingDTO> reviewData, User user){
-        List<DetailSnsReviewResponse> snsResponse = new ArrayList<>();
-        for(ReviewMappingDTO reviewMappingDTO : reviewData){
-            Review review = reviewMappingDTO.getReview();
-            review.setReviewImageNameList(reviewMappingDTO.getReviewImageNameList());
-
-            Map<String, ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(
-                    user,
-                    reviewMappingDTO.getReactionList()
-            );
-
-            boolean isScrapped = !reviewMappingDTO.getReviewScrap().isEmpty();
-            snsResponse.add(reviewMapper.toDetailSnsReviewResponse(review, collectedReactionResponse,isScrapped));
-        }
-        return snsResponse;
-    }
 
     public void saveReviewImage(Review review){
         review.setReviewImageNameList(fileStoreService.bringFileNameList(ReferenceType.REVIEW, review.getReviewId()));

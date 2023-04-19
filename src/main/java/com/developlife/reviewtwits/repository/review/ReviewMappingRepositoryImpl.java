@@ -2,6 +2,10 @@ package com.developlife.reviewtwits.repository.review;
 
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.mapper.ReviewMapper;
+import com.developlife.reviewtwits.message.response.review.ReactionResponse;
+import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.type.ReactionType;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.querydsl.core.group.Group;
 import com.querydsl.core.types.Projections;
@@ -11,9 +15,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.developlife.reviewtwits.entity.QFileInfo.fileInfo;
 import static com.developlife.reviewtwits.entity.QFileManager.fileManager;
@@ -31,18 +35,20 @@ import static com.querydsl.core.group.GroupBy.*;
 public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
 
     private final JPAQueryFactory jpaQueryFactory;
+    private final ReviewMapper reviewMapper;
+
 
     @Override
-    public List<ReviewMappingDTO> findMappingReviewByUser(User user, Pageable pageable) {
+    public List<DetailSnsReviewResponse> findMappingReviewByUser(User user, Pageable pageable) {
         return findMappingReview(user, user,null, pageable);
     }
 
     @Override
-    public List<ReviewMappingDTO> findMappingReviewById(User user,Long reviewId, Pageable pageable) {
+    public List<DetailSnsReviewResponse> findMappingReviewById(User user,Long reviewId, Pageable pageable) {
         return findMappingReview(null, user,reviewId, pageable);
     }
 
-    public List<ReviewMappingDTO> findMappingReview(User userForFind,User userForScrap, Long reviewId, Pageable pageable){
+    public List<DetailSnsReviewResponse> findMappingReview(User reviewWriter,User reviewSearcher, Long reviewId, Pageable pageable){
 
         QBean<ReviewMappingDTO> bean = Projections.bean(
                 ReviewMappingDTO.class,
@@ -53,8 +59,8 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         );
 
         BooleanExpression lessThanReviewId = getExpressionOfId(reviewId);
-        BooleanExpression findByUser = getExpressionOfUser(userForFind);
-        BooleanExpression userOnReviewScrap = getReviewScrapOfUser(userForScrap);
+        BooleanExpression findByUser = getExpressionOfUser(reviewWriter);
+        BooleanExpression userOnReviewScrap = getReviewScrapOfUser(reviewSearcher);
 
         Map<Review, Group> transform = jpaQueryFactory.select(bean)
                 .from(review, fileInfo, fileManager)
@@ -74,13 +80,29 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
                                 list(reaction),
                                 set(reviewScrap)));
 
-        return transform.entrySet().stream()
+        List<ReviewMappingDTO> reviewMappingList = transform.entrySet().stream()
                 .map(entry -> new ReviewMappingDTO(
                         entry.getKey(),
                         entry.getValue().getList(fileInfo.realFilename),
                         entry.getValue().getList(reaction),
-                        entry.getValue().getSet(reviewScrap)))
-                .collect(Collectors.toList());
+                        entry.getValue().getSet(reviewScrap))).toList();
+
+        List<DetailSnsReviewResponse> snsResponse = new ArrayList<>();
+
+        for(ReviewMappingDTO reviewMappingDTO : reviewMappingList){
+            Review review = reviewMappingDTO.getReview();
+            review.setReviewImageNameList(reviewMappingDTO.getReviewImageNameList());
+
+            Map<String, ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(
+                    reviewSearcher,
+                    reviewMappingDTO.getReactionList()
+            );
+
+            boolean isScrapped = !reviewMappingDTO.getReviewScrap().isEmpty();
+            snsResponse.add(reviewMapper.toDetailSnsReviewResponse(review, collectedReactionResponse,isScrapped));
+        }
+
+        return snsResponse;
     }
 
     private BooleanExpression getReviewScrapOfUser(User user) {

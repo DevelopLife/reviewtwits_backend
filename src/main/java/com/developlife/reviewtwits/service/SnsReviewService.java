@@ -13,7 +13,6 @@ import com.developlife.reviewtwits.message.response.review.DetailReactionRespons
 import com.developlife.reviewtwits.message.response.review.ReviewScrapResultResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.*;
-import com.developlife.reviewtwits.repository.review.ReviewMappingDTO;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.ReactionType;
@@ -79,9 +78,7 @@ public class SnsReviewService {
 //        List<Review> pageReviews = findReviewsInPage(reviewId, size);
         Pageable pageable = PageRequest.of(0,size,Sort.by("reviewId").descending());
 
-        List<ReviewMappingDTO> mappedReviews = reviewRepository.findMappingReviewById(user, reviewId, pageable);
-
-        return snsReviewUtils.processExportReviewData(mappedReviews, user);
+        return reviewRepository.findMappingReviewById(user, reviewId, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -296,8 +293,7 @@ public class SnsReviewService {
     public List<DetailSnsReviewResponse> getReviewsInUserScrap(User user) {
         //List<Review> reviewOnUserScrap = reviewScrapRepository.findReviewByUser(user);
         Pageable pageable = PageRequest.of(0, 10, Sort.by("reviewId").descending());
-        List<ReviewMappingDTO> mappedReview = reviewRepository.findMappingReviewByUser(user, pageable);
-        return snsReviewUtils.processExportReviewData(mappedReview, user);
+        return reviewRepository.findMappingReviewByUser(user, pageable);
     }
 
     @Transactional
