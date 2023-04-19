@@ -6,6 +6,8 @@ import com.developlife.reviewtwits.CommonSteps;
 import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.*;
+import com.developlife.reviewtwits.repository.review.ReviewMappingDTO;
+import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
@@ -18,6 +20,9 @@ import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -974,6 +979,23 @@ public class SnsReviewApiTest extends ApiTest {
                 .body("find{it.errorType == 'CommentLikeAlreadyProcessedException' "
                         + "&& it.message == '해당 댓글에 좋아요를 누르지 않으셨거나, 이미 취소한 좋아요입니다.'}", notNullValue())
                 .log().all();
+    }
+
+    @Test
+    void 리뷰매핑_시험테스트(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        SNS_리액션_추가(token, registeredReviewId);
+        SNS_리뷰_스크랩_추가(token, registeredReviewId);
+
+        SNS_댓글공감_추가(token,commentId);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("reviewId").descending());
+
+        User user = userRepository.findByAccountId(UserSteps.accountId).get();
+        List<ReviewMappingDTO> allReviews = reviewRepository.findMappingReviewById(user,null,pageable);
+        assertThat(allReviews).isNotEmpty();
     }
 
     Long SNS_리뷰_작성(String token, String content) {

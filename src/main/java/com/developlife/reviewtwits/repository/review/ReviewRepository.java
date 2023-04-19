@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.repository;
+package com.developlife.reviewtwits.repository.review;
 
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ReviewRepository extends JpaRepository<Review, Long> {
+public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewMappingRepository {
     List<Review> findReviewsByProductUrl(String productURL);
     Page<Review> findByReviewIdLessThan(long reviewId, Pageable pageable);
 

@@ -15,6 +15,7 @@ import com.developlife.reviewtwits.message.response.sns.*;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.repository.follow.FollowRepository;
+import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
