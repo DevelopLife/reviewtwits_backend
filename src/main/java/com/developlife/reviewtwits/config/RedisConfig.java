@@ -1,5 +1,8 @@
 package com.developlife.reviewtwits.config;
 
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
  */
 @Configuration
 @ConfigurationProperties(prefix = "spring.redis")
+@Setter // ConfigurationProperties로 값 할당을 위해서 setter열어둬야함
 public class RedisConfig {
     private String host;
     private int port;

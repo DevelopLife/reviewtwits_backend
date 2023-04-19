@@ -30,7 +30,7 @@ public class ItemService {
 
     public String search(String productName) {
         if(productName == null) {
-            return "";
+            return null;
         }
         WebClient webClient = WebClient.builder()
             .baseUrl("https://www.coupang.com")
@@ -40,6 +40,12 @@ public class ItemService {
             .retrieve()
             .bodyToMono(String.class)
             .block();
+        if(response == null) {
+            return null;
+        }
+        // regex로 양끝에 소괄호 제거하기
+        response = response.replaceAll("^\\(|\\)$", "");
+
         return response;
     }
 
