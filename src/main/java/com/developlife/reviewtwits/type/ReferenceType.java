@@ -13,7 +13,7 @@ import java.util.Locale;
 
 public enum ReferenceType {
 
-    IMAGE(List.of("jpg","png","svg","gif")),
+    IMAGE(List.of("jpg","jpeg","png","svg","gif")),
     USER(IMAGE.filetypeList),
     REVIEW(IMAGE.filetypeList),
     PRODUCT(IMAGE.filetypeList),

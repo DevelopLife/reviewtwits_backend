@@ -291,9 +291,8 @@ public class SnsReviewService {
 
     @Transactional(readOnly = true)
     public List<DetailSnsReviewResponse> getReviewsInUserScrap(User user) {
-        //List<Review> reviewOnUserScrap = reviewScrapRepository.findReviewByUser(user);
         Pageable pageable = PageRequest.of(0, 10, Sort.by("reviewId").descending());
-        return reviewRepository.findMappingReviewByUser(user, pageable);
+        return reviewRepository.findMappingReviewScrappedByUser(user, pageable);
     }
 
     @Transactional

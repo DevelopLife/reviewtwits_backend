@@ -119,9 +119,12 @@ public class SnsService {
     @Transactional(readOnly = true)
     public SearchAllResponse searchAll(String searchKey, User user) {
         List<ItemDetail> itemDetailList = itemDetailRepository.findByRelatedProduct_NameLikeOrDetailInfoLike(searchKey, PageRequest.of(0, 3));
+//
+//        List<Review> reviewList = reviewRepository.findByProductNameLikeOrContentLike(searchKey, PageRequest.of(0, 10));
+//        List<DetailSnsReviewResponse> snsReviewResponseList = snsReviewUtils.processAndExportReviewData(reviewList, user);
 
-        List<Review> reviewList = reviewRepository.findByProductNameLikeOrContentLike(searchKey, PageRequest.of(0, 10));
-        List<DetailSnsReviewResponse> snsReviewResponseList = snsReviewUtils.processAndExportReviewData(reviewList, user);
+        List<DetailSnsReviewResponse> snsReviewResponseList =
+                reviewRepository.findMappingReviewByProductNameLikeOrContentLike(searchKey, user, PageRequest.of(0, 10));
 
         return snsMapper.toSearchAllResponse(itemDetailList, snsReviewResponseList);
     }
