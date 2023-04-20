@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class SnsSteps {
 
-    public static final String userAccountId = "test@naver.com";
-    public static final String targetUserAccountId = "whalesbob@naver.com";
-    public static final String notExistAccountId = "asdf@naver.com";
+    public static final String userNickname = "testNickname";
+    public static final String targetUserNickname = "whalesbob";
+    public static final String notExistNickname = "asdf";
 
     final static String productName = "리뷰제품제품";
     final static String productURL = "http://www.example.com/123";
@@ -22,25 +22,19 @@ public class SnsSteps {
 
     public FollowRequest 팔로우정보_생성(){
         return FollowRequest.builder()
-                .targetUserAccountId(targetUserAccountId)
+                .targetUserNickname(targetUserNickname)
                 .build();
     }
 
     public FollowRequest 팔로우정보_상대방측_생성(){
         return FollowRequest.builder()
-                .targetUserAccountId(userAccountId)
+                .targetUserNickname(userNickname)
                 .build();
     }
 
     public FollowRequest 없는상대방_팔로우요청_생성(){
         return FollowRequest.builder()
-                .targetUserAccountId(notExistAccountId)
-                .build();
-    }
-
-    public FollowRequest 이메일형식아닌_팔로우요청_생성(){
-        return FollowRequest.builder()
-                .targetUserAccountId("whalesbob")
+                .targetUserNickname(notExistNickname)
                 .build();
     }
 }
