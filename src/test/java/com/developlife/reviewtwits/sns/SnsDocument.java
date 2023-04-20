@@ -16,12 +16,8 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
  */
 public class SnsDocument {
     public static final Snippet followRequestField = requestFields(
-            fieldWithPath("targetUserAccountId").type(JsonFieldType.STRING)
-                    .attributes(required()).description("팔로우하려는 계정의 accountId, 이메일 형식이어야 합니다.")
-    );
-
-    public static final Snippet followIdField = pathParameters(
-            parameterWithName("accountId").attributes(required()).description("유저 계정 아이디")
+            fieldWithPath("targetUserNickname").type(JsonFieldType.STRING)
+                    .attributes(required()).description("팔로우하려는 계정의 닉네임.")
     );
 
     public static final Snippet userNicknameField = pathParameters(

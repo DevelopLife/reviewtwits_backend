@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -34,22 +35,22 @@ public class SnsController {
 
     @PostMapping("/request-follow")
     public FollowResultResponse followProcess(@AuthenticationPrincipal User user, @Valid @RequestBody FollowRequest request){
-        return snsService.followProcess(user, request.targetUserAccountId());
+        return snsService.followProcess(user, request.targetUserNickname());
     }
 
     @PostMapping("/request-unfollow")
     public FollowResultResponse unfollowProcess(@AuthenticationPrincipal User user, @Valid @RequestBody FollowRequest request){
-        return snsService.unfollowProcess(user, request.targetUserAccountId());
+        return snsService.unfollowProcess(user, request.targetUserNickname());
     }
 
-    @GetMapping("/get-followers/{accountId}")
-    public List<UserInfoResponse> getFollowers(@PathVariable @Email String accountId){
-        return snsService.getFollowerList(accountId);
+    @GetMapping("/get-followers/{nickname}")
+    public List<UserInfoResponse> getFollowers(@PathVariable @NotBlank String nickname){
+        return snsService.getFollowerList(nickname);
     }
 
-    @GetMapping("/get-followings/{accountId}")
-    public List<UserInfoResponse> getFollowings(@PathVariable @Email String accountId){
-        return snsService.getFollowingList(accountId);
+    @GetMapping("/get-followings/{nickname}")
+    public List<UserInfoResponse> getFollowings(@PathVariable @NotBlank String nickname){
+        return snsService.getFollowingList(nickname);
     }
 
     @GetMapping("/search")

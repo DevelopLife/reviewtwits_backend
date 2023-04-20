@@ -53,13 +53,17 @@ public class SnsApiTest extends ApiTest {
     private User targetUser;
 
     @BeforeEach
-    void settings(){
+    void settings() throws IOException {
         // 당연히 로그인이 되어 있는 상태여야 한다.
         registerUserRequest = userSteps.회원가입정보_생성();
         user = userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
+        final String userToken = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        추가회원가입정보_입력(userToken, SnsSteps.userNickname);
 
         registerUserRequest = userSteps.팔로우상대방_회원가입정보_생성();
         targetUser = userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
+        final String targetUserToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
+        추가회원가입정보_입력(targetUserToken, SnsSteps.targetUserNickname);
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
@@ -77,10 +81,9 @@ public class SnsApiTest extends ApiTest {
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "팔로우 요청을 보냅니다." +
                         "<br>팔로우가 정상적으로 이루어졌다면 200 OK 가 반환됩니다." +
-                        "<br>입력된 아이디로 등록된 계정이 없는 경우 404 Not Found 가 반환됩니다." +
+                        "<br>입력된 닉네임으로 등록된 계정이 없는 경우 404 Not Found 가 반환됩니다." +
                         "<br>이미 요청되어 성사되어 있는 팔로우를 다시 요청하면 409 Conflict 가 반환됩니다" +
-                        "<br>이메일 형식의 아이디가 아닌 경우, 400 Bad Request 가 반환됩니다." +
-                        "<br>유효한 access token 이 아닐 경우, 401 Unauthorized 가 반환됩니다.", "팔로우요청",
+                        "<br>유효한 access token 이 아닐 경우, 403 Forbidden 이 반환됩니다.", "팔로우요청",
                         UserDocument.AccessTokenHeader,SnsDocument.followRequestField, SnsDocument.followResultResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN", token)
@@ -94,7 +97,7 @@ public class SnsApiTest extends ApiTest {
 
         JsonPath jsonPath = response.jsonPath();
 
-        assertThat(jsonPath.getString("targetUserInfoResponse.accountId")).isEqualTo(SnsSteps.targetUserAccountId);
+        assertThat(jsonPath.getString("targetUserInfoResponse.nickname")).isEqualTo(SnsSteps.targetUserNickname);
     }
 
     @Test
@@ -137,6 +140,40 @@ public class SnsApiTest extends ApiTest {
                 .assertThat()
                 .statusCode(HttpStatus.OK.value());
     }
+    @Test
+    void 팔로우요청_헤더없이요청_403(){
+
+        given(this.spec)
+                    .filter(document(DEFAULT_RESTDOC_PATH))
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(snsSteps.팔로우정보_생성())
+                    .when()
+                    .post("/sns/request-follow")
+                    .then()
+                    .assertThat()
+                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .log().all().extract();
+    }
+
+    @Test
+    void 팔로우요청_없는계정팔로우요청_404(){
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .body(snsSteps.없는상대방_팔로우요청_생성())
+                .when()
+                .post("/sns/request-follow")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body("find{it.errorType == 'UserIdNotFoundException' " +
+                        "&& it.fieldName == 'userId' }", notNullValue())
+                .log().all().extract();;
+    }
 
     @Test
     void 팔로우요청_이미존재하는팔로우_409(){
@@ -161,45 +198,6 @@ public class SnsApiTest extends ApiTest {
     }
 
     @Test
-    void 팔로우요청_없는계정팔로우요청_404(){
-
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN", token)
-                .body(snsSteps.없는상대방_팔로우요청_생성())
-                .when()
-                .post("/sns/request-follow")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.NOT_FOUND.value())
-                .body("find{it.errorType == 'UserIdNotFoundException' " +
-                        "&& it.fieldName == 'userId' }", notNullValue())
-                .log().all().extract();;
-    }
-
-    @Test
-    void 팔로우요청_이메일형식아님_400(){
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN", token)
-                .body(snsSteps.이메일형식아닌_팔로우요청_생성())
-                .when()
-                .post("/sns/request-follow")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("find{it.errorType == 'Email' " +
-                        "&& it.fieldName == 'targetUserAccountId' }", notNullValue())
-                .log().all().extract();;
-    }
-
-    @Test
     void 언팔로우요청_기본_성공_200(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         팔로우요청_생성(token, snsSteps.팔로우정보_생성());
@@ -209,8 +207,7 @@ public class SnsApiTest extends ApiTest {
                         "<br>언팔로우가 정상적으로 동작했다면 200 OK 가 반환됩니다." +
                         "<br>입력된 아이디로 등록된 계정이 없는 경우 404 Not Found 가 반환됩니다." +
                         "<br>이미 팔로우되어 있지 않은 계정에 언팔로우를 요청하면 409 Conflict 가 반환됩니다" +
-                        "<br>이메일 형식의 아이디가 아닌 경우, 400 Bad Request 가 반환됩니다." +
-                        "<br>유효한 access token 이 아닐 경우, 401 Unauthorized 가 반환됩니다.","언팔로우요청",
+                        "<br>유효한 access token 이 아닐 경우, 403 Forbidden 이 반환됩니다.","언팔로우요청",
                         UserDocument.AccessTokenHeader,SnsDocument.followRequestField,SnsDocument.followResultResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("X-AUTH-TOKEN", token)
@@ -255,7 +252,21 @@ public class SnsApiTest extends ApiTest {
     }
 
     @Test
-    void 팔로우요청_없는계정언팔로우요청_404(){
+    void 언팔로우요청_헤더없이요청_403(){
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(snsSteps.팔로우정보_생성())
+                .when()
+                .post("/sns/request-unfollow")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 언팔로우요청_없는계정언팔로우요청_404(){
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
@@ -272,25 +283,6 @@ public class SnsApiTest extends ApiTest {
                 .body("find{it.errorType == 'UserIdNotFoundException' " +
                         "&& it.fieldName == 'userId' }", notNullValue())
                 .log().all().extract();
-    }
-
-    @Test
-    void 언팔로우요청_이메일형식아님_400(){
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN", token)
-                .body(snsSteps.이메일형식아닌_팔로우요청_생성())
-                .when()
-                .post("/sns/request-unfollow")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("find{it.errorType == 'Email' " +
-                        "&& it.fieldName == 'targetUserAccountId' }", notNullValue())
-                .log().all().extract();;
     }
 
     @Test
@@ -320,37 +312,19 @@ public class SnsApiTest extends ApiTest {
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "팔로워 리스트를 요청합니다." +
                         "<br> 정상적인 이메일 형식의 아이디를 입력해 성공하면, 200 OK 코드와 함께 유저 정보 리스트가 반환됩니다." +
-                        "<br> 이메일 형식의 아이디가 아니라면, 400 BAD REQUEST 와 함께 오류 메세지가 반환됩니다." +
                         "<br> 가입되어 있지 않은 아이디가 입력되면, 404 Not Found 와 함께 오류 메세지가 반환됩니다.",
-                        "팔로워리스트요청",SnsDocument.followIdField,SnsDocument.snsFollowResponseField))
+                        "팔로워리스트요청",SnsDocument.userNicknameField,SnsDocument.snsFollowResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("accountId", SnsSteps.targetUserAccountId)
+                .pathParam("nickname", SnsSteps.targetUserNickname)
                 .when()
-                .get("/sns/get-followers/{accountId}")
+                .get("/sns/get-followers/{nickname}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .log().all().extract();
 
         JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getString("[0].accountId")).isEqualTo(SnsSteps.userAccountId);
-    }
-
-    @Test
-    void 팔로워리스트_요청_이메일형식아님_400(){
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("accountId", "notEmail")
-                .when()
-                .get("/sns/get-followers/{accountId}")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-
-                .body("find{it.errorType == 'ConstraintViolationException' "
-                        + "&& it.fieldName == 'accountId' }", notNullValue())
-                .log().all();
+        assertThat(jsonPath.getString("[0].nickname")).isEqualTo(SnsSteps.userNickname);
     }
 
     @Test
@@ -359,7 +333,7 @@ public class SnsApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("accountId", SnsSteps.notExistAccountId)
+                .pathParam("accountId", SnsSteps.notExistNickname)
                 .when()
                 .get("/sns/get-followers/{accountId}")
                 .then()
@@ -378,37 +352,19 @@ public class SnsApiTest extends ApiTest {
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "팔로잉 리스트를 요청합니다." +
                         "<br> 정상적인 이메일 형식의 아이디를 입력해 성공하면, 200 OK 코드와 함께 유저 정보 리스트가 반환됩니다." +
-                        "<br> 이메일 형식의 아이디가 아니라면, 400 BAD REQUEST 와 함께 오류 메세지가 반환됩니다." +
                         "<br> 가입되어 있지 않은 아이디가 입력되면, 404 Not Found 와 함께 오류 메세지가 반환됩니다."
-                        ,"팔로잉리스트요청",SnsDocument.followIdField,SnsDocument.snsFollowResponseField))
+                        ,"팔로잉리스트요청",SnsDocument.userNicknameField,SnsDocument.snsFollowResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("accountId", SnsSteps.userAccountId)
+                .pathParam("nickname", SnsSteps.userNickname)
                 .when()
-                .get("/sns/get-followings/{accountId}")
+                .get("/sns/get-followings/{nickname}")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .log().all().extract();
 
         JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getString("[0].accountId")).isEqualTo(SnsSteps.targetUserAccountId);
-    }
-
-    @Test
-    void 팔로잉리스트_요청_이메일형식아님_400(){
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("accountId", "notEmail")
-                .when()
-                .get("/sns/get-followings/{accountId}")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("find{it.errorType == 'ConstraintViolationException' "
-                        + "&& it.fieldName == 'accountId' }", notNullValue())
-
-                .log().all();
+        assertThat(jsonPath.getString("[0].nickname")).isEqualTo(SnsSteps.targetUserNickname);
     }
 
     @Test
@@ -417,7 +373,7 @@ public class SnsApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("accountId", SnsSteps.notExistAccountId)
+                .pathParam("accountId", SnsSteps.notExistNickname)
                 .when()
                 .get("/sns/get-followings/{accountId}")
                 .then()
@@ -492,14 +448,12 @@ public class SnsApiTest extends ApiTest {
     }
 
     @Test
-    void SNS_개인페이지_프로필정보_요청_200() throws IOException {
+    void SNS_개인페이지_프로필정보_요청_200() {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-        추가회원가입정보_입력(token,"whalesbob");
         팔로우요청_생성(token, snsSteps.팔로우정보_생성());
 
         final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
-        추가회원가입정보_입력(oppositeToken, "marinelife");
         팔로우요청_생성(oppositeToken, snsSteps.팔로우정보_상대방측_생성());
 
         ExtractableResponse<Response> response = given(this.spec)
@@ -508,7 +462,7 @@ public class SnsApiTest extends ApiTest {
                         "<br> 입력한 닉네임의 가입정보가 존재하지 않는 경우 404 Not Found 가 반한됩니다.",
                         "개인프로필정보요청",SnsDocument.userNicknameField,
                         SnsDocument.UserProfileInfoResponse ))
-                .pathParam("nickname", "whalesbob")
+                .pathParam("nickname", SnsSteps.userNickname)
                 .when()
                 .get("/sns/profile/{nickname}")
                 .then()
@@ -517,7 +471,7 @@ public class SnsApiTest extends ApiTest {
                 .log().all().extract();
 
         JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getString("nickname")).isEqualTo("whalesbob");
+        assertThat(jsonPath.getString("nickname")).isEqualTo(SnsSteps.userNickname);
         assertThat(jsonPath.getInt("reviewCount")).isEqualTo(1);
         assertThat(jsonPath.getInt("followers")).isEqualTo(1);
         assertThat(jsonPath.getInt("followings")).isEqualTo(1);
@@ -537,9 +491,8 @@ public class SnsApiTest extends ApiTest {
     }
 
     @Test
-    void SNS_개인페이지_리뷰리스트_요청_성공_200() throws IOException {
+    void SNS_개인페이지_리뷰리스트_요청_성공_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-        추가회원가입정보_입력(token,"whalesbob");
 
         snsReviewSteps.SNS_리뷰_작성(token,"2번째 리뷰를 작성합니다.");
         snsReviewSteps.SNS_리뷰_작성(token,"3번째 리뷰를 작성합니다.");
@@ -555,8 +508,9 @@ public class SnsApiTest extends ApiTest {
                         "<br>예를 들어, review 2개를 요청해 10번, 9번 reviewId 까지 받았다면, ?reviewId=9 를 입력하는 방식입니다." +
                         "<br>size 와 reviewId 는 Query String 으로 입력해 주셔야 합니다. size 가 없다면, 400 이 리턴됩니다.",
                         "개인리뷰리스트요청",
-                        SnsDocument.userNicknameField,SnsDocument.ReviewIdAndSizeField,SnsDocument.UserSnsReviewResponse))
-                .pathParam("nickname", "whalesbob")
+                        SnsDocument.userNicknameField,SnsDocument.ReviewIdAndSizeField
+                        /*SnsDocument.UserSnsReviewResponse*/))
+                .pathParam("nickname", SnsSteps.userNickname)
                 .param("size",size)
                 .when()
                 .get("/sns/profile/reviews/{nickname}")
@@ -575,7 +529,7 @@ public class SnsApiTest extends ApiTest {
         Long reviewId = jsonPath.getLong("[1].reviewId");
 
         ExtractableResponse<Response> secondResponse = given()
-                .pathParam("nickname", "whalesbob")
+                .pathParam("nickname", SnsSteps.userNickname)
                 .param("size", size)
                 .param("reviewId", reviewId)
                 .when()

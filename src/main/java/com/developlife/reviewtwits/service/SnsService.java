@@ -52,8 +52,8 @@ public class SnsService {
     private final FollowMapper followMapper;
 
     @Transactional
-    public FollowResultResponse followProcess(User user, String targetUserAccountId){
-        User targetUser = getTargetUser(targetUserAccountId);
+    public FollowResultResponse followProcess(User user, String targetUserNickname){
+        User targetUser = getTargetUser(targetUserNickname);
         if(followRepository.existsByUserAndTargetUser(user, targetUser)){
             throw new FollowAlreadyExistsException("이미 수행된 팔로우 요청입니다");
         }
@@ -74,8 +74,8 @@ public class SnsService {
     }
 
     @Transactional
-    public FollowResultResponse unfollowProcess(User user, String targetUserAccountId){
-        User targetUser = getTargetUser(targetUserAccountId);
+    public FollowResultResponse unfollowProcess(User user, String targetUserNickname){
+        User targetUser = getTargetUser(targetUserNickname);
         Optional<Follow> foundFollow = followRepository.findByUserAndTargetUser(user, targetUser);
         if(foundFollow.isEmpty()){
             throw new UnfollowAlreadyDoneException("이미 팔로우되어 있지 않은 상태입니다.");
@@ -89,8 +89,8 @@ public class SnsService {
     }
 
     @Transactional(readOnly = true)
-    public User getTargetUser(String targetUserAccountId) {
-        Optional<User> foundTargetUser = userRepository.findByAccountId(targetUserAccountId);
+    public User getTargetUser(String targetUserNickname) {
+        Optional<User> foundTargetUser = userRepository.findByNickname(targetUserNickname);
         if(foundTargetUser.isEmpty()){
             throw new UserIdNotFoundException("요청한 팔로우 계정이 존재하지 않습니다.");
         }
@@ -98,15 +98,15 @@ public class SnsService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserInfoResponse> getFollowerList(String accountId){
-        User targetUser = getTargetUser(accountId);
+    public List<UserInfoResponse> getFollowerList(String nickname){
+        User targetUser = getTargetUser(nickname);
         List<User> followersList = followRepository.findFollowersOfUser(targetUser);
         return getUserInfoResponses(followersList);
     }
 
     @Transactional(readOnly = true)
-    public List<UserInfoResponse> getFollowingList(String accountId){
-        User targetUser = getTargetUser(accountId);
+    public List<UserInfoResponse> getFollowingList(String nickname){
+        User targetUser = getTargetUser(nickname);
         List<User> followingsList = followRepository.findFollowingsOfUser(targetUser);
         return getUserInfoResponses(followingsList);
     }

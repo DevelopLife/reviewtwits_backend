@@ -2,7 +2,7 @@ package com.developlife.reviewtwits.message.request.sns;
 
 import lombok.Builder;
 
-import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 /**
  * @author WhalesBob
@@ -10,8 +10,8 @@ import javax.validation.constraints.Email;
  */
 
 public record FollowRequest(
-        @Email(message = "이메일 형식이 아닙니다.")
-        String targetUserAccountId) {
+        @NotBlank
+        String targetUserNickname) {
 
         @Builder
         public FollowRequest{
