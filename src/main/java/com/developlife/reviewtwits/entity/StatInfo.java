@@ -23,10 +23,15 @@ public class StatInfo extends BaseEntity{
     @GeneratedValue
     private long statId;
 
-    @Enumerated(value = EnumType.STRING)
-    private Inflow inflowInfo;
+    private String inflowUrl;
 
     private String productUrl;
+
+    @ManyToOne
+    private Project project;
+
+    @ManyToOne
+    private Product product;
 
     @ManyToOne
     private User user;
