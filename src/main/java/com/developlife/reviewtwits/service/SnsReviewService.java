@@ -2,7 +2,7 @@ package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.exception.review.*;
-import com.developlife.reviewtwits.exception.user.UnAuthorizedException;
+import com.developlife.reviewtwits.exception.user.AccessDeniedException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
 import com.developlife.reviewtwits.message.request.review.SnsReviewChangeRequest;
@@ -121,7 +121,7 @@ public class SnsReviewService {
                 .orElseThrow(() -> new CommentNotFoundException("지우고자 하는 댓글이 존재하지 않습니다."));
 
         if(!foundComment.getUser().equals(user)){
-            throw new UnAuthorizedException("해당 리뷰를 지울 권한이 없습니다.");
+            throw new AccessDeniedException("해당 리뷰를 지울 권한이 없습니다.");
         }
 
         commentRepository.delete(foundComment);
@@ -140,7 +140,7 @@ public class SnsReviewService {
                 .orElseThrow(() -> new CommentNotFoundException("수정하고자 하는 댓글이 존재하지 않습니다."));
 
         if(!foundComment.getUser().equals(user)){
-            throw new UnAuthorizedException("해당 리뷰를 수정할 권한이 없습니다.");
+            throw new AccessDeniedException("해당 리뷰를 수정할 권한이 없습니다.");
         }
 
         foundComment.setContent(content);

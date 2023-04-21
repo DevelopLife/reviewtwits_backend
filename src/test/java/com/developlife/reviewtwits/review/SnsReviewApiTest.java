@@ -617,7 +617,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 리뷰_스크랩_추가_유저정보없음_403(){
+    void 리뷰_스크랩_추가_유저정보없음_401(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
 
@@ -628,7 +628,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .post("/sns/scrap-reviews/{reviewId}")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .log().all();
     }
 
@@ -700,7 +700,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 리뷰_스크랩_삭제_유저정보없음_403(){
+    void 리뷰_스크랩_삭제_유저정보없음_401(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         SNS_리뷰_스크랩_추가(token, registeredReviewId);
@@ -712,7 +712,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .delete("/sns/scrap-reviews/{reviewId}")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .log().all();
     }
 
@@ -779,7 +779,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 유저_리뷰_스크랩정보_찾기_유저정보없음_403(){
+    void 유저_리뷰_스크랩정보_찾기_유저정보없음_401(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         SNS_리뷰_스크랩_추가(token, registeredReviewId);
@@ -790,7 +790,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .get("/sns/scrap-reviews")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .log().all();
     }
 
@@ -828,7 +828,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 댓글공감_토큰없음_403(){
+    void 댓글공감_토큰없음_401(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
@@ -840,7 +840,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .post("/sns/comments-like/{commentId}")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .log().all();
     }
 
@@ -926,7 +926,7 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 댓글공감_취소_토큰없음_403(){
+    void 댓글공감_취소_토큰없음_401(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
@@ -938,7 +938,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .delete("/sns/comments-like/{commentId}")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .log().all();
     }
 

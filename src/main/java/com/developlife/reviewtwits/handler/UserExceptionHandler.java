@@ -91,9 +91,9 @@ public class UserExceptionHandler {
         return makeErrorResponse(e, "provider");
     }
 
-    @ExceptionHandler(UnAuthorizedException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public List<ErrorResponse> unAuthorizedExceptionHandler(UnAuthorizedException e){
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public List<ErrorResponse> unAuthorizedExceptionHandler(AccessDeniedException e){
         return makeErrorResponse(e, "");
     }
 
