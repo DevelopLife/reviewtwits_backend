@@ -53,6 +53,7 @@ public class WebSecurityConfig {
             .antMatchers("/users/admin").hasRole("ADMIN")
             .antMatchers("/users/me").hasRole("USER")
             .antMatchers("/users/change-detail-messages").hasRole("USER")
+            .antMatchers("/users/save-profile-image").hasRole("USER")
             .antMatchers("/projects/**").hasRole("USER")
             .antMatchers(HttpMethod.POST,"/reviews/shopping").hasRole("USER")
             .antMatchers("/sns/review-reaction/**").hasRole("USER")
