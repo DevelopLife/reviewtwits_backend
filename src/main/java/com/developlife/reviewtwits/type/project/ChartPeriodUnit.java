@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.type;
+package com.developlife.reviewtwits.type.project;
 
 public enum ChartPeriodUnit {
 
