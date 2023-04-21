@@ -1,7 +1,7 @@
 package com.developlife.reviewtwits.message.validator.project;
 
 import com.developlife.reviewtwits.message.annotation.project.ChartPeriod;
-import com.developlife.reviewtwits.type.ChartPeriodUnit;
+import com.developlife.reviewtwits.type.project.ChartPeriodUnit;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
