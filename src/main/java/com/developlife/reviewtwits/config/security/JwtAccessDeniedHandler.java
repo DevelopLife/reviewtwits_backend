@@ -2,12 +2,9 @@ package com.developlife.reviewtwits.config.security;
 
 import com.developlife.reviewtwits.exception.user.TokenExpiredException;
 import com.developlife.reviewtwits.exception.user.TokenInvalidException;
-import com.developlife.reviewtwits.exception.user.UnAuthorizedException;
+import com.developlife.reviewtwits.exception.user.AccessDeniedException;
 import com.developlife.reviewtwits.type.JwtCode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
@@ -26,12 +23,12 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     private JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response, org.springframework.security.access.AccessDeniedException accessDeniedException) throws IOException, ServletException {
         String token = jwtTokenProvider.resolveToken(request);
         JwtCode code = jwtTokenProvider.validateToken(token);
         switch (code) {
             case ACCESS:
-                throw new UnAuthorizedException("유저 권한이 부족합니다");
+                throw new AccessDeniedException("유저 권한이 부족합니다");
             case EXPIRED:
                 throw new TokenExpiredException("토큰이 만료되었습니다.");
             case DENIED:

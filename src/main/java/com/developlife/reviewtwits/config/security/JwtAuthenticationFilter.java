@@ -36,19 +36,12 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 //        token = jwtTokenProvider.removePrefix(token);
         // 유효한 토큰인지 확인합니다.
         JwtCode code = jwtTokenProvider.validateToken(token);
-        switch (code) {
-            case ACCESS:
-                // 토큰이 유효하면 토큰으로부터 유저 정보를 받아옵니다.
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                // SecurityContext 에 Authentication 객체를 저장합니다.
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                break;
-//            case EXPIRED:
-//                throw new TokenExpiredException("토큰이 만료되었습니다.");
-//            case DENIED:
-//                throw new TokenInvalidException("토큰이 유효하지 않습니다.");
+        if(code == JwtCode.ACCESS) {
+            // 토큰이 유효하면 토큰으로부터 유저 정보를 받아옵니다.
+            Authentication authentication = jwtTokenProvider.getAuthentication(token);
+            // SecurityContext 에 Authentication 객체를 저장합니다.
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-
         chain.doFilter(request, response);
     }
 }

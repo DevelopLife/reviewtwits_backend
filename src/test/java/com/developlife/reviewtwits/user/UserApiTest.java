@@ -421,7 +421,7 @@ public class UserApiTest extends ApiTest {
     }
 
     @Test
-    void 유저프로필_상세소개_수정_헤더정보없음_403(){
+    void 유저프로필_상세소개_수정_헤더정보없음_401(){
         given(this.spec)
                 .config(config().encoderConfig(encoderConfig()
                         .encodeContentTypeAs("text/plain", ContentType.TEXT)
@@ -431,7 +431,7 @@ public class UserApiTest extends ApiTest {
                 .post("/users/change-detail-messages")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .log().all();
     }
 }
