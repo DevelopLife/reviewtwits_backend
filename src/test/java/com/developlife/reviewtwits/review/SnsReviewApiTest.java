@@ -539,6 +539,43 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
+    void SNS_리뷰_댓글_삭제_토큰정보없음_401() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .pathParam("commentId", commentId)
+                .when()
+                .delete("/sns/comments/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all();
+    }
+
+    @Test
+    void SNS_리뷰_댓글_삭제_유저권한없음_403() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .header("X-AUTH-TOKEN",otherToken)
+                .pathParam("commentId", commentId)
+                .when()
+                .delete("/sns/comments/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all();
+    }
+
+    @Test
     void SNS_리뷰_댓글_수정_성공_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
@@ -570,6 +607,47 @@ public class SnsReviewApiTest extends ApiTest {
 
         Comment modifiedComment = commentRepository.findById(commentId).get();
         assertThat(modifiedComment.getContent()).isEqualTo(changeCommentContent);
+    }
+
+    @Test
+    void SNS_리뷰_댓글_수정_토큰정보없음_401(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("commentId", commentId)
+                .param("content",changeCommentContent)
+                .when()
+                .patch("/sns/comments/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all();
+    }
+
+    @Test
+    void SNS_리뷰_댓글_수정_유저권한없음_403(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", otherToken)
+                .pathParam("commentId", commentId)
+                .param("content",changeCommentContent)
+                .when()
+                .patch("/sns/comments/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all();
     }
 
     @Test
