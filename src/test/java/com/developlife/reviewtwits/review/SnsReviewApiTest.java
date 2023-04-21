@@ -72,6 +72,7 @@ public class SnsReviewApiTest extends ApiTest {
 //    private AmazonS3 s3Client;
 
     private RegisterUserRequest registerUserRequest;
+    private RegisterUserRequest registerOtherUserRequest;
     @Autowired
     private SnsReviewSteps snsReviewSteps;
 
@@ -79,6 +80,9 @@ public class SnsReviewApiTest extends ApiTest {
     void settings(){
         registerUserRequest = userSteps.회원가입정보_생성();
         userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
+
+        registerOtherUserRequest = userSteps.상대유저_회원가입정보_생성();
+        userService.register(registerOtherUserRequest, UserSteps.일반유저권한_생성());
     }
 
 
@@ -303,7 +307,8 @@ public class SnsReviewApiTest extends ApiTest {
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰를 수정하는 API 입니다. " +
                                 "<br> X-AUTH-TOKEN 을 Header 로 받고, 아래 조건을 모두 맞추면 200 OK 와 함께 SNS 리뷰가 수정됩니다." +
-                                "<br> X-AUTH-TOKEN 이 들어가지 않았거나, 리뷰를 수정할 권한이 없다면 401 Unauthorized 를 받게 됩니다." +
+                                "<br> X-AUTH-TOKEN 이 들어가지 않았거나, 올바른 값이 아니라면 401 Unauthorized 를 받게 됩니다." +
+                                "<br> 해당 유저가 리뷰를 수정할 권한이 없다면 403 Forbidden 이 반환됩니다." +
                                 "<br> content 는 선택적으로 입력할 수 있으며, 10 자 이상으로 작성해야 합니다." +
                                 "<br> score(별점) 또한 선택 값이며, 0~5 점 사이로 입력할 수 있습니다." +
                                 "<br> productName 도 선택 값입니다. " +
@@ -337,6 +342,47 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
+    void SNS_리뷰_수정_토큰정보없음_401(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .pathParam("reviewId", recentReviewId)
+                .multiPart(CommonSteps.multipartText("content", changeCommentContent))
+                .multiPart("score", 3)
+                .when()
+                .patch("/sns/reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void SNS_리뷰_수정_유저권한없음_403(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
+
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN", otherToken)
+                .pathParam("reviewId", recentReviewId)
+                .multiPart(CommonSteps.multipartText("content", changeCommentContent))
+                .multiPart("score", 3)
+                .when()
+                .patch("/sns/reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all().extract();
+    }
+
+    @Test
     void SNS_리뷰_삭제_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
@@ -344,7 +390,8 @@ public class SnsReviewApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰를 삭제하는 API 입니다. " +
                                 "<br> X-AUTH-TOKEN 을 Header 로 받고, 아래 조건을 모두 맞추면 200 OK 와 함께 SNS 리뷰가 삭제됩니다." +
-                                "<br> X-AUTH-TOKEN 이 들어가지 않았거나, 리뷰를 삭제할 권한이 없다면 401 Unauthorized 를 받게 됩니다." +
+                                "<br> X-AUTH-TOKEN 이 들어가지 않았거나, 올바르지 않은 토큰일 경우 401 Unauthorized 를 받게 됩니다." +
+                                "<br> 해당 유저가 리뷰를 삭제할 권한을 가지지 못했다면, 403 Forbidden 이 반환됩니다." +
                                 "<br> 삭제하려는 리뷰가 존재하지 않는다면, 404 Not Found 가 반환됩니다."
                         , "SNS리뷰삭제", UserDocument.AccessTokenHeader,
                         SnsReviewDocument.ReviewIdField,
@@ -361,6 +408,42 @@ public class SnsReviewApiTest extends ApiTest {
         Review deletedReview = reviewRepository.findById(recentReviewId).get();
         assertThat(deletedReview.isExist()).isFalse();
     }
+
+    @Test
+    void SNS_리뷰_삭제_토큰정보없음_401() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .pathParam("reviewId", recentReviewId)
+                .when()
+                .delete("/sns/reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void SNS_리뷰_삭제_유저권한없음_403() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
+
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .header("X-AUTH-TOKEN", otherToken)
+                .pathParam("reviewId", recentReviewId)
+                .when()
+                .delete("/sns/reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all().extract();
+    }
+
 
     @Test
     void SNS_리뷰_댓글작성_200() {
@@ -437,7 +520,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰 댓글을 삭제하는 API 입니다." +
                         "<br>X-AUTH-TOKEN 은 필수값으로 header 에 들어가야 합니다." +
                         "<br>commentId 또한 필수 값이며, path 에 같이 입력할 수 있습니다." +
-                        "<br>해당 유저가 댓글을 삭제할 권한이 없다면, 401 Unauthorized 가 반환됩니다." +
+                        "<br>해당 유저가 댓글을 삭제할 권한이 없다면, 403 Forbidden 이 반환됩니다." +
                         "<br>지우고자 하는 댓글이 존재하지 않으면, 404 Not Found 가 반환됩니다." +
                         "<br>정상적으로 삭제되었다면, 200 OK 가 반환됩니다.", "SNS리뷰댓글삭제"
                         ,UserDocument.AccessTokenHeader, SnsReviewDocument.CommentIdField,
@@ -453,6 +536,43 @@ public class SnsReviewApiTest extends ApiTest {
 
         List<Comment> commentList = commentRepository.findByReview_ReviewId(registeredReviewId);
         assertThat(commentList).isEmpty();
+    }
+
+    @Test
+    void SNS_리뷰_댓글_삭제_토큰정보없음_401() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .pathParam("commentId", commentId)
+                .when()
+                .delete("/sns/comments/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all();
+    }
+
+    @Test
+    void SNS_리뷰_댓글_삭제_유저권한없음_403() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .header("X-AUTH-TOKEN",otherToken)
+                .pathParam("commentId", commentId)
+                .when()
+                .delete("/sns/comments/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all();
     }
 
     @Test
@@ -487,6 +607,47 @@ public class SnsReviewApiTest extends ApiTest {
 
         Comment modifiedComment = commentRepository.findById(commentId).get();
         assertThat(modifiedComment.getContent()).isEqualTo(changeCommentContent);
+    }
+
+    @Test
+    void SNS_리뷰_댓글_수정_토큰정보없음_401(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("commentId", commentId)
+                .param("content",changeCommentContent)
+                .when()
+                .patch("/sns/comments/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all();
+    }
+
+    @Test
+    void SNS_리뷰_댓글_수정_유저권한없음_403(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
+        Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", otherToken)
+                .pathParam("commentId", commentId)
+                .param("content",changeCommentContent)
+                .when()
+                .patch("/sns/comments/{commentId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all();
     }
 
     @Test

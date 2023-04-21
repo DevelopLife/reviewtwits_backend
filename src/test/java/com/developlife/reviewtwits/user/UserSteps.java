@@ -75,7 +75,7 @@ public class UserSteps {
                 .build();
     }
 
-    public RegisterUserRequest 팔로우상대방_회원가입정보_생성(){
+    public RegisterUserRequest 상대유저_회원가입정보_생성(){
 
 
         String targetNickname = "whalesbob";
@@ -171,7 +171,7 @@ public class UserSteps {
                 .build();
     }
 
-    public static LoginUserRequest 팔로우상대_로그인요청생성(){
+    public static LoginUserRequest 상대유저_로그인요청생성(){
         return LoginUserRequest.builder()
                 .accountId(targetAccountId)
                 .accountPw(accountPw)

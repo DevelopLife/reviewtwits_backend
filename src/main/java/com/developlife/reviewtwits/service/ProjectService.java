@@ -11,6 +11,7 @@ import com.developlife.reviewtwits.message.request.project.RegisterProjectReques
 import com.developlife.reviewtwits.message.response.project.ProjectInfoResponse;
 import com.developlife.reviewtwits.message.response.project.ProjectSettingInfoResponse;
 import com.developlife.reviewtwits.repository.ProjectRepository;
+import com.developlife.reviewtwits.repository.StatInfoRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class ProjectService {
 
     ProjectRepository projectRepository;
     UserRepository userRepository;
+    StatInfoRepository statInfoRepository;
     ProjectMapper projectMapper;
 
     public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, ProjectMapper projectMapper) {
@@ -66,5 +68,15 @@ public class ProjectService {
         Project project = projectRepository.findFirstByUser_AccountId(accountId)
             .orElseThrow(() -> new AccountIdNotFoundException("해당 유저가 존재하지 않습니다."));
         return project.getProjectId();
+    }
+
+    public void getVisitGraphInfo(Long projectId, String interval, String range, User user) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectIdNotFoundException("해당 프로젝트가 존재하지 않습니다."));
+
+        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
+            throw new AccessResourceDeniedException("해당 리소스에 접근할 수 있는 권하이 없습니다.");
+        }
+
     }
 }

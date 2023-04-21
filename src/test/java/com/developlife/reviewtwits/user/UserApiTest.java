@@ -309,7 +309,7 @@ public class UserApiTest extends ApiTest {
     }
 
     @Test
-    void 회원가입_프로필이미지_업로드() throws IOException {
+    void 회원가입_프로필이미지_업로드_성공_200() throws IOException {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
@@ -318,7 +318,7 @@ public class UserApiTest extends ApiTest {
                                 "<br>정상적으로 업로드 되었다면 200 OK 를 받을 수 있습니다." +
                                 "<br>등록된 이미지 파일 확장자가 아닌 다른 확장자를 입력하면, 400 Bad Request 가 반환됩니다." +
                                 "<br>이미지 multipart/form-data 는 필수값입니다. 입력하지 않을 시 400 Bad Request 가 반환됩니다." +
-                                "<br>유저의 토큰 값 역시 필수값입니다. 입력하지 않을 시 403 Forbidden 이 반환됩니다.",
+                                "<br>유저의 토큰 값 역시 필수값입니다. 입력하지 않을 시 401 Unauthorized 가 반환됩니다.",
                         "프로필이미지업로드", UserDocument.AccessTokenHeader, UserDocument.ImageUpdateRequestField))
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .header("X-AUTH-TOKEN", token)
@@ -336,6 +336,21 @@ public class UserApiTest extends ApiTest {
         assertThat("/request-images/" + foundInBody).isEqualTo(foundProfileImage);
 
         //    verify(s3Client,Mockito.times(1)).putObject(Mockito.any(PutObjectRequest.class));
+    }
+
+    @Test
+    void 회원가입_프로필이미지_업로드_헤더정보없음_401() throws IOException {
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .multiPart(UserSteps.프로필_이미지_파일정보_생성())
+                .when()
+                .post("/users/save-profile-image")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all().extract();
     }
 
     private String 유저정보_프로필이미지_추출() {
