@@ -92,7 +92,7 @@ public class SnsService {
     public User getTargetUser(String targetUserNickname) {
         Optional<User> foundTargetUser = userRepository.findByNickname(targetUserNickname);
         if(foundTargetUser.isEmpty()){
-            throw new UserIdNotFoundException("요청한 팔로우 계정이 존재하지 않습니다.");
+            throw new UserIdNotFoundException("요청한 팔로우 닉네임이 존재하지 않습니다.");
         }
         return foundTargetUser.get();
     }
