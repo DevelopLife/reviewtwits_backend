@@ -141,7 +141,7 @@ public class SnsApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value());
     }
     @Test
-    void 팔로우요청_헤더없이요청_403(){
+    void 팔로우요청_헤더없이요청_401(){
 
         given(this.spec)
                     .filter(document(DEFAULT_RESTDOC_PATH))
@@ -151,7 +151,7 @@ public class SnsApiTest extends ApiTest {
                     .post("/sns/request-follow")
                     .then()
                     .assertThat()
-                    .statusCode(HttpStatus.FORBIDDEN.value())
+                    .statusCode(HttpStatus.UNAUTHORIZED.value())
                     .log().all().extract();
     }
 
@@ -252,7 +252,7 @@ public class SnsApiTest extends ApiTest {
     }
 
     @Test
-    void 언팔로우요청_헤더없이요청_403(){
+    void 언팔로우요청_헤더없이요청_401(){
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -261,7 +261,7 @@ public class SnsApiTest extends ApiTest {
                 .post("/sns/request-unfollow")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .log().all().extract();
     }
 
