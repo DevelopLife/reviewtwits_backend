@@ -60,9 +60,9 @@ public class SnsApiTest extends ApiTest {
         final String userToken = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         추가회원가입정보_입력(userToken, SnsSteps.userNickname);
 
-        registerUserRequest = userSteps.팔로우상대방_회원가입정보_생성();
+        registerUserRequest = userSteps.상대유저_회원가입정보_생성();
         targetUser = userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
-        final String targetUserToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
+        final String targetUserToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
         추가회원가입정보_입력(targetUserToken, SnsSteps.targetUserNickname);
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
@@ -106,7 +106,7 @@ public class SnsApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         팔로우요청_생성(token, snsSteps.팔로우정보_생성());
 
-        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
+        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH,UserDocument.AccessTokenHeader,SnsDocument.followRequestField,SnsDocument.followResultResponseField))
@@ -227,7 +227,7 @@ public class SnsApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         팔로우요청_생성(token, snsSteps.팔로우정보_생성());
 
-        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
+        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
         팔로우요청_생성(oppositeToken, snsSteps.팔로우정보_상대방측_생성());
 
         given(this.spec)
@@ -453,7 +453,7 @@ public class SnsApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         팔로우요청_생성(token, snsSteps.팔로우정보_생성());
 
-        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.팔로우상대_로그인요청생성());
+        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
         팔로우요청_생성(oppositeToken, snsSteps.팔로우정보_상대방측_생성());
 
         ExtractableResponse<Response> response = given(this.spec)

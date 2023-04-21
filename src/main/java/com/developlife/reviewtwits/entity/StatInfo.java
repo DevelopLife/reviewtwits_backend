@@ -1,7 +1,6 @@
 package com.developlife.reviewtwits.entity;
 
 import com.developlife.reviewtwits.type.project.Device;
-import com.developlife.reviewtwits.type.project.Inflow;
 import lombok.*;
 
 import javax.persistence.*;

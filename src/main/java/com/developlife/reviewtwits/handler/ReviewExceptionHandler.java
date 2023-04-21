@@ -19,7 +19,7 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
 public class ReviewExceptionHandler {
 
     @ExceptionHandler(CannotHandleReviewException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public List<ErrorResponse> cannotHandleReviewExceptionHandler(CannotHandleReviewException e){
         return makeErrorResponse(e, "X-AUTH-TOKEN");
     }
