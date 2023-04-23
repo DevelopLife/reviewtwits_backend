@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 /**
  * @author WhalesBob
  * @since 2023-04-23
@@ -25,7 +27,7 @@ public class StatController {
 
     @PostMapping("/visited-info")
     public SaveStatResponse saveVisitedInfo(@AuthenticationPrincipal User user,
-                                            @RequestBody StatMessageRequest statMessageRequest){
+                                            @RequestBody @Valid StatMessageRequest statMessageRequest){
 
         return statService.saveStatInfo(user,statMessageRequest);
     }

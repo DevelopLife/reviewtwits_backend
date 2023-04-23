@@ -1,8 +1,8 @@
 package com.developlife.reviewtwits.message.request;
 
 import com.developlife.reviewtwits.message.annotation.statistics.Device;
+import com.developlife.reviewtwits.message.annotation.statistics.HttpURL;
 import lombok.Builder;
-import org.hibernate.validator.constraints.URL;
 
 /**
  * @author WhalesBob
@@ -10,9 +10,9 @@ import org.hibernate.validator.constraints.URL;
  */
 
 public record StatMessageRequest(
-        @URL(message = "URL 형식이 아닙니다.")
+        @HttpURL
         String inflowUrl,
-        @URL(message = "URL 형식이 아닙니다.")
+        @HttpURL
         String productUrl,
         @Device
         String device) {

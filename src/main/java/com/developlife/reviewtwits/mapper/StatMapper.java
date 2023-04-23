@@ -20,6 +20,7 @@ public interface StatMapper {
 
     default SaveStatResponse mapStatInfoToSaveStatResponse(StatInfo statInfo){
         return SaveStatResponse.builder()
+                .statId(statInfo.getStatId())
                 .userInfo(mapUserToUserInfoResponse(statInfo.getUser()))
                 .createdDate(statInfo.getCreatedDate().toLocalDate().toString())
                 .inflowUrl(statInfo.getInflowUrl())
