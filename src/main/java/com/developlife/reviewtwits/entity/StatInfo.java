@@ -2,8 +2,11 @@ package com.developlife.reviewtwits.entity;
 
 import com.developlife.reviewtwits.type.project.Device;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * @author WhalesBob
@@ -16,7 +19,8 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StatInfo extends BaseEntity{
+@EntityListeners(AuditingEntityListener.class)
+public class StatInfo {
 
     @Id
     @GeneratedValue
@@ -37,4 +41,8 @@ public class StatInfo extends BaseEntity{
 
     @Enumerated(value = EnumType.STRING)
     private Device device;
+
+    @CreatedDate
+    @Column(updatable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime createdDate;
 }

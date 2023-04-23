@@ -6,7 +6,7 @@ import com.developlife.reviewtwits.mapper.ProjectMapper;
 import com.developlife.reviewtwits.message.request.review.ReviewProductURLRequest;
 import com.developlife.reviewtwits.project.ProjectSteps;
 import com.developlife.reviewtwits.repository.ProductRepository;
-import com.developlife.reviewtwits.repository.ProjectRepository;
+import com.developlife.reviewtwits.repository.project.ProjectRepository;
 import com.developlife.reviewtwits.type.MadeMultipartFile;
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.specification.MultiPartSpecification;

@@ -8,7 +8,7 @@ import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.mapper.ProjectMapper;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.ProductRepository;
-import com.developlife.reviewtwits.repository.ProjectRepository;
+import com.developlife.reviewtwits.repository.project.ProjectRepository;
 import com.developlife.reviewtwits.repository.file.FileManagerRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.type.ReferenceType;
