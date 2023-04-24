@@ -370,7 +370,7 @@ public class ProjectApiTest extends ApiTest {
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "방문수 그래프 정보를 요청하면, 올바른 입력값일 경우 200 OK 와 함께 통걔 정보가 반환됩니다." +
-                                "<br>헤더에 토큰 정보가 누락되ㅖ개었을 경우, 401 Unauthorized 가 반환됩니다." +
+                                "<br>헤더에 토큰 정보가 누락되었을 경우, 401 Unauthorized 가 반환됩니다." +
                                 "<br>해당 유저가 프로젝트를 소유하지 않을 경우, 403 Forbidden 이 반환됩니다." +
                                 "<br>입력받은 프로젝트 아이디로 된 프로젝트를 찾을 수 없을 경우, 404 Not Found 가 반환됩니다." +
                                 "<br>해당 유저가 가지고 있는 프로젝트의 아이디를 입력해야 합니다." +
