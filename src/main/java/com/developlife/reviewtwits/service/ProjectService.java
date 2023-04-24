@@ -66,6 +66,24 @@ public class ProjectService {
         return project.getProjectId();
     }
 
+    public VisitTotalGraphResponse getVisitGraphInfos(Long projectId, String inputRange, String inputInterval, User user) {
+        Project project = getProject(projectId, user);
+        ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
+        ChartPeriodUnit interval = ChartPeriodUnit.findByInputValue(inputInterval);
+
+        RecentVisitInfoResponse recentInfo = statInfoRepository.findRecentVisitInfo(project);
+        VisitInfoResponse visitInfo = statInfoRepository.findByPeriod(project, range, interval);
+
+        return VisitTotalGraphResponse.builder()
+            .range(inputRange)
+            .interval(inputInterval)
+            .presentVisit(recentInfo.todayVisit())
+            .previousVisit(recentInfo.yesterdayVisit())
+            .totalVisit(recentInfo.totalVisit())
+            .visitInfo(visitInfo)
+            .build();
+    }
+
     public DailyVisitInfoResponse getDailyVisitInfos(Long projectId, String inputRange, User user) {
 
         Project project = getProject(projectId, user);
