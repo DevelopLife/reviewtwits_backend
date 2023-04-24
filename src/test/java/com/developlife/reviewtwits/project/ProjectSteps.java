@@ -26,6 +26,7 @@ public class ProjectSteps {
 
     public static final String productUrl = "http://www.example.com/123";
     public static final String exampleRange = "3mo";
+    public static final String exampleInterval = "3d";
     public static final String wrongRange = "3s";
     public static final long wrongProjectId = -1L;
     public static final long notExistProjectId = 11111L;

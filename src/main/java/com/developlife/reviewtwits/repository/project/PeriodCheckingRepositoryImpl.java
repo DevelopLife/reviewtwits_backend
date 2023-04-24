@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static com.developlife.reviewtwits.entity.QStatInfo.statInfo;
 import static com.querydsl.core.group.GroupBy.groupBy;
@@ -80,7 +81,9 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
         List<Integer> visitCountList = new ArrayList<>();
         List<Integer> previousCompareList = new ArrayList<>();
 
-        for(Map.Entry<Integer, List<StatInfo>> entry : transform.entrySet()){
+        Map<Integer, List<StatInfo>> sortedMap = new TreeMap<>(transform);
+
+        for(Map.Entry<Integer, List<StatInfo>> entry : sortedMap.entrySet()){
             String date = entry.getValue().get(0).getCreatedDate().toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
             int visitCount = entry.getValue().size();
 

@@ -4,10 +4,7 @@ import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.annotation.project.ChartPeriod;
 import com.developlife.reviewtwits.message.request.project.FixProjectRequest;
 import com.developlife.reviewtwits.message.request.project.RegisterProjectRequest;
-import com.developlife.reviewtwits.message.response.project.DailyVisitInfoResponse;
-import com.developlife.reviewtwits.message.response.project.ProjectInfoResponse;
-import com.developlife.reviewtwits.message.response.project.ProjectSettingInfoResponse;
-import com.developlife.reviewtwits.message.response.project.RecentVisitInfoResponse;
+import com.developlife.reviewtwits.message.response.project.*;
 import com.developlife.reviewtwits.service.ProjectService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -51,6 +48,15 @@ public class ProjectController {
         return projectService.updateProject(projectId, fixProjectRequest, user);
     }
 
+    @GetMapping("/visit-graph-infos")
+    public VisitTotalGraphResponse getVisitGraphInfos(@AuthenticationPrincipal User user,
+                                                @RequestParam
+                                                @Min(value = 1, message = "프로젝트 아이디는 1 이상의 수로 입력해야 합니다.") Long projectId,
+                                                @RequestParam @ChartPeriod String range,
+                                                @RequestParam @ChartPeriod String interval){
+
+        return projectService.getVisitGraphInfos(projectId, range, interval, user);
+    }
     @GetMapping("/daily-visit-graph-infos")
     public DailyVisitInfoResponse getDailyVisitInfos(@AuthenticationPrincipal User user,
                                                      @RequestParam

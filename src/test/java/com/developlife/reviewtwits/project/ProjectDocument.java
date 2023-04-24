@@ -61,6 +61,11 @@ public class ProjectDocument {
         RequestDocumentation.parameterWithName("projectId").attributes(required()).description("프로젝트 아이디"),
         RequestDocumentation.parameterWithName("range").attributes(required()).description("요청하는 통계 범위 구간")
     );
+    public static final Snippet VisitGraphInfoRequestParamFields = requestParameters(
+        RequestDocumentation.parameterWithName("projectId").attributes(required()).description("프로젝트 아이디"),
+        RequestDocumentation.parameterWithName("range").attributes(required()).description("요청하는 통계 범위 구간"),
+        RequestDocumentation.parameterWithName("interval").attributes(required()).description("요청하는 통계 기준 구간")
+    );
 
     public static final Snippet ProjectInfoResponseField = responseFields(
         fieldWithPath("projectId").type(JsonFieldType.STRING).description("프로젝트 아이디"),
@@ -81,5 +86,15 @@ public class ProjectDocument {
         fieldWithPath("todayVisit").type(JsonFieldType.NUMBER).description("오늘 방문 수"),
         fieldWithPath("yesterdayVisit").type(JsonFieldType.NUMBER).description("어제 방문 수"),
         fieldWithPath("totalVisit").type(JsonFieldType.NUMBER).description("총 방문 수")
+    );
+    public static final Snippet VisitGraphStatResponseFields = responseFields(
+        fieldWithPath("range").type(JsonFieldType.STRING).description("요청한 통계 범위"),
+        fieldWithPath("interval").type(JsonFieldType.STRING).description("요청한 통계 기준"),
+        fieldWithPath("presentVisit").type(JsonFieldType.NUMBER).description("오늘 방문 수"),
+        fieldWithPath("previousVisit").type(JsonFieldType.NUMBER).description("어제 방문 수"),
+        fieldWithPath("totalVisit").type(JsonFieldType.NUMBER).description("총 방문 수"),
+        fieldWithPath("visitInfo.timeStamp").type(JsonFieldType.ARRAY).description("방문 날짜"),
+        fieldWithPath("visitInfo.visitCount").type(JsonFieldType.ARRAY).description("방문 수"),
+        fieldWithPath("visitInfo.previousCompare").type(JsonFieldType.ARRAY).description("어제 방문과의 비교")
     );
 }
