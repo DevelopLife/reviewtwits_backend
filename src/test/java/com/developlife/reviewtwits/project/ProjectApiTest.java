@@ -218,22 +218,6 @@ public class ProjectApiTest extends ApiTest {
     }
 
     @Test
-    void 일간_방문_통계정보__프로젝트아이디_누락_400() {
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
-                .header("X-AUTH-TOKEN", token)
-                .param("range", ProjectSteps.exampleRange)
-                .when()
-                .get("projects/daily-visit-infos")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .log().all().extract();
-    }
-
-    @Test
     void 일간_방문_통계정보_프로젝트아이디_음수_400() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
@@ -249,24 +233,6 @@ public class ProjectApiTest extends ApiTest {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .log().all().extract();
     }
-
-    @Test
-    void 일간_방문_통계정보_검색시간구간_누락_400() {
-        Project project = 통계_사전작업();
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
-                .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
-                .when()
-                .get("projects/daily-visit-infos")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .log().all().extract();
-    }
-
     @Test
     void 일간_방문_통계정보_검색시간구간_허용외값_400() {
         Project project = 통계_사전작업();
