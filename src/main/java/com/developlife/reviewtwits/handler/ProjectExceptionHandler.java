@@ -19,7 +19,7 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
 @RestControllerAdvice
 public class ProjectExceptionHandler {
     @ExceptionHandler(ProjectIdNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public List<ErrorResponse> projectIdNotFoundExceptionHandler(ProjectIdNotFoundException e){
         return makeErrorResponse(e, "projectId");
     }
