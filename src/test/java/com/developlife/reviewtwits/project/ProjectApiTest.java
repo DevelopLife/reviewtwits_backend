@@ -170,7 +170,7 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", project.getProjectId())
                 .param("range", ProjectSteps.exampleRange)
                 .when()
-                .get("projects/daily-visit-infos")
+                .get("/projects/daily-visit-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
@@ -192,7 +192,7 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", project.getProjectId())
                 .param("range", ProjectSteps.exampleRange)
                 .when()
-                .get("projects/daily-visit-infos")
+                .get("/projects/daily-visit-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.UNAUTHORIZED.value())
@@ -210,11 +210,28 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", project.getProjectId())
                 .param("range", ProjectSteps.exampleRange)
                 .when()
-                .get("projects/daily-visit-infos")
+                .get("/projects/daily-visit-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.FORBIDDEN.value())
                 .log().all();
+    }
+
+    @Test
+    void 일간_방문_통계정보_프로젝트아이디_없음_404() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", ProjectSteps.notExistProjectId)
+                .param("range", ProjectSteps.exampleRange)
+                .when()
+                .get("/projects/daily-visit-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all().extract();
     }
 
     @Test
@@ -227,7 +244,7 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", ProjectSteps.wrongProjectId)
                 .param("range", ProjectSteps.exampleRange)
                 .when()
-                .get("projects/daily-visit-infos")
+                .get("/projects/daily-visit-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -244,12 +261,98 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", project.getProjectId())
                 .param("range", ProjectSteps.wrongRange)
                 .when()
-                .get("projects/daily-visit-infos")
+                .get("/projects/daily-visit-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .log().all().extract();
     }
+
+    @Test
+    void 최근방문_통계정보_요청_성공_200(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        CommonDocument.AccessTokenHeader,
+                        ProjectDocument.ProjectIdRequestParam,
+                        ProjectDocument.RecentVisitStatResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/projects/recent-visit-counts")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getInt("todayVisit")).isEqualTo(3);
+        assertThat(jsonPath.getInt("yesterdayVisit")).isEqualTo(2);
+        assertThat(jsonPath.getInt("totalVisit")).isEqualTo(20);
+    }
+
+    @Test
+    void 최근방문_통계정보_요청_헤더정보없음_401(){
+        Project project = 통계_사전작업();
+
+        given(this.spec)
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/projects/recent-visit-counts")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all();
+    }
+
+    @Test
+    void 최근방문_통계정보_요청_접근권한없음_403(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/projects/recent-visit-counts")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all();
+    }
+
+    @Test
+    void 최근방문_통계정보_요청_프로젝트아이디_존재하지않음_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", ProjectSteps.notExistProjectId)
+                .when()
+                .get("/projects/recent-visit-counts")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all();
+    }
+
+    @Test
+    void 최근방문_통계정보_요청_프로젝트아이디음수_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", ProjectSteps.wrongProjectId)
+                .when()
+                .get("/projects/recent-visit-counts")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all();
+    }
+
 
     Project 통계_사전작업() {
         Project existedProject = projectRepository.findAll().get(0);
