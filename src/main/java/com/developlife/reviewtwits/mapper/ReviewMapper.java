@@ -27,16 +27,21 @@ public interface ReviewMapper {
     List<CommentResponse> toCommentResponseList(List<Comment> comments);
     List<SnsReviewResponse> toSnsReviewResponseList(List<Review> reviews);
 
-    @Mapping(target = "reviewCount", ignore = true)
-    @Mapping(target = "followers", ignore = true)
-    @Mapping(target = "followings", ignore = true)
-    UserInfoResponse mapUserToUserInfoResponse(User user);
-
     default List<String> mapImageUuidToUrlList(List<String> imageUuidList){
         ArrayList<String> imageUrlList = new ArrayList<>();
         for(String imageUuid : imageUuidList)
             imageUrlList.add(imageUrl + imageUuid);
         return imageUrlList;
+    }
+    default UserInfoResponse mapUserToUserInfoResponse(User user){
+        return UserInfoResponse.builder()
+                .userId(user.getUserId())
+                .nickname(user.getNickname())
+                .accountId(user.getAccountId())
+                .introduceText(user.getIntroduceText())
+                .profileImageUrl(imageUrl + user.getProfileImageUuid())
+                .detailIntroduce(user.getDetailIntroduce())
+                .build();
     }
 
     default DetailShoppingMallReviewResponse mapReviewToDetailReviewResponse(Review review){
