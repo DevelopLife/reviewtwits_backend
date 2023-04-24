@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -59,6 +57,12 @@ public class ProjectController {
                                                      @Min(value = 1, message = "프로젝트 아이디는 1 이상의 수로 입력해야 합니다.") Long projectId,
                                                      @RequestParam @ChartPeriod String range){
         return projectService.getDailyVisitInfos(projectId, range, user);
+    }
+    @GetMapping("/recent-visit-counts")
+    public RecentVisitInfoResponse getRecentVisitCounts(@AuthenticationPrincipal User user,
+                                                        @RequestParam @Min(value = 1, message = "프로젝트 아이디는 1 이상의 수로 입력해야 합니다.") Long projectId
+    ){
+        return projectService.getRecentVisitCounts(projectId, user);
     }
     private String getTokenOwner() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

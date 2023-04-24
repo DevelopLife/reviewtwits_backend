@@ -78,6 +78,10 @@ public class ProjectService {
                 .visitInfo(visitInfo)
                 .build();
     }
+    public RecentVisitInfoResponse getRecentVisitCounts(Long projectId, User user) {
+        Project project = getProject(projectId, user);
+        return statInfoRepository.findRecentVisitInfo(project);
+    }
     private Project getProject(Long projectId, User user) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectIdNotFoundException("해당 프로젝트가 존재하지 않습니다."));
