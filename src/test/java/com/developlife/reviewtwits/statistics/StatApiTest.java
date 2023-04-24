@@ -81,8 +81,7 @@ public class StatApiTest extends ApiTest {
                                 "<br>모든 정보가 정상적으로 입력되었다면, 200 OK 와 함께 등록된 통계정보가 반환됩니다." +
                                 "<br>inflowUrl, productUrl 정보가 입력되지 않았거나 http 또는 https 로 시작하는 url 이 아닐 시, 400 Bad Request 가 반환됩니다." +
                                 "<br>MOBILE,PC 를 제외한 다른 Device 정보를 입력할 경우, 400 Bad Request 가 반환됩니다. 디바이스 관련 정보는 요청 시 추가 가능합니다." +
-                                "<br>입력한 productUrl 로 등록된 제품 정보가 존재하지 않을 경우, 404 Not Found 가 반환됩니다." +
-                                "<br>입력된 닉네임으로 등록된 계정이 없는 경우 404 Not Found 가 반환됩니다." , "통계정보등록요청",
+                                "<br>입력한 productUrl 로 등록된 제품 정보가 존재하지 않을 경우, 404 Not Found 가 반환됩니다.", "통계정보등록요청",
                         StatDocument.AccessTokenHeader,
                         StatDocument.statMessageRequestField,
                         StatDocument.savedStatResponseField))

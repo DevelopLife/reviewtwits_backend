@@ -9,6 +9,7 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithNam
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 
 /**
  * @author ghdic
@@ -54,6 +55,10 @@ public class ProjectDocument {
     public static final Snippet ProjectIdPathParam = pathParameters(
         RequestDocumentation.parameterWithName("projectId").description("프로젝트아이디")
     );
+    public static final Snippet DailyVisitStatRequestParam = requestParameters(
+            RequestDocumentation.parameterWithName("projectId").attributes(required()).description("프로젝트 아이디"),
+            RequestDocumentation.parameterWithName("range").attributes(required()).description("요청하는 통계 범위 구간")
+    );
 
     public static final Snippet ProjectInfoResponseField = responseFields(
         fieldWithPath("projectId").type(JsonFieldType.STRING).description("프로젝트 아이디"),
@@ -62,5 +67,12 @@ public class ProjectDocument {
         fieldWithPath("projectColor").type(JsonFieldType.STRING).description("프로젝트 색깔 hex코드"),
         fieldWithPath("reviewCount").type(JsonFieldType.STRING).description("리뷰 수"),
         fieldWithPath("category").type(JsonFieldType.STRING).description("카테고리")
+    );
+
+    public static final Snippet DailyVisitInfoResponseFields = responseFields(
+            fieldWithPath("range").type(JsonFieldType.STRING).description("요청한 통계 범위"),
+            fieldWithPath("visitInfo.timeStamp").type(JsonFieldType.ARRAY).description("방문 날짜"),
+            fieldWithPath("visitInfo.visitCount").type(JsonFieldType.ARRAY).description("방문 수"),
+            fieldWithPath("visitInfo.previousCompare").type(JsonFieldType.ARRAY).description("어제 방문과의 비교")
     );
 }
