@@ -162,7 +162,7 @@ public class ProjectApiTest extends ApiTest {
                                 "<br><br>위의 규칙에 맞지 않는 입력값일 경우, 400 Bad Request 가 반환됩니다." +
                                 "<br>헤더에 토큰 정보가 누락되었을 경우, 401 Unauthorized 가 반환됩니다." +
                                 "<br>해당 유저가 프로젝트를 소유하지 않을 경우, 403 Forbidden 이 반환됩니다." +
-                                "<br>입력받은 프로젝트 아이디로 된 프로젝트를 찾을 수 없을 경우, 404 Not Found 가 반환됩니다.", "일간방문통계정보검색",
+                                "<br>입력받은 프로젝트 아이디로 된 프로젝트를 찾을 수 없을 경우, 404 Not Found 가 반환됩니다.", "일간방문통계그래프정보",
                         CommonDocument.AccessTokenHeader,
                         ProjectDocument.DailyVisitStatRequestParam,
                         ProjectDocument.DailyVisitInfoResponseFields
@@ -171,7 +171,7 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", project.getProjectId())
                 .param("range", ProjectSteps.exampleRange)
                 .when()
-                .get("/projects/daily-visit-infos")
+                .get("/projects/daily-visit-graph-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
@@ -193,7 +193,7 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", project.getProjectId())
                 .param("range", ProjectSteps.exampleRange)
                 .when()
-                .get("/projects/daily-visit-infos")
+                .get("/projects/daily-visit-graph-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.UNAUTHORIZED.value())
@@ -211,7 +211,7 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", project.getProjectId())
                 .param("range", ProjectSteps.exampleRange)
                 .when()
-                .get("/projects/daily-visit-infos")
+                .get("/projects/daily-visit-graph-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.FORBIDDEN.value())
@@ -228,7 +228,7 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", ProjectSteps.notExistProjectId)
                 .param("range", ProjectSteps.exampleRange)
                 .when()
-                .get("/projects/daily-visit-infos")
+                .get("/projects/daily-visit-graph-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value())
@@ -245,7 +245,7 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", ProjectSteps.wrongProjectId)
                 .param("range", ProjectSteps.exampleRange)
                 .when()
-                .get("/projects/daily-visit-infos")
+                .get("/projects/daily-visit-graph-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -262,7 +262,7 @@ public class ProjectApiTest extends ApiTest {
                 .param("projectId", project.getProjectId())
                 .param("range", ProjectSteps.wrongRange)
                 .when()
-                .get("/projects/daily-visit-infos")
+                .get("/projects/daily-visit-graph-infos")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.BAD_REQUEST.value())

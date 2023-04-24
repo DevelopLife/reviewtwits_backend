@@ -51,7 +51,7 @@ public class ProjectController {
         return projectService.updateProject(projectId, fixProjectRequest, user);
     }
 
-    @GetMapping("/daily-visit-infos")
+    @GetMapping("/daily-visit-graph-infos")
     public DailyVisitInfoResponse getDailyVisitInfos(@AuthenticationPrincipal User user,
                                                      @RequestParam
                                                      @Min(value = 1, message = "프로젝트 아이디는 1 이상의 수로 입력해야 합니다.") Long projectId,
