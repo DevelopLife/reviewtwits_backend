@@ -161,7 +161,8 @@ public class ProjectApiTest extends ApiTest {
                                 "<br> 1mo,3mo,6mo,1y,3y,5y" +
                                 "<br><br>위의 규칙에 맞지 않는 입력값일 경우, 400 Bad Request 가 반환됩니다." +
                                 "<br>헤더에 토큰 정보가 누락되었을 경우, 401 Unauthorized 가 반환됩니다." +
-                                "<br>해당 유저가 프로젝트를 소유하지 않을 경우, 403 Forbidden 이 반환됩니다.", "일간방문통계정보검색",
+                                "<br>해당 유저가 프로젝트를 소유하지 않을 경우, 403 Forbidden 이 반환됩니다." +
+                                "<br>입력받은 프로젝트 아이디로 된 프로젝트를 찾을 수 없을 경우, 404 Not Found 가 반환됩니다.", "일간방문통계정보검색",
                         CommonDocument.AccessTokenHeader,
                         ProjectDocument.DailyVisitStatRequestParam,
                         ProjectDocument.DailyVisitInfoResponseFields
@@ -274,7 +275,12 @@ public class ProjectApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         ExtractableResponse<Response> response = given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,
+                .filter(document(DEFAULT_RESTDOC_PATH, "최근 방문 통계정보를 검색하면, 올바른 입력값일 경우 200 OK 와 함께 정보가 반환됩니다.." +
+                                "<br>해당 유저가 가지고 있는 프로젝트의 아이디를 입력해야 합니다. 음수로 입력할 경우 400 Bad Request 가 반환됩니다." +
+                                "<br>헤더에 토큰 정보가 누락되었을 경우, 401 Unauthorized 가 반환됩니다." +
+                                "<br>해당 유저가 프로젝트를 소유하지 않을 경우, 403 Forbidden 이 반환됩니다." +
+                                "<br>입력받은 프로젝트 아이디로 된 프로젝트를 찾을 수 없을 경우, 404 Not Found 가 반환됩니다.",
+                        "최근방문통계정보요청",
                         CommonDocument.AccessTokenHeader,
                         ProjectDocument.ProjectIdRequestParam,
                         ProjectDocument.RecentVisitStatResponseFields))
@@ -298,6 +304,7 @@ public class ProjectApiTest extends ApiTest {
         Project project = 통계_사전작업();
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
                 .param("projectId", project.getProjectId())
                 .when()
                 .get("/projects/recent-visit-counts")
@@ -313,6 +320,7 @@ public class ProjectApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
                 .param("projectId", project.getProjectId())
                 .when()
@@ -328,6 +336,7 @@ public class ProjectApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
                 .param("projectId", ProjectSteps.notExistProjectId)
                 .when()
@@ -343,6 +352,7 @@ public class ProjectApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
                 .param("projectId", ProjectSteps.wrongProjectId)
                 .when()
