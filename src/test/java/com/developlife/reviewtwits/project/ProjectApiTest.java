@@ -363,6 +363,136 @@ public class ProjectApiTest extends ApiTest {
                 .log().all();
     }
 
+    @Test
+    void 방문수_그래프_정보_요청_성공_200(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "방문수 그래프 정보를 요청하면, 올바른 입력값일 경우 200 OK 와 함께 통걔 정보가 반환됩니다." +
+                                "<br>헤더에 토큰 정보가 누락되ㅖ개었을 경우, 401 Unauthorized 가 반환됩니다." +
+                                "<br>해당 유저가 프로젝트를 소유하지 않을 경우, 403 Forbidden 이 반환됩니다." +
+                                "<br>입력받은 프로젝트 아이디로 된 프로젝트를 찾을 수 없을 경우, 404 Not Found 가 반환됩니다." +
+                                "<br>해당 유저가 가지고 있는 프로젝트의 아이디를 입력해야 합니다." +
+                                "<br>또한 통계 범위와 구간을 입력해야 하며, 범위로써 입력할 수 있는 정보는 아래와 같습니다." +
+                                "<br><br> 1d,3d,5d,7d,15d" +
+                                "<br> 1mo,3mo,6mo,1y,3y,5y" +
+                                "<br><br>위의 규칙에 맞지 않는 입력값일 경우, 400 Bad Request 가 반환됩니다.",
+                        "방문수그래프정보요청",
+                        CommonDocument.AccessTokenHeader,
+                        ProjectDocument.VisitGraphInfoRequestParamFields,
+                        ProjectDocument.VisitGraphStatResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", project.getProjectId())
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("range", ProjectSteps.exampleRange)
+                .when()
+                .get("/projects/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("interval")).isEqualTo(ProjectSteps.exampleInterval);
+        assertThat(jsonPath.getString("range")).isEqualTo(ProjectSteps.exampleRange);
+        assertThat(jsonPath.getInt("presentVisit")).isEqualTo(3);
+        assertThat(jsonPath.getInt("previousVisit")).isEqualTo(2);
+        assertThat(jsonPath.getList("visitInfo.timeStamp")).isNotEmpty();
+        assertThat(jsonPath.getList("visitInfo.visitCount")).isNotEmpty();
+        assertThat(jsonPath.getList("visitInfo.previousCompare")).isNotEmpty();
+    }
+
+    @Test
+    void 방문수_그래프_정보_요청_헤더정보없음_401(){
+        Project project = 통계_사전작업();
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .param("projectId", project.getProjectId())
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("range", ProjectSteps.exampleRange)
+                .when()
+                .get("/projects/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all();
+    }
+
+    @Test
+    void 방문수_그래프_정보_요청_접근권한없음_403(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", project.getProjectId())
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("range", ProjectSteps.exampleRange)
+                .when()
+                .get("/projects/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all();
+    }
+
+    @Test
+    void 방문수_그래프_정보_요청_프로젝트없음_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", ProjectSteps.notExistProjectId)
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("range", ProjectSteps.exampleRange)
+                .when()
+                .get("/projects/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all();
+    }
+
+    @Test
+    void 방문수_그래프_정보_요청_프로젝트아이디_음수_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", ProjectSteps.wrongProjectId)
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("range", ProjectSteps.exampleRange)
+                .when()
+                .get("/projects/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all();
+    }
+
+    @Test
+    void 방문수_그래프_정보_요청_검색시간구간_허용외값_400(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", project.getProjectId())
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("range", ProjectSteps.wrongRange)
+                .when()
+                .get("/projects/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all();
+    }
 
     Project 통계_사전작업() {
         Project existedProject = projectRepository.findAll().get(0);
