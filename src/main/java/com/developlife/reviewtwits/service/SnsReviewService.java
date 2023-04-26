@@ -78,7 +78,11 @@ public class SnsReviewService {
 //        List<Review> pageReviews = findReviewsInPage(reviewId, size);
         Pageable pageable = PageRequest.of(0,size,Sort.by("reviewId").descending());
 
-        return reviewRepository.findMappingReviewById(user, reviewId, pageable);
+        List<DetailSnsReviewResponse> mappingReview = reviewRepository.findMappingReviewById(user, reviewId, pageable);
+        if(mappingReview.size() == 0){
+            throw new ReviewListEmptyException("");
+        }
+        return mappingReview;
     }
 
     @Transactional(readOnly = true)
