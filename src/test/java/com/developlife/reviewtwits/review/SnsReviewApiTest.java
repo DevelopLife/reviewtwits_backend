@@ -266,6 +266,7 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br> size 값은 몇 개의 review 를 받을지 나타내는 부분으로써, 필수 값입니다. 넣어주지 않으면, 400 Bad Request 를 마주할 수 있습니다." +
                         "<br> 무한 스크롤을 구현하기 위해, 이후의 review 요청에서는 리뷰 리스트의 마지막 부분의 reviewId 를 넘겨주어야 합니다." +
                         "<br> 이 때, 남은 리뷰의 갯수가 요청한 size 보다 작을 경우, 남은 review 를 모두 넘겨주게 됩니다. " +
+                        "<br>마지막 리뷰에서 다시 한번 요청을 보내게 되면, 204 No Content 가 반환됩니다." +
                         "<br> 위 상황에서는 review List 의 크기가 size 보다 작을 수 있습니다.", "SNS리뷰피드요청",
                         SnsReviewDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdAndSizeField,SnsReviewDocument.SnsReviewFeedResponseField))
                 .param("size", size)
