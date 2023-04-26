@@ -95,7 +95,7 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
                 .limit(pageable.getPageSize())
                 .transform(
                         groupBy(reviewEntity).as(
-                                set(fileInfo.realFilename),
+                                sortedSet(fileInfo.realFilename),
                                 set(reaction),
                                 set(reviewScrap)));
 
@@ -124,7 +124,7 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         List<ReviewMappingDTO> reviewMappingList = transform.entrySet().stream()
                 .map(entry -> new ReviewMappingDTO(
                         entry.getKey(),
-                        entry.getValue().getSet(fileInfo.realFilename),
+                        entry.getValue().getSortedSet(fileInfo.realFilename),
                         entry.getValue().getSet(reaction),
                         entry.getValue().getSet(reviewScrap))).toList();
 
