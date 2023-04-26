@@ -22,3 +22,7 @@ ReviewTwits 백엔드 레포입니다
 
 <img src="readmeImages/system_architecture.png">
 
+백엔드에서는 Git Action 을 통해 CI/CD 를 구축하였습니다.
+
+백앤드 개발자가 개발한 코드를 
+
