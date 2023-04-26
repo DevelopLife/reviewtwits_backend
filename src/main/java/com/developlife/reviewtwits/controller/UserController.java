@@ -49,7 +49,7 @@ public class UserController {
         return jwtTokenProvider.issueJwtTokenResponse(user);
     }
 
-    @PostMapping(value = "logout", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/logout", consumes = "application/json", produces = "application/json")
     public void logout(@AuthenticationPrincipal User user, HttpServletResponse response) {
         if(user != null) {
             userService.logout(user);
