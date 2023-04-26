@@ -99,7 +99,8 @@ public class WebSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:8080", "http://localhost:3000", "http://43.201.141.63:8080", "https://reviewtwits.mcv.kr",
-            "https://localhost:8080", "https://localhost:3000", "https://43.201.141.63:8080"));
+            "https://localhost:8080", "https://localhost:3000", "https://43.201.141.63:8080","https://reviewtwits.shop",
+                "http://reviewtwits.shop"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
