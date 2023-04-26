@@ -53,4 +53,10 @@ public class ReviewExceptionHandler {
     public List<ErrorResponse> commentLikeAlreadyProcessedExceptionHandler(CommentLikeAlreadyProcessedException e){
         return makeErrorResponse(e,"");
     }
+
+    @ExceptionHandler(ReviewListEmptyException.class)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public List<ErrorResponse> reviewListEmptyExceptionHandler(ReviewListEmptyException e){
+        return makeErrorResponse(e, "");
+    }
 }

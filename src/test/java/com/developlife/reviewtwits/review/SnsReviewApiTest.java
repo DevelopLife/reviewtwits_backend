@@ -300,6 +300,39 @@ public class SnsReviewApiTest extends ApiTest {
     }
 
     @Test
+    void SNS_리뷰_피드_요청마지막_204(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        for(int writeCount = 1; writeCount <= 2; writeCount++){
+            snsReviewSteps.SNS_리뷰_작성(token, "review count : " + writeCount);
+        }
+
+        int size = 2;
+        ExtractableResponse<Response> feedResponse = given(this.spec)
+                .header("X-AUTH-TOKEN", token)
+                .param("size", size)
+                .when()
+                .get("/sns/feeds")
+                .then()
+                .assertThat()
+                .log().all().extract();
+
+        JsonPath feedPath = feedResponse.jsonPath();
+        long lastReviewId = feedPath.getLong("[1].reviewId");
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .header("X-AUTH-TOKEN", token)
+                .param("size", size)
+                .param("reviewId", lastReviewId)
+                .when()
+                .get("/sns/feeds")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .log().all().extract();
+    }
+
+    @Test
     void SNS_리뷰_수정_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long recentReviewId = SNS_리뷰_작성(token, "write review for comment test");
