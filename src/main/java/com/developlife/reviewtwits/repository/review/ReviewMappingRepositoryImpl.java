@@ -12,7 +12,6 @@ import com.querydsl.core.group.Group;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -96,8 +95,8 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
                 .limit(pageable.getPageSize())
                 .transform(
                         groupBy(reviewEntity).as(
-                                list(fileInfo.realFilename),
-                                list(reaction),
+                                sortedSet(fileInfo.realFilename),
+                                set(reaction),
                                 set(reviewScrap)));
 
         return getDetailSnsReviewResponses(reviewSearcher, transform);
@@ -125,19 +124,19 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         List<ReviewMappingDTO> reviewMappingList = transform.entrySet().stream()
                 .map(entry -> new ReviewMappingDTO(
                         entry.getKey(),
-                        entry.getValue().getList(fileInfo.realFilename),
-                        entry.getValue().getList(reaction),
+                        entry.getValue().getSortedSet(fileInfo.realFilename),
+                        entry.getValue().getSet(reaction),
                         entry.getValue().getSet(reviewScrap))).toList();
 
         List<DetailSnsReviewResponse> snsResponse = new ArrayList<>();
 
         for(ReviewMappingDTO reviewMappingDTO : reviewMappingList){
             Review review = reviewMappingDTO.getReview();
-            review.setReviewImageUuidList(reviewMappingDTO.getReviewImageNameList());
+            review.setReviewImageUuidList(reviewMappingDTO.getReviewImageNameSet().stream().toList());
 
             Map<String, ReactionResponse> collectedReactionResponse = ReactionType.classifyReactionResponses(
                     reviewSearcher,
-                    reviewMappingDTO.getReactionList()
+                    reviewMappingDTO.getReactionSet().stream().toList()
             );
 
             boolean isScrapped = !reviewMappingDTO.getReviewScrap().isEmpty();
