@@ -44,13 +44,17 @@ public class SnsController {
     }
 
     @GetMapping("/get-followers/{nickname}")
-    public List<UserInfoResponse> getFollowers(@PathVariable @NotBlank String nickname){
-        return snsService.getFollowerList(nickname);
+    public List<UserInfoResponse> getFollowers(@PathVariable @NotBlank String nickname,
+                                               @RequestParam int size,
+                                               @RequestParam long followId){
+        return snsService.getFollowerList(nickname,size,followId);
     }
 
     @GetMapping("/get-followings/{nickname}")
-    public List<UserInfoResponse> getFollowings(@PathVariable @NotBlank String nickname){
-        return snsService.getFollowingList(nickname);
+    public List<UserInfoResponse> getFollowings(@PathVariable @NotBlank String nickname,
+                                                @RequestParam int size,
+                                                @RequestParam(required = false) Long followId){
+        return snsService.getFollowingList(nickname,size,followId);
     }
 
     @GetMapping("/search")

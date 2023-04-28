@@ -66,6 +66,11 @@ public class SnsDocument {
         parameterWithName("searchKey").attributes(required()).description("검색어(2-20글자)")
     );
 
+    public static final Snippet followIdAndPageSizeRequest = requestParameters(
+            parameterWithName("size").attributes(required()).description("페이지 사이즈"),
+            parameterWithName("followId").attributes(required()).description("뒤에 요청받을 팔로우 아이디")
+    );
+
     public static final Snippet SearchAllSnsResponse = responseFields(
         fieldWithPath("itemList[].itemId").type(JsonFieldType.NUMBER).description("아이템아이디"),
         fieldWithPath("itemList[].productName").type(JsonFieldType.STRING).description("상품이름"),

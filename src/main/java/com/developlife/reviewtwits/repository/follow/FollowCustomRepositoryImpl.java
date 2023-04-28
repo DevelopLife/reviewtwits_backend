@@ -1,7 +1,6 @@
 package com.developlife.reviewtwits.repository.follow;
 
 import com.developlife.reviewtwits.entity.User;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
@@ -38,6 +37,32 @@ public class FollowCustomRepositoryImpl implements FollowCustomRepository {
                             .and(user.userId.ne(userId))
                 )
                 .orderBy(user.createdDate.desc())
+                .limit(limit)
+                .fetch();
+    }
+
+    @Override
+    public List<User> findFollowersOfUser(User inputUser, int limit, Long followId) {
+        if(followId == null){
+            followId = Long.MAX_VALUE;
+        }
+
+        return jpaQueryFactory.select(user).from(follow)
+                .where(follow.targetUser.eq(inputUser).and(follow.followId.lt(followId)))
+                .orderBy(follow.followId.desc())
+                .limit(limit)
+                .fetch();
+    }
+
+    @Override
+    public List<User> findFollowingsOfUser(User inputUser, int limit, Long followId) {
+        if(followId == null){
+            followId = Long.MAX_VALUE;
+        }
+
+        return jpaQueryFactory.select(user).from(follow)
+                .where(follow.user.eq(inputUser).and(follow.followId.lt(followId)))
+                .orderBy(follow.followId.desc())
                 .limit(limit)
                 .fetch();
     }
