@@ -73,8 +73,8 @@ public class SnsController {
     }
 
     @GetMapping("/profile/{nickname}")
-    public UserInfoResponse findUserProfile(@PathVariable String nickname){
-        return snsService.findUserProfile(nickname);
+    public UserInfoResponse findUserProfile(@AuthenticationPrincipal User user,@PathVariable String nickname){
+        return snsService.findUserProfile(nickname,user);
     }
 
     @GetMapping("/profile/reviews/{nickname}")

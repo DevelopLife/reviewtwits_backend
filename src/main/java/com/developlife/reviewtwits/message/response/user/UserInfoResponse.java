@@ -15,7 +15,8 @@ public record UserInfoResponse(
         String detailIntroduce,
         int reviewCount,
         int followers,
-        int followings
+        int followings,
+        boolean isFollowed
 ) {
     @Builder
     public UserInfoResponse {
