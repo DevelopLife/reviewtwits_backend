@@ -67,7 +67,7 @@ public class ShoppingMallReviewService {
             return null;
         }
 
-        List<Review> reviews = reviewRepository.findReviewsByProductUrl(productURL);
+        List<Review> reviews = reviewRepository.findReviewsByProductUrlAndProjectIsNotNull(productURL);
 
         if(reviews.isEmpty()){
             return ShoppingMallReviewProductResponse.builder().totalReviewCount(0).build();
@@ -102,7 +102,7 @@ public class ShoppingMallReviewService {
     }
 
     public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(String productURL){
-        List<Review> reviews = reviewRepository.findReviewsByProductUrl(productURL);
+        List<Review> reviews = reviewRepository.findReviewsByProductUrlAndProjectIsNotNull(productURL);
         for(Review review : reviews){
             saveReviewImage(review);
         }
