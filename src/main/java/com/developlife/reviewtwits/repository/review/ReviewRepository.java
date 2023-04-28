@@ -14,6 +14,7 @@ import java.util.List;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewMappingRepository {
     List<Review> findReviewsByProductUrl(String productURL);
+    List<Review> findReviewsByProductUrlAndProjectIsNotNull(String productURL);
     Page<Review> findByReviewIdLessThan(long reviewId, Pageable pageable);
 
     List<Review> findReviewsByUser(User user);
