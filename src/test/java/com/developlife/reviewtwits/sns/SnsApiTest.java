@@ -489,9 +489,42 @@ public class SnsApiTest extends ApiTest {
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "SNS 개인 프로필을 요청하는 API 입니다." +
-                        "<br> 존재하는 유저의 닉네임으로 조회 시 200 OK 와 함께 유저 프로필 정보를 반환합니다." +
-                        "<br> 입력한 닉네임의 가입정보가 존재하지 않는 경우 404 Not Found 가 반한됩니다.",
-                        "개인프로필정보요청",SnsDocument.userNicknameField,
+                        "<br>존재하는 유저의 닉네임으로 조회 시 200 OK 와 함께 유저 프로필 정보를 반환합니다." +
+                        "<br>이때 header 에 X-AUTH-TOKEN 이 입력되어 있을 시 프로필 이미지를 보고자 하는 유저가 " +
+                        "<br>목표하는 유저를 팔로우하고 있는지 여부도 같이 돌려받을 수 있습니다." +
+                        "<br>header 정보가 없으면, 로그인되어 있지 않다고 간주하고 false 를 반환합니다." +
+                        "<br>입력한 닉네임의 가입정보가 존재하지 않는 경우 404 Not Found 가 반한됩니다.",
+                        "개인프로필정보요청",UserDocument.OptionalAccessTokenHeader,
+                        SnsDocument.userNicknameField,
+                        SnsDocument.UserProfileInfoResponse ))
+                .header("X-AUTH-TOKEN", oppositeToken)
+                .pathParam("nickname", SnsSteps.userNickname)
+                .when()
+                .get("/sns/profile/{nickname}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("nickname")).isEqualTo(SnsSteps.userNickname);
+        assertThat(jsonPath.getInt("reviewCount")).isEqualTo(1);
+        assertThat(jsonPath.getInt("followers")).isEqualTo(1);
+        assertThat(jsonPath.getInt("followings")).isEqualTo(1);
+        assertThat(jsonPath.getBoolean("isFollowed")).isTrue();
+    }
+
+    @Test
+    void 개인페이지_프로필정보_요청_헤더없음_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        팔로우요청_생성(token, snsSteps.팔로우정보_생성());
+
+        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+        팔로우요청_생성(oppositeToken, snsSteps.팔로우정보_상대방측_생성());
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,UserDocument.OptionalAccessTokenHeader,
+                        SnsDocument.userNicknameField,
                         SnsDocument.UserProfileInfoResponse ))
                 .pathParam("nickname", SnsSteps.userNickname)
                 .when()
@@ -506,6 +539,7 @@ public class SnsApiTest extends ApiTest {
         assertThat(jsonPath.getInt("reviewCount")).isEqualTo(1);
         assertThat(jsonPath.getInt("followers")).isEqualTo(1);
         assertThat(jsonPath.getInt("followings")).isEqualTo(1);
+        assertThat(jsonPath.getBoolean("isFollowed")).isFalse();
     }
 
     @Test

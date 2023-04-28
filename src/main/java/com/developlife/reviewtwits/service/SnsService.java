@@ -153,7 +153,7 @@ public class SnsService {
         List<User> followings = followRepository.findFollowingsOfUser(user);
         List<Review> reviews = reviewRepository.findReviewsByUser(user);
 
-        boolean isFollowed = (user != null && followers.contains(user));
+        boolean isFollowed = (userWhoRequest != null && followers.contains(userWhoRequest));
 
         return userMapper.toUserInfoResponse(user,followers.size(), followings.size(),reviews.size(),isFollowed);
     }
