@@ -197,9 +197,11 @@ public class UserService {
 
         user.setNickname(registerUserInfoRequest.nickname());
         user.setIntroduceText(registerUserInfoRequest.introduceText());
-        FileInfo fileInfo = fileStoreService.storeFile(registerUserInfoRequest.profileImage(), user.getUserId(), ReferenceType.USER);
 
-        user.setProfileImageUuid(fileInfo.getRealFilename());
+        if(registerUserInfoRequest.profileImage() != null){
+            FileInfo fileInfo = fileStoreService.storeFile(registerUserInfoRequest.profileImage(), user.getUserId(), ReferenceType.USER);
+            user.setProfileImageUuid(fileInfo.getRealFilename());
+        }
 
         userRepository.save(user);
         return userMapper.toUserDetailInfoResponse(user);
