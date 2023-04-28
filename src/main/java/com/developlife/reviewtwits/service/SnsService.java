@@ -98,16 +98,16 @@ public class SnsService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserInfoResponse> getFollowerList(String nickname){
+    public List<UserInfoResponse> getFollowerList(String nickname, int size, Long followId){
         User targetUser = getTargetUser(nickname);
-        List<User> followersList = followRepository.findFollowersOfUser(targetUser);
+        List<User> followersList = followRepository.findFollowersOfUser(targetUser,size, followId);
         return getUserInfoResponses(followersList);
     }
 
     @Transactional(readOnly = true)
-    public List<UserInfoResponse> getFollowingList(String nickname){
+    public List<UserInfoResponse> getFollowingList(String nickname, int size, Long followId){
         User targetUser = getTargetUser(nickname);
-        List<User> followingsList = followRepository.findFollowingsOfUser(targetUser);
+        List<User> followingsList = followRepository.findFollowingsOfUser(targetUser,size,followId);
         return getUserInfoResponses(followingsList);
     }
 
@@ -144,7 +144,7 @@ public class SnsService {
     }
 
     @Transactional(readOnly = true)
-    public UserInfoResponse findUserProfile(String nickname) {
+    public UserInfoResponse findUserProfile(String nickname,User userWhoRequest) {
 
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 유저 닉네임으로 된 계정이 존재하지 않습니다."));
@@ -153,7 +153,9 @@ public class SnsService {
         List<User> followings = followRepository.findFollowingsOfUser(user);
         List<Review> reviews = reviewRepository.findReviewsByUser(user);
 
-        return userMapper.toUserInfoResponse(user,followers.size(), followings.size(),reviews.size());
+        boolean isFollowed = (userWhoRequest != null && followers.contains(userWhoRequest));
+
+        return userMapper.toUserInfoResponse(user,followers.size(), followings.size(),reviews.size(),isFollowed);
     }
 
     @Transactional(readOnly = true)

@@ -15,7 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -44,13 +44,17 @@ public class SnsController {
     }
 
     @GetMapping("/get-followers/{nickname}")
-    public List<UserInfoResponse> getFollowers(@PathVariable @NotBlank String nickname){
-        return snsService.getFollowerList(nickname);
+    public List<UserInfoResponse> getFollowers(@PathVariable @NotBlank String nickname,
+                                               @RequestParam @Min(value = 1, message = "크기는 0보다 큰 숫자를 입력해야 합니다.") int size,
+                                               @RequestParam(required = false) Long followId){
+        return snsService.getFollowerList(nickname,size,followId);
     }
 
     @GetMapping("/get-followings/{nickname}")
-    public List<UserInfoResponse> getFollowings(@PathVariable @NotBlank String nickname){
-        return snsService.getFollowingList(nickname);
+    public List<UserInfoResponse> getFollowings(@PathVariable @NotBlank String nickname,
+                                                @RequestParam @Min(value = 1, message = "크기는 0보다 큰 숫자를 입력해야 합니다.") int size,
+                                                @RequestParam(required = false) Long followId){
+        return snsService.getFollowingList(nickname,size,followId);
     }
 
     @GetMapping("/search")
@@ -69,8 +73,8 @@ public class SnsController {
     }
 
     @GetMapping("/profile/{nickname}")
-    public UserInfoResponse findUserProfile(@PathVariable String nickname){
-        return snsService.findUserProfile(nickname);
+    public UserInfoResponse findUserProfile(@AuthenticationPrincipal User user,@PathVariable String nickname){
+        return snsService.findUserProfile(nickname,user);
     }
 
     @GetMapping("/profile/reviews/{nickname}")

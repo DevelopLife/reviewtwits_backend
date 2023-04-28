@@ -51,7 +51,7 @@ public interface UserMapper {
     @Mapping(target = "profileImageUuid", ignore = true)
     void updateUserFromRegisterUserInfoRequest(RegisterUserInfoRequest registerUserInfoRequest, @MappingTarget User user);
 
-    default UserInfoResponse toUserInfoResponse(User user, int followers, int followings, int reviewCount){
+    default UserInfoResponse toUserInfoResponse(User user, int followers, int followings, int reviewCount, boolean isFollowed){
         return UserInfoResponse.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
@@ -62,6 +62,7 @@ public interface UserMapper {
                 .reviewCount(reviewCount)
                 .followers(followers)
                 .followings(followings)
+                .isFollowed(isFollowed)
                 .build();
     }
 
@@ -76,6 +77,7 @@ public interface UserMapper {
                 .reviewCount(0)
                 .followers(0)
                 .followings(0)
+                .isFollowed(false)
                 .build();
     }
 

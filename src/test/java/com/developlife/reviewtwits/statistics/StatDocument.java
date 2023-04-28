@@ -37,6 +37,7 @@ public class StatDocument {
             fieldWithPath("userInfo.reviewCount").type(JsonFieldType.NUMBER).description("리뷰 숫자").optional(),
             fieldWithPath("userInfo.followers").type(JsonFieldType.NUMBER).description("팔로워 숫자").optional(),
             fieldWithPath("userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 숫자").optional(),
+            fieldWithPath("userInfo.isFollowed").type(JsonFieldType.BOOLEAN).description("요청한 유저가 팔로우했는지 여부").optional(),
             fieldWithPath("projectId").type(JsonFieldType.NUMBER).description("프로젝트 아이디"),
             fieldWithPath("productId").type(JsonFieldType.NUMBER).description("상품 아이디"),
             fieldWithPath("deviceInfo").type(JsonFieldType.STRING).description("디바이스 정보")

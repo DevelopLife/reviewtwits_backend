@@ -29,7 +29,8 @@ public class UserDocument {
             fieldWithPath("profileImageUrl").type(JsonFieldType.STRING).description("프로필이미지 파일명").optional(),
             fieldWithPath("reviewCount").type(JsonFieldType.NUMBER).description("유저작성 리뷰 수").optional(),
             fieldWithPath("followers").type(JsonFieldType.NUMBER).description("팔로우 수").optional(),
-            fieldWithPath("followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional()
+            fieldWithPath("followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
+            fieldWithPath("isFollowed").type(JsonFieldType.BOOLEAN).description("요청한 유저가 팔로우했는지 여부").optional()
     );
 
     public static final Snippet UserDetailInfoResponseField = responseFields(
@@ -75,6 +76,9 @@ public class UserDocument {
     );
     public static final Snippet AccessTokenHeader = requestHeaders(
             headerWithName("X-AUTH-TOKEN").attributes(required()).description("access token")
+    );
+    public static final Snippet OptionalAccessTokenHeader = requestHeaders(
+            headerWithName("X-AUTH-TOKEN").description("access token").optional()
     );
     public static final Snippet ImageUpdateRequestField = requestParts(
             partWithName("imageFile").attributes(required()).description("이미지 파일 등록을 위한 multipart/form-data 입니다.")
