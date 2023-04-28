@@ -47,7 +47,7 @@ public class FollowCustomRepositoryImpl implements FollowCustomRepository {
             followId = Long.MAX_VALUE;
         }
 
-        return jpaQueryFactory.select(user).from(follow)
+        return jpaQueryFactory.select(follow.user).from(follow)
                 .where(follow.targetUser.eq(inputUser).and(follow.followId.lt(followId)))
                 .orderBy(follow.followId.desc())
                 .limit(limit)
@@ -60,7 +60,7 @@ public class FollowCustomRepositoryImpl implements FollowCustomRepository {
             followId = Long.MAX_VALUE;
         }
 
-        return jpaQueryFactory.select(user).from(follow)
+        return jpaQueryFactory.select(follow.targetUser).from(follow)
                 .where(follow.user.eq(inputUser).and(follow.followId.lt(followId)))
                 .orderBy(follow.followId.desc())
                 .limit(limit)

@@ -14,6 +14,7 @@ public class SnsSteps {
     public static final String userNickname = "testNickname";
     public static final String targetUserNickname = "whalesbob";
     public static final String notExistNickname = "asdf";
+    public static final Long followRequestSize = 2L;
 
     final static String productName = "리뷰제품제품";
     final static String productURL = "http://www.example.com/123";

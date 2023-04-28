@@ -312,10 +312,17 @@ public class SnsApiTest extends ApiTest {
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "팔로워 리스트를 요청합니다." +
                         "<br> 정상적인 이메일 형식의 아이디를 입력해 성공하면, 200 OK 코드와 함께 유저 정보 리스트가 반환됩니다." +
+                        "<br>추가적으로, 페이징 작업을 위해서 followId 와 size 를 입력해야 합니다." +
+                        "<br>받은 팔로워 리스트 맨 아래에 있는 followId 를 입력하면, 그 다음 부분의 팔로워 리스트를 보여 줍니다." +
+                        "<br>followId 를 입력하지 않으면, 가장 최근에 이루어진 팔로잉 순으로 팔로워 리스트가 반환됩니다. " +
+                        "<br>size 는 필수 입력값입니다. 1 이상으로 입력해야 하며, 조건이 맞지 않을 시 400 Bad Request 가 반환됩니다." +
                         "<br> 가입되어 있지 않은 아이디가 입력되면, 404 Not Found 와 함께 오류 메세지가 반환됩니다.",
-                        "팔로워리스트요청",SnsDocument.userNicknameField,SnsDocument.snsFollowResponseField))
+                        "팔로워리스트요청",SnsDocument.userNicknameField,
+                        SnsDocument.followIdAndPageSizeRequestField,
+                        SnsDocument.snsFollowResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .pathParam("nickname", SnsSteps.targetUserNickname)
+                .param("size", SnsSteps.followRequestSize)
                 .when()
                 .get("/sns/get-followers/{nickname}")
                 .then()
@@ -334,6 +341,7 @@ public class SnsApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .pathParam("nickname", SnsSteps.notExistNickname)
+                .param("size", SnsSteps.followRequestSize)
                 .when()
                 .get("/sns/get-followers/{nickname}")
                 .then()
@@ -341,6 +349,21 @@ public class SnsApiTest extends ApiTest {
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body("find{it.errorType == 'UserIdNotFoundException' " +
                         "&& it.fieldName == 'userId' }", notNullValue())
+                .log().all();
+    }
+    @Test
+    void 팔로워리스트_요청_사이즈값이상_400(){
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .pathParam("nickname", SnsSteps.targetUserNickname)
+                .param("size", -1)
+                .when()
+                .get("/sns/get-followers/{nickname}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
                 .log().all();
     }
 
@@ -352,10 +375,17 @@ public class SnsApiTest extends ApiTest {
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "팔로잉 리스트를 요청합니다." +
                         "<br> 정상적인 이메일 형식의 아이디를 입력해 성공하면, 200 OK 코드와 함께 유저 정보 리스트가 반환됩니다." +
+                        "<br>추가적으로, 페이징 작업을 위해서 followId 와 size 를 입력해야 합니다." +
+                        "<br>받은 팔로우 리스트 맨 아래에 있는 followId 를 입력하면, 그 다음 부분의 팔로잉 리스트를 보여 줍니다." +
+                        "<br>followId 를 입력하지 않으면, 가장 최근에 이루어진 팔로잉 순으로 팔로잉 리스트가 반환됩니다. " +
+                        "<br>size 는 필수 입력값입니다. 1 이상으로 입력해야 하며, 조건이 맞지 않을 시 400 Bad Request 가 반환됩니다." +
                         "<br> 가입되어 있지 않은 아이디가 입력되면, 404 Not Found 와 함께 오류 메세지가 반환됩니다."
-                        ,"팔로잉리스트요청",SnsDocument.userNicknameField,SnsDocument.snsFollowResponseField))
+                        ,"팔로잉리스트요청",SnsDocument.userNicknameField,
+                        SnsDocument.followIdAndPageSizeRequestField,
+                        SnsDocument.snsFollowResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .pathParam("nickname", SnsSteps.userNickname)
+                .param("size",SnsSteps.followRequestSize)
                 .when()
                 .get("/sns/get-followings/{nickname}")
                 .then()
@@ -374,6 +404,7 @@ public class SnsApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .pathParam("nickname", SnsSteps.notExistNickname)
+                .param("size",SnsSteps.followRequestSize)
                 .when()
                 .get("/sns/get-followings/{nickname}")
                 .then()
