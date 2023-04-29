@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.message.request.review;
 
 import com.developlife.reviewtwits.message.annotation.file.ImageFiles;
 import com.developlife.reviewtwits.message.annotation.review.MultipartInteger;
+import com.developlife.reviewtwits.message.annotation.statistics.HttpURL;
 import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,8 +15,7 @@ import java.util.List;
  */
 public record ShoppingMallReviewWriteRequest(
         @NotBlank(message = "product URL 은 필수 값입니다.")
-        @Pattern(message = "http 혹은 https 로 시작하는 인터넷 페이지 URL 형식이 아닙니다.",
-                regexp = "^(https?://)[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+/[a-zA-Z0-9-_/.?=]*")
+        @HttpURL
         String productURL,
         @NotBlank(message = "리뷰내용이 입력되지 않았습니다")
         @Size(message = "리뷰내용은 10자 이상이어야 합니다.",min = 10)
