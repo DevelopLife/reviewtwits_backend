@@ -338,4 +338,14 @@ public class SnsReviewService {
         comment.setCommentLike(commentLike + count);
         commentRepository.save(comment);
     }
+
+    public DetailSnsReviewResponse getOneSnsReview(User user, long reviewId) {
+
+        DetailSnsReviewResponse mappingReview = reviewRepository.findOneMappingReviewById(user, reviewId);
+        if(mappingReview == null){
+            throw new ReviewNotFoundException("찾으려는 리뷰가 존재하지 않습니다.");
+        }
+        return mappingReview;
+    }
+
 }
