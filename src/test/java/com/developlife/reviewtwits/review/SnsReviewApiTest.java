@@ -132,6 +132,9 @@ public class SnsReviewApiTest extends ApiTest {
         JsonPath jsonPath = response.jsonPath();
         assertThat(jsonPath.getString("content")).isEqualTo(rightReviewText);
         assertThat(jsonPath.getString("productName")).isEqualTo(productName);
+
+        Review actualReviewData = reviewRepository.findById(jsonPath.getLong("reviewId")).get();
+        assertThat(actualReviewData.getReviewImageCount()).isEqualTo(1);
     }
 
     @Test
