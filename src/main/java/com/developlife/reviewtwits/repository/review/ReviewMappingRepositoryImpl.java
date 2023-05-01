@@ -12,6 +12,7 @@ import com.querydsl.core.group.Group;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,7 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         BooleanExpression scrappedByUser = reviewScrap.user.eq(user);
         QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(reviewScrap.review);
 
-        Pageable realPageable = getRealPageable(pageable, scrappedByUser);
+        Pageable realPageable = getRealPageable(pageable, scrappedByUser, reviewScrap.review, reviewScrap);
 
         Supplier<JPAQuery<ReviewMappingDTO>> codeSupplier = () -> jpaQueryFactory.select(bean)
                 .from(review,reviewScrap, fileInfo, fileManager)
@@ -64,7 +65,7 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(review);
         BooleanExpression lessThanReviewId = getExpressionOfId(reviewId);
 
-        Pageable realPageable = getRealPageable(pageable, lessThanReviewId);
+        Pageable realPageable = getRealPageable(pageable, lessThanReviewId, review, review);
 
         Supplier<JPAQuery<ReviewMappingDTO>> codeSupplier = () -> jpaQueryFactory.select(bean)
                 .from(review, fileInfo, fileManager)
@@ -80,7 +81,7 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(review);
         BooleanExpression productNameLikeOrContentLike = getExpressionOfProductNameLikeOrContentLike(searchKey);
 
-        Pageable realPageable = getRealPageable(pageable, productNameLikeOrContentLike);
+        Pageable realPageable = getRealPageable(pageable, productNameLikeOrContentLike, review, review);
 
         Supplier<JPAQuery<ReviewMappingDTO>> codeSupplier = () -> jpaQueryFactory.select(bean)
                 .from(review, fileInfo, fileManager)
@@ -191,10 +192,10 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         return review.productName.contains(searchKey).or(review.content.contains(searchKey));
     }
 
-    private Pageable getRealPageable(Pageable pageable, BooleanExpression expression){
-        List<Review> reviewList = jpaQueryFactory.selectFrom(review)
+    private Pageable getRealPageable(Pageable pageable, BooleanExpression expression, QReview reviewEntity, EntityPathBase<?> pathBase){
+        List<Review> reviewList = jpaQueryFactory.select(reviewEntity).from(pathBase)
                 .where(expression)
-                .orderBy(review.reviewId.desc())
+                .orderBy(reviewEntity.reviewId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -205,6 +206,10 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
             int reactionCount = getReviewFieldCount(review.getReactionCount());
             int reviewImageCount = getReviewFieldCount(review.getReviewImageCount());
             realPageableSize += (reactionCount * reviewImageCount);
+        }
+
+        if(realPageableSize == 0){
+            realPageableSize = 1;
         }
 
         return PageRequest.of(0,realPageableSize,Sort.by("reviewId").descending());
