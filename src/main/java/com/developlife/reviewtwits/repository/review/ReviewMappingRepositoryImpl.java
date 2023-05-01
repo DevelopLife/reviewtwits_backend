@@ -15,7 +15,9 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,12 +61,11 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
     public List<DetailSnsReviewResponse> findMappingReviewById(User user,Long reviewId, Pageable pageable) {
         QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(review);
         BooleanExpression lessThanReviewId = getExpressionOfId(reviewId);
-        BooleanExpression userOnReviewScrap = getReviewScrapOfUser(user);
 
         Supplier<JPAQuery<ReviewMappingDTO>> codeSupplier = () -> jpaQueryFactory.select(bean)
                 .from(review, fileInfo, fileManager)
                 .leftJoin(reaction).on(review.eq(reaction.review))
-                .leftJoin(reviewScrap).on(reviewScrap.review.eq(review).and(userOnReviewScrap))
+                .leftJoin(reviewScrap).on(reviewScrap.review.eq(review).and(getReviewScrapOfUser(user)))
                 .where(fileExpressionWithInsertion(lessThanReviewId,review));
 
         return findMappingReview(codeSupplier, user, pageable, review);
@@ -83,6 +84,27 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
 
         return findMappingReview(codeSupplier, reviewSearcher, pageable,review);
     }
+
+    @Override
+    public DetailSnsReviewResponse findOneMappingReviewById(User reviewSearcher, long reviewId) {
+        BooleanExpression findByReviewId = review.reviewId.eq(reviewId);
+        QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(review);
+
+        Supplier<JPAQuery<ReviewMappingDTO>> codeSupplier = () -> jpaQueryFactory.select(bean)
+                .from(review,fileInfo, fileManager)
+                .leftJoin(reaction).on(review.eq(reaction.review))
+                .leftJoin(reviewScrap).on(reviewScrap.review.eq(review).and(getReviewScrapOfUser(reviewSearcher))) // 리뷰 스크랩은 하나만 있으면 된다. 그러므로, 유저 정보도 같이 걸어서 넣어 주는 것이 좋다.
+                .where(fileExpressionWithInsertion(findByReviewId,review));
+
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("reviewId").descending());
+
+        List<DetailSnsReviewResponse> resultReview = findMappingReview(codeSupplier, reviewSearcher, pageable ,review);
+        if(resultReview.isEmpty()){
+            return null;
+        }
+        return resultReview.get(0);
+    }
+
 
     public List<DetailSnsReviewResponse> findMappingReview(Supplier<JPAQuery<ReviewMappingDTO>> codeSupply,
                                                            User reviewSearcher,
@@ -114,8 +136,8 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         return Projections.bean(
                 ReviewMappingDTO.class,
                 reviewEntity.as("REVIEW"),
-                list(fileInfo.realFilename).as("reviewImageNameList"),
-                list(reaction).as("reactionList"),
+                sortedSet(fileInfo.realFilename).as("reviewImageNameList"),
+                set(reaction).as("reactionList"),
                 set(reviewScrap).as("reviewScrap")
         );
     }
