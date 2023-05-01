@@ -340,11 +340,15 @@ public class SnsReviewApiTest extends ApiTest {
     @Test
     void SNS_리뷰_하나요청_200(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
         List<Long> reviewIdList = new ArrayList<>();
         for(int writeCount = 1; writeCount <= 3; writeCount++){
             Long reviewId = snsReviewSteps.SNS_리뷰_작성(token, "review count : " + writeCount);
             reviewIdList.add(reviewId);
         }
+
+        SNS_리액션_추가(token, reviewIdList.get(0));
+        SNS_리액션_추가(otherToken, reviewIdList.get(0));
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰 하나를 요청하는 API 입니다." +
@@ -362,11 +366,24 @@ public class SnsReviewApiTest extends ApiTest {
                 .log().all().extract();
 
         JsonPath jsonPath = response.jsonPath();
-
+        assertThat(jsonPath.getList("reviewImageUrlList").size()).isEqualTo(2);
+        assertThat(jsonPath.getInt("reactionResponses.GOOD.count")).isEqualTo(2);
     }
     @Test
     void SNS_리뷰_해당리뷰없음_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        long wrongReviewId = 999999999L;
 
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("reviewId",wrongReviewId)
+                .when()
+                .get("/sns/reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all().extract();
     }
 
     @Test
