@@ -122,6 +122,7 @@ public class SnsReviewSteps {
 
         for(MultiPartSpecification multiPartSpecification : multiPartSpecList){
             request.multiPart(multiPartSpecification);
+            request.multiPart(multiPartSpecification);
         }
 
         request.when()
