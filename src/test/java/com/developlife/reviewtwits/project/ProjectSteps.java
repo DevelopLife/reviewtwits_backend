@@ -58,7 +58,7 @@ public class ProjectSteps {
     public static StatInfo 통계정보_생성(Project project, int year, int month, int day, int hour){
         return StatInfo.builder()
                 .project(project)
-                .createdDate(LocalDateTime.of(year, month, day, hour, 0))
+                .createdDate(LocalDateTime.of(year, month, day, hour, 0,0,0))
                 .build();
     }
 }
