@@ -48,13 +48,15 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         BooleanExpression scrappedByUser = reviewScrap.user.eq(user);
         QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(reviewScrap.review);
 
+        Pageable realPageable = getRealPageable(pageable, scrappedByUser);
+
         Supplier<JPAQuery<ReviewMappingDTO>> codeSupplier = () -> jpaQueryFactory.select(bean)
                 .from(review,reviewScrap, fileInfo, fileManager)
                 .leftJoin(reaction).on(review.eq(reaction.review))
                 .leftJoin(reviewScrap).on(reviewScrap.review.eq(review).and(scrappedByUser))
                 .where(fileExpressionWithInsertion(scrappedByUser, reviewScrap.review));
 
-        return findMappingReview(codeSupplier, user, pageable, reviewScrap.review);
+        return findMappingReview(codeSupplier, user, realPageable, reviewScrap.review);
     }
 
     @Override
@@ -62,13 +64,15 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(review);
         BooleanExpression lessThanReviewId = getExpressionOfId(reviewId);
 
+        Pageable realPageable = getRealPageable(pageable, lessThanReviewId);
+
         Supplier<JPAQuery<ReviewMappingDTO>> codeSupplier = () -> jpaQueryFactory.select(bean)
                 .from(review, fileInfo, fileManager)
                 .leftJoin(reaction).on(review.eq(reaction.review))
                 .leftJoin(reviewScrap).on(reviewScrap.review.eq(review).and(getReviewScrapOfUser(user)))
                 .where(fileExpressionWithInsertion(lessThanReviewId,review));
 
-        return findMappingReview(codeSupplier, user, pageable, review);
+        return findMappingReview(codeSupplier, user, realPageable, review);
     }
 
     @Override
@@ -76,13 +80,15 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(review);
         BooleanExpression productNameLikeOrContentLike = getExpressionOfProductNameLikeOrContentLike(searchKey);
 
+        Pageable realPageable = getRealPageable(pageable, productNameLikeOrContentLike);
+
         Supplier<JPAQuery<ReviewMappingDTO>> codeSupplier = () -> jpaQueryFactory.select(bean)
                 .from(review, fileInfo, fileManager)
                 .leftJoin(reaction).on(review.eq(reaction.review))
                 .leftJoin(reviewScrap).on(reviewScrap.review.eq(review).and(getReviewScrapOfUser(reviewSearcher)))
                 .where(fileExpressionWithInsertion(productNameLikeOrContentLike,review));
 
-        return findMappingReview(codeSupplier, reviewSearcher, pageable,review);
+        return findMappingReview(codeSupplier, reviewSearcher, realPageable, review);
     }
 
     @Override
@@ -183,5 +189,22 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
     }
     private BooleanExpression getExpressionOfProductNameLikeOrContentLike(String searchKey) {
         return review.productName.contains(searchKey).or(review.content.contains(searchKey));
+    }
+
+    private Pageable getRealPageable(Pageable pageable, BooleanExpression expression){
+        List<Review> reviewList = jpaQueryFactory.selectFrom(review)
+                .where(expression)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        int realPageableSize = 0;
+
+        for(Review review : reviewList){
+            int reviewPagePlus = review.getReactionCount() * review.getReviewImageCount();
+            realPageableSize += reviewPagePlus;
+        }
+
+        return PageRequest.of(0,realPageableSize,Sort.by("reviewId").descending());
     }
 }
