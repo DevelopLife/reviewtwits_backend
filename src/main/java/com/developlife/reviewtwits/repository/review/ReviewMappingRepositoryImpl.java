@@ -194,6 +194,7 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
     private Pageable getRealPageable(Pageable pageable, BooleanExpression expression){
         List<Review> reviewList = jpaQueryFactory.selectFrom(review)
                 .where(expression)
+                .orderBy(review.reviewId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -201,10 +202,18 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         int realPageableSize = 0;
 
         for(Review review : reviewList){
-            int reviewPagePlus = review.getReactionCount() * review.getReviewImageCount();
-            realPageableSize += reviewPagePlus;
+            int reactionCount = getReviewFieldCount(review.getReactionCount());
+            int reviewImageCount = getReviewFieldCount(review.getReviewImageCount());
+            realPageableSize += (reactionCount * reviewImageCount);
         }
 
         return PageRequest.of(0,realPageableSize,Sort.by("reviewId").descending());
+    }
+
+    private int getReviewFieldCount(int count){
+        if(count == 0){
+            return 1;
+        }
+        return count;
     }
 }

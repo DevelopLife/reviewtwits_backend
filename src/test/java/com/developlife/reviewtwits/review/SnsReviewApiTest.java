@@ -258,9 +258,16 @@ public class SnsReviewApiTest extends ApiTest {
     @Test
     void SNS_리뷰_피드_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+        List<Long> reviewIdList = new ArrayList<>();
+
         for(int writeCount = 1; writeCount <= 3; writeCount++){
-            snsReviewSteps.SNS_리뷰_작성(token, "review count : " + writeCount);
+            Long reviewId = snsReviewSteps.SNS_리뷰_작성(token, "review count : " + writeCount);
+            reviewIdList.add(reviewId);
         }
+
+        SNS_리액션_추가(token, reviewIdList.get(2));
+        SNS_리액션_추가(otherToken, reviewIdList.get(2));
 
         int size = 2;
         ExtractableResponse<Response> firstResponse = given(this.spec)
