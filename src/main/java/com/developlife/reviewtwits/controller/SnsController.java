@@ -46,15 +46,15 @@ public class SnsController {
     @GetMapping("/get-followers/{nickname}")
     public List<UserInfoResponse> getFollowers(@PathVariable @NotBlank String nickname,
                                                @RequestParam @Min(value = 1, message = "크기는 0보다 큰 숫자를 입력해야 합니다.") int size,
-                                               @RequestParam(required = false) Long followId){
-        return snsService.getFollowerList(nickname,size,followId);
+                                               @RequestParam(required = false) Long userId){
+        return snsService.getFollowerList(nickname,size,userId);
     }
 
     @GetMapping("/get-followings/{nickname}")
     public List<UserInfoResponse> getFollowings(@PathVariable @NotBlank String nickname,
                                                 @RequestParam @Min(value = 1, message = "크기는 0보다 큰 숫자를 입력해야 합니다.") int size,
-                                                @RequestParam(required = false) Long followId){
-        return snsService.getFollowingList(nickname,size,followId);
+                                                @RequestParam(required = false) Long userId){
+        return snsService.getFollowingList(nickname,size,userId);
     }
 
     @GetMapping("/search")

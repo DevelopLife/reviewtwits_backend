@@ -69,9 +69,9 @@ public class SnsDocument {
         parameterWithName("searchKey").attributes(required()).description("검색어(2-20글자)")
     );
 
-    public static final Snippet followIdAndPageSizeRequestField = requestParameters(
+    public static final Snippet userIdAndPageSizeRequestField = requestParameters(
             parameterWithName("size").attributes(required()).description("페이지 사이즈"),
-            parameterWithName("followId").attributes(required()).description("뒤에 요청받을 팔로우 아이디").optional()
+            parameterWithName("userId").attributes(required()).description("뒤에 요청받을 유저 아이디").optional()
     );
 
     public static final Snippet SearchAllSnsResponse = responseFields(
