@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * @author WhalesBob
  * @since 2023-05-02
@@ -22,7 +24,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/register")
-    public ProductRegisterResponse registerProduct(@AuthenticationPrincipal User user, @RequestBody ProductRegisterRequest request){
+    public ProductRegisterResponse registerProduct(@AuthenticationPrincipal User user, @Valid @RequestBody ProductRegisterRequest request){
         return productService.registerProductOnProject(user, request);
     }
 }
