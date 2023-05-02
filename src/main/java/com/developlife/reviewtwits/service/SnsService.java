@@ -98,16 +98,16 @@ public class SnsService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserInfoResponse> getFollowerList(String nickname, int size, Long followId){
+    public List<UserInfoResponse> getFollowerList(String nickname, int size, Long userId){
         User targetUser = getTargetUser(nickname);
-        List<User> followersList = followRepository.findFollowersOfUser(targetUser,size, followId);
+        List<User> followersList = followRepository.findFollowersOfUser(targetUser,size, userId);
         return getUserInfoResponses(followersList);
     }
 
     @Transactional(readOnly = true)
-    public List<UserInfoResponse> getFollowingList(String nickname, int size, Long followId){
+    public List<UserInfoResponse> getFollowingList(String nickname, int size, Long userId){
         User targetUser = getTargetUser(nickname);
-        List<User> followingsList = followRepository.findFollowingsOfUser(targetUser,size,followId);
+        List<User> followingsList = followRepository.findFollowingsOfUser(targetUser,size,userId);
         return getUserInfoResponses(followingsList);
     }
 

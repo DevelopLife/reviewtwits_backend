@@ -42,27 +42,27 @@ public class FollowCustomRepositoryImpl implements FollowCustomRepository {
     }
 
     @Override
-    public List<User> findFollowersOfUser(User inputUser, int limit, Long followId) {
-        if(followId == null){
-            followId = Long.MAX_VALUE;
+    public List<User> findFollowersOfUser(User inputUser, int limit, Long userId) {
+        if(userId == null){
+            userId = Long.MAX_VALUE;
         }
 
         return jpaQueryFactory.select(follow.user).from(follow)
-                .where(follow.targetUser.eq(inputUser).and(follow.followId.lt(followId)))
-                .orderBy(follow.followId.desc())
+                .where(follow.targetUser.eq(inputUser).and(follow.user.userId.lt(userId)))
+                .orderBy(follow.user.userId.desc())
                 .limit(limit)
                 .fetch();
     }
 
     @Override
-    public List<User> findFollowingsOfUser(User inputUser, int limit, Long followId) {
-        if(followId == null){
-            followId = Long.MAX_VALUE;
+    public List<User> findFollowingsOfUser(User inputUser, int limit, Long userId) {
+        if(userId == null){
+            userId = Long.MAX_VALUE;
         }
 
         return jpaQueryFactory.select(follow.targetUser).from(follow)
-                .where(follow.user.eq(inputUser).and(follow.followId.lt(followId)))
-                .orderBy(follow.followId.desc())
+                .where(follow.user.eq(inputUser).and(follow.targetUser.userId.lt(userId)))
+                .orderBy(follow.targetUser.userId.desc())
                 .limit(limit)
                 .fetch();
     }
