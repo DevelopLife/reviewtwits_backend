@@ -34,12 +34,17 @@ public interface ReviewMapper {
         return imageUrlList;
     }
     default UserInfoResponse mapUserToUserInfoResponse(User user){
+        String profileImageUuid = user.getProfileImageUuid();
+        if(profileImageUuid != null){
+            profileImageUuid = imageUrl + profileImageUuid;
+        }
+
         return UserInfoResponse.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
                 .accountId(user.getAccountId())
                 .introduceText(user.getIntroduceText())
-                .profileImageUrl(imageUrl + user.getProfileImageUuid())
+                .profileImageUrl(profileImageUuid)
                 .detailIntroduce(user.getDetailIntroduce())
                 .build();
     }
