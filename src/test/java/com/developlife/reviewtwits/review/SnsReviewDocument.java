@@ -88,6 +88,8 @@ public class SnsReviewDocument {
             fieldWithPath("[].reviewImageUrlList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
             fieldWithPath("[].commentCount").type(JsonFieldType.NUMBER).description("댓글갯수"),
             fieldWithPath("[].reactionResponses").type(JsonFieldType.OBJECT).description("리액션"),
+            fieldWithPath("[].reactionResponses.GOOD.isReacted").type(JsonFieldType.BOOLEAN).description("리액션 여부").optional(),
+            fieldWithPath("[].reactionResponses.GOOD.count").type(JsonFieldType.NUMBER).description("리액션 갯수").optional(),
             fieldWithPath("[].isScrapped").type(JsonFieldType.BOOLEAN).description("스크랩여부")
     );
 
@@ -112,6 +114,8 @@ public class SnsReviewDocument {
             fieldWithPath("reviewImageUrlList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
             fieldWithPath("commentCount").type(JsonFieldType.NUMBER).description("댓글갯수"),
             fieldWithPath("reactionResponses").type(JsonFieldType.OBJECT).description("리액션"),
+            fieldWithPath("reactionResponses.GOOD.isReacted").type(JsonFieldType.BOOLEAN).description("리액션 여부").optional(),
+            fieldWithPath("reactionResponses.GOOD.count").type(JsonFieldType.NUMBER).description("리액션 갯수").optional(),
             fieldWithPath("isScrapped").type(JsonFieldType.BOOLEAN).description("스크랩여부")
     );
 

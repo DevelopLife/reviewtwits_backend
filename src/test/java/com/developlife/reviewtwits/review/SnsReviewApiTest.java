@@ -27,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,6 +132,9 @@ public class SnsReviewApiTest extends ApiTest {
         JsonPath jsonPath = response.jsonPath();
         assertThat(jsonPath.getString("content")).isEqualTo(rightReviewText);
         assertThat(jsonPath.getString("productName")).isEqualTo(productName);
+
+        Review actualReviewData = reviewRepository.findById(jsonPath.getLong("reviewId")).get();
+        assertThat(actualReviewData.getReviewImageCount()).isEqualTo(1);
     }
 
     @Test
@@ -254,9 +258,16 @@ public class SnsReviewApiTest extends ApiTest {
     @Test
     void SNS_리뷰_피드_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+        List<Long> reviewIdList = new ArrayList<>();
+
         for(int writeCount = 1; writeCount <= 3; writeCount++){
-            snsReviewSteps.SNS_리뷰_작성(token, "review count : " + writeCount);
+            Long reviewId = snsReviewSteps.SNS_리뷰_작성(token, "review count : " + writeCount);
+            reviewIdList.add(reviewId);
         }
+
+        SNS_리액션_추가(token, reviewIdList.get(2));
+        SNS_리액션_추가(otherToken, reviewIdList.get(2));
 
         int size = 2;
         ExtractableResponse<Response> firstResponse = given(this.spec)
@@ -330,6 +341,55 @@ public class SnsReviewApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.NO_CONTENT.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void SNS_리뷰_하나요청_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+        List<Long> reviewIdList = new ArrayList<>();
+        for(int writeCount = 1; writeCount <= 3; writeCount++){
+            Long reviewId = snsReviewSteps.SNS_리뷰_작성(token, "review count : " + writeCount);
+            reviewIdList.add(reviewId);
+        }
+
+        SNS_리액션_추가(token, reviewIdList.get(0));
+        SNS_리액션_추가(otherToken, reviewIdList.get(0));
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰 하나를 요청하는 API 입니다." +
+                                "<br>X-AUTH-PATH 를 넣어주지 않으면, 로그인 처리가 되지 않아 리액션에서 isReacted 가 모두 false 로 나타나게 됩니다." +
+                                "<br>reviewId 는 필수값입니다. 리뷰 아이디를 입력하지 않으면 404가 반환됩니다." +
+                                "<br>reviewId 로 된 리뷰를 찾을 수 없을 때, 404 Not Found 가 반환됩니다.", "SNS리뷰하나요청",
+                        SnsReviewDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField,SnsReviewDocument.SnsReviewResultResponseField))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("reviewId",reviewIdList.get(0))
+                .when()
+                .get("/sns/reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getList("reviewImageUrlList").size()).isEqualTo(2);
+        assertThat(jsonPath.getInt("reactionResponses.GOOD.count")).isEqualTo(2);
+    }
+    @Test
+    void SNS_리뷰_해당리뷰없음_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        long wrongReviewId = 999999999L;
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("reviewId",wrongReviewId)
+                .when()
+                .get("/sns/reviews/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
                 .log().all().extract();
     }
 

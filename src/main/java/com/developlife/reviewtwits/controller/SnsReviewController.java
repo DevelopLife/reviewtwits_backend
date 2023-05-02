@@ -50,6 +50,11 @@ public class SnsReviewController {
         return snsReviewService.getSnsReviews(user,reviewId, size);
     }
 
+    @GetMapping("/reviews/{reviewId}")
+    public DetailSnsReviewResponse getOneSnsReview(@AuthenticationPrincipal User user, @PathVariable long reviewId){
+        return snsReviewService.getOneSnsReview(user, reviewId);
+    }
+
     @DeleteMapping("/reviews/{reviewId}")
     public DetailSnsReviewResponse deleteSnsReview(@AuthenticationPrincipal User user,
                                 @PathVariable Long reviewId){

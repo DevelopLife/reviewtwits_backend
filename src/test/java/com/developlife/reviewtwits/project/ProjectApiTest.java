@@ -506,18 +506,15 @@ public class ProjectApiTest extends ApiTest {
         }
 
         LocalDateTime now = LocalDateTime.now();
+        int testYear = now.getYear();
+        int testMonth = now.getMonthValue();
+        int testDay = now.getDayOfMonth();
         for (int hour = 1; hour <= 3; hour++) {
-            statInfos.add(ProjectSteps.통계정보_생성(existedProject, now.getYear(),
-                    now.getMonthValue(),
-                    now.getDayOfMonth(),
-                    hour));
+            statInfos.add(ProjectSteps.통계정보_생성(existedProject, testYear, testMonth, testDay, hour));
         }
 
         for (int hour = 1; hour <= 2; hour++) {
-            statInfos.add(ProjectSteps.통계정보_생성(existedProject, now.getYear(),
-                    now.getMonthValue(),
-                    now.getDayOfMonth() - 1,
-                    hour));
+            statInfos.add(ProjectSteps.통계정보_생성(existedProject, testYear, testMonth, testDay - 1, hour));
         }
         saveAll(statInfos);
         return existedProject;

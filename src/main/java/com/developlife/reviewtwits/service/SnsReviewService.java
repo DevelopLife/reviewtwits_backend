@@ -67,6 +67,7 @@ public class SnsReviewService {
 
         if(writeRequest.multipartImageFiles() != null) {
             fileStoreService.storeFiles(writeRequest.multipartImageFiles(), review.getReviewId(), ReferenceType.REVIEW);
+            review.setReviewImageCount(writeRequest.multipartImageFiles().size());
         }
 
         snsReviewUtils.saveReviewImage(review);
@@ -247,16 +248,20 @@ public class SnsReviewService {
         if(changeRequest.score() != null){
             review.setScore(Integer.parseInt(changeRequest.score()));
         }
-        reviewRepository.save(review);
 
         if(changeRequest.multipartImageFiles() != null && !changeRequest.multipartImageFiles().isEmpty()){
             fileStoreService.storeFiles(changeRequest.multipartImageFiles(),review.getReviewId(), ReferenceType.REVIEW);
+            int currentImageCount = review.getReviewImageUuidList().size() + changeRequest.multipartImageFiles().size();
+            review.setReviewImageCount(currentImageCount);
         }
 
         if(changeRequest.deleteFileList() != null && !changeRequest.deleteFileList().isEmpty()){
             fileStoreService.checkDeleteFile(changeRequest.deleteFileList());
+            int currentImageCount = review.getReviewImageUuidList().size() - changeRequest.deleteFileList().size();
+            review.setReviewImageCount(currentImageCount);
         }
 
+        reviewRepository.save(review);
         snsReviewUtils.saveReviewImage(review);
         return mapper.toDetailSnsReviewResponse(review, new HashMap<>(), false);
     }
@@ -338,4 +343,14 @@ public class SnsReviewService {
         comment.setCommentLike(commentLike + count);
         commentRepository.save(comment);
     }
+
+    public DetailSnsReviewResponse getOneSnsReview(User user, long reviewId) {
+
+        DetailSnsReviewResponse mappingReview = reviewRepository.findOneMappingReviewById(user, reviewId);
+        if(mappingReview == null){
+            throw new ReviewNotFoundException("찾으려는 리뷰가 존재하지 않습니다.");
+        }
+        return mappingReview;
+    }
+
 }
