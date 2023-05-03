@@ -13,10 +13,12 @@ import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.utils.oauth.GoogleOAuth2Utils;
 import com.developlife.reviewtwits.utils.oauth.KakaoOauth2Utils;
 import com.developlife.reviewtwits.utils.oauth.NaverOauth2Utils;
+import com.github.javafaker.Faker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 /**
@@ -28,29 +30,33 @@ public class OauthService {
 
     UserRepository userRepository;
     UserMapper userMapper;
+    Faker faker;
 
     public OauthService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.faker = new Faker();
     }
 
     @Transactional
-    public User authenticateToken(OauthUserInfo oauthUserInfo, JwtProvider jwtProvider) {
+    public User authenticateToken(OauthUserInfo oauthUserInfo, JwtProvider jwtProvider, HttpServletResponse response) {
         Optional<User> optionalUser = userRepository.findByUuid(oauthUserInfo.sub());
         User user;
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
-            if(!StringUtils.hasText(user.getPhoneNumber()) || !StringUtils.hasText(user.getNickname())) {
-                throw new RegisterDataNeedException("추가 회원가입 입력정보가 필요합니다");
-            }
         } else {
+            String nickname;
+            do {
+                nickname = faker.name().username();
+            } while (nickname.length() > 20 || userRepository.findByNickname(nickname).isPresent());
             user = User.builder()
                     .uuid(oauthUserInfo.sub())
                     .accountId(oauthUserInfo.email())
                     .provider(jwtProvider)
+                    .nickname(nickname)
                     .build();
             userRepository.save(user);
-            throw new RegisterDataNeedException("추가 회원가입 입력정보가 필요합니다");
+            response.setStatus(HttpServletResponse.SC_ACCEPTED);
         }
 
         return user;

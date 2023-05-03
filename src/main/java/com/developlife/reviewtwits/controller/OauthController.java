@@ -35,7 +35,7 @@ public class OauthController {
     public JwtTokenResponse kakao(@RequestHeader("Authorization") String accessToken,
                                   HttpServletResponse response) {
         KakaoUserInfo kakaoUserInfo = KakaoOauth2Utils.getUserInfo(accessToken);
-        User user = oauthService.authenticateToken(kakaoUserInfo, JwtProvider.KAKAO);
+        User user = oauthService.authenticateToken(kakaoUserInfo, JwtProvider.KAKAO, response);
         jwtTokenProvider.setRefreshTokenForClient(response, user);
 
         return jwtTokenProvider.issueJwtTokenResponse(user);
@@ -45,7 +45,7 @@ public class OauthController {
     public JwtTokenResponse google(@RequestHeader("Authorization") String accessToken,
                                    HttpServletResponse response) {
         GoogleUserInfo googleUserInfo = GoogleOAuth2Utils.getUserInfo(accessToken);
-        User user = oauthService.authenticateToken(googleUserInfo, JwtProvider.GOOGLE);
+        User user = oauthService.authenticateToken(googleUserInfo, JwtProvider.GOOGLE, response);
         jwtTokenProvider.setRefreshTokenForClient(response, user);
 
         return jwtTokenProvider.issueJwtTokenResponse(user);
@@ -55,7 +55,7 @@ public class OauthController {
     public JwtTokenResponse naver(@RequestHeader("Authorization") String accessToken,
                                   HttpServletResponse response) {
         NaverUserInfo naverUserInfo = NaverOauth2Utils.getUserInfo(accessToken);
-        User user = oauthService.authenticateToken(naverUserInfo, JwtProvider.NAVER);
+        User user = oauthService.authenticateToken(naverUserInfo, JwtProvider.NAVER, response);
         jwtTokenProvider.setRefreshTokenForClient(response, user);
 
         return jwtTokenProvider.issueJwtTokenResponse(user);

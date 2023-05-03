@@ -2,7 +2,9 @@ package com.developlife.reviewtwits.message.response.oauth;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * @author ghdic
@@ -10,19 +12,19 @@ import lombok.RequiredArgsConstructor;
  */
 
 // 현재 받아와지는 정보 sub, email, email_verified
-@RequiredArgsConstructor
-@Builder
+@NoArgsConstructor
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class KakaoUserInfo implements OauthUserInfo {
-    private final String sub;
-    private final String name;
-    private final String nickname;
-    private final String picture;
-    private final String email;
-    private final String email_verified;
-    private final String gender;
-    private final String birthday;
-    private final Boolean phone_number_verified;
+    private String sub;
+    private String name;
+    private String nickname;
+    private String picture;
+    private String email;
+    private String email_verified;
+    private String gender;
+    private String birthday;
+    private Boolean phone_number_verified;
 
     @Override
     public String sub() {

@@ -44,7 +44,7 @@ public class GoogleOAuth2Utils {
                 return objectMapper.readValue(response.getBody(), GoogleUserInfo.class);
             }
         } catch (IOException | HttpClientErrorException e) {
-
+            e.printStackTrace();
         }
         throw new TokenInvalidException("토큰이 유효하지 않습니다");
     }
