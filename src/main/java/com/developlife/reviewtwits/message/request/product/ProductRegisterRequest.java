@@ -11,7 +11,7 @@ public record ProductRegisterRequest(
         @HttpURL
         String imageUrl,
         @Size(min = 3, message = "제품명은 3자 이상이어야 합니다.")
-        String content
+        String productName
         ) {
         @Builder
         public ProductRegisterRequest {
