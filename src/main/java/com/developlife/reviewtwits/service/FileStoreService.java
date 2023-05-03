@@ -7,13 +7,17 @@ import com.developlife.reviewtwits.exception.file.FileNotStoredException;
 import com.developlife.reviewtwits.exception.file.InvalidFilenameExtensionException;
 import com.developlife.reviewtwits.repository.file.FileInfoRepository;
 import com.developlife.reviewtwits.repository.file.FileManagerRepository;
+import com.developlife.reviewtwits.type.MadeMultipartFile;
 import com.developlife.reviewtwits.type.ReferenceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -149,5 +153,23 @@ public class FileStoreService {
             fileNameList.add(fileInfo.getRealFilename());
         }
         return fileNameList;
+    }
+
+    @Transactional
+    public FileInfo downloadImageFileFromUrl(String imageUrl, String projectName, String productName, long referenceId, ReferenceType referenceType) {
+        WebClient webClient = WebClient.builder().
+                exchangeStrategies(ExchangeStrategies.builder()
+                        .codecs(configurer -> configurer.defaultCodecs().
+                                maxInMemorySize(10 * 1024 * 1024)).build()).build();
+
+        byte[] imageBytes = webClient.get()
+                .uri(imageUrl)
+                .accept(new MediaType[]{MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG})
+                .retrieve()
+                .bodyToMono(byte[].class).block();
+
+        String fileName = projectName + productName + ".jpg";
+        MadeMultipartFile madeMultipartFile = new MadeMultipartFile(imageBytes, fileName);
+        return storeFile(madeMultipartFile, referenceId, referenceType);
     }
 }
