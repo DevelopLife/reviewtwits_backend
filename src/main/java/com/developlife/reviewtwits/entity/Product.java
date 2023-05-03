@@ -28,4 +28,8 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "projectId")
     private Project project;
+
+    private String imageUrl;
+
+    private String productName;
 }
