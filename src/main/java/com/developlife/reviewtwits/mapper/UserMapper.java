@@ -69,6 +69,7 @@ public interface UserMapper {
 
     default UserInfoResponse toUserInfoResponse(User user){
         return UserInfoResponse.builder()
+                .userId(user.getUserId())
                 .nickname(user.getNickname())
                 .accountId(user.getAccountId())
                 .introduceText(user.getIntroduceText())
