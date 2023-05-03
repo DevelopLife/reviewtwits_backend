@@ -3,7 +3,7 @@ package com.developlife.reviewtwits.service;
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
+import com.developlife.reviewtwits.exception.project.ProjectNotFoundException;
 import com.developlife.reviewtwits.exception.user.AccessDeniedException;
 import com.developlife.reviewtwits.message.request.product.ProductRegisterRequest;
 import com.developlife.reviewtwits.message.response.product.ProductRegisterResponse;
@@ -23,10 +23,10 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProjectRepository projectRepository;
 
-    public ProductRegisterResponse registerProductOnProject(User user, ProductRegisterRequest request) {
+    public ProductRegisterResponse registerProductOnProject(User user, String projectName, ProductRegisterRequest request) {
 
-        Project project = projectRepository.findByProjectId(request.projectId())
-                .orElseThrow(() -> new ProjectIdNotFoundException("존재하지 않는 프로젝트입니다."));
+        Project project = projectRepository.findByProjectName(projectName)
+                .orElseThrow(() -> new ProjectNotFoundException("존재하지 않는 프로젝트입니다."));
 
         if(!project.getUser().equals(user)){
             throw new AccessDeniedException("프로젝트에 대한 권한이 없습니다.");

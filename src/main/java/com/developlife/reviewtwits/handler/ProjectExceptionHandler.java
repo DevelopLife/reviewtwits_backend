@@ -1,7 +1,6 @@
 package com.developlife.reviewtwits.handler;
 
-import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
-import com.developlife.reviewtwits.exception.user.AccountIdAlreadyExistsException;
+import com.developlife.reviewtwits.exception.project.ProjectNotFoundException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,9 +17,9 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
  */
 @RestControllerAdvice
 public class ProjectExceptionHandler {
-    @ExceptionHandler(ProjectIdNotFoundException.class)
+    @ExceptionHandler(ProjectNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public List<ErrorResponse> projectIdNotFoundExceptionHandler(ProjectIdNotFoundException e){
+    public List<ErrorResponse> projectIdNotFoundExceptionHandler(ProjectNotFoundException e){
         return makeErrorResponse(e, "projectId");
     }
 }

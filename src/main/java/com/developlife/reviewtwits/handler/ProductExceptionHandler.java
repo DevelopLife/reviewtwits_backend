@@ -2,7 +2,6 @@ package com.developlife.reviewtwits.handler;
 
 import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
 import com.developlife.reviewtwits.exception.project.ProductUrlInvalidException;
-import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
