@@ -41,7 +41,7 @@ public class KakaoOauth2Utils {
                 return objectMapper.readValue(response.getBody(), KakaoUserInfo.class);
             }
         } catch (IOException | HttpClientErrorException e) {
-
+            e.printStackTrace();
         }
 
         throw new TokenInvalidException("토큰이 유효하지 않습니다");
