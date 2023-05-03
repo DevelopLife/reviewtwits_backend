@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.net.BindException;
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ public class ShoppingMallReviewController {
     }
 
     @GetMapping(value = "/shopping", produces = "application/json")
-    public ShoppingMallReviewProductResponse getShoppingMallReviewInfo(@RequestHeader String productURL) throws BindException {
+    public ShoppingMallReviewProductResponse getShoppingMallReviewInfo(@RequestHeader String productURL) {
         reviewService.checkProductURLIsValid(productURL);
         ShoppingMallReviewProductResponse result =  reviewService.findShoppingMallReviewTotalInfo(productURL);
 
@@ -80,7 +79,7 @@ public class ShoppingMallReviewController {
     }
 
     @GetMapping(value = "/shopping/list", produces = "application/json;charset=UTF-8")
-    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(@RequestHeader String productURL) throws BindException {
+    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(@RequestHeader String productURL) {
         reviewService.checkProductURLIsValid(productURL);
         return reviewService.findShoppingMallReviewList(productURL);
     }

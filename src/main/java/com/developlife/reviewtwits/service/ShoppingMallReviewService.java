@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.*;
+import com.developlife.reviewtwits.exception.project.ProductUrlInvalidException;
 import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
 import com.developlife.reviewtwits.exception.review.CannotHandleReviewException;
 import com.developlife.reviewtwits.exception.review.ReviewNotFoundException;
@@ -15,8 +16,10 @@ import com.developlife.reviewtwits.type.ReferenceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.BindingResultUtils;
 
-import java.net.BindException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -118,9 +121,10 @@ public class ShoppingMallReviewService {
         return mapper.mapReviewToDetailReviewResponse(review.get());
     }
 
-    public void checkProductURLIsValid(String productURL) throws BindException {
-        if(!Pattern.matches("^(https?://)[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+/[a-zA-Z0-9-_/.?=]*",productURL)){
-            throw new BindException("유효한 productURL 이 아닙니다.");
+    public void checkProductURLIsValid(String productURL) {
+
+        if(!Pattern.matches("((https?:\\/\\/)|(\\/)|(..\\/))(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?", productURL)){
+            throw new ProductUrlInvalidException("유효하지 않은 URL입니다.");
         }
     }
 
