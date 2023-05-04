@@ -21,9 +21,10 @@ if [ -z "$CURRENT_PID" ]; then
 else
   echo "> kill -15 $CURRENT_PID"
   kill -15 $CURRENT_PID
-  while [ -e /proc/$CURRENT_PID ]
+  while [ -z $CURRENT_PID ]
   do
       echo "Process: $CURRENT_PID is still running"
+      CURRENT_PID=$(pgrep -fla java | grep reviewtwits | awk '{print $1}')
       sleep .6
   done
 
