@@ -44,7 +44,7 @@ public class ProductService {
                 .projectId(savedProduct.getProject().getProjectId())
                 .productUrl(savedProduct.getProductUrl())
                 .productName(savedProduct.getProductName())
-                .productUrl(REQUEST_IMAGES + savedProduct.getProductUrl())
+                .imageUrl(savedProduct.getImageUrl())
                 .build();
     }
 
@@ -63,7 +63,7 @@ public class ProductService {
                 ReferenceType.PRODUCT
         );
 
-        savedProduct.setImageUrl(savedImage.getFilePath());
+        savedProduct.setImageUrl(REQUEST_IMAGES + savedImage.getRealFilename());
         productRepository.save(savedProduct);
         return savedProduct;
     }
