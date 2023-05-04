@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
 REPOSITORY=/home/ubuntu/app
+SCRIPT_LOG=/home/ubuntu/app/deploy.out
+
+#스크립트의 출력로그가 저장되도록 한다
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1>$SCRIPT_LOG 2>&1
 
 cd $REPOSITORY
 
@@ -14,8 +20,12 @@ if [ -z "$CURRENT_PID" ]; then
   echo "현재 구동 중인 애플리케이션이 없으므로 종료하지 않습니다."
 else
   echo "> kill -15 $CURRENT_PID"
-  (sleep 1; kill -15 $CURRENT_PID) &
-  wait $CURRENT_PID
+  kill -15 $CURRENT_PID
+  while [ -e /proc/$CURRENT_PID ]
+  do
+      echo "Process: $CURRENT_PID is still running"
+      sleep .6
+  done
 
   echo "> nohup.out 삭제"
   rm nohup.out
