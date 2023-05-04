@@ -56,12 +56,13 @@ public class ProductApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "임시로 사용할, 제품 URL 등록 API 입니다." +
+                .filter(document(DEFAULT_RESTDOC_PATH, "제품 URL 등록 API 입니다." +
                         "<br>X-AUTH-TOKEN 헤더가 없다면, 401 Unauthorized 가 반환됩니다." +
                         "<br>요청한 유저가 프로젝트에 대한 권한을 가지고 있지 않다면, 403 Forbidden 이 반환됩니다." +
+                        "<br>프로젝트 이름은 Path Parameter 로 넘겨주어야 합니다." +
                         "<br>입력한 프로젝트 이름으로 된 프로젝트가 존재하지 않는다면, 404 Not Found 가 반환됩니다." +
-                        "<br>입력한 제품 URL 이 올바른 양식이 아니라면, 400 Bad Request 가 반환됩니다." +
-                        "<br>입력한 프로젝트 아이디가 양수가 아니라면, 400 Bad Request 가 반환됩니다.", "제품URL등록API",
+                        "<br>입력한 제품 URL, 이미지 URL 이 올바른 양식이 아니라면, 400 Bad Request 가 반환됩니다." +
+                        "<br>product Name 을 입력하지 않는다면 400 Bad Request 가 반환됩니다.", "제품URL등록API",
                         UserDocument.AccessTokenHeader,
                         ProjectDocument.ProjectNamePathParam,
                         ProductDocument.ProductUrlRegisterRequestFields,
