@@ -28,6 +28,7 @@ public class Project extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     private User user;
     @Setter
+    @Column(unique = true, length = 40)
     private String projectName;
     @Setter
     private String projectDescription;
