@@ -3,7 +3,7 @@ package com.developlife.reviewtwits.service;
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.StatInfo;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
+import com.developlife.reviewtwits.exception.product.ProductNotRegisteredException;
 import com.developlife.reviewtwits.mapper.StatMapper;
 import com.developlife.reviewtwits.message.request.StatMessageRequest;
 import com.developlife.reviewtwits.message.response.statistics.SaveStatResponse;
@@ -30,7 +30,7 @@ public class StatService {
         Device device = Device.valueOf(statMessageRequest.device());
 
         Product foundProduct = productRepository.findProductByProductUrl(statMessageRequest.productUrl())
-                .orElseThrow(() -> new ProductNotFoundException("해당 상품이 존재하지 않습니다."));
+                .orElseThrow(() -> new ProductNotRegisteredException("해당 상품이 존재하지 않습니다."));
 
         StatInfo statInfo = StatInfo.builder()
                 .user(user)

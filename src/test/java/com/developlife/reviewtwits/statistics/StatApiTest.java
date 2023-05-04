@@ -181,7 +181,7 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 통계정보_등록_등록되지않은_상품_404(){
+    void 통계정보_등록_등록되지않은_상품_202(){
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -190,7 +190,7 @@ public class StatApiTest extends ApiTest {
                 .post("/statistics/visited-info")
                 .then()
                 .assertThat()
-                .statusCode(HttpStatus.NOT_FOUND.value())
+                .statusCode(HttpStatus.ACCEPTED.value())
                 .log().all().extract();
     }
 
