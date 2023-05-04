@@ -1,6 +1,6 @@
 package com.developlife.reviewtwits.handler;
 
-import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
+import com.developlife.reviewtwits.exception.product.ProductNotRegisteredException;
 import com.developlife.reviewtwits.exception.project.ProductUrlInvalidException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -19,9 +19,9 @@ import static com.developlife.reviewtwits.handler.ExceptionHandlerTool.makeError
 @RestControllerAdvice
 public class ProductExceptionHandler {
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public List<ErrorResponse> projectIdNotFoundExceptionHandler(ProductNotFoundException e){
+    @ExceptionHandler(ProductNotRegisteredException.class)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public List<ErrorResponse> productNotRegisteredExceptionHandler(ProductNotRegisteredException e){
         return makeErrorResponse(e, "productURL");
     }
 

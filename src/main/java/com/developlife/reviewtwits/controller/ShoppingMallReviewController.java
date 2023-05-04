@@ -2,7 +2,7 @@ package com.developlife.reviewtwits.controller;
 
 
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.exception.product.ProductNotFoundException;
+import com.developlife.reviewtwits.exception.product.ProductNotRegisteredException;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
 import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
@@ -42,7 +42,7 @@ public class ShoppingMallReviewController {
         ShoppingMallReviewProductResponse result =  reviewService.findShoppingMallReviewTotalInfo(productURL);
 
         if(result == null){
-            throw new ProductNotFoundException("입력한 URL 로 등록된 제품이 존재하지 않습니다");
+            throw new ProductNotRegisteredException("입력한 URL 로 등록된 제품이 존재하지 않습니다");
         }
         return result;
     }
