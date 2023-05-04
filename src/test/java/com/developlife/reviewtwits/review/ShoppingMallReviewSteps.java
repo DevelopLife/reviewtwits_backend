@@ -32,6 +32,7 @@ import java.util.List;
 public class ShoppingMallReviewSteps {
 
     final static String productURL = "http://www.example.com/123";
+    final static String wrongProductUrl = "http://localhost:3000/product/123";
     final static String rightReviewText = "맛있고 좋아요! 어쩌구저쩌구.... 그랬어요!";
     final static String wrongReviewText = "좋아요";
     final static int starScore = 4;

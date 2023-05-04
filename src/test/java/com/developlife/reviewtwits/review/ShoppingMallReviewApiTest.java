@@ -164,6 +164,20 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
+    void 쇼핑몰리뷰정보_제품별찾기_제품등록안됨_202(){
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("productURL", wrongProductUrl)
+                .when()
+                .get("/reviews/shopping")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.ACCEPTED.value())
+                .log().all();
+    }
+
+    @Test
     void 쇼핑몰리뷰정보_리뷰리스트_반환_200() throws IOException {
         쇼핑몰_리뷰_등록();
 
