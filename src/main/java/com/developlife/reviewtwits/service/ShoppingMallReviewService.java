@@ -2,7 +2,7 @@ package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.exception.project.ProductUrlInvalidException;
-import com.developlife.reviewtwits.exception.project.ProjectIdNotFoundException;
+import com.developlife.reviewtwits.exception.project.ProjectNotFoundException;
 import com.developlife.reviewtwits.exception.review.CannotHandleReviewException;
 import com.developlife.reviewtwits.exception.review.ReviewNotFoundException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
@@ -16,9 +16,6 @@ import com.developlife.reviewtwits.type.ReferenceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.BindingResultUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -193,7 +190,7 @@ public class ShoppingMallReviewService {
             return product.get().getProject();
         }
         // 프로젝트가 없을 경우, 프로젝트가 없다는 에러 코드를 날려야 한다.
-        throw new ProjectIdNotFoundException("입력한 URL 에 등록된 프로젝트가 존재하지 않습니다.");
+        throw new ProjectNotFoundException("입력한 URL 에 등록된 프로젝트가 존재하지 않습니다.");
     }
 
     private void saveReviewImage(Review review){

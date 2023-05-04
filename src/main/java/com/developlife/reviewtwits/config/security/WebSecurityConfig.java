@@ -71,7 +71,7 @@ public class WebSecurityConfig {
             .antMatchers("/sns/scrap/reviews").hasRole("USER")
             .antMatchers("/sns/scrap-reviews/**").hasRole("USER")
             .antMatchers("/sns/comments-like/**").hasRole("USER")
-            .antMatchers("/products/register").hasRole("USER")
+            .antMatchers("/products/register/**").hasRole("USER")
             .anyRequest()
             .permitAll()
             .and()

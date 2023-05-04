@@ -1,9 +1,6 @@
 package com.developlife.reviewtwits.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -15,6 +12,7 @@ import javax.persistence.*;
 @Entity
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
@@ -28,4 +26,8 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "projectId")
     private Project project;
+
+    private String imageUrl;
+
+    private String productName;
 }

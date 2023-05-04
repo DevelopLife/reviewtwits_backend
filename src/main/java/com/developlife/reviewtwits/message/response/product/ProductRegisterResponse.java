@@ -9,7 +9,9 @@ import lombok.Builder;
 public record ProductRegisterResponse(
         long productId,
         String productUrl,
-        long projectId) {
+        long projectId,
+        String imageUrl,
+        String productName) {
 
     @Builder
     public ProductRegisterResponse{

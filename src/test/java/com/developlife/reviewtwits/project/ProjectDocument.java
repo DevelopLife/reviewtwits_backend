@@ -53,6 +53,9 @@ public class ProjectDocument {
     public static final Snippet ProjectIdPathParam = pathParameters(
         RequestDocumentation.parameterWithName("projectId").description("프로젝트아이디")
     );
+    public static final Snippet ProjectNamePathParam = pathParameters(
+        RequestDocumentation.parameterWithName("projectName").description("프로젝트이름")
+    );
 
     public static final Snippet ProjectIdRequestParam = requestParameters(
         RequestDocumentation.parameterWithName("projectId").description("프로젝트아이디")

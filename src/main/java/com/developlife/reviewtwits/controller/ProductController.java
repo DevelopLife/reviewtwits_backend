@@ -23,8 +23,10 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @PostMapping("/register")
-    public ProductRegisterResponse registerProduct(@AuthenticationPrincipal User user, @Valid @RequestBody ProductRegisterRequest request){
-        return productService.registerProductOnProject(user, request);
+    @PostMapping("/register/{projectName}")
+    public ProductRegisterResponse registerProduct(@AuthenticationPrincipal User user,
+                                                   @PathVariable String projectName,
+                                                   @Valid @RequestBody ProductRegisterRequest request){
+        return productService.registerProductOnProject(user, projectName, request);
     }
 }
