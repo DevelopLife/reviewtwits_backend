@@ -1,11 +1,14 @@
 package com.developlife.reviewtwits.repository.review;
 
+import com.developlife.reviewtwits.entity.QFollow;
 import com.developlife.reviewtwits.entity.QReview;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
+import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.type.ReactionType;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.querydsl.core.group.Group;
@@ -13,6 +16,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.EntityPathBase;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +31,7 @@ import java.util.function.Supplier;
 
 import static com.developlife.reviewtwits.entity.QFileInfo.fileInfo;
 import static com.developlife.reviewtwits.entity.QFileManager.fileManager;
+import static com.developlife.reviewtwits.entity.QFollow.follow;
 import static com.developlife.reviewtwits.entity.QReaction.reaction;
 import static com.developlife.reviewtwits.entity.QReview.review;
 import static com.developlife.reviewtwits.entity.QReviewScrap.reviewScrap;
@@ -42,6 +47,7 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
 
     private final JPAQueryFactory jpaQueryFactory;
     private final ReviewMapper reviewMapper;
+    private final UserMapper userMapper;
 
     @Override
     public List<DetailSnsReviewResponse> findMappingReviewScrappedByUser(User user, Pageable pageable) {
@@ -112,6 +118,23 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         return resultReview.get(0);
     }
 
+    @Override
+    public List<UserInfoResponse> findRecentUpdateUsers(User requestedUser, Pageable pageable) {
+        // 팔로우한 사람들 중, 가장 최근에 리뷰를 업데이트 한 사람 n 명을 구하기
+
+        List<User> foundUser = jpaQueryFactory.select(review.user).from(review)
+                .where(review.user.in(
+                        JPAExpressions.select(follow.targetUser).from(follow)
+                                .where(follow.user.eq(requestedUser))
+                ))
+                .groupBy(review.user)
+                .orderBy(review.reviewId.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return userMapper.toUserInfoResponseList(foundUser);
+    }
 
     public List<DetailSnsReviewResponse> findMappingReview(Supplier<JPAQuery<ReviewMappingDTO>> codeSupply,
                                                            User reviewSearcher,

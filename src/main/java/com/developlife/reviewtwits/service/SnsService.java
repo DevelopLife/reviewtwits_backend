@@ -178,4 +178,9 @@ public class SnsService {
         Page<Review> reviewInPage = reviewRepository.findByReviewIdLessThanAndUser(reviewId,user,pageable);
         return reviewInPage.getContent();
     }
+
+    public List<UserInfoResponse> getRecentUpdateUsers(User user, int size) {
+        Pageable pageable = PageRequest.of(0,size,Sort.by("reviewId").descending());
+        return reviewRepository.findRecentUpdateUsers(user,pageable);
+    }
 }

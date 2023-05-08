@@ -2,6 +2,7 @@ package com.developlife.reviewtwits.repository.review;
 
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import org.springframework.data.domain.Pageable;
 
 
@@ -16,5 +17,6 @@ public interface ReviewMappingRepository {
     List<DetailSnsReviewResponse> findMappingReviewById(User user,Long reviewId, Pageable pageable);
     List<DetailSnsReviewResponse> findMappingReviewByProductNameLikeOrContentLike(String searchKey, User reviewSearcher, Pageable pageable);
     DetailSnsReviewResponse findOneMappingReviewById(User user, long reviewId);
+    List<UserInfoResponse> findRecentUpdateUsers(User requestedUser, Pageable pageable);
 
 }
