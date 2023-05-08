@@ -27,8 +27,9 @@ public class OauthController {
     OauthService oauthService;
     JwtTokenProvider jwtTokenProvider;
 
-    public OauthController(OauthService oauthService) {
+    public OauthController(OauthService oauthService, JwtTokenProvider jwtTokenProvider) {
         this.oauthService = oauthService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @PostMapping("/kakao")
