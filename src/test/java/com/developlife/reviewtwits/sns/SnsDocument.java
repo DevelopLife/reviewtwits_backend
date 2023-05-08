@@ -24,7 +24,7 @@ public class SnsDocument {
             parameterWithName("nickname").attributes(required()).description("유저 닉네임")
     );
 
-    public static final Snippet snsFollowResponseField = responseFields(
+    public static final Snippet userListResponseField = responseFields(
             fieldWithPath("[].userId").type(JsonFieldType.NUMBER).description("유저 DB 아이디"),
             fieldWithPath("[].nickname").type(JsonFieldType.STRING).description("유저닉네임"),
             fieldWithPath("[].accountId").type(JsonFieldType.STRING).description("유저 계정"),
@@ -152,6 +152,9 @@ public class SnsDocument {
     );
     public static final Snippet ReviewIdAndSizeField = requestParameters(
             parameterWithName("reviewId").description("리뷰의 아이디").optional(),
+            parameterWithName("size").attributes(required()).description("요청하는 페이지 사이즈")
+    );
+    public static final Snippet ReviewSizeField = requestParameters(
             parameterWithName("size").attributes(required()).description("요청하는 페이지 사이즈")
     );
 }

@@ -121,6 +121,9 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
     @Override
     public List<UserInfoResponse> findRecentUpdateUsers(User requestedUser, Pageable pageable) {
         // 팔로우한 사람들 중, 가장 최근에 리뷰를 업데이트 한 사람 n 명을 구하기
+        if(requestedUser == null){
+            return new ArrayList<>();
+        }
 
         List<User> foundUser = jpaQueryFactory.select(review.user).from(review)
                 .where(review.user.in(
@@ -133,7 +136,11 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return userMapper.toUserInfoResponseList(foundUser);
+        List<UserInfoResponse> userInfoResponseList = new ArrayList<>();
+        for(User user : foundUser){
+            userInfoResponseList.add(userMapper.toUserInfoResponse(user,0,0,0,true));
+        }
+        return userInfoResponseList;
     }
 
     public List<DetailSnsReviewResponse> findMappingReview(Supplier<JPAQuery<ReviewMappingDTO>> codeSupply,
