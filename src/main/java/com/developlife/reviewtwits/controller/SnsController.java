@@ -88,7 +88,7 @@ public class SnsController {
     @GetMapping("/recent-update-users")
     public List<UserInfoResponse> getRecentUpdateUsers(
             @AuthenticationPrincipal User user,
-            @RequestParam @Min(value = 0, message = "받고자 하는 유저정보 크기는 1 이상의 값으로 입력해야 합니다.") int size){
+            @RequestParam(defaultValue = "5") @Min(value = 0, message = "받고자 하는 유저정보 크기는 1 이상의 값으로 입력해야 합니다.")  int size){
 
         return snsService.getRecentUpdateUsers(user,size);
     }

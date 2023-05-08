@@ -633,7 +633,8 @@ public class SnsApiTest extends ApiTest {
         팔로우요청_생성(oppositeToken,snsSteps.팔로우정보_상대방측_생성());
 
         ExtractableResponse<Response> response = given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "최근에 리뷰를 작성한 사람을 5명 이내로 돌려 주는 API 입니다." +
+                .filter(document(DEFAULT_RESTDOC_PATH, "최근에 리뷰를 작성한 사람을 size 크기 이내로 돌려 주는 API 입니다." +
+                                "<br>size 값을 넣어주지 않는다면, 5명을 default 값으로 동작하게 됩니다." +
                                 "<br>유저 토큰이 없거나, 팔로우한 사람이 없으면 빈 리스트를 돌려받게 됩니다. " +
                                 "<br>size 값은 1 이상의 정수로 입력해야 하며, 잘못된 값이 입력되었을 경우 400 Bad Request 를 돌려받습니다.",
                         "최근리뷰쓴유저요청",
@@ -691,6 +692,29 @@ public class SnsApiTest extends ApiTest {
 
         JsonPath jsonPath = response.jsonPath();
         assertThat(jsonPath.getList("")).isEmpty();
+    }
+
+    @Test
+    void 최근리뷰쓴유저_사이즈값미입력_기본값5_성공_200(){
+        final String oppositeToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+        팔로우요청_생성(oppositeToken,snsSteps.팔로우정보_상대방측_생성());
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        UserDocument.OptionalAccessTokenHeader,
+                        SnsDocument.ReviewSizeField,
+                        SnsDocument.userListResponseField))
+                .header("X-AUTH-TOKEN", oppositeToken)
+                .when()
+                .get("/sns/recent-update-users")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getList("").size()).isEqualTo(1);
+        assertThat(jsonPath.getString("[0].nickname")).isEqualTo(SnsSteps.userNickname);
     }
 
     @Test
