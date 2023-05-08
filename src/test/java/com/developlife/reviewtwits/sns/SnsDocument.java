@@ -155,6 +155,6 @@ public class SnsDocument {
             parameterWithName("size").attributes(required()).description("요청하는 페이지 사이즈")
     );
     public static final Snippet ReviewSizeField = requestParameters(
-            parameterWithName("size").attributes(required()).description("요청하는 페이지 사이즈")
+            parameterWithName("size").attributes(required()).description("요청하는 페이지 사이즈").optional()
     );
 }
