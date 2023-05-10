@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.handler;
 
+import com.developlife.reviewtwits.exception.product.ProductAlreadyRegisteredException;
 import com.developlife.reviewtwits.exception.product.ProductNotRegisteredException;
 import com.developlife.reviewtwits.exception.project.ProductUrlInvalidException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
@@ -28,6 +29,12 @@ public class ProductExceptionHandler {
     @ExceptionHandler(ProductUrlInvalidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public List<ErrorResponse> productUrlInvalidExceptionHandler(ProductUrlInvalidException e){
+        return makeErrorResponse(e, "productURL");
+    }
+
+    @ExceptionHandler(ProductAlreadyRegisteredException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public List<ErrorResponse> productAlreadyRegisteredExceptionHandler(ProductAlreadyRegisteredException e){
         return makeErrorResponse(e, "productURL");
     }
 }

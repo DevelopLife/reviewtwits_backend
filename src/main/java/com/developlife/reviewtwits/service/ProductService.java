@@ -4,6 +4,7 @@ import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.exception.product.ProductAlreadyRegisteredException;
 import com.developlife.reviewtwits.exception.project.ProjectNotFoundException;
 import com.developlife.reviewtwits.exception.user.AccessDeniedException;
 import com.developlife.reviewtwits.message.request.product.ProductRegisterRequest;
@@ -13,6 +14,8 @@ import com.developlife.reviewtwits.repository.project.ProjectRepository;
 import com.developlife.reviewtwits.type.ReferenceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 /**
  * @author WhalesBob
@@ -35,6 +38,11 @@ public class ProductService {
 
         if(!project.getUser().equals(user)){
             throw new AccessDeniedException("프로젝트에 대한 권한이 없습니다.");
+        }
+
+        Optional<Product> foundProduct = productRepository.findProductByProductUrl(request.productUrl());
+        if(foundProduct.isPresent()){
+            throw new ProductAlreadyRegisteredException("해당 url 로 이미 제품이 등록되어 있습니다.");
         }
 
         Product savedProduct = getSavedProduct(projectName, request, project);
