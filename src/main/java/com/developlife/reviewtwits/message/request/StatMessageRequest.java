@@ -1,7 +1,7 @@
 package com.developlife.reviewtwits.message.request;
 
 import com.developlife.reviewtwits.message.annotation.statistics.Device;
-import com.developlife.reviewtwits.message.annotation.statistics.HttpURL;
+import com.developlife.reviewtwits.message.annotation.common.HttpURL;
 import lombok.Builder;
 
 /**

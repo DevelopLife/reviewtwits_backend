@@ -2,12 +2,12 @@ package com.developlife.reviewtwits.message.request.review;
 
 import com.developlife.reviewtwits.message.annotation.file.ImageFiles;
 import com.developlife.reviewtwits.message.annotation.review.MultipartInteger;
+import com.developlife.reviewtwits.message.annotation.common.HttpURL;
 import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -23,8 +23,7 @@ public record SnsReviewWriteRequest(
         @MultipartInteger
         String score,
         @NotBlank(message = "product URL 은 필수 값입니다.")
-        @Pattern(message = "http 혹은 https 로 시작하는 인터넷 페이지 URL 형식이 아닙니다.",
-            regexp = "^(https?://)[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+/[a-zA-Z0-9-_/.?=]*")
+        @HttpURL
         String productURL,
         @NotBlank(message = "제품 이름이 입력되지 않았습니다.")
         String productName,

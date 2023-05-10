@@ -1,6 +1,6 @@
-package com.developlife.reviewtwits.message.annotation.statistics;
+package com.developlife.reviewtwits.message.annotation.common;
 
-import com.developlife.reviewtwits.message.validator.statistics.HttpURLValidator;
+import com.developlife.reviewtwits.message.validator.common.HttpURLValidator;
 
 import javax.validation.Constraint;
 import java.lang.annotation.ElementType;

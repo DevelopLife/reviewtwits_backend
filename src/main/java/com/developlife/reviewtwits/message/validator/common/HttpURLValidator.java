@@ -1,6 +1,6 @@
-package com.developlife.reviewtwits.message.validator.statistics;
+package com.developlife.reviewtwits.message.validator.common;
 
-import com.developlife.reviewtwits.message.annotation.statistics.HttpURL;
+import com.developlife.reviewtwits.message.annotation.common.HttpURL;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -16,6 +16,9 @@ public class HttpURLValidator implements ConstraintValidator<HttpURL, String>{
         if(value == null || value.isEmpty()){
             return false;
         }
-        return Pattern.matches("((https?:\\/\\/)|(\\/)|(..\\/))(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?", value);
+        return Pattern.matches(
+                "^https?://([a-zA-Z0-9-]+\\.)*[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(:[0-9]+)?(/[a-zA-Z0-9-_/]*)?(\\?[a-zA-Z0-9_-]+(=[a-zA-Z0-9_-]*)?(&[a-zA-Z0-9_-]+(=[a-zA-Z0-9_-]*)?)*)?$",
+                value
+        );
     }
 }

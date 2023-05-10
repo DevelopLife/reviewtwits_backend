@@ -2,7 +2,7 @@ package com.developlife.reviewtwits.message.request.review;
 
 import com.developlife.reviewtwits.message.annotation.file.ImageFiles;
 import com.developlife.reviewtwits.message.annotation.review.MultipartInteger;
-import com.developlife.reviewtwits.message.annotation.statistics.HttpURL;
+import com.developlife.reviewtwits.message.annotation.common.HttpURL;
 import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 

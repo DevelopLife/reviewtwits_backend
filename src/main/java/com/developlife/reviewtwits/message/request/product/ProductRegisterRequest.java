@@ -1,6 +1,6 @@
 package com.developlife.reviewtwits.message.request.product;
 
-import com.developlife.reviewtwits.message.annotation.statistics.HttpURL;
+import com.developlife.reviewtwits.message.annotation.common.HttpURL;
 import lombok.Builder;
 
 import javax.validation.constraints.Size;
