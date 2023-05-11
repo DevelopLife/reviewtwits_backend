@@ -9,6 +9,7 @@ import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.request.user.RegisterOauthUserRequest;
 import com.developlife.reviewtwits.message.response.oauth.OauthUserInfo;
 import com.developlife.reviewtwits.repository.UserRepository;
+import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.utils.oauth.GoogleOAuth2Utils;
 import com.developlife.reviewtwits.utils.oauth.KakaoOauth2Utils;
@@ -19,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -39,26 +43,12 @@ public class OauthService {
     }
 
     @Transactional
-    public User authenticateToken(OauthUserInfo oauthUserInfo, JwtProvider jwtProvider, HttpServletResponse response) {
+    public User authenticateToken(OauthUserInfo oauthUserInfo, JwtProvider jwtProvider) {
         Optional<User> optionalUser = userRepository.findByUuid(oauthUserInfo.sub());
-        User user;
-        if (optionalUser.isPresent()) {
+        User user = null;
+        if(optionalUser.isPresent()) {
             user = optionalUser.get();
-        } else {
-            String nickname;
-            do {
-                nickname = faker.name().username();
-            } while (nickname.length() > 20 || userRepository.findByNickname(nickname).isPresent());
-            user = User.builder()
-                    .uuid(oauthUserInfo.sub())
-                    .accountId(oauthUserInfo.email())
-                    .provider(jwtProvider)
-                    .nickname(nickname)
-                    .build();
-            userRepository.save(user);
-            response.setStatus(HttpServletResponse.SC_ACCEPTED);
         }
-
         return user;
     }
 
@@ -80,14 +70,35 @@ public class OauthService {
                 throw new ProviderNotSupportedException("지원하지 않는 provider 입니다");
         }
 
-        User user = userRepository.findByUuid(oauthUserInfo.sub())
-            .orElseThrow(() -> new AccountIdNotFoundException("정상적인 회원가입 경로가 아닙니다"));
 
-        if(StringUtils.hasText(user.getPhoneNumber()) && StringUtils.hasText(user.getNickname())) {
-            throw new AccountIdAlreadyExistsException("이미 입력한 회원가입 정보가 존재합니다");
+        // 이미 회원가입이 된 경우 확인
+        userRepository.findByUuid(oauthUserInfo.sub())
+                .ifPresent((u) -> {throw new AccountIdAlreadyExistsException("이미 회원가입된 계정입니다");});
+
+        String nickname;
+        do {
+            nickname = faker.name().username();
+        } while (nickname.length() > 20 || userRepository.findByNickname(nickname).isPresent());
+
+        Date birthDate = null;
+        try {
+            if ( registerOauthUserRequest.birthDate() != null ) {
+                birthDate = new SimpleDateFormat( "yyyy-MM-dd" ).parse( registerOauthUserRequest.birthDate() );
+            }
+        }
+        catch (ParseException e) {
+            throw new RuntimeException(e);
         }
 
-        userMapper.updateUserFromRegisterOauthUserRequest(registerOauthUserRequest, user);
+        User user = User.builder()
+                .accountId(oauthUserInfo.email())
+                .uuid(oauthUserInfo.sub())
+                .nickname(nickname)
+                .provider(Enum.valueOf(JwtProvider.class, registerOauthUserRequest.provider()))
+                .birthDate(birthDate)
+                .phoneNumber(registerOauthUserRequest.phoneNumber())
+                .gender(Enum.valueOf(Gender.class, registerOauthUserRequest.gender()))
+                .build();
         userRepository.save(user);
         return user;
     }
