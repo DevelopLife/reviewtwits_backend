@@ -1,10 +1,7 @@
 package com.developlife.reviewtwits.message.response.oauth;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * @author ghdic
@@ -13,6 +10,7 @@ import lombok.Setter;
 // resultcode, message, response
 @NoArgsConstructor
 @Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NaverUserInfo implements OauthUserInfo {
     private String resultcode;
