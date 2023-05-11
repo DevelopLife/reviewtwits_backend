@@ -35,39 +35,39 @@ public class OauthController {
     }
 
     @PostMapping("/kakao")
-    public Object kakao(@RequestHeader("Authorization") String accessToken,
+    public ResponseEntity<Object> kakao(@RequestHeader("Authorization") String accessToken,
                                   HttpServletResponse response) {
         KakaoUserInfo kakaoUserInfo = KakaoOauth2Utils.getUserInfo(accessToken);
         User user = oauthService.authenticateToken(kakaoUserInfo, JwtProvider.KAKAO);
         if(user == null) {
-            return new ResponseEntity(kakaoUserInfo, null, HttpStatus.ACCEPTED);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(kakaoUserInfo);
         }
         jwtTokenProvider.setRefreshTokenForClient(response, user);
-        return jwtTokenProvider.issueJwtTokenResponse(user);
+        return ResponseEntity.ok(jwtTokenProvider.issueJwtTokenResponse(user));
     }
 
     @PostMapping("/google")
-    public Object google(@RequestHeader("Authorization") String accessToken,
+    public ResponseEntity<Object> google(@RequestHeader("Authorization") String accessToken,
                                    HttpServletResponse response) {
         GoogleUserInfo googleUserInfo = GoogleOAuth2Utils.getUserInfo(accessToken);
         User user = oauthService.authenticateToken(googleUserInfo, JwtProvider.GOOGLE);
         if(user == null) {
-            return new ResponseEntity(googleUserInfo, null, HttpStatus.ACCEPTED);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(googleUserInfo);
         }
         jwtTokenProvider.setRefreshTokenForClient(response, user);
-        return jwtTokenProvider.issueJwtTokenResponse(user);
+        return ResponseEntity.ok(jwtTokenProvider.issueJwtTokenResponse(user));
     }
 
     @PostMapping("/naver")
-    public Object naver(@RequestHeader("Authorization") String accessToken,
+    public ResponseEntity<Object> naver(@RequestHeader("Authorization") String accessToken,
                                   HttpServletResponse response) {
         NaverUserInfo naverUserInfo = NaverOauth2Utils.getUserInfo(accessToken);
         User user = oauthService.authenticateToken(naverUserInfo, JwtProvider.NAVER);
         if(user == null) {
-            return new ResponseEntity(naverUserInfo, null, HttpStatus.ACCEPTED);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(naverUserInfo);
         }
         jwtTokenProvider.setRefreshTokenForClient(response, user);
-        return jwtTokenProvider.issueJwtTokenResponse(user);
+        return ResponseEntity.ok(jwtTokenProvider.issueJwtTokenResponse(user));
     }
 
     @PostMapping("/register")

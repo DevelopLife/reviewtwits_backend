@@ -10,6 +10,7 @@ import lombok.*;
 // 현재 받는 정보: sub, name, given_name, family_name, picture, email, email_verified, locale
 @NoArgsConstructor
 @Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GoogleUserInfo implements OauthUserInfo {
     private String sub;
