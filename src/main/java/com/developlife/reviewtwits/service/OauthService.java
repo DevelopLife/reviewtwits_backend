@@ -2,9 +2,7 @@ package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.AccountIdAlreadyExistsException;
-import com.developlife.reviewtwits.exception.user.AccountIdNotFoundException;
 import com.developlife.reviewtwits.exception.user.ProviderNotSupportedException;
-import com.developlife.reviewtwits.exception.user.RegisterDataNeedException;
 import com.developlife.reviewtwits.mapper.UserMapper;
 import com.developlife.reviewtwits.message.request.user.RegisterOauthUserRequest;
 import com.developlife.reviewtwits.message.response.oauth.OauthUserInfo;
@@ -17,9 +15,7 @@ import com.developlife.reviewtwits.utils.oauth.NaverOauth2Utils;
 import com.github.javafaker.Faker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
