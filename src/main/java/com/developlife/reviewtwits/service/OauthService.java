@@ -76,6 +76,10 @@ public class OauthService {
         // 이미 회원가입이 된 경우 확인
         userRepository.findByUuid(oauthUserInfo.sub())
                 .ifPresent((u) -> {throw new AccountIdAlreadyExistsException("이미 회원가입된 계정입니다");});
+        // 전화번호 중복 확인
+        if(userRepository.existsByPhoneNumber(registerOauthUserRequest.phoneNumber())) {
+            throw new AccountIdAlreadyExistsException("이미 회원가입된 전화번호입니다");
+        }
 
         String nickname;
         do {
@@ -106,7 +110,6 @@ public class OauthService {
 
         FileInfo fileInfo = fileStoreService.downloadProfileImageFromUrl(oauthUserInfo.picture(), oauthUserInfo.sub(), user.getUserId(), ReferenceType.USER);
         user.setProfileImageUuid(fileInfo.getRealFilename());
-        userRepository.save(user);
         return user;
     }
 }
