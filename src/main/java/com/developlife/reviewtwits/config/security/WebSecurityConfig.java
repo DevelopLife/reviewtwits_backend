@@ -31,11 +31,14 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public WebSecurityConfig(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
+    public WebSecurityConfig(JwtAccessDeniedHandler jwtAccessDeniedHandler, JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
+
 
     // 정적 자원에 대해서는 Security 설정을 적용하지 않음
     @Bean
@@ -76,10 +79,10 @@ public class WebSecurityConfig {
             .permitAll()
             .and()
             .exceptionHandling()
-            .accessDeniedHandler(new JwtAccessDeniedHandler())
+            .accessDeniedHandler(jwtAccessDeniedHandler)
                 .authenticationEntryPoint(authenticationEntryPoint())
             .and()
-            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .cors(Customizer.withDefaults());
 
         return http.build();

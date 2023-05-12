@@ -9,6 +9,7 @@ import com.developlife.reviewtwits.message.response.oauth.OauthUserInfo;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.JwtProvider;
+import com.developlife.reviewtwits.type.UserRole;
 import com.developlife.reviewtwits.utils.oauth.GoogleOAuth2Utils;
 import com.developlife.reviewtwits.utils.oauth.KakaoOauth2Utils;
 import com.developlife.reviewtwits.utils.oauth.NaverOauth2Utils;
@@ -20,6 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author ghdic
@@ -94,6 +96,7 @@ public class OauthService {
                 .birthDate(birthDate)
                 .phoneNumber(registerOauthUserRequest.phoneNumber())
                 .gender(Enum.valueOf(Gender.class, registerOauthUserRequest.gender()))
+                .roles(Set.of(UserRole.USER))
                 .build();
         userRepository.save(user);
         return user;
