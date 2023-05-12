@@ -172,4 +172,22 @@ public class FileStoreService {
         MadeMultipartFile madeMultipartFile = new MadeMultipartFile(imageBytes, fileName);
         return storeFile(madeMultipartFile, referenceId, referenceType);
     }
+
+    @Transactional
+    public FileInfo downloadProfileImageFromUrl(String imageUrl, String profileImageName, long referenceId, ReferenceType referenceType) {
+        WebClient webClient = WebClient.builder().
+                exchangeStrategies(ExchangeStrategies.builder()
+                        .codecs(configurer -> configurer.defaultCodecs().
+                                maxInMemorySize(10 * 1024 * 1024)).build()).build();
+
+        byte[] imageBytes = webClient.get()
+                .uri(imageUrl)
+                .accept(new MediaType[]{MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG})
+                .retrieve()
+                .bodyToMono(byte[].class).block();
+
+        String fileName = profileImageName + ".jpg";
+        MadeMultipartFile madeMultipartFile = new MadeMultipartFile(imageBytes, fileName);
+        return storeFile(madeMultipartFile, referenceId, referenceType);
+    }
 }

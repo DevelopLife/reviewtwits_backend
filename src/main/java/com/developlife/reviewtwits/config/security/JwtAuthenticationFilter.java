@@ -5,6 +5,7 @@ import com.developlife.reviewtwits.exception.user.TokenInvalidException;
 import com.developlife.reviewtwits.type.JwtCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -18,6 +19,7 @@ import java.io.IOException;
  * @author ghdic
  * @since 2023/02/20
  */
+@Component
 public class JwtAuthenticationFilter extends GenericFilterBean {
     private final JwtTokenProvider jwtTokenProvider;
 

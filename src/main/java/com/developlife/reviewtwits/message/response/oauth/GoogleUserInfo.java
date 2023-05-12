@@ -31,4 +31,11 @@ public class GoogleUserInfo implements OauthUserInfo {
     public String email() {
         return email;
     }
+
+    @Override
+    public String picture() {
+        return picture;
+    }
+
+
 }

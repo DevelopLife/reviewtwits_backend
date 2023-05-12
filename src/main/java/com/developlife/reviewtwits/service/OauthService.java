@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.service;
 
+import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.AccountIdAlreadyExistsException;
 import com.developlife.reviewtwits.exception.user.ProviderNotSupportedException;
@@ -9,6 +10,8 @@ import com.developlife.reviewtwits.message.response.oauth.OauthUserInfo;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.JwtProvider;
+import com.developlife.reviewtwits.type.ReferenceType;
+import com.developlife.reviewtwits.type.UserRole;
 import com.developlife.reviewtwits.utils.oauth.GoogleOAuth2Utils;
 import com.developlife.reviewtwits.utils.oauth.KakaoOauth2Utils;
 import com.developlife.reviewtwits.utils.oauth.NaverOauth2Utils;
@@ -20,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author ghdic
@@ -30,17 +34,19 @@ public class OauthService {
 
     UserRepository userRepository;
     UserMapper userMapper;
+    FileStoreService fileStoreService;
     Faker faker;
 
-    public OauthService(UserRepository userRepository, UserMapper userMapper) {
+    public OauthService(UserRepository userRepository, UserMapper userMapper, FileStoreService fileStoreService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.fileStoreService = fileStoreService;
         this.faker = new Faker();
     }
 
     @Transactional
     public User authenticateToken(OauthUserInfo oauthUserInfo, JwtProvider jwtProvider) {
-        Optional<User> optionalUser = userRepository.findByUuid(oauthUserInfo.sub());
+        Optional<User> optionalUser = userRepository.findByUuidAndProvider(oauthUserInfo.sub(), jwtProvider);
         User user = null;
         if(optionalUser.isPresent()) {
             user = optionalUser.get();
@@ -94,7 +100,12 @@ public class OauthService {
                 .birthDate(birthDate)
                 .phoneNumber(registerOauthUserRequest.phoneNumber())
                 .gender(Enum.valueOf(Gender.class, registerOauthUserRequest.gender()))
+                .roles(Set.of(UserRole.USER))
                 .build();
+        userRepository.save(user);
+
+        FileInfo fileInfo = fileStoreService.downloadProfileImageFromUrl(oauthUserInfo.picture(), oauthUserInfo.sub(), user.getUserId(), ReferenceType.USER);
+        user.setProfileImageUuid(fileInfo.getRealFilename());
         userRepository.save(user);
         return user;
     }

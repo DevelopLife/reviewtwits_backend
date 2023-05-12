@@ -33,4 +33,9 @@ public class KakaoUserInfo implements OauthUserInfo {
     public String email() {
         return email;
     }
+
+    @Override
+    public String picture() {
+        return picture;
+    }
 }
