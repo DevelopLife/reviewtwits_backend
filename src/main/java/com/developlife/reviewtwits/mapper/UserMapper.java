@@ -52,12 +52,17 @@ public interface UserMapper {
     void updateUserFromRegisterUserInfoRequest(RegisterUserInfoRequest registerUserInfoRequest, @MappingTarget User user);
 
     default UserInfoResponse toUserInfoResponse(User user, int followers, int followings, int reviewCount, boolean isFollowed){
+        String profileImageUrl = null;
+        if(user.getProfileImageUuid() != null) {
+            profileImageUrl = imageUrl+user.getProfileImageUuid();
+        }
+
         return UserInfoResponse.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
                 .accountId(user.getAccountId())
                 .introduceText(user.getIntroduceText())
-                .profileImageUrl(imageUrl+user.getProfileImageUuid())
+                .profileImageUrl(profileImageUrl)
                 .detailIntroduce(user.getDetailIntroduce())
                 .reviewCount(reviewCount)
                 .followers(followers)
@@ -68,12 +73,17 @@ public interface UserMapper {
 
 
     default UserInfoResponse toUserInfoResponse(User user){
+        String profileImageUrl = null;
+        if(user.getProfileImageUuid() != null) {
+            profileImageUrl = imageUrl+user.getProfileImageUuid();
+        }
+
         return UserInfoResponse.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
                 .accountId(user.getAccountId())
                 .introduceText(user.getIntroduceText())
-                .profileImageUrl(imageUrl+user.getProfileImageUuid())
+                .profileImageUrl(profileImageUrl)
                 .detailIntroduce(user.getDetailIntroduce())
                 .reviewCount(0)
                 .followers(0)
@@ -83,6 +93,10 @@ public interface UserMapper {
     }
 
     default UserDetailInfoResponse toUserDetailInfoResponse(User user){
+        String profileImageUrl = null;
+        if(user.getProfileImageUuid() != null) {
+            profileImageUrl = imageUrl+user.getProfileImageUuid();
+        }
         return new UserDetailInfoResponse(
                 user.getNickname(),
                 user.getAccountId(),
@@ -91,7 +105,7 @@ public interface UserMapper {
                 user.getGender(),
                 user.getProvider().toString(),
                 user.getUuid(),
-                imageUrl+user.getProfileImageUuid(),
+                profileImageUrl,
                 user.getIntroduceText()
         );
     }
