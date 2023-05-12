@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.repository;
 
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.type.JwtProvider;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -25,6 +26,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByAccountIdOrPhoneNumber(String accountId, String phoneNumber);
 
     Optional<User> findByUuid(String uuid);
+
+    Optional<User> findByUuidAndProvider(String uuid, JwtProvider provider);
 
     Optional<User> findByNickname(String nickname);
 

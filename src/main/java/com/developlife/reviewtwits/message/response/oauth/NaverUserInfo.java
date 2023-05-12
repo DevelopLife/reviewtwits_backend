@@ -26,4 +26,11 @@ public class NaverUserInfo implements OauthUserInfo {
     public String email() {
         return response.email();
     }
+
+    @Override
+    public String picture() {
+        return response.profile_image();
+    }
+
+
 }

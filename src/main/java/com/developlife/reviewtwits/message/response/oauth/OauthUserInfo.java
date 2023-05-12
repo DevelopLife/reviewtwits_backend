@@ -8,4 +8,5 @@ public interface OauthUserInfo {
 
     public String sub();
     public String email();
+    public String picture();
 }
