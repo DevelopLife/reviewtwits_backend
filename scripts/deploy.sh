@@ -10,6 +10,9 @@ exec 1>$SCRIPT_LOG 2>&1
 
 cd $REPOSITORY
 
+now=$(date +'%Y-%m-%dT%H:%M:%S')
+echo "Script Start: $now"
+
 echo "> 현재 구동 중인 애플리케이션 pid 확인"
 
 CURRENT_PID=$(pgrep -fla java | grep reviewtwits | awk '{print $1}')
