@@ -16,9 +16,8 @@ public class HttpURLValidator implements ConstraintValidator<HttpURL, String>{
         if(value == null || value.isEmpty()){
             return false;
         }
-        return Pattern.matches(
-                "^https?://([a-zA-Z0-9-]+\\.)*[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(:[0-9]+)?(/[a-zA-Z0-9-_/]*)?(\\?[a-zA-Z0-9_-]+(=[a-zA-Z0-9_-]*)?(&[a-zA-Z0-9_-]+(=[a-zA-Z0-9_-]*)?)*)?$",
-                value
-        );
+
+        return Pattern.matches("^^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$", value)
+                || Pattern.matches("^https:\\/\\/localhost:3000\\/?.*$",value);
     }
 }
