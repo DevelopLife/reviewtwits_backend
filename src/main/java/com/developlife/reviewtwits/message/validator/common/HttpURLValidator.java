@@ -16,6 +16,6 @@ public class HttpURLValidator implements ConstraintValidator<HttpURL, String>{
         if(value == null || value.isEmpty()){
             return false;
         }
-        return Pattern.matches("(http:|https:)+[^\\s]+[\\w]", value);
+        return Pattern.matches("(http(s)?:\\/\\/|www.)([a-z0-9\\w]+\\.*)+[a-z0-9]{2,4}(:\\d+)?([\\/a-z0-9-%#?&=\\w])+(\\.[a-z0-9]{2,4}(\\?[\\/a-z0-9-%#?&=\\w]+)*)*", value);
     }
 }
