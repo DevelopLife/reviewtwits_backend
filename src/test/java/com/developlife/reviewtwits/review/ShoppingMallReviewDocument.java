@@ -80,7 +80,7 @@ public class ShoppingMallReviewDocument {
             fieldWithPath("[].productName").type(JsonFieldType.STRING).description("제품이름").optional(),
             fieldWithPath("[].score").type(JsonFieldType.NUMBER).description("별점"),
             fieldWithPath("[].reviewImageUrlList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
-            fieldWithPath("[].exist").type(JsonFieldType.BOOLEAN).description("존재여부")
+            fieldWithPath("[].status").type(JsonFieldType.STRING).description("존재여부")
     );
 
     public static final Snippet shoppingMallReviewResponseField = responseFields(
@@ -103,6 +103,6 @@ public class ShoppingMallReviewDocument {
             fieldWithPath("productName").type(JsonFieldType.STRING).description("제품이름").optional(),
             fieldWithPath("score").type(JsonFieldType.NUMBER).description("별점"),
             fieldWithPath("reviewImageUrlList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
-            fieldWithPath("exist").type(JsonFieldType.BOOLEAN).description("존재여부")
+            fieldWithPath("status").type(JsonFieldType.STRING).description("리뷰 상태")
     );
 }

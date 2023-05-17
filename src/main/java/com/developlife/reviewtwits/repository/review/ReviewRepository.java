@@ -21,7 +21,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewMap
     Page<Review> findReviewsByUser(User user, Pageable pageable);
     Page<Review> findByReviewIdLessThanAndUser(long reviewId, User user, Pageable pageable);
 
-    @Query("SELECT r FROM Review r WHERE r.exist = true AND (r.productName LIKE %:searchKey% OR r.content LIKE %:searchKey%) ORDER BY r.reviewId DESC")
+    @Query("SELECT r FROM Review r WHERE r.status != 'DELETED' AND (r.productName LIKE %:searchKey% OR r.content LIKE %:searchKey%) ORDER BY r.reviewId DESC")
     List<Review> findByProductNameLikeOrContentLike(@Param("searchKey")String searchKey, Pageable pageable);
 }
 

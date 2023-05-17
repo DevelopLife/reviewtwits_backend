@@ -13,6 +13,7 @@ import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewPro
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.type.ReferenceType;
+import com.developlife.reviewtwits.type.ReviewStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ public class ShoppingMallReviewService {
                 .content(writeRequest.content())
                 .productUrl(writeRequest.productURL())
                 .score(Integer.parseInt(writeRequest.score()))
+                .status(ReviewStatus.PENDING)
                 .build();
 
         Review savedReview = reviewRepository.save(review);
@@ -78,7 +80,7 @@ public class ShoppingMallReviewService {
         int recentReviewCount = 0;
         int totalReviewCount = 0;
         for(Review review : reviews){
-            if(review.isExist()){
+            if(review.getStatus() != ReviewStatus.DELETED){
                 totalReviewCount++;
                 starScoreArray[review.getScore()-1]++;
                 starScoreSum += review.getScore();
@@ -139,7 +141,7 @@ public class ShoppingMallReviewService {
         Optional<Review> foundReview = reviewRepository.findById(reviewId);
         if(foundReview.isPresent()){
             Review review = foundReview.get();
-            review.setExist(false);
+            review.setStatus(ReviewStatus.DELETED);
             reviewRepository.save(review);
 
             review.setReviewImageUuidList(new ArrayList<>());
@@ -153,7 +155,7 @@ public class ShoppingMallReviewService {
         Optional<Review> foundReview = reviewRepository.findById(reviewId);
         if(foundReview.isPresent()){
             Review review = foundReview.get();
-            review.setExist(true);
+            review.setStatus(ReviewStatus.PENDING);
             reviewRepository.save(review);
 
             saveReviewImage(review);

@@ -221,7 +221,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .log().all().extract();
 
         JsonPath jsonPath = response.jsonPath();
-        assertThat(jsonPath.getBoolean("exist")).isFalse();
+        assertThat(jsonPath.getString("status")).isEqualTo("DELETED");
     }
 
     @Test

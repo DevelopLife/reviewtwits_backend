@@ -16,6 +16,7 @@ import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.ReactionType;
+import com.developlife.reviewtwits.type.ReviewStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -213,7 +214,7 @@ public class SnsReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리뷰가 존재하지 않습니다."));
 
-        review.setExist(false);
+        review.setStatus(ReviewStatus.DELETED);
         reviewRepository.save(review);
 
         review.setReviewImageUuidList(new ArrayList<>());

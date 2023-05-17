@@ -60,7 +60,7 @@ public interface ReviewMapper {
                 .productUrl(review.getProductUrl())
                 .score(review.getScore())
                 .reviewImageUrlList(mapImageUuidToUrlList(review.getReviewImageUuidList()))
-                .exist(review.isExist())
+                .status(review.getStatus())
                 .build();
     }
 
