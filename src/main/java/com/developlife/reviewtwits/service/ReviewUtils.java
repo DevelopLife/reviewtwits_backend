@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @RequiredArgsConstructor
 @Component
-public class SnsReviewUtils {
+public class ReviewUtils {
 
     private final FileStoreService fileStoreService;
 

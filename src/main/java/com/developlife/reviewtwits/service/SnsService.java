@@ -45,7 +45,7 @@ public class SnsService {
     private final ReviewScrapRepository reviewScrapRepository;
     private final UserService userService;
     private final SnsReviewService snsReviewService;
-    private final SnsReviewUtils snsReviewUtils;
+    private final ReviewUtils reviewUtils;
     private final UserMapper userMapper;
     private final SnsMapper snsMapper;
     private final ReviewMapper reviewMapper;
@@ -165,7 +165,7 @@ public class SnsService {
 
         List<Review> reviews = findReviewsByUserInPage(user,reviewId,size);
         for(Review review : reviews){
-            snsReviewUtils.saveReviewImage(review);
+            reviewUtils.saveReviewImage(review);
         }
         return reviewMapper.toSnsReviewResponseList(reviews);
     }
