@@ -1,7 +1,7 @@
 package com.developlife.reviewtwits.message.response.review;
 
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import com.developlife.reviewtwits.type.ReviewStatus;
+import com.developlife.reviewtwits.type.review.ReviewStatus;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

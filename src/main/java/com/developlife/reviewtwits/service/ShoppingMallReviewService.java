@@ -13,7 +13,7 @@ import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewPro
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.type.ReferenceType;
-import com.developlife.reviewtwits.type.ReviewStatus;
+import com.developlife.reviewtwits.type.review.ReviewStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

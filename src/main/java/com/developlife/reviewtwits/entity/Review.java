@@ -1,6 +1,6 @@
 package com.developlife.reviewtwits.entity;
 
-import com.developlife.reviewtwits.type.ReviewStatus;
+import com.developlife.reviewtwits.type.review.ReviewStatus;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
