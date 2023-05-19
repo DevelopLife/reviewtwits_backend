@@ -1,6 +1,6 @@
 package com.developlife.reviewtwits.message.validator.user;
 
-import com.developlife.reviewtwits.message.annotation.user.Birthday;
+import com.developlife.reviewtwits.message.annotation.common.DateFormat;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -12,7 +12,7 @@ import java.time.format.DateTimeParseException;
  * @author ghdic
  * @since 2023/03/21
  */
-public class BirthdayValidator implements ConstraintValidator<Birthday, String> {
+public class DateFormatValidator implements ConstraintValidator<DateFormat, String> {
 
         @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
@@ -20,10 +20,10 @@ public class BirthdayValidator implements ConstraintValidator<Birthday, String> 
                 return true;
             }
             try {
-                LocalDate birthday = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                LocalDate inputPast = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 LocalDate now = LocalDate.now();
 
-                if (birthday.isAfter(now)) {
+                if (inputPast.isAfter(now)) {
                     return false;
                 }
             } catch (DateTimeParseException e) {

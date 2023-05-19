@@ -1,6 +1,5 @@
 package com.developlife.reviewtwits.message.annotation.user;
 
-import com.developlife.reviewtwits.message.validator.user.BirthdayValidator;
 import com.developlife.reviewtwits.message.validator.user.GenderValidator;
 
 import javax.validation.Constraint;
