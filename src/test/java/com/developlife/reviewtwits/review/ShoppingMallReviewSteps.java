@@ -37,14 +37,19 @@ public class ShoppingMallReviewSteps {
     final static String wrongReviewText = "좋아요";
     final static int starScore = 4;
 
-    public static List<MultiPartSpecification> 리뷰_이미지_파일정보_생성() throws IOException {
-        String fileFullName = "image.png";
-        File file = new File(System.getProperty("java.io.tmpdir"), fileFullName);
+    public static List<MultiPartSpecification> 리뷰_이미지_파일정보_생성(){
+        try{
+            String fileFullName = "image.png";
+            File file = new File(System.getProperty("java.io.tmpdir"), fileFullName);
 
-        BufferedImage image = new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB);
-        ImageIO.write(image,"png",file);
+            BufferedImage image = new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB);
+            ImageIO.write(image,"png",file);
 
-        return createMultipartFileList(file);
+            return createMultipartFileList(file);
+        }catch(IOException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static MultiPartSpecification 프로필_이미지_파일정보생성() throws IOException {
