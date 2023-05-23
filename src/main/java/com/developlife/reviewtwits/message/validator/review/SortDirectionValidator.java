@@ -12,9 +12,6 @@ import javax.validation.ConstraintValidatorContext;
 public class SortDirectionValidator implements ConstraintValidator<SortDirection, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if(value == null){
-            return false;
-        }
         return value.equals("NEWEST") || value.equals("OLDEST");
     }
 }
