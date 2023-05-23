@@ -44,7 +44,7 @@ public class SnsReviewDocument {
     );
 
     public static final Snippet ReviewIdField = pathParameters(
-            parameterWithName("reviewId").attributes(required()).description("작성할 댓글의 리뷰 아이디")
+            parameterWithName("reviewId").attributes(required()).description("리뷰 아이디")
     );
 
     public static final Snippet SnsCommentWriteRequestField = requestFields(
