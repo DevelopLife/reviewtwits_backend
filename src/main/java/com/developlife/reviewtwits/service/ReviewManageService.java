@@ -10,14 +10,18 @@ import com.developlife.reviewtwits.message.response.review.DetailShoppingMallRev
 import com.developlife.reviewtwits.message.response.review.ReviewApproveResponse;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.type.review.ReviewStatus;
+import com.developlife.reviewtwits.type.review.SortDirectionFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -51,20 +55,38 @@ public class ReviewManageService {
                 .build();
     }
     @Transactional(readOnly = true)
-    public List<DetailShoppingMallReviewResponse> searchReviewByStatus(User user, int page, int size, String status) {
-        Pageable pageable = PageRequest.of(page,size, Sort.by("reviewId").descending());
-        List<Review> foundReviewList = reviewRepository
-                .findByProject_UserAndStatus(user, ReviewStatus.valueOf(status), pageable)
-                .getContent();
+    public List<DetailShoppingMallReviewResponse> searchReviewByInfo(User user, int page, int size, String status, String sort, String startDate, String endDate) {
+        Pageable pageable = PageRequest.of(page,size, SortDirectionFilter.getSortFromDirection(sort,"reviewId"));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime startLocalDate = LocalDate.parse(startDate, formatter).atStartOfDay();
+        LocalDateTime endLocalDate;
+        if (endDate == null){
+            endLocalDate = LocalDateTime.now();
+        }else{
+            endLocalDate = LocalDate.parse(endDate, formatter).atTime(LocalTime.MAX);
+        }
+
+        List<Review> foundReviewList;
+
+        if(status.equals("ALL")){
+            foundReviewList = reviewRepository
+                    .findByProject_UserAndLastModifiedDateBetween(user, startLocalDate, endLocalDate, pageable)
+                    .getContent();
+        }else{
+            foundReviewList = reviewRepository.findByProject_UserAndStatusAndLastModifiedDateBetween(
+                            user,
+                            ReviewStatus.valueOf(status),
+                            startLocalDate,
+                            endLocalDate,
+                            pageable
+                    ).getContent();
+        }
 
         for(Review review : foundReviewList){
             reviewUtils.saveReviewImage(review);
         }
 
         return reviewMapper.toDetailReviewResponseList(foundReviewList);
-    }
-
-    public List<DetailShoppingMallReviewResponse> searchReviewByTimes(User user, int page, int size, String sort, String startDate, String endDate) {
-        return null;
     }
 }
