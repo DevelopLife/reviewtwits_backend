@@ -1,11 +1,11 @@
 package com.developlife.reviewtwits.review;
 
 import com.developlife.reviewtwits.CommonSteps;
-import com.developlife.reviewtwits.entity.Comment;
 import com.developlife.reviewtwits.entity.ItemDetail;
 import com.developlife.reviewtwits.entity.RelatedProduct;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.message.request.review.SnsCommentWriteRequest;
+import com.developlife.reviewtwits.message.response.review.CommentResponse;
 import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.ItemDetailRepository;
 import com.developlife.reviewtwits.repository.RelatedProductRepository;
@@ -146,8 +146,8 @@ public class SnsReviewSteps {
                 .then()
                 .log().all();
 
-        List<Comment> recentComments = commentRepository.findByReview_ReviewId(reviewId);
-        return recentComments.get(recentComments.size()-1).getCommentId();
+        List<CommentResponse> recentComments = commentRepository.findByReview_ReviewId(reviewId);
+        return recentComments.get(recentComments.size()-1).commentId();
     }
 
     public void SNS_리액션_추가(String token, long registeredReviewId){

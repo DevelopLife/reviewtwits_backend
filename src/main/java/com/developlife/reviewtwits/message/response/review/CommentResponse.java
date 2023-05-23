@@ -1,7 +1,6 @@
 package com.developlife.reviewtwits.message.response.review;
 
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import com.developlife.reviewtwits.repository.CommentRepository;
 import lombok.Builder;
 
 /**
@@ -12,7 +11,8 @@ public record CommentResponse(
         long commentId,
         UserInfoResponse userInfo,
         String content,
-        long parentCommentId
+        long parentCommentId,
+        long commentLikeCount
 ){
     @Builder
     public CommentResponse{

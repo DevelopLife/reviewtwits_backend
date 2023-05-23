@@ -5,8 +5,10 @@ import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.CommonSteps;
 import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.review.CommentResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.*;
+import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.type.review.ReviewStatus;
@@ -629,7 +631,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .statusCode(HttpStatus.OK.value())
                 .log().all();
 
-        List<Comment> commentList = commentRepository.findByReview_ReviewId(registeredReviewId);
+        List<CommentResponse> commentList = commentRepository.findByReview_ReviewId(registeredReviewId);
         assertThat(commentList).isEmpty();
     }
 
@@ -1081,6 +1083,9 @@ public class SnsReviewApiTest extends ApiTest {
 
         CommentLike commentLike = commentLikeRepository.findById(foundCommentLikeId).get();
         assertThat(commentLike.getComment().getCommentId()).isEqualTo(commentId);
+
+        JsonPath commentJsonPath = 댓글_JsonPath_불러오기(registeredReviewId);
+        assertThat(commentJsonPath.getInt("[0].commentLikeCount")).isEqualTo(1);
     }
 
     @Test
@@ -1179,6 +1184,9 @@ public class SnsReviewApiTest extends ApiTest {
         commentRepository.findById(jsonPath.getLong("commentId")).ifPresent(comment -> {
             assertThat(comment.getCommentLike()).isEqualTo(0);
         });
+
+        JsonPath commentJsonPath = 댓글_JsonPath_불러오기(registeredReviewId);
+        assertThat(commentJsonPath.getInt("[0].commentLikeCount")).isEqualTo(0);
     }
 
     @Test
@@ -1279,18 +1287,18 @@ public class SnsReviewApiTest extends ApiTest {
 
     Long SNS_리뷰_댓글_작성(String token, long reviewId){
 
-        given(this.spec)
+        ExtractableResponse<Response> response = given(this.spec)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN",token)
+                .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", reviewId)
-                .body(SnsReviewSteps.댓글_작성정보_생성())
+                .body(댓글_작성정보_생성())
                 .when()
                 .post("/sns/comments/{reviewId}")
                 .then()
-                .log().all();
+                .log().all().extract();
 
-        List<Comment> recentComments = commentRepository.findByReview_ReviewId(reviewId);
-        return recentComments.get(recentComments.size()-1).getCommentId();
+        JsonPath jsonPath = response.jsonPath();
+        return jsonPath.getLong("commentId");
     }
 
     JsonPath 피드_리뷰_리액션_추출(String token){
@@ -1336,5 +1344,18 @@ public class SnsReviewApiTest extends ApiTest {
                 .post("/sns/comments-like/{commentId}")
                 .then()
                 .log().all();
+    }
+
+    JsonPath 댓글_JsonPath_불러오기(Long reviewId){
+        ExtractableResponse<Response> response = given(this.spec)
+                .pathParam("reviewId", reviewId)
+                .when()
+                .get("/sns/comments/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        return response.jsonPath();
     }
 }

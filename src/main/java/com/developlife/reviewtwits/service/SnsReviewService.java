@@ -13,6 +13,7 @@ import com.developlife.reviewtwits.message.response.review.DetailReactionRespons
 import com.developlife.reviewtwits.message.response.review.ReviewScrapResultResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.*;
+import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.ReactionType;
@@ -92,8 +93,8 @@ public class SnsReviewService {
         if(!reviewRepository.existsById(reviewId)){
             throw new ReviewNotFoundException("댓글을 확인하려는 리뷰가 존재하지 않습니다.");
         }
-        List<Comment> commentList = commentRepository.findByReview_ReviewId(reviewId);
-        return mapper.toCommentResponseList(commentList);
+        return commentRepository.findByReview_ReviewId(reviewId);
+
     }
 
     @Transactional

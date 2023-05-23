@@ -132,7 +132,8 @@ public class SnsReviewDocument {
         fieldWithPath("[].userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
         fieldWithPath("[].userInfo.isFollowed").type(JsonFieldType.BOOLEAN).description("요청한 유저가 팔로우했는지 여부").optional(),
         fieldWithPath("[].content").type(JsonFieldType.STRING).description("댓글내용"),
-        fieldWithPath("[].parentCommentId").type(JsonFieldType.NUMBER).description("부모댓글아이디")
+        fieldWithPath("[].parentCommentId").type(JsonFieldType.NUMBER).description("부모댓글아이디"),
+        fieldWithPath("[].commentLikeCount").type(JsonFieldType.NUMBER).description("댓글 좋아요 수")
     );
 
     public static final Snippet SnsCommentResultResponseField = responseFields(
@@ -148,7 +149,8 @@ public class SnsReviewDocument {
         fieldWithPath("userInfo.followings").type(JsonFieldType.NUMBER).description("팔로잉 수").optional(),
         fieldWithPath("userInfo.isFollowed").type(JsonFieldType.BOOLEAN).description("요청한 유저가 팔로우했는지 여부").optional(),
         fieldWithPath("content").type(JsonFieldType.STRING).description("댓글내용"),
-        fieldWithPath("parentCommentId").type(JsonFieldType.NUMBER).description("부모댓글아이디")
+        fieldWithPath("parentCommentId").type(JsonFieldType.NUMBER).description("부모댓글아이디"),
+        fieldWithPath("commentLikeCount").type(JsonFieldType.NUMBER).description("댓글 좋아요 수")
     );
 
     public static final Snippet SnsReactionResponseField = responseFields(
