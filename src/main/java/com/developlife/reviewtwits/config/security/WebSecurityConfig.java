@@ -76,6 +76,7 @@ public class WebSecurityConfig {
             .antMatchers("/sns/comments-like/**").hasRole("USER")
             .antMatchers("/products/register/**").hasRole("USER")
             .antMatchers("/review-management/approve").hasRole("USER")
+            .antMatchers("/review-management/search").hasRole("USER")
             .anyRequest()
             .permitAll()
             .and()
