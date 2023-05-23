@@ -16,6 +16,7 @@ import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.ReactionType;
+import com.developlife.reviewtwits.type.review.ReviewStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -50,7 +51,7 @@ public class SnsReviewService {
     private final ReviewScrapRepository reviewScrapRepository;
     private final CommentLikeRepository commentLikeRepository;
 
-    private final SnsReviewUtils snsReviewUtils;
+    private final ReviewUtils reviewUtils;
 
     @Transactional
     public DetailSnsReviewResponse saveSnsReview(SnsReviewWriteRequest writeRequest, User user){
@@ -70,7 +71,7 @@ public class SnsReviewService {
             review.setReviewImageCount(writeRequest.multipartImageFiles().size());
         }
 
-        snsReviewUtils.saveReviewImage(review);
+        reviewUtils.saveReviewImage(review);
         return mapper.toDetailSnsReviewResponse(review, new HashMap<>(), false);
     }
 
@@ -213,7 +214,7 @@ public class SnsReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리뷰가 존재하지 않습니다."));
 
-        review.setExist(false);
+        review.setStatus(ReviewStatus.DELETED);
         reviewRepository.save(review);
 
         review.setReviewImageUuidList(new ArrayList<>());
@@ -262,7 +263,7 @@ public class SnsReviewService {
         }
 
         reviewRepository.save(review);
-        snsReviewUtils.saveReviewImage(review);
+        reviewUtils.saveReviewImage(review);
         return mapper.toDetailSnsReviewResponse(review, new HashMap<>(), false);
     }
 

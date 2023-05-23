@@ -1,16 +1,12 @@
 package com.developlife.reviewtwits.message.request.user;
 
-import com.developlife.reviewtwits.message.annotation.user.Birthday;
+import com.developlife.reviewtwits.message.annotation.common.DateFormat;
 import com.developlife.reviewtwits.message.annotation.user.Gender;
 import com.developlife.reviewtwits.message.annotation.user.Password;
 import com.developlife.reviewtwits.message.annotation.user.Phone;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
-import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.*;
-import java.time.LocalDateTime;
 
 /**
  * @author ghdic
@@ -25,7 +21,7 @@ public record RegisterUserRequest(
         @Password
         String accountPw,
         @NotBlank(message = "생년월일을 입력해주세요")
-        @Birthday
+        @DateFormat
         String birthDate,
         @NotBlank(message = "휴대폰번호를 입력해주세요")
         @Phone

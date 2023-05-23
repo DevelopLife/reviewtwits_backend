@@ -9,6 +9,7 @@ import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.service.user.UserService;
+import com.developlife.reviewtwits.type.review.ReviewStatus;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
 import io.restassured.http.ContentType;
@@ -500,7 +501,7 @@ public class SnsReviewApiTest extends ApiTest {
                 .log().all().extract();
 
         Review deletedReview = reviewRepository.findById(recentReviewId).get();
-        assertThat(deletedReview.isExist()).isFalse();
+        assertThat(deletedReview.getStatus()).isEqualTo(ReviewStatus.DELETED);
     }
 
     @Test

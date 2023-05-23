@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.message.response.review;
 
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
+import com.developlife.reviewtwits.type.review.ReviewStatus;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public record DetailShoppingMallReviewResponse(LocalDateTime createdDate,
                                                String productName,
                                                int score,
                                                List<String> reviewImageUrlList,
-                                               boolean exist){
+                                               ReviewStatus status){
 
     @Builder
     public DetailShoppingMallReviewResponse {}

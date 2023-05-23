@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.entity;
 
+import com.developlife.reviewtwits.type.review.ReviewStatus;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -34,9 +35,9 @@ public class Review extends BaseEntity {
     @ColumnDefault(value = "false")
     private boolean certificationFlag = false;
 
-    @Builder.Default
-    @ColumnDefault(value = "true")
-    private boolean exist = true;
+    @Enumerated(value = EnumType.STRING)
+    @ColumnDefault(value = "'PENDING'")
+    private ReviewStatus status = ReviewStatus.PENDING;
 
     @Column(columnDefinition = "TEXT", length = 65535)
     private String content;
