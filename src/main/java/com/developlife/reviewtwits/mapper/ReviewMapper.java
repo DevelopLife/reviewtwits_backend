@@ -5,9 +5,9 @@ import com.developlife.reviewtwits.message.response.review.*;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.message.response.sns.SnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
+import com.developlife.reviewtwits.repository.review.CommentMappingDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +24,19 @@ public interface ReviewMapper {
 
     ReviewMapper INSTANCE = Mappers.getMapper(ReviewMapper.class);
     List<DetailShoppingMallReviewResponse> toDetailReviewResponseList(List<Review> reviews);
-    List<CommentResponse> toCommentResponseList(List<Comment> comments);
     List<SnsReviewResponse> toSnsReviewResponseList(List<Review> reviews);
+
+    List<CommentResponse> toCommentResponseList(List<CommentMappingDTO> commentResults);
+
+    default CommentResponse mapCommentDTOToCommentResponse(CommentMappingDTO commentMappingDTO){
+        return CommentResponse.builder()
+                .commentId(commentMappingDTO.getComment().getCommentId())
+                .content(commentMappingDTO.getComment().getContent())
+                .parentCommentId(commentMappingDTO.getComment().getCommentGroup().getCommentId())
+                .commentLikeCount(commentMappingDTO.getCommentLikeCount())
+                .userInfo(mapUserToUserInfoResponse(commentMappingDTO.getComment().getUser()))
+                .build();
+    }
 
     default List<String> mapImageUuidToUrlList(List<String> imageUuidList){
         ArrayList<String> imageUrlList = new ArrayList<>();
