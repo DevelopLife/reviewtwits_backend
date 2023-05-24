@@ -24,9 +24,8 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/register/{projectName}")
-    public ProductRegisterResponse registerProduct(@AuthenticationPrincipal User user,
-                                                   @PathVariable String projectName,
+    public ProductRegisterResponse registerProduct(@PathVariable String projectName,
                                                    @Valid @RequestBody ProductRegisterRequest request){
-        return productService.registerProductOnProject(user, projectName, request);
+        return productService.registerProductOnProject(projectName, request);
     }
 }
