@@ -587,9 +587,12 @@ public class SnsReviewApiTest extends ApiTest {
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰의 댓글을 확인하는 API 입니다." +
-                        "리뷰 아이디가 path에 들어가며, 해당 아이디로 된 리뷰가 존재하지 않을 경우 404 Not Found 가 반환됩니다." +
-                        "리뷰가 존재한다면, 200 OK 와 함께 리뷰의 댓글 리스트들이 반환됩니다.","SNS리뷰댓글확인"
-                        ,SnsReviewDocument.ReviewIdField,SnsReviewDocument.SnsReviewCommentResponseField))
+                        "<br>유저 헤더 정보 입력은 선택사항입니다. 헤더 정보가 존재하지 않을 시 isCommentLike 가 false 로 반환됩니다." +
+                        "<br>리뷰 아이디가 path에 들어가며, 해당 아이디로 된 리뷰가 존재하지 않을 경우 404 Not Found 가 반환됩니다." +
+                        "<br>리뷰가 존재한다면, 200 OK 와 함께 리뷰의 댓글 리스트들이 반환됩니다.","SNS리뷰댓글확인"
+                        ,SnsReviewDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReviewCommentResponseField))
                 .pathParam("reviewId", registeredReviewId)
                 .when()
                 .get("/sns/comments/{reviewId}")
