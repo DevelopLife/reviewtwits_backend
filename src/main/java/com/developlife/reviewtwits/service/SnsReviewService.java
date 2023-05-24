@@ -89,11 +89,11 @@ public class SnsReviewService {
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponse> getCommentInfo(long reviewId){
+    public List<CommentResponse> getCommentInfo(long reviewId, User user){
         if(!reviewRepository.existsById(reviewId)){
             throw new ReviewNotFoundException("댓글을 확인하려는 리뷰가 존재하지 않습니다.");
         }
-        return commentRepository.findByReview_ReviewId(reviewId);
+        return commentRepository.findByReview_ReviewId(reviewId, user);
 
     }
 

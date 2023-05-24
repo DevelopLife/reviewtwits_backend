@@ -1,9 +1,12 @@
 package com.developlife.reviewtwits.repository.review;
 
 import com.developlife.reviewtwits.entity.Comment;
+import com.developlife.reviewtwits.entity.CommentLike;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Set;
 
 /**
  * @author WhalesBob
@@ -13,11 +16,11 @@ import lombok.Setter;
 @Setter
 public class CommentMappingDTO {
     private Comment comment;
-    private long commentLikeCount;
+    private Set<CommentLike> commentLikeSet;
 
     @QueryProjection
-    public CommentMappingDTO(Comment comment, long commentLikeCount) {
+    public CommentMappingDTO(Comment comment, Set<CommentLike> commentLikeSet) {
         this.comment = comment;
-        this.commentLikeCount = commentLikeCount;
+        this.commentLikeSet = commentLikeSet;
     }
 }

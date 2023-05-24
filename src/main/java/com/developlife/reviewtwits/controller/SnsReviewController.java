@@ -73,8 +73,8 @@ public class SnsReviewController {
 
 
     @GetMapping("/comments/{reviewId}")
-    public List<CommentResponse> getCommentsForReviews(@PathVariable Long reviewId){
-        return snsReviewService.getCommentInfo(reviewId);
+    public List<CommentResponse> getCommentsForReviews(@AuthenticationPrincipal User user,@PathVariable Long reviewId){
+        return snsReviewService.getCommentInfo(reviewId, user);
     }
 
     @PostMapping("/comments/{reviewId}")
