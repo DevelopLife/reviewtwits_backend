@@ -31,14 +31,10 @@ public class ProductService {
 
     private final String REQUEST_IMAGES = "/request-images/";
 
-    public ProductRegisterResponse registerProductOnProject(User user, String projectName, ProductRegisterRequest request) {
+    public ProductRegisterResponse registerProductOnProject(String projectName, ProductRegisterRequest request) {
 
         Project project = projectRepository.findByProjectName(projectName)
                 .orElseThrow(() -> new ProjectNotFoundException("존재하지 않는 프로젝트입니다."));
-
-        if(!project.getUser().equals(user)){
-            throw new AccessDeniedException("프로젝트에 대한 권한이 없습니다.");
-        }
 
         Optional<Product> foundProduct = productRepository.findProductByProductUrl(request.productUrl());
         if(foundProduct.isPresent()){

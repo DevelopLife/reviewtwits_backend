@@ -53,23 +53,17 @@ public class ProductApiTest extends ApiTest {
     @Test
     void 제품_URL_등록_성공_200(){
 
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "제품 URL 등록 API 입니다." +
-                        "<br>X-AUTH-TOKEN 헤더가 없다면, 401 Unauthorized 가 반환됩니다." +
-                        "<br>요청한 유저가 프로젝트에 대한 권한을 가지고 있지 않다면, 403 Forbidden 이 반환됩니다." +
                         "<br>제품을 중복해서 등록한다면, 409 Conflict 가 반환됩니다." +
                         "<br>프로젝트 이름은 Path Parameter 로 넘겨주어야 합니다." +
                         "<br>입력한 프로젝트 이름으로 된 프로젝트가 존재하지 않는다면, 404 Not Found 가 반환됩니다." +
                         "<br>입력한 제품 URL, 이미지 URL 이 올바른 양식이 아니라면, 400 Bad Request 가 반환됩니다." +
                         "<br>product Name 을 입력하지 않는다면 400 Bad Request 가 반환됩니다.", "제품URL등록API",
-                        UserDocument.AccessTokenHeader,
                         ProjectDocument.ProjectNamePathParam,
                         ProductDocument.ProductUrlRegisterRequestFields,
                         ProductDocument.ProductRegisterResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN",token)
                 .pathParam("projectName", ProjectSteps.projectName)
                 .body(ProductSteps.제품URL등록요청_생성())
                 .when()
@@ -81,48 +75,11 @@ public class ProductApiTest extends ApiTest {
     }
 
     @Test
-    void 제품_URL_등록_유저헤더정보없음_401(){
-
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("projectName", ProjectSteps.projectName)
-                .body(ProductSteps.제품URL등록요청_생성())
-                .when()
-                .post("/products/register/{projectName}")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.UNAUTHORIZED.value())
-                .log().all().extract();
-    }
-
-    @Test
-    void 제품_URL_등록_프로젝트_권한없음_403(){
-
-        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
-
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN",otherToken)
-                .pathParam("projectName",ProjectSteps.projectName)
-                .body(ProductSteps.제품URL등록요청_생성())
-                .when()
-                .post("/products/register/{projectName}")
-                .then()
-                .assertThat()
-                .statusCode(HttpStatus.FORBIDDEN.value())
-                .log().all().extract();
-    }
-
-    @Test
     void 제품_URL_등록_프로젝트_없음_404(){
-        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN",otherToken)
                 .pathParam("projectName",ProjectSteps.wrongProjectName)
                 .body(ProductSteps.제품URL등록요청_생성())
                 .when()
@@ -136,14 +93,11 @@ public class ProductApiTest extends ApiTest {
     @Test
     void 제품_URL_등록_제품중복등록_409() {
 
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-
-        제품_URL_등록_요청(token);
+        제품_URL_등록_요청();
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN", token)
                 .pathParam("projectName", ProjectSteps.projectName)
                 .body(ProductSteps.제품URL등록요청_생성())
                 .when()
@@ -157,12 +111,10 @@ public class ProductApiTest extends ApiTest {
 
     @Test
     void 제품_URL_등록_URL_양식_오류_400(){
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN",token)
                 .pathParam("projectName",ProjectSteps.projectName)
                 .body(ProductSteps.제품URL_URL양식_아님())
                 .when()
@@ -175,12 +127,10 @@ public class ProductApiTest extends ApiTest {
 
     @Test
     void 제품_URL_등록_제품이름_누락_400(){
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN",token)
                 .pathParam("projectName",ProjectSteps.projectName)
                 .body(ProductSteps.제품URL_제품이름_누락())
                 .when()
@@ -191,10 +141,9 @@ public class ProductApiTest extends ApiTest {
                 .log().all().extract();
     }
 
-    private void 제품_URL_등록_요청(String token) {
+    private void 제품_URL_등록_요청() {
         given(this.spec)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN", token)
                 .pathParam("projectName", ProjectSteps.projectName)
                 .body(ProductSteps.제품URL등록요청_생성())
                 .when()
