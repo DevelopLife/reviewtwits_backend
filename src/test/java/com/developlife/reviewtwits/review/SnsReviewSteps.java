@@ -13,6 +13,9 @@ import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import io.restassured.RestAssured;
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.fileupload.disk.DiskFileItem;
@@ -136,18 +139,18 @@ public class SnsReviewSteps {
 
     public Long SNS_리뷰_댓글_작성(String token, long reviewId){
 
-        given()
+        ExtractableResponse<Response> response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("X-AUTH-TOKEN",token)
+                .header("X-AUTH-TOKEN", token)
                 .pathParam("reviewId", reviewId)
                 .body(SnsReviewSteps.댓글_작성정보_생성())
                 .when()
                 .post("/sns/comments/{reviewId}")
                 .then()
-                .log().all();
+                .log().all().extract();
 
-        List<CommentResponse> recentComments = commentRepository.findByReview_ReviewId(reviewId);
-        return recentComments.get(recentComments.size()-1).commentId();
+        JsonPath jsonPath = response.jsonPath();
+        return jsonPath.getLong("commentId");
     }
 
     public void SNS_리액션_추가(String token, long registeredReviewId){

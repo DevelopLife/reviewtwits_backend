@@ -26,18 +26,6 @@ public interface ReviewMapper {
     List<DetailShoppingMallReviewResponse> toDetailReviewResponseList(List<Review> reviews);
     List<SnsReviewResponse> toSnsReviewResponseList(List<Review> reviews);
 
-    List<CommentResponse> toCommentResponseList(List<CommentMappingDTO> commentResults);
-
-    default CommentResponse mapCommentDTOToCommentResponse(CommentMappingDTO commentMappingDTO){
-        return CommentResponse.builder()
-                .commentId(commentMappingDTO.getComment().getCommentId())
-                .content(commentMappingDTO.getComment().getContent())
-                .parentCommentId(commentMappingDTO.getComment().getCommentGroup().getCommentId())
-                .commentLikeCount(commentMappingDTO.getCommentLikeCount())
-                .userInfo(mapUserToUserInfoResponse(commentMappingDTO.getComment().getUser()))
-                .build();
-    }
-
     default List<String> mapImageUuidToUrlList(List<String> imageUuidList){
         ArrayList<String> imageUrlList = new ArrayList<>();
         for(String imageUuid : imageUuidList)
@@ -96,10 +84,13 @@ public interface ReviewMapper {
 
     default CommentResponse toCommentResponse(Comment comment){
         return CommentResponse.builder()
+                .createdDate(comment.getCreatedDate())
                 .commentId(comment.getCommentId())
                 .content(comment.getContent())
                 .parentCommentId(comment.getCommentGroup().getCommentId())
                 .userInfo(mapUserToUserInfoResponse(comment.getUser()))
+                .commentLikeCount(comment.getCommentLike())
+                .isCommentLiked(false)
                 .build();
     }
 
