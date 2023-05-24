@@ -38,7 +38,7 @@ public class ReviewManagementController {
 
     @GetMapping("/search")
     public List<DetailShoppingMallReviewResponse> searchReviewByInfo(@AuthenticationPrincipal User user,
-                                                                     @Min(value = 0, message = "페이지 숫자는 1 이상 입력해야 합니다.")
+                                                                     @Min(value = 0, message = "페이지 숫자는 0 이상 입력해야 합니다.")
                                                                      @RequestParam int page,
                                                                      @Min(value = 1, message = "size 숫자는 1 이상 입력해야 합니다.")
                                                                      @RequestParam int size,
