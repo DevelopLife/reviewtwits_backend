@@ -629,9 +629,9 @@ public class SnsReviewApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .log().all();
+                .log().all().extract();
 
-        List<CommentResponse> commentList = commentRepository.findByReview_ReviewId(registeredReviewId);
+        List<CommentResponse> commentList = commentRepository.findByReview_ReviewId(registeredReviewId, null);
         assertThat(commentList).isEmpty();
     }
 
@@ -686,7 +686,8 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>X-AUTH-HEADER 가 존재하지 않거나, 올바르지 않거나, 해당 유저가 댓글을 수정할 권한이 없다면 401 Unauthorized 가 반환됩니다." +
                         "<br>수정할 commentId 가 존재하지 않으면, 404 Not Found 가 반환됩니다." +
                         "<br>댓글 내용이 존재하지 않으면, 400 Bad Request 가 반환됩니다." +
-                        "<br>댓글이 성공적으로 수정되었다면 200 OK 가 반환됩니다","SNS리뷰댓글수정",
+                        "<br>댓글이 성공적으로 수정되었다면 200 OK 가 반환됩니다" +
+                        "<br><br> 수정 이후 반환되는 메세지의 isCommentLike 는 정확하지 않을 수 있습니다. 다시 리뷰 댓글 확인 API 를 통해 확인해주세요.","SNS리뷰댓글수정",
                         UserDocument.AccessTokenHeader,
                         SnsReviewDocument.CommentIdField,
                         SnsReviewDocument.SnsCommentChangeRequestField,
@@ -1084,7 +1085,7 @@ public class SnsReviewApiTest extends ApiTest {
         CommentLike commentLike = commentLikeRepository.findById(foundCommentLikeId).get();
         assertThat(commentLike.getComment().getCommentId()).isEqualTo(commentId);
 
-        JsonPath commentJsonPath = 댓글_JsonPath_불러오기(registeredReviewId);
+        JsonPath commentJsonPath = 댓글_JsonPath_불러오기(registeredReviewId, token);
         assertThat(commentJsonPath.getInt("[0].commentLikeCount")).isEqualTo(1);
     }
 
@@ -1185,7 +1186,7 @@ public class SnsReviewApiTest extends ApiTest {
             assertThat(comment.getCommentLike()).isEqualTo(0);
         });
 
-        JsonPath commentJsonPath = 댓글_JsonPath_불러오기(registeredReviewId);
+        JsonPath commentJsonPath = 댓글_JsonPath_불러오기(registeredReviewId, token);
         assertThat(commentJsonPath.getInt("[0].commentLikeCount")).isEqualTo(0);
     }
 
@@ -1346,8 +1347,9 @@ public class SnsReviewApiTest extends ApiTest {
                 .log().all();
     }
 
-    JsonPath 댓글_JsonPath_불러오기(Long reviewId){
+    JsonPath 댓글_JsonPath_불러오기(Long reviewId, String token){
         ExtractableResponse<Response> response = given(this.spec)
+                .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId", reviewId)
                 .when()
                 .get("/sns/comments/{reviewId}")

@@ -360,6 +360,8 @@ public class ReviewManageApiTest extends ApiTest {
         Long otherTokenReviewId = 쇼핑몰_리뷰_등록(otherToken);
         리뷰_허가(token, otherTokenReviewId);
 
+        String todayDate = LocalDate.now().toString();
+
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH,
                         UserDocument.AccessTokenHeader,
@@ -368,7 +370,7 @@ public class ReviewManageApiTest extends ApiTest {
                 .header("X-AUTH-TOKEN", token)
                 .param("page", 0)
                 .param("size", 5)
-                .param("endDate", "2023-05-23")
+                .param("endDate", todayDate)
                 .when()
                 .get("/review-management/search")
                 .then()
