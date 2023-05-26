@@ -24,8 +24,8 @@ public class ReviewManageDocument {
     );
 
     public static final Snippet reviewSearchRequestField = requestParameters(
-            parameterWithName("page").attributes(required()).description("리뷰 페이지"),
             parameterWithName("size").attributes(required()).description("요청하는 페이지 사이즈"),
+            parameterWithName("reviewId").description("리뷰 아이디").optional(),
             parameterWithName("status").description("리뷰 상태").optional(),
             parameterWithName("sort").description("리뷰 오름/내림차순").optional(),
             parameterWithName("startDate").description("리뷰 시작 날짜").optional(),

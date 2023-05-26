@@ -230,8 +230,9 @@ public class ReviewManageApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH, "리뷰 관리에서 리뷰를 검색하는 API 입니다." +
                         "<br>헤더의 X-AUTH-TOKEN, Query String 의 page,size 는 필수값입니다." +
                         "<br>X-AUTH-TOKEN 이 존재하지 않을 시 401 Unauthorized 가 발생합니다." +
-                        "<br>page 나 size 가 존재하지 않거나, page 가 0 이상의 값이 아니거나, size 가 1 이상의 값이 아닐 시 400 Bad Request 가 발생합니다." +
-                        "<br>Query String 에 status, sort, startDate, endDate 는 선택적으로 입력할 수 있습니다." +
+                        "<br>size 가 존재하지 않거나, size 가 1 이상의 값이 아닐 시 400 Bad Request 가 발생합니다." +
+                        "<br>Query String 에 status, sort, startDate, endDate, reviewId 는 선택적으로 입력할 수 있습니다." +
+                        "<br>reviewId 는 1 이상의 값으로 입력해야 하며, 내림차순일 때는 가장 낮은 reviewId, 오름차순일 때는 가장 높은 reviewId 를 입력하면 그 다음 review 를 받을 수 있습니다." +
                         "<br>status 는 PENDING, APPROVED, SPAM, DELETED 중 하나를 입력할 수 있습니다." +
                         "<br>sort 는 NEWEST, OLDEST 중 하나를 입력할 수 있습니다." +
                         "<br>startDate, endDate 는 yyyy-MM-dd 형식의 날짜를 입력할 수 있습니다." +
@@ -240,7 +241,6 @@ public class ReviewManageApiTest extends ApiTest {
                         ReviewManageDocument.reviewSearchRequestField,
                         ShoppingMallReviewDocument.shoppingMallReviewListResponseField))
                 .header("X-AUTH-TOKEN", token)
-                .param("page", 0)
                 .param("size", 5)
                 .when()
                 .get("/review-management/search")
@@ -272,7 +272,6 @@ public class ReviewManageApiTest extends ApiTest {
                         ReviewManageDocument.reviewSearchRequestField,
                         ShoppingMallReviewDocument.shoppingMallReviewListResponseField))
                 .header("X-AUTH-TOKEN", token)
-                .param("page", 0)
                 .param("size", 5)
                 .param("status", "APPROVED")
                 .when()
@@ -302,7 +301,6 @@ public class ReviewManageApiTest extends ApiTest {
                         ReviewManageDocument.reviewSearchRequestField,
                         ShoppingMallReviewDocument.shoppingMallReviewListResponseField))
                 .header("X-AUTH-TOKEN", token)
-                .param("page", 0)
                 .param("size", 5)
                 .param("sort","OLDEST")
                 .when()
@@ -334,7 +332,6 @@ public class ReviewManageApiTest extends ApiTest {
                         ReviewManageDocument.reviewSearchRequestField,
                         ShoppingMallReviewDocument.shoppingMallReviewListResponseField))
                 .header("X-AUTH-TOKEN", token)
-                .param("page", 0)
                 .param("size", 5)
                 .param("startDate", "2023-05-01")
                 .when()
@@ -368,7 +365,6 @@ public class ReviewManageApiTest extends ApiTest {
                         ReviewManageDocument.reviewSearchRequestField,
                         ShoppingMallReviewDocument.shoppingMallReviewListResponseField))
                 .header("X-AUTH-TOKEN", token)
-                .param("page", 0)
                 .param("size", 5)
                 .param("endDate", todayDate)
                 .when()
@@ -400,7 +396,6 @@ public class ReviewManageApiTest extends ApiTest {
                         UserDocument.AccessTokenHeader,
                         ReviewManageDocument.reviewSearchRequestField))
                 .header("X-AUTH-TOKEN", token)
-                .param("page", 0)
                 .param("size", 5)
                 .param("status", "SPAM")
                 .when()
@@ -428,7 +423,6 @@ public class ReviewManageApiTest extends ApiTest {
                         UserDocument.AccessTokenHeader,
                         ReviewManageDocument.reviewSearchRequestField))
                 .header("X-AUTH-TOKEN", otherToken)
-                .param("page", 0)
                 .param("size", 5)
                 .when()
                 .get("/review-management/search")
@@ -442,7 +436,7 @@ public class ReviewManageApiTest extends ApiTest {
     }
 
     @Test
-    void 리뷰_찾기_page_설정_이상_400(){
+    void 리뷰_찾기_reviewId_설정_이상_400(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
 
@@ -453,7 +447,7 @@ public class ReviewManageApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("page", -1)
+                .param("reviewId", -1)
                 .param("size", 5)
                 .when()
                 .get("/review-management/search")
@@ -475,7 +469,6 @@ public class ReviewManageApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH,CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("page", 0)
                 .param("size", -1)
                 .when()
                 .get("/review-management/search")
@@ -496,7 +489,6 @@ public class ReviewManageApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
-                .param("page", 0)
                 .param("size", 5)
                 .when()
                 .get("/review-management/search")
