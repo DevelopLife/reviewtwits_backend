@@ -1,17 +1,19 @@
 package com.developlife.reviewtwits.repository.review;
 
-import com.developlife.reviewtwits.entity.QFollow;
 import com.developlife.reviewtwits.entity.QReview;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.mapper.UserMapper;
+import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.type.ReactionType;
 import com.developlife.reviewtwits.type.ReferenceType;
+import com.developlife.reviewtwits.type.review.ReviewStatus;
 import com.querydsl.core.group.Group;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -24,7 +26,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -69,7 +76,7 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
     @Override
     public List<DetailSnsReviewResponse> findMappingReviewById(User user,Long reviewId, Pageable pageable) {
         QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(review);
-        BooleanExpression lessThanReviewId = getExpressionOfId(reviewId);
+        BooleanExpression lessThanReviewId = getExpressionOfId(reviewId, pageable);
 
         Pageable realPageable = getRealPageable(pageable, lessThanReviewId, review, review);
 
@@ -143,6 +150,88 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         return userInfoResponseList;
     }
 
+    @Override
+    public List<DetailShoppingMallReviewResponse> findReviewsBySearchInfo(User user, Long reviewId, String status, String startDate,
+                                                                          String endDate, String keyword, Pageable pageable) {
+        BooleanExpression expression = makeSearchExpression(user, status, startDate, endDate, keyword);
+        BooleanExpression lessThanReviewId = getExpressionOfId(reviewId, pageable);
+
+        Pageable realPageable = getPageableContainsImageCount(pageable, expression.and(lessThanReviewId));
+
+        OrderSpecifier<Long> orders;
+        if(pageable.getSort().equals(Sort.by("reviewId").descending())){
+            orders = review.reviewId.desc();
+        }else{
+            orders = review.reviewId.asc();
+        }
+
+        Map<Review, List<String>> transform = jpaQueryFactory.select(review, fileInfo.realFilename)
+                .from(review, fileInfo, fileManager)
+                .where(fileExpressionWithInsertion(expression.and(lessThanReviewId), review))
+                .orderBy(orders)
+                .offset(realPageable.getOffset())
+                .limit(realPageable.getPageSize())
+                .transform(
+                        groupBy(review).as(
+                                list(fileInfo.realFilename)));
+
+        List<DetailShoppingMallReviewResponse> resultList = new ArrayList<>();
+        for(Map.Entry<Review, List<String>> entry : transform.entrySet()){
+            Review targetReview = entry.getKey();
+            targetReview.setReviewImageUuidList(entry.getValue());
+            resultList.add(reviewMapper.mapReviewToDetailReviewResponse(targetReview));
+        }
+        return resultList;
+    }
+
+    private BooleanExpression makeSearchExpression(User user,String status, String startDate, String endDate, String keyword){
+        BooleanExpression expression = review.project.user.eq(user);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        if(startDate != null){
+            LocalDateTime startLocalDate = LocalDate.parse(startDate, formatter).atStartOfDay();
+            expression = expression.and(review.lastModifiedDate.after(startLocalDate));
+        }
+
+        if(endDate != null){
+            LocalDateTime endLocalDate = LocalDate.parse(endDate, formatter).atTime(LocalTime.MAX);
+            expression = expression.and(review.lastModifiedDate.before(endLocalDate));
+        }
+
+        if(status != null){
+            expression = expression.and(review.status.eq(ReviewStatus.valueOf(status)));
+        }
+
+        if(keyword != null){
+            List<String> keywordList = Arrays.stream(keyword.split("\\+")).toList();
+            for(String key : keywordList){
+                expression = expression.and(review.content.contains(key));
+            }
+        }
+
+        return expression;
+    }
+
+    private Pageable getPageableContainsImageCount(Pageable pageable, BooleanExpression expression){
+        List<Review> reviewList = jpaQueryFactory.selectFrom(review)
+                .where(expression)
+                .orderBy(review.reviewId.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        int realPageableSize = 0;
+        for(Review review : reviewList){
+            realPageableSize += getReviewFieldCount(review.getReviewImageCount());
+        }
+
+        if(realPageableSize == 0){
+            realPageableSize = 1;
+        }
+
+        return PageRequest.of(0,realPageableSize, pageable.getSort());
+    }
+
     public List<DetailSnsReviewResponse> findMappingReview(Supplier<JPAQuery<ReviewMappingDTO>> codeSupply,
                                                            User reviewSearcher,
                                                            Pageable pageable,
@@ -212,11 +301,15 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         return reviewScrap.user.eq(user);
     }
 
-    private BooleanExpression getExpressionOfId(Long reviewId) {
+    private BooleanExpression getExpressionOfId(Long reviewId, Pageable pageable) {
         if(reviewId == null){
             return review.reviewId.isNotNull();
         }
-        return review.reviewId.lt(reviewId);
+
+        if(pageable.getSort().equals(Sort.by("reviewId").descending())){
+            return review.reviewId.lt(reviewId);
+        }
+        return review.reviewId.gt(reviewId);
     }
     private BooleanExpression getExpressionOfProductNameLikeOrContentLike(String searchKey) {
         return review.productName.contains(searchKey).or(review.content.contains(searchKey));
