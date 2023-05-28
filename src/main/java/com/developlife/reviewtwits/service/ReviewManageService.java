@@ -55,38 +55,8 @@ public class ReviewManageService {
                 .build();
     }
     @Transactional(readOnly = true)
-    public List<DetailShoppingMallReviewResponse> searchReviewByInfo(User user, int page, int size, String status, String sort, String startDate, String endDate) {
-        Pageable pageable = PageRequest.of(page,size, SortDirectionFilter.getSortFromDirection(sort,"reviewId"));
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime startLocalDate = LocalDate.parse(startDate, formatter).atStartOfDay();
-        LocalDateTime endLocalDate;
-        if (endDate == null){
-            endLocalDate = LocalDateTime.now();
-        }else{
-            endLocalDate = LocalDate.parse(endDate, formatter).atTime(LocalTime.MAX);
-        }
-
-        List<Review> foundReviewList;
-
-        if(status.equals("ALL")){
-            foundReviewList = reviewRepository
-                    .findByProject_UserAndLastModifiedDateBetween(user, startLocalDate, endLocalDate, pageable)
-                    .getContent();
-        }else{
-            foundReviewList = reviewRepository.findByProject_UserAndStatusAndLastModifiedDateBetween(
-                            user,
-                            ReviewStatus.valueOf(status),
-                            startLocalDate,
-                            endLocalDate,
-                            pageable
-                    ).getContent();
-        }
-
-        for(Review review : foundReviewList){
-            reviewUtils.saveReviewImage(review);
-        }
-
-        return reviewMapper.toDetailReviewResponseList(foundReviewList);
+    public List<DetailShoppingMallReviewResponse> searchReviewByInfo(User user, Long reviewId, int size, String status, String sort, String startDate, String endDate, String keyword) {
+        Pageable pageable = PageRequest.of(0,size, SortDirectionFilter.getSortFromDirection(sort,"reviewId"));
+        return reviewRepository.findReviewsBySearchInfo(user, reviewId, status, startDate, endDate, keyword, pageable);
     }
 }

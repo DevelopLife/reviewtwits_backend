@@ -38,16 +38,17 @@ public class ReviewManagementController {
 
     @GetMapping("/search")
     public List<DetailShoppingMallReviewResponse> searchReviewByInfo(@AuthenticationPrincipal User user,
-                                                                     @Min(value = 0, message = "페이지 숫자는 0 이상 입력해야 합니다.")
-                                                                     @RequestParam int page,
+                                                                     @Min(value = 0, message = "리뷰 아이디 숫자는 1 이상 입력해야 합니다.")
+                                                                     @RequestParam(required = false) Long reviewId,
                                                                      @Min(value = 1, message = "size 숫자는 1 이상 입력해야 합니다.")
                                                                      @RequestParam int size,
-                                                                     @ReviewApprove @RequestParam(required = false, defaultValue = "ALL") String status,
+                                                                     @ReviewApprove @RequestParam(required = false) String status,
                                                                      @SortDirection @RequestParam(required = false, defaultValue = "NEWEST") String sort,
-                                                                     @DateFormat @RequestParam(required = false, defaultValue = "1990-01-01") String startDate,
-                                                                     @DateFormat @RequestParam(required = false) String endDate){
+                                                                     @DateFormat @RequestParam(required = false) String startDate,
+                                                                     @DateFormat @RequestParam(required = false) String endDate,
+                                                                     @RequestParam(required = false) String keyword){
 
 
-        return reviewManageService.searchReviewByInfo(user, page, size, status, sort, startDate, endDate);
+        return reviewManageService.searchReviewByInfo(user, reviewId, size, status, sort, startDate, endDate, keyword);
     }
 }

@@ -16,8 +16,8 @@ public class ReviewApproveValidator  implements ConstraintValidator<ReviewApprov
         try{
             ReviewStatus.valueOf(value);
             return true;
-        }catch(IllegalArgumentException e){
-            return value != null && value.equals("ALL");
+        }catch(IllegalArgumentException | NullPointerException e){
+            return value == null;
         }
     }
 }
