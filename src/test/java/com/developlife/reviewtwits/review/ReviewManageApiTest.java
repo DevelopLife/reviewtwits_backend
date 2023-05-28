@@ -231,7 +231,7 @@ public class ReviewManageApiTest extends ApiTest {
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "리뷰 관리에서 리뷰를 검색하는 API 입니다." +
-                        "<br>헤더의 X-AUTH-TOKEN, Query String 의 page,size 는 필수값입니다." +
+                        "<br>헤더의 X-AUTH-TOKEN, Query String 의 size 는 필수값입니다." +
                         "<br>X-AUTH-TOKEN 이 존재하지 않을 시 401 Unauthorized 가 발생합니다." +
                         "<br>size 가 존재하지 않거나, size 가 1 이상의 값이 아닐 시 400 Bad Request 가 발생합니다." +
                         "<br>Query String 에 status, sort, startDate, endDate, reviewId 는 선택적으로 입력할 수 있습니다." +
