@@ -29,6 +29,7 @@ public class ReviewManageDocument {
             parameterWithName("status").description("리뷰 상태").optional(),
             parameterWithName("sort").description("리뷰 오름/내림차순").optional(),
             parameterWithName("startDate").description("리뷰 시작 날짜").optional(),
-            parameterWithName("endDate").description("리뷰 종료 날짜").optional()
+            parameterWithName("endDate").description("리뷰 종료 날짜").optional(),
+            parameterWithName("keyword").description("리뷰 검색 키워드").optional()
     );
 }

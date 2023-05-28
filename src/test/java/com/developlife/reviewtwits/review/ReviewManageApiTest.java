@@ -15,6 +15,7 @@ import com.developlife.reviewtwits.service.ProjectService;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
+import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -32,7 +33,9 @@ import java.util.List;
 import static com.developlife.reviewtwits.review.ShoppingMallReviewSteps.*;
 import static com.developlife.reviewtwits.review.ShoppingMallReviewSteps.리뷰_이미지_파일정보_생성;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
+import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.EncoderConfig.encoderConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -433,6 +436,128 @@ public class ReviewManageApiTest extends ApiTest {
 
         JsonPath jsonPath = response.jsonPath();
         assertThat(jsonPath.getList("").size()).isEqualTo(0);
+    }
+
+    @Test
+    void 리뷰_찾기_키워드_검색_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        쇼핑몰_리뷰_등록(token);
+        Long otherTokenReviewId = 쇼핑몰_리뷰_등록(otherToken);
+        리뷰_허가(token, otherTokenReviewId);
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        UserDocument.AccessTokenHeader,
+                        ReviewManageDocument.reviewSearchRequestField))
+                .config(config().encoderConfig(encoderConfig()
+                        .encodeContentTypeAs("x-www-form-urlencoded", ContentType.URLENC)
+                        .defaultContentCharset("UTF-8")))
+                .header("X-AUTH-TOKEN", token)
+                .param("size", 5)
+                .param("keyword", "맛있고+그랬어요")
+                .when()
+                .get("/review-management/search")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getList("").size()).isEqualTo(2);
+    }
+
+    @Test
+    void 리뷰_찾기_페이지_설정_오름차순_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        쇼핑몰_리뷰_등록(token);
+        Long otherTokenReviewId = 쇼핑몰_리뷰_등록(otherToken);
+        리뷰_허가(token, otherTokenReviewId);
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        UserDocument.AccessTokenHeader,
+                        ReviewManageDocument.reviewSearchRequestField))
+                .header("X-AUTH-TOKEN", token)
+                .param("size", 1)
+                .param("sort", "OLDEST")
+                .when()
+                .get("/review-management/search")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getList("").size()).isEqualTo(1);
+
+        long lastReviewId = jsonPath.getLong("[0].reviewId");
+
+        ExtractableResponse<Response> secondResponse = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        UserDocument.AccessTokenHeader,
+                        ReviewManageDocument.reviewSearchRequestField))
+                .header("X-AUTH-TOKEN", token)
+                .param("size", 1)
+                .param("sort", "OLDEST")
+                .param("reviewId", lastReviewId)
+                .when()
+                .get("/review-management/search")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath secondJsonPath = secondResponse.jsonPath();
+        assertThat(secondJsonPath.getLong("[0].reviewId") > lastReviewId).isTrue();
+    }
+
+    @Test
+    void 리뷰_찾기_페이지_설정_내림차순_성공_200(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        쇼핑몰_리뷰_등록(token);
+        Long otherTokenReviewId = 쇼핑몰_리뷰_등록(otherToken);
+        리뷰_허가(token, otherTokenReviewId);
+
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        UserDocument.AccessTokenHeader,
+                        ReviewManageDocument.reviewSearchRequestField))
+                .header("X-AUTH-TOKEN", token)
+                .param("size", 1)
+                .when()
+                .get("/review-management/search")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getList("").size()).isEqualTo(1);
+
+        long lastReviewId = jsonPath.getLong("[0].reviewId");
+
+        ExtractableResponse<Response> secondResponse = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        UserDocument.AccessTokenHeader,
+                        ReviewManageDocument.reviewSearchRequestField))
+                .header("X-AUTH-TOKEN", token)
+                .param("size", 1)
+                .param("reviewId", lastReviewId)
+                .when()
+                .get("/review-management/search")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath secondJsonPath = secondResponse.jsonPath();
+        assertThat(secondJsonPath.getLong("[0].reviewId") < lastReviewId).isTrue();
     }
 
     @Test
