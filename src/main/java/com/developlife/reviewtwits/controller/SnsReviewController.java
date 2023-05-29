@@ -91,7 +91,7 @@ public class SnsReviewController {
         return snsReviewService.deleteComment(user,commentId);
     }
 
-    @PatchMapping(value= "/comments/{commentId}",consumes = "application/json")
+    @PatchMapping(value= "/comments/{commentId}")
     public CommentResponse changeCommentsOnSnsReview(@AuthenticationPrincipal User user,
                                           @PathVariable long commentId,
                                             @RequestParam @NotBlank String content){
