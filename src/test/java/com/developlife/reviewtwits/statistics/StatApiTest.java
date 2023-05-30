@@ -125,6 +125,26 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
+    void 통계정보_등록_유입정보없음_성공_200(){
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        StatDocument.AccessTokenHeader,
+                        StatDocument.statMessageRequestField,
+                        StatDocument.savedStatResponseField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .body(StatInfoSteps.통계정보_생성_inflow_미포함())
+                .when()
+                .post("/statistics/visited-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+    }
+    @Test
     void 통계정보_등록_URL_형식아님_400(){
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))

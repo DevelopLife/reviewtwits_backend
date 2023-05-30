@@ -30,6 +30,13 @@ public class StatInfoSteps {
                 .build();
     }
 
+    public static StatMessageRequest 통계정보_생성_inflow_미포함(){
+        return StatMessageRequest.builder()
+                .productUrl(productUrl)
+                .device(device)
+                .build();
+    }
+
     public static StatMessageRequest 통계정보_생성_URL_형식아님(){
         return StatMessageRequest.builder()
                 .inflowUrl(wrongUrl)

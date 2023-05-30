@@ -17,7 +17,7 @@ public class StatDocument {
             headerWithName("X-AUTH-TOKEN").description("access token").optional()
     );
     public static final Snippet statMessageRequestField = requestFields(
-            fieldWithPath("inflowUrl").type(JsonFieldType.STRING).attributes(required()).description("검색 유입 URL"),
+            fieldWithPath("inflowUrl").type(JsonFieldType.VARIES).attributes(required()).description("검색 유입 URL"),
             fieldWithPath("productUrl").type(JsonFieldType.STRING).attributes(required()).description("상품 URL"),
             fieldWithPath("device").type(JsonFieldType.STRING).attributes(required()).description("디바이스 정보")
     );
@@ -25,7 +25,7 @@ public class StatDocument {
     public static final Snippet savedStatResponseField = responseFields(
             fieldWithPath("statId").type(JsonFieldType.NUMBER).description("통계정보 아이디"),
             fieldWithPath("createdDate").type(JsonFieldType.STRING).description("통계 생성 날짜"),
-            fieldWithPath("inflowUrl").type(JsonFieldType.STRING).description("검색 유입 URL"),
+            fieldWithPath("inflowUrl").type(JsonFieldType.VARIES).description("검색 유입 URL"),
             fieldWithPath("productUrl").type(JsonFieldType.STRING).description("상품 URL"),
             fieldWithPath("userInfo").type(JsonFieldType.VARIES).description("유저 정보"),
             fieldWithPath("userInfo.userId").type(JsonFieldType.NUMBER).description("유저 아이디").optional(),
