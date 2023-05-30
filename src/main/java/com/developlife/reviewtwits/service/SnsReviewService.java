@@ -110,8 +110,12 @@ public class SnsReviewService {
                 .content(request.content())
                 .build();
 
-        Comment commentGroup = commentRepository.findById(parentId).orElse(newComment);
-        newComment.setCommentGroup(commentGroup);
+        if(request.parentId() != 0){
+            commentRepository.findById(parentId).orElseThrow(
+                    () -> new CommentNotFoundException("대댓글을 작성하려는 댓글이 존재하지 않습니다.")
+            );
+            newComment.setParentId(parentId);
+        }
         commentRepository.save(newComment);
 
         int currentCommentCount = review.getCommentCount();
@@ -131,6 +135,7 @@ public class SnsReviewService {
             throw new AccessDeniedException("해당 리뷰를 지울 권한이 없습니다.");
         }
 
+        commentLikeRepository.deleteAllByComment(foundComment);
         commentRepository.delete(foundComment);
 
         Review review = foundComment.getReview();

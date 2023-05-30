@@ -615,6 +615,7 @@ public class SnsReviewApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         Long registeredReviewId = snsReviewSteps.SNS_리뷰_작성(token, "write review for comment test");
         Long commentId = SNS_리뷰_댓글_작성(token, registeredReviewId);
+        SNS_댓글공감_추가(token, commentId);
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "SNS 리뷰 댓글을 삭제하는 API 입니다." +

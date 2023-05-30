@@ -53,7 +53,7 @@ public class CommentRepositoryImpl implements CommentMappingRepository {
                 .commentId(comment.getCommentId())
                 .userInfo(reviewMapper.mapUserToUserInfoResponse(comment.getUser()))
                 .content(comment.getContent())
-                .parentCommentId(comment.getCommentGroup().getCommentId())
+                .parentCommentId(comment.getParentId())
                 .commentLikeCount(commentLikeSet.size())
                 .isCommentLiked(commentLikeSet.stream().anyMatch(commentLike -> commentLike.getUser().equals(user)))
                 .build();
