@@ -1302,7 +1302,11 @@ public class SnsReviewApiTest extends ApiTest {
                 .log().all().extract();
 
         JsonPath jsonPath = response.jsonPath();
-        return jsonPath.getLong("commentId");
+
+        long commentId = jsonPath.getLong("commentId");
+
+        SNS_댓글공감_추가(token, commentId);
+        return commentId;
     }
 
     JsonPath 피드_리뷰_리액션_추출(String token){

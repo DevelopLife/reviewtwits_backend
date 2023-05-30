@@ -28,8 +28,9 @@ public class Comment extends BaseEntity {
 
     private String content;
 
-    @ManyToOne
-    private Comment commentGroup;
+    @Builder.Default
+    @ColumnDefault(value = "0")
+    private long parentId = 0;
 
     @Builder.Default
     @ColumnDefault(value = "0")

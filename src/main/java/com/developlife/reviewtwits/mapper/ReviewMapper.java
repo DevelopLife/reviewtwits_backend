@@ -87,7 +87,7 @@ public interface ReviewMapper {
                 .createdDate(comment.getCreatedDate())
                 .commentId(comment.getCommentId())
                 .content(comment.getContent())
-                .parentCommentId(comment.getCommentGroup().getCommentId())
+                .parentCommentId(comment.getParentId())
                 .userInfo(mapUserToUserInfoResponse(comment.getUser()))
                 .commentLikeCount(comment.getCommentLike())
                 .isCommentLiked(false)
