@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.message.request;
 
+import com.developlife.reviewtwits.message.annotation.common.NullableHttpUrl;
 import com.developlife.reviewtwits.message.annotation.statistics.Device;
 import com.developlife.reviewtwits.message.annotation.common.HttpURL;
 import lombok.Builder;
@@ -10,7 +11,7 @@ import lombok.Builder;
  */
 
 public record StatMessageRequest(
-        @HttpURL
+        @NullableHttpUrl
         String inflowUrl,
         @HttpURL
         String productUrl,
