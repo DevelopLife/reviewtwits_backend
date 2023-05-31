@@ -48,9 +48,17 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
         int today = LocalDateTime.now().getDayOfYear();
         int yesterday = LocalDateTime.now().minusDays(1).getDayOfYear();
 
-        int todayVisitCount = visitStatInfo.get(today).size();
-        int yesterdayVisitCount = visitStatInfo.get(yesterday).size();
+        int todayVisitCount = 0;
+        int yesterdayVisitCount = 0;
         int totalVisitCount = 0;
+
+        if(visitStatInfo.get(today) != null){
+            todayVisitCount = visitStatInfo.get(today).size();
+        }
+
+        if(visitStatInfo.get(yesterday) != null){
+            yesterdayVisitCount = visitStatInfo.get(yesterday).size();
+        }
 
         for(Map.Entry<Integer, List<StatInfo>> entry : visitStatInfo.entrySet()){
             totalVisitCount += entry.getValue().size();
