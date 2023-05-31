@@ -1,12 +1,14 @@
 package com.developlife.reviewtwits.statistics;
 
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.restdocs.snippet.Snippet;
 
 import static com.developlife.reviewtwits.DocumentFormatProvider.required;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 
 /**
  * @author WhalesBob
@@ -20,6 +22,16 @@ public class StatDocument {
             fieldWithPath("inflowUrl").type(JsonFieldType.VARIES).attributes(required()).description("검색 유입 URL"),
             fieldWithPath("productUrl").type(JsonFieldType.STRING).attributes(required()).description("상품 URL"),
             fieldWithPath("device").type(JsonFieldType.STRING).attributes(required()).description("디바이스 정보")
+    );
+
+    public static final Snippet DailyVisitStatRequestParam = requestParameters(
+            RequestDocumentation.parameterWithName("projectId").attributes(required()).description("프로젝트 아이디"),
+            RequestDocumentation.parameterWithName("range").attributes(required()).description("요청하는 통계 범위 구간")
+    );
+    public static final Snippet VisitGraphInfoRequestParamFields = requestParameters(
+            RequestDocumentation.parameterWithName("projectId").attributes(required()).description("프로젝트 아이디"),
+            RequestDocumentation.parameterWithName("range").attributes(required()).description("요청하는 통계 범위 구간"),
+            RequestDocumentation.parameterWithName("interval").attributes(required()).description("요청하는 통계 기준 구간")
     );
 
     public static final Snippet savedStatResponseField = responseFields(
@@ -41,5 +53,27 @@ public class StatDocument {
             fieldWithPath("projectId").type(JsonFieldType.NUMBER).description("프로젝트 아이디"),
             fieldWithPath("productId").type(JsonFieldType.NUMBER).description("상품 아이디"),
             fieldWithPath("deviceInfo").type(JsonFieldType.STRING).description("디바이스 정보")
+    );
+
+    public static final Snippet DailyVisitInfoResponseFields = responseFields(
+            fieldWithPath("range").type(JsonFieldType.STRING).description("요청한 통계 범위"),
+            fieldWithPath("visitInfo.timeStamp").type(JsonFieldType.ARRAY).description("방문 날짜"),
+            fieldWithPath("visitInfo.visitCount").type(JsonFieldType.ARRAY).description("방문 수"),
+            fieldWithPath("visitInfo.previousCompare").type(JsonFieldType.ARRAY).description("어제 방문과의 비교")
+    );
+    public static final Snippet RecentVisitStatResponseFields = responseFields(
+            fieldWithPath("todayVisit").type(JsonFieldType.NUMBER).description("오늘 방문 수"),
+            fieldWithPath("yesterdayVisit").type(JsonFieldType.NUMBER).description("어제 방문 수"),
+            fieldWithPath("totalVisit").type(JsonFieldType.NUMBER).description("총 방문 수")
+    );
+    public static final Snippet VisitGraphStatResponseFields = responseFields(
+            fieldWithPath("range").type(JsonFieldType.STRING).description("요청한 통계 범위"),
+            fieldWithPath("interval").type(JsonFieldType.STRING).description("요청한 통계 기준"),
+            fieldWithPath("presentVisit").type(JsonFieldType.NUMBER).description("오늘 방문 수"),
+            fieldWithPath("previousVisit").type(JsonFieldType.NUMBER).description("어제 방문 수"),
+            fieldWithPath("totalVisit").type(JsonFieldType.NUMBER).description("총 방문 수"),
+            fieldWithPath("visitInfo.timeStamp").type(JsonFieldType.ARRAY).description("방문 날짜"),
+            fieldWithPath("visitInfo.visitCount").type(JsonFieldType.ARRAY).description("방문 수"),
+            fieldWithPath("visitInfo.previousCompare").type(JsonFieldType.ARRAY).description("어제 방문과의 비교")
     );
 }

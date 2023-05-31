@@ -22,7 +22,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/projects")
-@Validated
 public class ProjectController {
     ProjectService projectService;
 

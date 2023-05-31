@@ -10,6 +10,7 @@ import com.developlife.reviewtwits.message.response.statistics.SaveStatResponse;
 import com.developlife.reviewtwits.service.StatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,6 +24,7 @@ import javax.validation.constraints.Min;
 @RestController
 @RequestMapping("/statistics")
 @RequiredArgsConstructor
+@Validated
 public class StatController {
 
     private final StatService statService;
