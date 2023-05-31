@@ -48,28 +48,6 @@ public class ProjectController {
         return projectService.updateProject(projectId, fixProjectRequest, user);
     }
 
-    @GetMapping("/visit-graph-infos")
-    public VisitTotalGraphResponse getVisitGraphInfos(@AuthenticationPrincipal User user,
-                                                @RequestParam
-                                                @Min(value = 1, message = "프로젝트 아이디는 1 이상의 수로 입력해야 합니다.") Long projectId,
-                                                @RequestParam @ChartPeriod String range,
-                                                @RequestParam @ChartPeriod String interval){
-
-        return projectService.getVisitGraphInfos(projectId, range, interval, user);
-    }
-    @GetMapping("/daily-visit-graph-infos")
-    public DailyVisitInfoResponse getDailyVisitInfos(@AuthenticationPrincipal User user,
-                                                     @RequestParam
-                                                     @Min(value = 1, message = "프로젝트 아이디는 1 이상의 수로 입력해야 합니다.") Long projectId,
-                                                     @RequestParam @ChartPeriod String range){
-        return projectService.getDailyVisitInfos(projectId, range, user);
-    }
-    @GetMapping("/recent-visit-counts")
-    public RecentVisitInfoResponse getRecentVisitCounts(@AuthenticationPrincipal User user,
-                                                        @RequestParam @Min(value = 1, message = "프로젝트 아이디는 1 이상의 수로 입력해야 합니다.") Long projectId
-    ){
-        return projectService.getRecentVisitCounts(projectId, user);
-    }
     private String getTokenOwner() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
