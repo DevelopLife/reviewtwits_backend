@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
     public List<VisitInfoResponse> findByPeriod(Project project, ChartPeriodUnit range, ChartPeriodUnit interval) {
 
         Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, range, interval);
-        return mappingVisitInfoResponse(visitStatInfo);
+        return mappingVisitInfoResponse(visitStatInfo, interval);
     }
 
     @Override
@@ -80,11 +81,11 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
                         statInfo.createdDate.year()
                 ).from(statInfo)
                 .where(statInfo.project.eq(project)
-                    .and(statInfo.createdDate.after(ChartPeriodUnit.getTimeRangeBefore(range))))
+                    .and(statInfo.createdDate.after(ChartPeriodUnit.getTimeRangeBefore(LocalDateTime.now(),range))))
                 .transform(groupBy(intervalExpression).as(list(statInfo)));
     }
 
-    private List<VisitInfoResponse> mappingVisitInfoResponse(Map<Integer, List<StatInfo>> transform){
+    private List<VisitInfoResponse> mappingVisitInfoResponse(Map<Integer, List<StatInfo>> transform, ChartPeriodUnit interval){
 
         Map<Integer, List<StatInfo>> sortedMap = new TreeMap<>(transform);
         List<VisitInfoResponse> response = new ArrayList<>();
@@ -96,7 +97,7 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
 
             if(!response.isEmpty()){
                 VisitInfoResponse previousDate = response.get(response.size() - 1);
-                if (isDifferenceOneDay(previousDate.timeStamp(),date)){
+                if (isDifferenceValid(previousDate.timeStamp(),date, interval)){
                     previousCompare = visitCount - previousDate.visitCount();
                 }else{
                     previousCompare = visitCount;
@@ -110,9 +111,10 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
         }
         return response;
     }
-    private boolean isDifferenceOneDay(String previousDate, String todayDate){
-        LocalDate present = LocalDate.parse(todayDate);
+    private boolean isDifferenceValid(String previousDate, String presentDate, ChartPeriodUnit interval){
+        LocalDate present = LocalDate.parse(presentDate);
         LocalDate previous = LocalDate.parse(previousDate);
-        return present.minusDays(1).isEqual(previous);
+        LocalDate toCompareDate = ChartPeriodUnit.getTimeRangeBefore(present.atTime(LocalTime.now()),interval).toLocalDate();
+        return toCompareDate.isEqual(previous);
     }
 }
