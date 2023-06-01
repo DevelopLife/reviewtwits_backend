@@ -22,6 +22,8 @@ import com.developlife.reviewtwits.type.project.Device;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author WhalesBob
  * @since 2023-04-23
@@ -61,7 +63,7 @@ public class StatService {
         ChartPeriodUnit interval = ChartPeriodUnit.findByInputValue(inputInterval);
 
         RecentVisitInfoResponse recentInfo = statInfoRepository.findRecentVisitInfo(project);
-        VisitInfoResponse visitInfo = statInfoRepository.findByPeriod(project, range, interval);
+        List<VisitInfoResponse> visitInfo = statInfoRepository.findByPeriod(project, range, interval);
 
         return VisitTotalGraphResponse.builder()
                 .range(inputRange)
@@ -78,7 +80,7 @@ public class StatService {
         Project project = getProject(projectId, user);
         ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
 
-        VisitInfoResponse visitInfo = statInfoRepository.findByPeriod(project, range, ChartPeriodUnit.ONE_DAY);
+        List<VisitInfoResponse> visitInfo = statInfoRepository.findByPeriod(project, range, ChartPeriodUnit.ONE_DAY);
 
         return DailyVisitInfoResponse.builder()
                 .range(inputRange)
