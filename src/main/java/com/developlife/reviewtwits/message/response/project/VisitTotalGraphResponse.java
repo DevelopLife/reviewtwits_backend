@@ -6,8 +6,8 @@ import java.util.List;
 
 public record VisitTotalGraphResponse(String interval,
                                       String range,
-                                      long presentVisit,
-                                      long previousVisit,
+                                      long todayVisit,
+                                      long yesterdayVisit,
                                       long totalVisit,
                                       List<VisitInfoResponse> visitInfo) {
 

@@ -68,8 +68,8 @@ public class StatService {
         return VisitTotalGraphResponse.builder()
                 .range(inputRange)
                 .interval(inputInterval)
-                .presentVisit(recentInfo.todayVisit())
-                .previousVisit(recentInfo.yesterdayVisit())
+                .todayVisit(recentInfo.todayVisit())
+                .yesterdayVisit(recentInfo.yesterdayVisit())
                 .totalVisit(recentInfo.totalVisit())
                 .visitInfo(visitInfo)
                 .build();

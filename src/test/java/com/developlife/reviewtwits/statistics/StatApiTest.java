@@ -58,8 +58,6 @@ public class StatApiTest extends ApiTest {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    private ProjectMapper projectMapper;
-    @Autowired
     private ProjectRepository projectRepository;
 
     @Autowired
@@ -481,8 +479,8 @@ public class StatApiTest extends ApiTest {
         JsonPath jsonPath = response.jsonPath();
         assertThat(jsonPath.getString("interval")).isEqualTo(ProjectSteps.exampleInterval);
         assertThat(jsonPath.getString("range")).isEqualTo(ProjectSteps.exampleRange);
-        assertThat(jsonPath.getInt("presentVisit")).isEqualTo(3);
-        assertThat(jsonPath.getInt("previousVisit")).isEqualTo(2);
+        assertThat(jsonPath.getInt("todayVisit")).isEqualTo(3);
+        assertThat(jsonPath.getInt("yesterdayVisit")).isEqualTo(2);
         assertThat(jsonPath.getList("visitInfo.timeStamp")).isNotEmpty();
         assertThat(jsonPath.getList("visitInfo.visitCount")).isNotEmpty();
         assertThat(jsonPath.getList("visitInfo.previousCompare")).isNotEmpty();

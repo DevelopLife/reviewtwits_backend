@@ -70,8 +70,8 @@ public class StatDocument {
     public static final Snippet VisitGraphStatResponseFields = responseFields(
             fieldWithPath("range").type(JsonFieldType.STRING).description("요청한 통계 범위"),
             fieldWithPath("interval").type(JsonFieldType.STRING).description("요청한 통계 기준"),
-            fieldWithPath("presentVisit").type(JsonFieldType.NUMBER).description("오늘 방문 수"),
-            fieldWithPath("previousVisit").type(JsonFieldType.NUMBER).description("어제 방문 수"),
+            fieldWithPath("todayVisit").type(JsonFieldType.NUMBER).description("오늘 방문 수"),
+            fieldWithPath("yesterdayVisit").type(JsonFieldType.NUMBER).description("어제 방문 수"),
             fieldWithPath("totalVisit").type(JsonFieldType.NUMBER).description("총 방문 수"),
             fieldWithPath("visitInfo").type(JsonFieldType.ARRAY).description("방문 정보"),
             fieldWithPath("visitInfo[].timeStamp").type(JsonFieldType.STRING).description("방문 날짜"),
