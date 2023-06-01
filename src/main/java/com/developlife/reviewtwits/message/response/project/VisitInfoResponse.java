@@ -8,9 +8,9 @@ import java.util.List;
  * @author WhalesBob
  * @since 2023-04-22
  */
-public record VisitInfoResponse(List<String> timeStamp,
-                                List<Integer> visitCount,
-                                List<Integer> previousCompare
+public record VisitInfoResponse(String timeStamp,
+                                Integer visitCount,
+                                Integer previousCompare
                                 ) {
     @Builder
     public VisitInfoResponse {

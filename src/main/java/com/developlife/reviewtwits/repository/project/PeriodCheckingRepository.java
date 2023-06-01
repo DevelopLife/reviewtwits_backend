@@ -5,7 +5,9 @@ import com.developlife.reviewtwits.message.response.project.RecentVisitInfoRespo
 import com.developlife.reviewtwits.message.response.project.VisitInfoResponse;
 import com.developlife.reviewtwits.type.project.ChartPeriodUnit;
 
+import java.util.List;
+
 public interface PeriodCheckingRepository {
-    VisitInfoResponse findByPeriod(Project project, ChartPeriodUnit range, ChartPeriodUnit interval);
+    List<VisitInfoResponse> findByPeriod(Project project, ChartPeriodUnit range, ChartPeriodUnit interval);
     RecentVisitInfoResponse findRecentVisitInfo(Project project);
 }

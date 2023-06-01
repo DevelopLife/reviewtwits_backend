@@ -64,48 +64,4 @@ public class ProjectService {
             .orElseThrow(() -> new AccountIdNotFoundException("해당 유저가 존재하지 않습니다."));
         return project.getProjectId();
     }
-
-    public VisitTotalGraphResponse getVisitGraphInfos(Long projectId, String inputRange, String inputInterval, User user) {
-        Project project = getProject(projectId, user);
-        ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
-        ChartPeriodUnit interval = ChartPeriodUnit.findByInputValue(inputInterval);
-
-        RecentVisitInfoResponse recentInfo = statInfoRepository.findRecentVisitInfo(project);
-        VisitInfoResponse visitInfo = statInfoRepository.findByPeriod(project, range, interval);
-
-        return VisitTotalGraphResponse.builder()
-            .range(inputRange)
-            .interval(inputInterval)
-            .presentVisit(recentInfo.todayVisit())
-            .previousVisit(recentInfo.yesterdayVisit())
-            .totalVisit(recentInfo.totalVisit())
-            .visitInfo(visitInfo)
-            .build();
-    }
-
-    public DailyVisitInfoResponse getDailyVisitInfos(Long projectId, String inputRange, User user) {
-
-        Project project = getProject(projectId, user);
-        ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
-
-        VisitInfoResponse visitInfo = statInfoRepository.findByPeriod(project, range, ChartPeriodUnit.ONE_DAY);
-
-        return DailyVisitInfoResponse.builder()
-                .range(inputRange)
-                .visitInfo(visitInfo)
-                .build();
-    }
-    public RecentVisitInfoResponse getRecentVisitCounts(Long projectId, User user) {
-        Project project = getProject(projectId, user);
-        return statInfoRepository.findRecentVisitInfo(project);
-    }
-    private Project getProject(Long projectId, User user) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("해당 프로젝트가 존재하지 않습니다."));
-
-        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
-            throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
-        }
-        return project;
-    }
 }

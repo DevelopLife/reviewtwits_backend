@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
     }
 
     @Override
-    public VisitInfoResponse findByPeriod(Project project, ChartPeriodUnit range, ChartPeriodUnit interval) {
+    public List<VisitInfoResponse> findByPeriod(Project project, ChartPeriodUnit range, ChartPeriodUnit interval) {
 
         Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, range, interval);
         return mappingVisitInfoResponse(visitStatInfo);
@@ -83,32 +84,35 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
                 .transform(groupBy(intervalExpression).as(list(statInfo)));
     }
 
-    private VisitInfoResponse mappingVisitInfoResponse(Map<Integer, List<StatInfo>> transform){
-
-        List<String> timeStamp = new ArrayList<>();
-        List<Integer> visitCountList = new ArrayList<>();
-        List<Integer> previousCompareList = new ArrayList<>();
+    private List<VisitInfoResponse> mappingVisitInfoResponse(Map<Integer, List<StatInfo>> transform){
 
         Map<Integer, List<StatInfo>> sortedMap = new TreeMap<>(transform);
+        List<VisitInfoResponse> response = new ArrayList<>();
 
         for(Map.Entry<Integer, List<StatInfo>> entry : sortedMap.entrySet()){
             String date = entry.getValue().get(0).getCreatedDate().toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
             int visitCount = entry.getValue().size();
+            int previousCompare = 0;
 
-            timeStamp.add(date);
-            visitCountList.add(visitCount);
-
-            if(previousCompareList.isEmpty()){
-                previousCompareList.add(0);
-                continue;
+            if(!response.isEmpty()){
+                VisitInfoResponse previousDate = response.get(response.size() - 1);
+                if (isDifferenceOneDay(previousDate.timeStamp(),date)){
+                    previousCompare = visitCount - previousDate.visitCount();
+                }else{
+                    previousCompare = visitCount;
+                }
             }
-            previousCompareList.add(visitCount - visitCountList.get(visitCountList.size() - 2));
+            response.add(VisitInfoResponse.builder()
+                    .timeStamp(date)
+                    .visitCount(visitCount)
+                    .previousCompare(previousCompare)
+                    .build());
         }
-
-        return VisitInfoResponse.builder()
-                .timeStamp(timeStamp)
-                .visitCount(visitCountList)
-                .previousCompare(previousCompareList)
-                .build();
+        return response;
+    }
+    private boolean isDifferenceOneDay(String previousDate, String todayDate){
+        LocalDate present = LocalDate.parse(todayDate);
+        LocalDate previous = LocalDate.parse(previousDate);
+        return present.minusDays(1).isEqual(previous);
     }
 }
