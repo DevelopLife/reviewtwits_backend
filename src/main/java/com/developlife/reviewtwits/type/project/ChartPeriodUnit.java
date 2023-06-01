@@ -44,18 +44,18 @@ public enum ChartPeriodUnit {
         return null;
     }
 
-    public static LocalDateTime getTimeRangeBefore(ChartPeriodUnit unit) {
+    public static LocalDateTime getTimeRangeBefore(LocalDateTime compareDateTime,ChartPeriodUnit unit) {
         String dayMonthYear = getDayMonthYear(unit);
         int numberValue = getNumberValue(unit);
 
         if(dayMonthYear.equals("d")){
-            return LocalDateTime.now().minusDays(numberValue);
+            return compareDateTime.minusDays(numberValue);
         }
         if(dayMonthYear.equals("mo")){
-            return LocalDateTime.now().minusMonths(numberValue);
+            return compareDateTime.minusMonths(numberValue);
         }
         if(dayMonthYear.equals("y")){
-            return LocalDateTime.now().minusYears(numberValue);
+            return compareDateTime.minusYears(numberValue);
         }
 
         return null;
