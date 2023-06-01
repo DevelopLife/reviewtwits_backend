@@ -57,9 +57,10 @@ public class StatDocument {
 
     public static final Snippet DailyVisitInfoResponseFields = responseFields(
             fieldWithPath("range").type(JsonFieldType.STRING).description("요청한 통계 범위"),
-            fieldWithPath("visitInfo.timeStamp").type(JsonFieldType.ARRAY).description("방문 날짜"),
-            fieldWithPath("visitInfo.visitCount").type(JsonFieldType.ARRAY).description("방문 수"),
-            fieldWithPath("visitInfo.previousCompare").type(JsonFieldType.ARRAY).description("어제 방문과의 비교")
+            fieldWithPath("visitInfo").type(JsonFieldType.ARRAY).description("방문 정보"),
+            fieldWithPath("visitInfo[].timeStamp").type(JsonFieldType.STRING).description("방문 날짜"),
+            fieldWithPath("visitInfo[].visitCount").type(JsonFieldType.NUMBER).description("방문 수"),
+            fieldWithPath("visitInfo[].previousCompare").type(JsonFieldType.NUMBER).description("어제 방문과의 비교")
     );
     public static final Snippet RecentVisitStatResponseFields = responseFields(
             fieldWithPath("todayVisit").type(JsonFieldType.NUMBER).description("오늘 방문 수"),
@@ -72,8 +73,9 @@ public class StatDocument {
             fieldWithPath("presentVisit").type(JsonFieldType.NUMBER).description("오늘 방문 수"),
             fieldWithPath("previousVisit").type(JsonFieldType.NUMBER).description("어제 방문 수"),
             fieldWithPath("totalVisit").type(JsonFieldType.NUMBER).description("총 방문 수"),
-            fieldWithPath("visitInfo.timeStamp").type(JsonFieldType.ARRAY).description("방문 날짜"),
-            fieldWithPath("visitInfo.visitCount").type(JsonFieldType.ARRAY).description("방문 수"),
-            fieldWithPath("visitInfo.previousCompare").type(JsonFieldType.ARRAY).description("어제 방문과의 비교")
+            fieldWithPath("visitInfo").type(JsonFieldType.ARRAY).description("방문 정보"),
+            fieldWithPath("visitInfo[].timeStamp").type(JsonFieldType.STRING).description("방문 날짜"),
+            fieldWithPath("visitInfo[].visitCount").type(JsonFieldType.NUMBER).description("방문 수"),
+            fieldWithPath("visitInfo[].previousCompare").type(JsonFieldType.NUMBER).description("어제 방문과의 비교")
     );
 }

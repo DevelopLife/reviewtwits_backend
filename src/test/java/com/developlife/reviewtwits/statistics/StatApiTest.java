@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.developlife.reviewtwits.review.ShoppingMallReviewSteps.임시_상품정보_생성;
-import static com.developlife.reviewtwits.review.ShoppingMallReviewSteps.임시_프로젝트정보_생성;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -267,9 +266,7 @@ public class StatApiTest extends ApiTest {
 
         JsonPath jsonPath = response.jsonPath();
         assertThat(jsonPath.getString("range")).isEqualTo(ProjectSteps.exampleRange);
-        assertThat(jsonPath.getList("visitInfo.timeStamp")).size().isEqualTo(12);
-        assertThat(jsonPath.getList("visitInfo.visitCount")).size().isEqualTo(12);
-        assertThat(jsonPath.getList("visitInfo.previousCompare")).size().isEqualTo(12);
+        assertThat(jsonPath.getList("visitInfo")).size().isEqualTo(12);
     }
 
     @Test
@@ -601,8 +598,10 @@ public class StatApiTest extends ApiTest {
             statInfos.add(ProjectSteps.통계정보_생성(existedProject, testYear, testMonth, testDay, hour));
         }
 
+        int yesterday = LocalDateTime.now().minusDays(1).getDayOfMonth();
+        int yesterdayMonth = LocalDateTime.now().minusDays(1).getMonthValue();
         for (int hour = 1; hour <= 2; hour++) {
-            statInfos.add(ProjectSteps.통계정보_생성(existedProject, testYear, testMonth, testDay - 1, hour));
+            statInfos.add(ProjectSteps.통계정보_생성(existedProject, testYear, yesterdayMonth, yesterday, hour));
         }
         saveAll(statInfos);
         return existedProject;
