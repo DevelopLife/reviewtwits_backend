@@ -92,7 +92,9 @@ public class ShoppingMallReviewController {
     }
 
     @PostMapping(value = "/shopping/like/{reviewId}")
-    public DetailReactionResponse shoppingMallReviewLikeProcess(@AuthenticationPrincipal User user, @PathVariable Long reviewId){
+    public DetailReactionResponse shoppingMallReviewLikeProcess(@AuthenticationPrincipal User user,
+                                                                @PathVariable @Min(value = 1, message = "리뷰 아이디는 1 이상의 수로 입력해야 합니다.")
+                                                                Long reviewId){
         return reviewService.shoppingMallReviewLikeProcess(user, reviewId);
     }
 }

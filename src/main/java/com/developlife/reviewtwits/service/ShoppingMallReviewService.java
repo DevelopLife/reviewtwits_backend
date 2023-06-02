@@ -14,6 +14,7 @@ import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewPro
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ReactionRepository;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
+import com.developlife.reviewtwits.type.ReactionType;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.review.ReviewStatus;
 import lombok.RequiredArgsConstructor;
@@ -226,6 +227,7 @@ public class ShoppingMallReviewService {
             reaction = reactionRepository.save(Reaction.builder()
                     .review(review)
                     .user(user)
+                    .reactionType(ReactionType.GOOD)
                     .build());
             review.setReactionCount(review.getReactionCount() + 1);
         }else{
