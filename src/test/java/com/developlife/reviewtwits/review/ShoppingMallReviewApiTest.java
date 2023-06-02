@@ -188,7 +188,8 @@ public class ShoppingMallReviewApiTest extends ApiTest {
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "원하는 제품의 쇼핑몰 리뷰 리스트를 반환합니다." +
-                                "<br>product URL 이 입력되지 않았을 경우 400 이 반환됩니다.",
+                                "<br>product URL 이 입력되지 않았을 경우 400 이 반환됩니다." +
+                                "<br>sort 값은 parameter 에 입력해야 하며, 허용된 단어 외 입력 시 400 Bad Request 가 반환됩니다. (BEST, NEWEST)",
                         "쇼핑몰 리뷰 리스트",
                         ShoppingMallReviewDocument.ReviewProductRequestHeader,
                         ShoppingMallReviewDocument.shoppingMallReviewSortField,
