@@ -198,4 +198,26 @@ public class ShoppingMallReviewService {
     private void saveReviewImage(Review review){
         review.setReviewImageUuidList(fileStoreService.bringFileNameList(ReferenceType.REVIEW, review.getReviewId()));
     }
+
+    public DetailReactionResponse shoppingMallReviewLikeProcess(User user, Long reviewId) {
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new ReviewNotFoundException("해당 리뷰가 존재하지 않습니다."));
+
+        Optional<Reaction> foundReaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user);
+
+        Reaction reaction;
+        if(foundReaction.isEmpty()){
+            reaction = reactionRepository.save(Reaction.builder()
+                    .review(review)
+                    .user(user)
+                    .build());
+            review.setReactionCount(review.getReactionCount() + 1);
+        }else{
+            reaction = foundReaction.get();
+            reactionRepository.delete(reaction);
+            review.setReactionCount(review.getReactionCount() - 1);
+        }
+
+       return mapper.toDetailReactionResponse(reaction);
+    }
 }

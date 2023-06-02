@@ -83,4 +83,9 @@ public class ShoppingMallReviewController {
         reviewService.checkProductURLIsValid(productURL);
         return reviewService.findShoppingMallReviewList(productURL);
     }
+
+    @PostMapping(value = "/shopping/like/{reviewId}")
+    public DetailReactionResponse shoppingMallReviewLikeProcess(@AuthenticationPrincipal User user, @PathVariable Long reviewId){
+        return reviewService.shoppingMallReviewLikeProcess(user, reviewId);
+    }
 }
