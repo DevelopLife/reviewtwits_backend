@@ -8,9 +8,11 @@ import com.developlife.reviewtwits.exception.review.ReviewNotFoundException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.DetailReactionResponse;
 import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
+import com.developlife.reviewtwits.repository.ReactionRepository;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.review.ReviewStatus;
@@ -38,6 +40,7 @@ public class ShoppingMallReviewService {
     private final FileStoreService fileStoreService;
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
+    private final ReactionRepository reactionRepository;
 
     public DetailShoppingMallReviewResponse saveShoppingMallReview(ShoppingMallReviewWriteRequest writeRequest, User user) {
 
@@ -103,8 +106,21 @@ public class ShoppingMallReviewService {
                 .build();
     }
 
-    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(String productURL){
+    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(String productURL, String sort){
         List<Review> reviews = reviewRepository.findReviewsByProductUrlAndProjectIsNotNull(productURL);
+        if (sort.equals("newest")){
+            reviews.sort((o1, o2) -> o2.getCreatedDate().compareTo(o1.getCreatedDate()));
+        }
+
+        if(sort.equals("best")){
+            reviews.sort((o1, o2) ->{
+                if(o1.getScore() == o2.getScore()){
+                    return o2.getReactionCount() - o1.getReactionCount();
+                }
+                return o2.getScore() - o1.getScore();
+            });
+        }
+
         for(Review review : reviews){
             saveReviewImage(review);
         }
