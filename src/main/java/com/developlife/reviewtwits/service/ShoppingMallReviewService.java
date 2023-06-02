@@ -108,11 +108,11 @@ public class ShoppingMallReviewService {
 
     public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(String productURL, String sort){
         List<Review> reviews = reviewRepository.findReviewsByProductUrlAndProjectIsNotNull(productURL);
-        if (sort.equals("newest")){
+        if (sort.equals("NEWEST")){
             reviews.sort((o1, o2) -> o2.getCreatedDate().compareTo(o1.getCreatedDate()));
         }
 
-        if(sort.equals("best")){
+        if(sort.equals("BEST")){
             reviews.sort((o1, o2) ->{
                 if(o1.getScore() == o2.getScore()){
                     return o2.getReactionCount() - o1.getReactionCount();
@@ -233,7 +233,7 @@ public class ShoppingMallReviewService {
             reactionRepository.delete(reaction);
             review.setReactionCount(review.getReactionCount() - 1);
         }
-
-       return mapper.toDetailReactionResponse(reaction);
+        reviewRepository.save(review);
+        return mapper.toDetailReactionResponse(reaction);
     }
 }

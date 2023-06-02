@@ -66,6 +66,7 @@ public class WebSecurityConfig {
             .antMatchers("/sns/reviews/**").hasRole("USER")
             .antMatchers("/sns/reviews").hasRole("USER")
             .antMatchers(HttpMethod.POST,"/reviews/shopping").hasRole("USER")
+            .antMatchers(HttpMethod.POST, "/reviews/shopping/**").hasRole("USER")
             .antMatchers(HttpMethod.DELETE,"/reviews/shopping/**").hasRole("USER")
             .antMatchers(HttpMethod.PATCH,"/reviews/shopping/**").hasRole("USER")
             .antMatchers(HttpMethod.PUT,"/reviews/shopping/**").hasRole("USER")
