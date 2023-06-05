@@ -75,12 +75,11 @@ public class SnsController {
     }
 
     @GetMapping("/profile/reviews/{nickname}")
-    public List<DetailSnsReviewResponse> findReviewsOfUser(
-            @AuthenticationPrincipal User user,
+    public List<SnsReviewResponse> findReviewsOfUser(
             @PathVariable String nickname,
             @RequestParam(required = false) Long reviewId,
             @RequestParam int size){
-        return snsService.findReviewsOfUser(user,nickname,reviewId,size);
+        return snsService.findReviewsOfUser(nickname, reviewId, size);
     }
 
     @GetMapping("/recent-update-users")
