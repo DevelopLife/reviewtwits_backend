@@ -85,10 +85,11 @@ public class ShoppingMallReviewController {
     }
 
     @GetMapping(value = "/shopping/list", produces = "application/json;charset=UTF-8")
-    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(@RequestHeader String productURL,
+    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(@AuthenticationPrincipal User user,
+                                                                             @RequestHeader String productURL,
                                                                              @RequestParam @ShoppingMallReviewSort String sort) {
         reviewService.checkProductURLIsValid(productURL);
-        return reviewService.findShoppingMallReviewList(productURL, sort);
+        return reviewService.findShoppingMallReviewList(user,productURL, sort);
     }
 
     @PostMapping(value = "/shopping/like/{reviewId}")

@@ -107,25 +107,8 @@ public class ShoppingMallReviewService {
                 .build();
     }
 
-    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(String productURL, String sort){
-        List<Review> reviews = reviewRepository.findReviewsByProductUrlAndProjectIsNotNull(productURL);
-        if (sort.equals("NEWEST")){
-            reviews.sort((o1, o2) -> o2.getCreatedDate().compareTo(o1.getCreatedDate()));
-        }
-
-        if(sort.equals("BEST")){
-            reviews.sort((o1, o2) ->{
-                if(o1.getScore() == o2.getScore()){
-                    return o2.getReactionCount() - o1.getReactionCount();
-                }
-                return o2.getScore() - o1.getScore();
-            });
-        }
-
-        for(Review review : reviews){
-            saveReviewImage(review);
-        }
-        return mapper.toDetailReviewResponseList(reviews);
+    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(User user, String productURL, String sort){
+        return reviewRepository.findReviewListMappingInfoByProductURL(user, productURL, sort);
     }
 
     public DetailShoppingMallReviewResponse findOneShoppingMallReview(long reviewId){
