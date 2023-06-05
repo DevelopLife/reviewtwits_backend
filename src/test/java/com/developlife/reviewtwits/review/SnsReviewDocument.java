@@ -14,9 +14,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
  * @since 2023-04-03
  */
 public class SnsReviewDocument {
-    public static final Snippet AccessTokenHeader = requestHeaders(
-            headerWithName("X-AUTH-TOKEN").description("access token").optional()
-    );
 
     public static final Snippet ReviewIdAndSizeField = requestParameters(
             parameterWithName("reviewId").description("리뷰의 아이디").optional(),
