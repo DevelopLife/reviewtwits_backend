@@ -212,6 +212,29 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         return resultList;
     }
 
+    @Override
+    public List<DetailSnsReviewResponse> findReviewListByUserInPage(User reviewWriter, User reviewReader, Long reviewId, Pageable pageable) {
+        BooleanExpression writtenByUser = getExpressionOfWrittenUser(reviewWriter, reviewId);
+        QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(review);
+
+        Pageable realPageable = getRealPageable(pageable, writtenByUser, review, review);
+
+        Supplier<JPAQuery<ReviewMappingDTO>> codeSupplier = () -> jpaQueryFactory.select(bean)
+                .from(review, fileInfo, fileManager)
+                .leftJoin(reaction).on(review.eq(reaction.review))
+                .leftJoin(reviewScrap).on(reviewScrap.review.eq(review).and(getReviewScrapOfUser(reviewReader)))
+                .where(fileExpressionWithInsertion(writtenByUser, review));
+
+        return findMappingReview(codeSupplier, reviewReader, realPageable, review);
+    }
+
+    private BooleanExpression getExpressionOfWrittenUser(User reviewWriter, Long reviewId){
+        BooleanExpression resultExpression = review.user.eq(reviewWriter);
+        if(reviewId != null){
+            resultExpression = resultExpression.and(review.reviewId.lt(reviewId));
+        }
+        return resultExpression;
+    }
     private boolean isThisUserLikeThisReview(User user, Set<Reaction> reactionSet){
         for (Reaction reaction : reactionSet) {
             if(reaction.getUser().equals(user)){
