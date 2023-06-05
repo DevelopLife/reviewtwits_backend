@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.repository.review;
 
 import com.developlife.reviewtwits.entity.QReview;
+import com.developlife.reviewtwits.entity.Reaction;
 import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
@@ -30,10 +31,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.developlife.reviewtwits.entity.QFileInfo.fileInfo;
@@ -183,6 +181,46 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
         }
         return resultList;
     }
+
+    @Override
+    public List<DetailShoppingMallReviewResponse> findReviewListMappingInfoByProductURL(User user, String productURL, String sort) {
+        BooleanExpression findByProductUrl = review.productUrl.eq(productURL).and(review.project.isNotNull());
+
+        Map<Review, Group> transform = jpaQueryFactory.select(review, fileInfo.realFilename, reaction)
+                .from(review, fileInfo, fileManager)
+                .leftJoin(reaction).on(review.eq(reaction.review))
+                .where(fileExpressionWithInsertion(findByProductUrl, review))
+                .orderBy(review.reviewId.desc())
+                .transform(
+                        groupBy(review).as(
+                                list(fileInfo.realFilename),
+                                set(reaction)));
+
+        List<DetailShoppingMallReviewResponse> resultList = new ArrayList<>();
+        for(Map.Entry<Review, Group> entry : transform.entrySet()){
+            Review targetReview = entry.getKey();
+            targetReview.setReviewImageUuidList(entry.getValue().getList(fileInfo.realFilename));
+            boolean isLiked = isThisUserLikeThisReview(user, entry.getValue().getSet(reaction));
+            targetReview.setLiked(isLiked);
+            resultList.add(reviewMapper.mapReviewToDetailReviewResponse(targetReview));
+        }
+
+        if(sort.equals("BEST")) {
+            resultList.sort(Comparator.comparing(DetailShoppingMallReviewResponse::score).reversed());
+        }
+
+        return resultList;
+    }
+
+    private boolean isThisUserLikeThisReview(User user, Set<Reaction> reactionSet){
+        for (Reaction reaction : reactionSet) {
+            if(reaction.getUser().equals(user)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private BooleanExpression makeSearchExpression(User user,String status, String startDate, String endDate, String keyword){
         BooleanExpression expression = review.project.user.eq(user);
