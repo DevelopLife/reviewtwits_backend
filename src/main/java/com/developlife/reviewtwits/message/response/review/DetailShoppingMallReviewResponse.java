@@ -22,6 +22,7 @@ public record DetailShoppingMallReviewResponse(LocalDateTime createdDate,
                                                int score,
                                                List<String> reviewImageUrlList,
                                                int reactionCount,
+                                               boolean isLiked,
                                                ReviewStatus status){
 
     @Builder
