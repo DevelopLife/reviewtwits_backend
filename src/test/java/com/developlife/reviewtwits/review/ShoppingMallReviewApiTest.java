@@ -192,10 +192,12 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                                 "<br>sort 값은 parameter 에 입력해야 하며, 허용된 단어 외 입력 시 400 Bad Request 가 반환됩니다. (BEST, NEWEST)",
                         "쇼핑몰 리뷰 리스트",
                         ShoppingMallReviewDocument.ReviewProductRequestHeader,
+                        CommonDocument.OptionalAccessTokenHeader,
                         ShoppingMallReviewDocument.shoppingMallReviewSortField,
                         ShoppingMallReviewDocument.shoppingMallReviewListResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("productURL", productURL)
+                .header("X-AUTH-TOKEN", token)
                 .param("sort", "BEST")
                 .when()
                 .get("/reviews/shopping/list")

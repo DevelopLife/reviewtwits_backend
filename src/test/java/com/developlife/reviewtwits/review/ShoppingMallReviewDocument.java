@@ -85,7 +85,8 @@ public class ShoppingMallReviewDocument {
             fieldWithPath("[].score").type(JsonFieldType.NUMBER).description("별점"),
             fieldWithPath("[].reviewImageUrlList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
             fieldWithPath("[].status").type(JsonFieldType.STRING).description("존재여부"),
-            fieldWithPath("[].reactionCount").type(JsonFieldType.NUMBER).description("좋아요 수")
+            fieldWithPath("[].reactionCount").type(JsonFieldType.NUMBER).description("좋아요 수"),
+            fieldWithPath("[].isLiked").type(JsonFieldType.BOOLEAN).description("요청한 유저가 좋아요를 눌렀는지 여부")
     );
 
     public static final Snippet shoppingMallReviewResponseField = responseFields(
@@ -109,6 +110,7 @@ public class ShoppingMallReviewDocument {
             fieldWithPath("score").type(JsonFieldType.NUMBER).description("별점"),
             fieldWithPath("reviewImageUrlList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
             fieldWithPath("status").type(JsonFieldType.STRING).description("리뷰 상태"),
-            fieldWithPath("reactionCount").type(JsonFieldType.NUMBER).description("좋아요 수")
+            fieldWithPath("reactionCount").type(JsonFieldType.NUMBER).description("좋아요 수"),
+            fieldWithPath("isLiked").type(JsonFieldType.BOOLEAN).description("요청한 유저가 좋아요를 눌렀는지 여부")
     );
 }
