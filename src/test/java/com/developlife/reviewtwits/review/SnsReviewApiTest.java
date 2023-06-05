@@ -282,7 +282,7 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br> 이 때, 남은 리뷰의 갯수가 요청한 size 보다 작을 경우, 남은 review 를 모두 넘겨주게 됩니다. " +
                         "<br>마지막 리뷰에서 다시 한번 요청을 보내게 되면, 204 No Content 가 반환됩니다." +
                         "<br> 위 상황에서는 review List 의 크기가 size 보다 작을 수 있습니다.", "SNS리뷰피드요청",
-                        SnsReviewDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdAndSizeField,SnsReviewDocument.SnsReviewFeedResponseField))
+                        CommonDocument.OptionalAccessTokenHeader, SnsReviewDocument.ReviewIdAndSizeField,SnsReviewDocument.SnsReviewFeedResponseField))
                 .param("size", size)
                 .when()
                 .get("/sns/feeds")
@@ -365,7 +365,7 @@ public class SnsReviewApiTest extends ApiTest {
                                 "<br>X-AUTH-PATH 를 넣어주지 않으면, 로그인 처리가 되지 않아 리액션에서 isReacted 가 모두 false 로 나타나게 됩니다." +
                                 "<br>reviewId 는 필수값입니다. 리뷰 아이디를 입력하지 않으면 404가 반환됩니다." +
                                 "<br>reviewId 로 된 리뷰를 찾을 수 없을 때, 404 Not Found 가 반환됩니다.", "SNS리뷰하나요청",
-                        SnsReviewDocument.AccessTokenHeader, SnsReviewDocument.ReviewIdField,SnsReviewDocument.SnsReviewResultResponseField))
+                        CommonDocument.OptionalAccessTokenHeader, SnsReviewDocument.ReviewIdField,SnsReviewDocument.SnsReviewResultResponseField))
                 .header("X-AUTH-TOKEN",token)
                 .pathParam("reviewId",reviewIdList.get(0))
                 .when()
@@ -590,7 +590,7 @@ public class SnsReviewApiTest extends ApiTest {
                         "<br>유저 헤더 정보 입력은 선택사항입니다. 헤더 정보가 존재하지 않을 시 isCommentLike 가 false 로 반환됩니다." +
                         "<br>리뷰 아이디가 path에 들어가며, 해당 아이디로 된 리뷰가 존재하지 않을 경우 404 Not Found 가 반환됩니다." +
                         "<br>리뷰가 존재한다면, 200 OK 와 함께 리뷰의 댓글 리스트들이 반환됩니다.","SNS리뷰댓글확인"
-                        ,SnsReviewDocument.AccessTokenHeader,
+                        ,CommonDocument.OptionalAccessTokenHeader,
                         SnsReviewDocument.ReviewIdField,
                         SnsReviewDocument.SnsReviewCommentResponseField))
                 .pathParam("reviewId", registeredReviewId)

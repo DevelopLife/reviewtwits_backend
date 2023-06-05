@@ -62,4 +62,8 @@ public class Review extends BaseEntity {
     @Transient
     @Setter
     private List<String> reviewImageUuidList;
+
+    @Transient
+    @Setter
+    private boolean isLiked;
 }

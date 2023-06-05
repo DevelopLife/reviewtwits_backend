@@ -3,18 +3,21 @@ package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.product.ProductNotRegisteredException;
+import com.developlife.reviewtwits.message.annotation.review.ShoppingMallReviewSort;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.DetailReactionResponse;
 import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.service.ShoppingMallReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -26,6 +29,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/reviews")
+@Validated
 public class ShoppingMallReviewController {
 
     private final ShoppingMallReviewService reviewService;
@@ -54,8 +58,10 @@ public class ShoppingMallReviewController {
 
 
     @DeleteMapping(value = "/shopping/{reviewId}")
-    public DetailShoppingMallReviewResponse deleteShoppingMallReview(@NotBlank @PathVariable Long reviewId,
-                                         @AuthenticationPrincipal User user){
+    public DetailShoppingMallReviewResponse deleteShoppingMallReview(@PathVariable
+                                                                     @Min(value = 1, message = "리뷰 아이디는 1 이상의 수로 입력해야 합니다.")
+                                                                     Long reviewId,
+                                                                     @AuthenticationPrincipal User user){
 
         reviewService.checkReviewCanEdit(user,reviewId);
         return reviewService.deleteShoppingMallReview(reviewId);
@@ -79,8 +85,17 @@ public class ShoppingMallReviewController {
     }
 
     @GetMapping(value = "/shopping/list", produces = "application/json;charset=UTF-8")
-    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(@RequestHeader String productURL) {
+    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(@AuthenticationPrincipal User user,
+                                                                             @RequestHeader String productURL,
+                                                                             @RequestParam @ShoppingMallReviewSort String sort) {
         reviewService.checkProductURLIsValid(productURL);
-        return reviewService.findShoppingMallReviewList(productURL);
+        return reviewService.findShoppingMallReviewList(user,productURL, sort);
+    }
+
+    @PostMapping(value = "/shopping/like/{reviewId}")
+    public DetailReactionResponse shoppingMallReviewLikeProcess(@AuthenticationPrincipal User user,
+                                                                @PathVariable @Min(value = 1, message = "리뷰 아이디는 1 이상의 수로 입력해야 합니다.")
+                                                                Long reviewId){
+        return reviewService.shoppingMallReviewLikeProcess(user, reviewId);
     }
 }

@@ -8,10 +8,13 @@ import com.developlife.reviewtwits.exception.review.ReviewNotFoundException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewChangeRequest;
 import com.developlife.reviewtwits.message.request.review.ShoppingMallReviewWriteRequest;
+import com.developlife.reviewtwits.message.response.review.DetailReactionResponse;
 import com.developlife.reviewtwits.message.response.review.DetailShoppingMallReviewResponse;
 import com.developlife.reviewtwits.message.response.review.ShoppingMallReviewProductResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
+import com.developlife.reviewtwits.repository.ReactionRepository;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
+import com.developlife.reviewtwits.type.ReactionType;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.review.ReviewStatus;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +41,7 @@ public class ShoppingMallReviewService {
     private final FileStoreService fileStoreService;
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
+    private final ReactionRepository reactionRepository;
 
     public DetailShoppingMallReviewResponse saveShoppingMallReview(ShoppingMallReviewWriteRequest writeRequest, User user) {
 
@@ -103,12 +107,8 @@ public class ShoppingMallReviewService {
                 .build();
     }
 
-    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(String productURL){
-        List<Review> reviews = reviewRepository.findReviewsByProductUrlAndProjectIsNotNull(productURL);
-        for(Review review : reviews){
-            saveReviewImage(review);
-        }
-        return mapper.toDetailReviewResponseList(reviews);
+    public List<DetailShoppingMallReviewResponse> findShoppingMallReviewList(User user, String productURL, String sort){
+        return reviewRepository.findReviewListMappingInfoByProductURL(user, productURL, sort);
     }
 
     public DetailShoppingMallReviewResponse findOneShoppingMallReview(long reviewId){
@@ -197,5 +197,28 @@ public class ShoppingMallReviewService {
 
     private void saveReviewImage(Review review){
         review.setReviewImageUuidList(fileStoreService.bringFileNameList(ReferenceType.REVIEW, review.getReviewId()));
+    }
+
+    public DetailReactionResponse shoppingMallReviewLikeProcess(User user, Long reviewId) {
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new ReviewNotFoundException("해당 리뷰가 존재하지 않습니다."));
+
+        Optional<Reaction> foundReaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user);
+
+        Reaction reaction;
+        if(foundReaction.isEmpty()){
+            reaction = reactionRepository.save(Reaction.builder()
+                    .review(review)
+                    .user(user)
+                    .reactionType(ReactionType.GOOD)
+                    .build());
+            review.setReactionCount(review.getReactionCount() + 1);
+        }else{
+            reaction = foundReaction.get();
+            reactionRepository.delete(reaction);
+            review.setReactionCount(review.getReactionCount() - 1);
+        }
+        reviewRepository.save(review);
+        return mapper.toDetailReactionResponse(reaction);
     }
 }

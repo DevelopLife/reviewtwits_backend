@@ -5,11 +5,13 @@ import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.CommonSteps;
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
+import com.developlife.reviewtwits.entity.Review;
 import com.developlife.reviewtwits.mapper.ProjectMapper;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.project.ProjectRepository;
 import com.developlife.reviewtwits.repository.file.FileManagerRepository;
+import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.user.UserDocument;
@@ -19,7 +21,6 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.RequestSpecification;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,8 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     private ProjectRepository projectRepository;
     @Autowired
     private FileManagerRepository fileManagerRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
 //    @Autowired
 //    private AmazonS3 s3Client;
@@ -76,7 +79,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰리뷰작성_성공_200() throws IOException {
+    void 쇼핑몰리뷰작성_성공_200() {
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
@@ -115,7 +118,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰리뷰작성_헤더정보없음_401() throws IOException {
+    void 쇼핑몰리뷰작성_헤더정보없음_401() {
 
         RequestSpecification request = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
@@ -140,10 +143,10 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰리뷰정보_제품별찾기_200() throws IOException{
+    void 쇼핑몰리뷰정보_제품별찾기_200() {
         // 먼저 쇼핑몰리뷰를 보내기
-
-        쇼핑몰_리뷰_등록();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        쇼핑몰_리뷰_등록(token,5);
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "쇼핑몰 제품의 리뷰 전체 요약 정보를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다."
@@ -178,30 +181,44 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰리뷰정보_리뷰리스트_반환_200() throws IOException {
-        쇼핑몰_리뷰_등록();
+    void 쇼핑몰리뷰정보_리뷰리스트_반환_200() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        쇼핑몰_리뷰_등록(token, starScore);
+        쇼핑몰_리뷰_등록(token, 5);
 
-        given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "원하는 제품의 쇼핑몰 리뷰 리스트를 반환합니다. product URL 이 입력되지 않았을 경우 400 이 반환됩니다.",
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "원하는 제품의 쇼핑몰 리뷰 리스트를 반환합니다." +
+                                "<br>product URL 이 입력되지 않았을 경우 400 이 반환됩니다." +
+                                "<br>sort 값은 parameter 에 입력해야 하며, 허용된 단어 외 입력 시 400 Bad Request 가 반환됩니다. (BEST, NEWEST)",
                         "쇼핑몰 리뷰 리스트",
-                        ShoppingMallReviewDocument.ReviewProductRequestHeader,ShoppingMallReviewDocument.shoppingMallReviewListResponseField))
+                        ShoppingMallReviewDocument.ReviewProductRequestHeader,
+                        CommonDocument.OptionalAccessTokenHeader,
+                        ShoppingMallReviewDocument.shoppingMallReviewSortField,
+                        ShoppingMallReviewDocument.shoppingMallReviewListResponseField))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("productURL", productURL)
+                .header("X-AUTH-TOKEN", token)
+                .param("sort", "BEST")
                 .when()
                 .get("/reviews/shopping/list")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .body("$", Matchers.notNullValue())
-                .log().all();
+                .body("$", notNullValue())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getList("").size()).isEqualTo(2);
+        int firstReviewScore = jsonPath.getInt("[0].score");
+        int secondReviewScore = jsonPath.getInt("[1].score");
+        assertThat(firstReviewScore).isGreaterThan(secondReviewScore);
     }
 
     @Test
-    void 쇼핑몰_리뷰_삭제_200() throws IOException {
-        쇼핑몰_리뷰_등록();
-        long reviewId = 리뷰아이디_추출();
-
+    void 쇼핑몰_리뷰_삭제_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        쇼핑몰_리뷰_등록(token, starScore);
+        long reviewId = 리뷰아이디_추출();
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "입력한 리뷰 아이디의 리뷰를 삭제 처리합니다." +
@@ -225,9 +242,9 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰리뷰삭제_헤더정보없음_401() throws IOException {
-
-        쇼핑몰_리뷰_등록();
+    void 쇼핑몰리뷰삭제_헤더정보없음_401() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        쇼핑몰_리뷰_등록(token, starScore);
         long reviewId = 리뷰아이디_추출();
 
         given(this.spec)
@@ -242,9 +259,9 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰리뷰삭제_삭제권한없음_403() throws IOException {
-
-        쇼핑몰_리뷰_등록();
+    void 쇼핑몰리뷰삭제_삭제권한없음_403() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        쇼핑몰_리뷰_등록(token, starScore);
         long reviewId = 리뷰아이디_추출();
 
         String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
@@ -262,11 +279,11 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰_리뷰_별점_수정_200() throws IOException {
-        쇼핑몰_리뷰_등록();
+    void 쇼핑몰_리뷰_별점_수정_200() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        쇼핑몰_리뷰_등록(token, starScore);
         long reviewId = 리뷰아이디_추출();
 
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         long newScore = 5;
 
         ExtractableResponse<Response> response = given(this.spec)
@@ -295,11 +312,11 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰_리뷰_사진추가_수정_200() throws IOException {
-        쇼핑몰_리뷰_등록();
-        long reviewId = 리뷰아이디_추출();
-
+    void 쇼핑몰_리뷰_사진추가_수정_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        쇼핑몰_리뷰_등록(token, starScore);
+        long reviewId = 리뷰아이디_추출();
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, UserDocument.AccessTokenHeader,
@@ -321,11 +338,11 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰_리뷰_사진삭제_수정_200() throws IOException {
-        쇼핑몰_리뷰_등록();
-        long reviewId = 리뷰아이디_추출();
-
+    void 쇼핑몰_리뷰_사진삭제_수정_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        쇼핑몰_리뷰_등록(token, starScore);
+        long reviewId = 리뷰아이디_추출();
         List<String> fileNameList = fileManagerRepository.getRealFilename(reviewId, ReferenceType.REVIEW);
 
         ExtractableResponse<Response> response = given(this.spec)
@@ -348,8 +365,9 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰_리뷰_수정_토큰정보없음_401() throws IOException {
-        쇼핑몰_리뷰_등록();
+    void 쇼핑몰_리뷰_수정_토큰정보없음_401() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        쇼핑몰_리뷰_등록(token, starScore);
         long reviewId = 리뷰아이디_추출();
 
         List<String> fileNameList = fileManagerRepository.getRealFilename(reviewId, ReferenceType.REVIEW);
@@ -367,16 +385,17 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     }
 
     @Test
-    void 쇼핑몰_리뷰_수정_유저권한없음_403() throws IOException {
-        쇼핑몰_리뷰_등록();
+    void 쇼핑몰_리뷰_수정_유저권한없음_403() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        쇼핑몰_리뷰_등록(token, starScore);
         long reviewId = 리뷰아이디_추출();
 
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
         List<String> fileNameList = fileManagerRepository.getRealFilename(reviewId, ReferenceType.REVIEW);
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
-                .header("X-AUTH-TOKEN", token)
+                .header("X-AUTH-TOKEN", otherToken)
                 .pathParam("reviewId", reviewId)
                 .multiPart("deleteFileList", fileNameList.get(0))
                 .when()
@@ -391,6 +410,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         ExtractableResponse<Response> response = given(this.spec)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("productURL",productURL)
+                .param("sort","NEWEST")
                 .when()
                 .get("/reviews/shopping/list")
                 .then()
@@ -405,8 +425,7 @@ public class ShoppingMallReviewApiTest extends ApiTest {
         return jsonPath.getLong("[0].reviewId");
     }
 
-    private void 쇼핑몰_리뷰_등록() throws IOException {
-        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+    private Long 쇼핑몰_리뷰_등록(String token, int starScore) {
 
         RequestSpecification request = given(this.spec).log().all()
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -421,10 +440,13 @@ public class ShoppingMallReviewApiTest extends ApiTest {
             request.multiPart(multiPartSpecification);
         }
 
-        request
+        ExtractableResponse<Response> response = request
                 .when()
                 .post("/reviews/shopping")
-                .then().log().all();
+                .then().log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        return jsonPath.getLong("reviewId");
     }
 
 
@@ -506,8 +528,6 @@ public class ShoppingMallReviewApiTest extends ApiTest {
     //    verify(s3Client,Mockito.times(0)).putObject(Mockito.any(PutObjectRequest.class));
     }
 
-
-
     @Test
     void 쇼핑몰리뷰작성_유효하지않은토큰_401(){
         final String wrongToken = "wrongToken";
@@ -524,6 +544,119 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 쇼핑몰리뷰_좋아요_등록_성공_200(){
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long reviewId = 쇼핑몰_리뷰_등록(token, starScore);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "쇼핑몰 리뷰에 좋아요를 추가하는 API 입니다." +
+                        "<br>X-AUTH-TOKEN 을 header 에 추가하고, 리뷰의 id 를 path parameter 로 전달합니다." +
+                        "<br>좋아요 성공 시 200 OK 와 함께 처리 내역을 반환합니다." +
+                        "<br>이미 좋아요를 누른 리뷰에 대해 좋아요를 누르면 좋아요가 취소됩니다." +
+                        "<br>리뷰 아이디에 음수를 입력하면 400 Bad Request 가 반환됩니다." +
+                        "<br>헤더에 유저 정보를 입력하지 않을 시, 401 Unauthorized 가 반환됩니다." +
+                        "<br>존재하지 않는 리뷰 아이디를 입력할 경우, 404 Not Found 가 반환됩니다.", "쇼핑몰리뷰공감",
+                        CommonDocument.AccessTokenHeader,
+                        ShoppingMallReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReactionResponseField))
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", reviewId)
+                .when()
+                .post("/reviews/shopping/like/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        Review review = reviewRepository.findById(reviewId).get();
+        assertThat(review.getReactionCount()).isEqualTo(1);
+    }
+
+    @Test
+    void 쇼핑몰리뷰_좋아요_다시클릭_취소_성공_200(){
+
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long reviewId = 쇼핑몰_리뷰_등록(token, starScore);
+        쇼핑몰리뷰_좋아요_등록(token, reviewId);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        CommonDocument.AccessTokenHeader,
+                        ShoppingMallReviewDocument.ReviewIdField,
+                        SnsReviewDocument.SnsReactionResponseField))
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", reviewId)
+                .when()
+                .post("/reviews/shopping/like/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        Review review = reviewRepository.findById(reviewId).get();
+        assertThat(review.getReactionCount()).isEqualTo(0);
+    }
+    @Test
+    void 쇼핑몰리뷰_좋아요_리뷰아이디음수_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", -1)
+                .when()
+                .post("/reviews/shopping/like/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all().extract();
+    }
+    @Test
+    void 쇼핑몰리뷰_좋아요_헤더정보없음_401(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        Long reviewId = 쇼핑몰_리뷰_등록(token, starScore);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .pathParam("reviewId", reviewId)
+                .when()
+                .post("/reviews/shopping/like/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 쇼핑몰리뷰_좋아요_해당리뷰없음_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", 9999L)
+                .when()
+                .post("/reviews/shopping/like/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all().extract();
+    }
+
+    void 쇼핑몰리뷰_좋아요_등록(String token, Long reviewId){
+        given(this.spec)
+                .header("X-AUTH-TOKEN", token)
+                .pathParam("reviewId", reviewId)
+                .when()
+                .post("/reviews/shopping/like/{reviewId}")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
                 .log().all().extract();
     }
 }

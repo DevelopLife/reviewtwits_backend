@@ -53,6 +53,10 @@ public class ShoppingMallReviewDocument {
                     " 해당 이름으로 된 파일이 존재하지 않는 경우, 파일의 삭제 처리가 이루어지지 않습니다.")
     );
 
+    public static final Snippet shoppingMallReviewSortField = requestParameters(
+            parameterWithName("sort").attributes(required()).description("정렬 기준")
+    );
+
     public static final Snippet shoppingMallReviewInfoResponseField =  responseFields(
             fieldWithPath("averageStarScore").type(JsonFieldType.NUMBER).description("평균별점"),
             fieldWithPath("totalReviewCount").type(JsonFieldType.NUMBER).description("전체 리뷰 갯수"),
@@ -80,7 +84,9 @@ public class ShoppingMallReviewDocument {
             fieldWithPath("[].productName").type(JsonFieldType.STRING).description("제품이름").optional(),
             fieldWithPath("[].score").type(JsonFieldType.NUMBER).description("별점"),
             fieldWithPath("[].reviewImageUrlList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
-            fieldWithPath("[].status").type(JsonFieldType.STRING).description("존재여부")
+            fieldWithPath("[].status").type(JsonFieldType.STRING).description("존재여부"),
+            fieldWithPath("[].reactionCount").type(JsonFieldType.NUMBER).description("좋아요 수"),
+            fieldWithPath("[].isLiked").type(JsonFieldType.BOOLEAN).description("요청한 유저가 좋아요를 눌렀는지 여부")
     );
 
     public static final Snippet shoppingMallReviewResponseField = responseFields(
@@ -103,6 +109,8 @@ public class ShoppingMallReviewDocument {
             fieldWithPath("productName").type(JsonFieldType.STRING).description("제품이름").optional(),
             fieldWithPath("score").type(JsonFieldType.NUMBER).description("별점"),
             fieldWithPath("reviewImageUrlList").type(JsonFieldType.ARRAY).description("리뷰이미지이름 리스트"),
-            fieldWithPath("status").type(JsonFieldType.STRING).description("리뷰 상태")
+            fieldWithPath("status").type(JsonFieldType.STRING).description("리뷰 상태"),
+            fieldWithPath("reactionCount").type(JsonFieldType.NUMBER).description("좋아요 수"),
+            fieldWithPath("isLiked").type(JsonFieldType.BOOLEAN).description("요청한 유저가 좋아요를 눌렀는지 여부")
     );
 }
