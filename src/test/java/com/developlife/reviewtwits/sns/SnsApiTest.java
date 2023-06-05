@@ -6,8 +6,10 @@ import com.developlife.reviewtwits.entity.Follow;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.sns.FollowRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.repository.follow.FollowRepository;
 import com.developlife.reviewtwits.review.ShoppingMallReviewSteps;
+import com.developlife.reviewtwits.review.SnsReviewDocument;
 import com.developlife.reviewtwits.review.SnsReviewSteps;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
@@ -560,21 +562,26 @@ public class SnsApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         snsReviewSteps.SNS_리뷰_작성(token,"2번째 리뷰를 작성합니다.");
-        snsReviewSteps.SNS_리뷰_작성(token,"3번째 리뷰를 작성합니다.");
+        Long reviewIdForScrap = snsReviewSteps.SNS_리뷰_작성(token, "3번째 리뷰를 작성합니다.");
+        SNS_리뷰_스크랩_추가(token, reviewIdForScrap);
 
         int size = 2;
 
         ExtractableResponse<Response> firstResponse = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "개인 페이지에서의 리뷰 리스트를 요청하는 API 입니다." +
-                        "<br>알고 싶은 계정의 닉네임을 path 에 입력하면, 해당 계정이 작성한 리뷰들의 간략한 정보를 알 수 있습니다." +
+                        "<br>알고 싶은 계정의 닉네임을 path 에 입력하면, 해당 계정이 작성한 리뷰 정보를 알 수 있습니다." +
+                        "<br>로그인되어 있어서 해당 유저가 공감하거나 스크랩한 정보를 알고 싶다면, header 에 유저 토큰을 추가할 수 있습니다." +
                         "<br>존재하지 않는 닉네임을 입력하면 404 Not Found 가 반환됩니다." +
                         "<br>size 는 필수값입니다. 원하는 숫자 단위로 review 정보를 받을 수 있습니다." +
                         "<br>받은 리뷰들 이전에 작성된 리뷰들을 받고 싶다면, reviewId 를 입력해 주셔야 합니다." +
                         "<br>예를 들어, review 2개를 요청해 10번, 9번 reviewId 까지 받았다면, ?reviewId=9 를 입력하는 방식입니다." +
                         "<br>size 와 reviewId 는 Query String 으로 입력해 주셔야 합니다. size 가 없다면, 400 이 리턴됩니다.",
                         "개인리뷰리스트요청",
-                        SnsDocument.userNicknameField,SnsDocument.ReviewIdAndSizeField
-                        /*SnsDocument.UserSnsReviewResponse*/))
+                        CommonDocument.OptionalAccessTokenHeader,
+                        SnsDocument.userNicknameField,
+                        SnsDocument.ReviewIdAndSizeField,
+                        SnsReviewDocument.SnsReviewFeedResponseField))
+                .header("X-AUTH-TOKEN", token)
                 .pathParam("nickname", SnsSteps.userNickname)
                 .param("size",size)
                 .when()
@@ -588,7 +595,6 @@ public class SnsApiTest extends ApiTest {
 
         assertThat(jsonPath.getList("").size()).isEqualTo(size);
         assertThat(jsonPath.getInt("[0].commentCount")).isEqualTo(0);
-        assertThat(jsonPath.getInt("[0].reactionCount")).isEqualTo(0);
         assertThat(jsonPath.getString("[0].reviewImageUrlList")).isNotEmpty();
 
         Long reviewId = jsonPath.getLong("[1].reviewId");
@@ -608,7 +614,7 @@ public class SnsApiTest extends ApiTest {
 
         assertThat(secondPath.getList("").size()).isEqualTo(1);
         assertThat(secondPath.getInt("[0].commentCount")).isEqualTo(1);
-        assertThat(secondPath.getInt("[0].reactionCount")).isEqualTo(1);
+        assertThat(secondPath.getObject("[0].reactionResponses.GOOD", ReactionResponse.class)).isNotNull();
     }
 
     @Test
@@ -744,6 +750,16 @@ public class SnsApiTest extends ApiTest {
                 .multiPart(profileImage)
                 .when()
                 .post("/users/register-addition")
+                .then()
+                .log().all();
+    }
+
+    void SNS_리뷰_스크랩_추가(String token, Long reviewId){
+        given(this.spec)
+                .header("X-AUTH-TOKEN",token)
+                .pathParam("reviewId",reviewId)
+                .when()
+                .post("/sns/scrap-reviews/{reviewId}")
                 .then()
                 .log().all();
     }

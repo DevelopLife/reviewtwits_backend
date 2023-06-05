@@ -3,9 +3,7 @@ package com.developlife.reviewtwits.mapper;
 import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.message.response.review.*;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
-import com.developlife.reviewtwits.message.response.sns.SnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import com.developlife.reviewtwits.repository.review.CommentMappingDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -23,9 +21,6 @@ public interface ReviewMapper {
     String imageUrl = "/request-images/";
 
     ReviewMapper INSTANCE = Mappers.getMapper(ReviewMapper.class);
-    List<DetailShoppingMallReviewResponse> toDetailReviewResponseList(List<Review> reviews);
-    List<SnsReviewResponse> toSnsReviewResponseList(List<Review> reviews);
-
     default List<String> mapImageUuidToUrlList(List<String> imageUuidList){
         ArrayList<String> imageUrlList = new ArrayList<>();
         for(String imageUuid : imageUuidList)
@@ -91,16 +86,6 @@ public interface ReviewMapper {
                 .userInfo(mapUserToUserInfoResponse(comment.getUser()))
                 .commentLikeCount(comment.getCommentLike())
                 .isCommentLiked(false)
-                .build();
-    }
-
-    default SnsReviewResponse toSnsReviewResponse(Review review){
-        return SnsReviewResponse.builder()
-                .reviewId(review.getReviewId())
-                .userInfo(mapUserToUserInfoResponse(review.getUser()))
-                .reviewImageUrlList(mapImageUuidToUrlList(review.getReviewImageUuidList()))
-                .commentCount(review.getCommentCount())
-                .reactionCount(review.getReactionCount())
                 .build();
     }
 

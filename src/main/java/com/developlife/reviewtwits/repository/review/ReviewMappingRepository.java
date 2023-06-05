@@ -25,4 +25,6 @@ public interface ReviewMappingRepository {
 
     List<DetailShoppingMallReviewResponse> findReviewListMappingInfoByProductURL(User user, String productURL, String sort);
 
+    List<DetailSnsReviewResponse> findReviewListByUserInPage(User reviewWriter, User reviewReader, Long reviewId, Pageable pageable);
+
 }
