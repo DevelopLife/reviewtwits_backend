@@ -55,7 +55,7 @@ public class SnsReviewController {
     public List<DetailSnsReviewResponse> getSnsReviewWithFilter(
             @AuthenticationPrincipal User user,
             @RequestParam(required = false) Long reviewId,
-            @RequestParam @Min(value = 1, message = "size 는 1 이상의 양수로 입력할 수 없습니다.") int size,
+            @RequestParam @Min(value = 1, message = "size 는 1 이상의 양수로 입력해야 합니다.") int size,
             @RequestParam String nickname){
 
         return snsReviewService.getSnsReviewWithFilter(user, reviewId, size, nickname);
