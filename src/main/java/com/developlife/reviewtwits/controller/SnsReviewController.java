@@ -50,6 +50,17 @@ public class SnsReviewController {
         return snsReviewService.getSnsReviews(user,reviewId, size);
     }
 
+    @GetMapping("/feeds/filter")
+    public List<DetailSnsReviewResponse> getSnsReviewWithFilter(
+            @AuthenticationPrincipal User user,
+            @RequestParam(required = false) Long reviewId,
+            @RequestParam int size,
+            @RequestParam String nickname){
+
+        return snsReviewService.getSnsReviewWithFilter(user, reviewId, size, nickname);
+    }
+
+
     @GetMapping("/reviews/{reviewId}")
     public DetailSnsReviewResponse getOneSnsReview(@AuthenticationPrincipal User user, @PathVariable long reviewId){
         return snsReviewService.getOneSnsReview(user, reviewId);
