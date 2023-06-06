@@ -20,6 +20,12 @@ public class SnsReviewDocument {
             parameterWithName("size").attributes(required()).description("요청하는 페이지 사이즈")
     );
 
+    public static final Snippet ReviewFeedFilterField = requestParameters(
+            parameterWithName("reviewId").description("리뷰의 아이디").optional(),
+            parameterWithName("size").attributes(required()).description("요청하는 페이지 사이즈"),
+            parameterWithName("nickname").attributes(required()).description("리뷰 작성자의 닉네임")
+    );
+
     public static final Snippet SnsReviewWriteRequestField = requestParts(
             partWithName("productURL").attributes(required())
                     .description("product 등록을 위한 URL 값입니다. http 혹은 https 로 시작하는 인터넷 URL 형식이어야 합니다."),

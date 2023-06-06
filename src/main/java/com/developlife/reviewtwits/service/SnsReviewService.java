@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +52,7 @@ public class SnsReviewService {
     private final ReactionRepository reactionRepository;
     private final ReviewScrapRepository reviewScrapRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final UserRepository userRepository;
 
     private final ReviewUtils reviewUtils;
 
@@ -360,4 +362,11 @@ public class SnsReviewService {
         return mappingReview;
     }
 
+    public List<DetailSnsReviewResponse> getSnsReviewWithFilter(User reviewReader, Long reviewId, int size, String nickname) {
+        User reviewWriter = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 유저 닉네임으로 된 계정이 존재하지 않습니다."));
+
+        Pageable pageable = PageRequest.of(0, size, Sort.by("reviewId").descending());
+        return reviewRepository.findReviewListByUserInPage(reviewWriter, reviewReader, reviewId, pageable);
+    }
 }
