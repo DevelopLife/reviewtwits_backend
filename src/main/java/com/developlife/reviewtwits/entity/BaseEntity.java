@@ -21,10 +21,10 @@ import java.time.LocalDateTime;
 public class BaseEntity {
     @Setter
     @CreatedDate
-    @Column(updatable = false, columnDefinition = "TIMESTAMP")
+    @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT '0000-00-00 00:00:00'")
     private LocalDateTime createdDate;
 
     @LastModifiedDate
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(columnDefinition = "TIMESTAMP DEFAULT '0000-00-00 00:00:00'")
     private LocalDateTime lastModifiedDate;
 }
