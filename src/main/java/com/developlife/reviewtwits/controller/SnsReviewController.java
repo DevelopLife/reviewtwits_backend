@@ -18,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class SnsReviewController {
     public List<DetailSnsReviewResponse> getSnsReviewWithFilter(
             @AuthenticationPrincipal User user,
             @RequestParam(required = false) Long reviewId,
-            @RequestParam int size,
+            @RequestParam @Min(value = 1, message = "size 는 1 이상의 양수로 입력할 수 없습니다.") int size,
             @RequestParam String nickname){
 
         return snsReviewService.getSnsReviewWithFilter(user, reviewId, size, nickname);
