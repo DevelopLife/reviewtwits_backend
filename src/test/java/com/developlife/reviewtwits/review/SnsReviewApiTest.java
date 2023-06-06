@@ -6,11 +6,13 @@ import com.developlife.reviewtwits.CommonSteps;
 import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
+import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
 import com.developlife.reviewtwits.service.user.UserService;
+import com.developlife.reviewtwits.sns.SnsSteps;
 import com.developlife.reviewtwits.type.review.ReviewStatus;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
@@ -81,9 +83,11 @@ public class SnsReviewApiTest extends ApiTest {
     private SnsReviewSteps snsReviewSteps;
 
     @BeforeEach
-    void settings(){
+    void settings() throws IOException {
         registerUserRequest = userSteps.회원가입정보_생성();
         userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
+        final String userToken = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        추가회원가입정보_입력(userToken, SnsSteps.userNickname);
 
         registerOtherUserRequest = userSteps.상대유저_회원가입정보_생성();
         userService.register(registerOtherUserRequest, UserSteps.일반유저권한_생성());
@@ -345,6 +349,98 @@ public class SnsReviewApiTest extends ApiTest {
                 .assertThat()
                 .statusCode(HttpStatus.NO_CONTENT.value())
                 .log().all().extract();
+    }
+
+    @Test
+    void SNS_리뷰리스트_필터_요청_성공_200() {
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        Long reviewIdForReaction = snsReviewSteps.SNS_리뷰_작성(token, "1번째 리뷰를 작성합니다.");
+        snsReviewSteps.SNS_리뷰_작성(token,"2번째 리뷰를 작성합니다.");
+        Long reviewIdForScrap = snsReviewSteps.SNS_리뷰_작성(token, "3번째 리뷰를 작성합니다.");
+
+        SNS_리뷰_스크랩_추가(token, reviewIdForScrap);
+        snsReviewSteps.SNS_리액션_추가(token,reviewIdForReaction);
+
+        int size = 2;
+
+        ExtractableResponse<Response> firstResponse = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "유저 정보를 필터로 선택해 리뷰 리스트를 요청하는 API 입니다." +
+                                "<br>알고 싶은 계정의 닉네임을 query string 으로 입력하면, 해당 계정이 작성한 리뷰의 정보를 feed 처럼 알 수 있습니다." +
+                                "<br>존재하지 않는 닉네임을 입력하면 404 Not Found 가 반환됩니다." +
+                                "<br>size 는 필수값입니다. 원하는 숫자 단위로 review 정보를 받을 수 있습니다." +
+                                "<br>받은 리뷰들 이전에 작성된 리뷰들을 받고 싶다면, reviewId 를 입력해 주셔야 합니다." +
+                                "<br>예를 들어, review 2개를 요청해 10번, 9번 reviewId 까지 받았다면, ?reviewId=9 를 입력하는 방식입니다." +
+                                "<br>nickname, size, reviewId 는 Query String 으로 입력해 주셔야 합니다. size 가 없다면, 400 이 리턴됩니다.",
+                        "유저기준필터 리뷰리스트요청",
+                        CommonDocument.OptionalAccessTokenHeader,
+                        SnsReviewDocument.ReviewFeedFilterField,
+                        SnsReviewDocument.SnsReviewFeedResponseField))
+                .header("X-AUTH-TOKEN", token)
+                .param("nickname", SnsSteps.userNickname)
+                .param("size",size)
+                .when()
+                .get("/sns/feeds/filter")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = firstResponse.jsonPath();
+
+        assertThat(jsonPath.getList("").size()).isEqualTo(size);
+        assertThat(jsonPath.getInt("[0].commentCount")).isEqualTo(0);
+        assertThat(jsonPath.getBoolean("[0].isScrapped")).isTrue();
+        assertThat(jsonPath.getString("[0].reviewImageUrlList")).isNotEmpty();
+
+        Long reviewId = jsonPath.getLong("[1].reviewId");
+
+        ExtractableResponse<Response> secondResponse = given()
+                .param("nickname", SnsSteps.userNickname)
+                .param("size", size)
+                .param("reviewId", reviewId)
+                .when()
+                .get("/sns/feeds/filter")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath secondPath = secondResponse.jsonPath();
+
+        assertThat(secondPath.getList("").size()).isEqualTo(1);
+        assertThat(secondPath.getInt("[0].commentCount")).isEqualTo(0);
+        assertThat(secondPath.getObject("[0].reactionResponses.GOOD", ReactionResponse.class)).isNotNull();
+    }
+
+    @Test
+    void SNS_리뷰리스트_필터_요청_size_음수_400(){
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .param("nickname", SnsSteps.userNickname)
+                .param("size",-1)
+                .when()
+                .get("/sns/feeds/filter")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all();
+    }
+
+    @Test
+    void SNS_리뷰리스트_필터_요청_존재하지않는계정_404() {
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .param("nickname", "notRegistered")
+                .param("size",2)
+                .when()
+                .get("/sns/feeds/filter")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all();
     }
 
     @Test
@@ -1363,5 +1459,20 @@ public class SnsReviewApiTest extends ApiTest {
                 .log().all().extract();
 
         return response.jsonPath();
+    }
+
+    void 추가회원가입정보_입력(String token, String nickname) throws IOException {
+        MultiPartSpecification profileImage = ShoppingMallReviewSteps.프로필_이미지_파일정보생성();
+
+        given(this.spec)
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .multiPart("nickname", nickname)
+                .multiPart("introduceText", "test")
+                .multiPart(profileImage)
+                .when()
+                .post("/users/register-addition")
+                .then()
+                .log().all();
     }
 }
