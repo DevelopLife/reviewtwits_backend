@@ -2,10 +2,12 @@ package com.developlife.reviewtwits.repository.project;
 
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
+import com.developlife.reviewtwits.entity.QReview;
 import com.developlife.reviewtwits.entity.StatInfo;
 import com.developlife.reviewtwits.message.response.project.ProductStatisticsResponse;
 import com.developlife.reviewtwits.message.response.project.RecentVisitInfoResponse;
 import com.developlife.reviewtwits.message.response.project.VisitInfoResponse;
+import com.developlife.reviewtwits.type.Gender;
 import com.developlife.reviewtwits.type.project.ChartPeriodUnit;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -98,31 +100,37 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
     @Override
     public List<ProductStatisticsResponse> findProductStatistics(Project project) {
          Map<Product, List<StatInfo>> result = jpaQueryFactory
-                .select(statInfo)
+                .selectFrom(statInfo)
                 .where(statInfo.project.eq(project))
                 .transform(groupBy(statInfo.product).as(list(statInfo)));
          List<ProductStatisticsResponse> response = new ArrayList<>();
-//         result.forEach((product, statInfos) -> {
-//             ProductStatisticsResponse p = ProductStatisticsResponse.builder()
-//                     .productName(product.getProductName())
-//                     .visitCount(statInfos.size())
-//                     .reviewCount()
-//                     .mainAge(statInfos.stream().map(s -> s.getUser().getAge() / 10)
-//                             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-//                             .values().stream()
-//                             .max(Comparator.comparing(a -> a))
-//                             .get() * 10
-//                     )
-//                     .mainGender(statInfos.stream().map(s -> s.getUser().getGender())
-//                             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-//                             .values().stream()
-//                             .max(Comparator.comparing(a -> a))
-//                             .get()
-//                     )
-//                     .averageScore()
-//                     .build();
-//                response.add(p);
-//         });
+         result.forEach((product, statInfos) -> {
+             Gender gender = statInfos.stream().map(s -> s.getUser().getGender())
+                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                     .entrySet().stream()
+                     .max(Map.Entry.comparingByValue())
+                     .map(Map.Entry::getKey)
+                     .orElse(null);
+
+             Tuple reviewTuple = jpaQueryFactory.select(QReview.review.count(), QReview.review.score.avg())
+                        .from(QReview.review)
+                        .where(QReview.review.productUrl.eq(product.getProductUrl()))
+                        .fetchOne();
+             ProductStatisticsResponse p = ProductStatisticsResponse.builder()
+                     .productName(product.getProductName())
+                     .visitCount(Long.valueOf(statInfos.size()))
+                     .reviewCount(reviewTuple.get(QReview.review.count()))
+                     .mainAge(statInfos.stream().map(s -> s.getUser().getAge() / 10)
+                             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                             .values().stream()
+                             .max(Comparator.comparing(a -> a))
+                             .get() * 10
+                     )
+                     .mainGender(gender.name())
+                     .averageScore(reviewTuple.get(QReview.review.score.avg()))
+                     .build();
+                response.add(p);
+         });
 
 
         return response;

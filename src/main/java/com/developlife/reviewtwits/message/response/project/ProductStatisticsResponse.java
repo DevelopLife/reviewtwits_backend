@@ -4,11 +4,11 @@ import lombok.Builder;
 
 public record ProductStatisticsResponse(
         String productName,
-        Integer visitCount,
-        Integer reviewCount,
-        Integer mainAge,
+        Long visitCount,
+        Long reviewCount,
+        Long mainAge,
         String mainGender,
-        Float averageScore
+        Double averageScore
 ) {
     @Builder
     public ProductStatisticsResponse {
