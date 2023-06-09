@@ -2,7 +2,7 @@ package com.developlife.reviewtwits.message.response.project;
 
 import lombok.Builder;
 
-public record SearchFlow(
+public record SearchFlowResponse(
         Long total,
         Long naver,
         Long daum,
@@ -13,6 +13,6 @@ public record SearchFlow(
         Long etc
 ) {
     @Builder
-    public SearchFlow {
+    public SearchFlowResponse {
     }
 }
