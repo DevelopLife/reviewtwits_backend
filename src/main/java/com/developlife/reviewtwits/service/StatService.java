@@ -14,6 +14,7 @@ import com.developlife.reviewtwits.message.response.project.RecentVisitInfoRespo
 import com.developlife.reviewtwits.message.response.project.VisitInfoResponse;
 import com.developlife.reviewtwits.message.response.project.VisitTotalGraphResponse;
 import com.developlife.reviewtwits.message.response.statistics.SaveStatResponse;
+import com.developlife.reviewtwits.message.response.statistics.SimpleProjectInfoResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.project.ProjectRepository;
 import com.developlife.reviewtwits.repository.project.StatInfoRepository;
@@ -100,5 +101,15 @@ public class StatService {
             throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
         }
         return project;
+    }
+
+    public SimpleProjectInfoResponse getSimpleProjectInfo(Long projectId, User user) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("해당 프로젝트가 존재하지 않습니다."));
+
+        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
+            throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
+        }
+        return statInfoRepository.findSimpleProjectInfo(project);
     }
 }

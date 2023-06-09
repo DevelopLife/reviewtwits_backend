@@ -139,7 +139,7 @@ public class CrawlingCoupang {
                     .productUrl(productUrl)
                     .build();
             reviewRepository.save(registeredReview);
-            registeredReview.setCreatedDate(LocalDateTime.parse(date + " 00:00:00", DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss")));
+            // registeredReview.setCreatedDate(LocalDateTime.parse(date + " 00:00:00", DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss")));
             List<MultipartFile> imageFiles = new ArrayList<>();
             for(String imageUrl : imageUrls) {
                 imageFiles.add(getImageFileFromUrl(imageUrl, String.format("%s_%s_%d", user.getNickname(), productName, imageFiles.size())));
