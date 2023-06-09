@@ -125,4 +125,11 @@ public class User extends BaseEntity implements UserDetails {
         User toCompare = (User)o;
         return (this.userId == toCompare.getUserId());
     }
+
+    public int getAge() {
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        cal.setTime(this.birthDate);
+        return year - cal.get(Calendar.YEAR) + 1;
+    }
 }
