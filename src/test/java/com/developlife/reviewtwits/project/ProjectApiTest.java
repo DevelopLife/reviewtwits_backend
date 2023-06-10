@@ -4,7 +4,7 @@ import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
-import com.developlife.reviewtwits.repository.project.ProjectRepository;
+import com.developlife.reviewtwits.repository.ProjectRepository;
 import com.developlife.reviewtwits.service.ProjectService;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserSteps;

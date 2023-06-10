@@ -1,7 +1,8 @@
-package com.developlife.reviewtwits.type.project;
+package com.developlife.reviewtwits.type;
 
 import com.querydsl.core.types.dsl.NumberExpression;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static com.developlife.reviewtwits.entity.QStatInfo.statInfo;
@@ -44,38 +45,27 @@ public enum ChartPeriodUnit {
         return null;
     }
 
-    public static LocalDateTime getTimeRangeBefore(LocalDateTime compareDateTime,ChartPeriodUnit unit) {
-        String dayMonthYear = getDayMonthYear(unit);
-        int numberValue = getNumberValue(unit);
+    public static LocalDateTime getTimeRangeBefore(LocalDateTime compareDateTime,ChartPeriodUnit range, ChartPeriodUnit interval) {
+        String unitOfRange = getPeriodUnit(range);
+        String unitOfInterval = getPeriodUnit(interval);
+        int numberValue = getNumberValue(range);
 
-        if(dayMonthYear.equals("d")){
-            return compareDateTime.minusDays(numberValue);
-        }
-        if(dayMonthYear.equals("mo")){
-            return compareDateTime.minusMonths(numberValue);
-        }
-        if(dayMonthYear.equals("y")){
-            return compareDateTime.minusYears(numberValue);
-        }
-
-        return null;
-    }
-
-    public static NumberExpression<Integer> getExpressionOfInterval(ChartPeriodUnit interval){
-        String dayMonthYear = getDayMonthYear(interval);
-        int numberValue = getNumberValue(interval);
-
-        if(dayMonthYear.equals("d")){
-            return statInfo.createdDate.dayOfYear().divide(numberValue);
-        }
-        if(dayMonthYear.equals("mo")){
-            return statInfo.createdDate.month().divide(numberValue);
-        }
-        if(dayMonthYear.equals("y")){
-            return statInfo.createdDate.year().divide(numberValue);
+        LocalDateTime toReturnDateTime;
+        if(unitOfRange.equals("d")){
+            toReturnDateTime = compareDateTime.minusDays(numberValue);
+        } else if(unitOfRange.equals("mo")){
+            toReturnDateTime = compareDateTime.minusMonths(numberValue);
+        } else{
+            toReturnDateTime = compareDateTime.minusYears(numberValue);
         }
 
-        return null;
+        if(unitOfInterval.equals("d")){
+            return toReturnDateTime;
+        }else if (unitOfInterval.equals("mo")){
+            return toReturnDateTime.withDayOfMonth(1);
+        }else{
+            return toReturnDateTime.withDayOfMonth(1).withDayOfMonth(1);
+        }
     }
 
     private static int getNumberValue(ChartPeriodUnit interval) {
@@ -89,7 +79,7 @@ public enum ChartPeriodUnit {
         return -1;
     }
 
-    private static String getDayMonthYear(ChartPeriodUnit unit){
+    private static String getPeriodUnit(ChartPeriodUnit unit){
         String input = unit.inputValue;
         if(input.endsWith("d") || input.endsWith("y")){
             return input.substring(input.length()-1);
@@ -99,5 +89,22 @@ public enum ChartPeriodUnit {
         }
 
         return "nothing";
+    }
+
+    public static LocalDate getTimeRangeAfter(LocalDate localDate, ChartPeriodUnit interval) {
+        String dayMonthYear = getPeriodUnit(interval);
+        int numberValue = getNumberValue(interval);
+
+        if(dayMonthYear.equals("d")){
+            return localDate.plusDays(numberValue);
+        }
+        if(dayMonthYear.equals("mo")){
+            return localDate.plusMonths(numberValue);
+        }
+        if(dayMonthYear.equals("y")){
+            return localDate.plusYears(numberValue);
+        }
+
+        return null;
     }
 }

@@ -20,6 +20,7 @@ import com.developlife.reviewtwits.type.review.ReviewStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -199,6 +200,7 @@ public class ShoppingMallReviewService {
         review.setReviewImageUuidList(fileStoreService.bringFileNameList(ReferenceType.REVIEW, review.getReviewId()));
     }
 
+    @Transactional
     public DetailReactionResponse shoppingMallReviewLikeProcess(User user, Long reviewId) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(
                 () -> new ReviewNotFoundException("해당 리뷰가 존재하지 않습니다."));
