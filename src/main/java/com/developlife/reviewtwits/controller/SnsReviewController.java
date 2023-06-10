@@ -126,8 +126,11 @@ public class SnsReviewController {
 //        return snsReviewService.deleteReactionOnReview(user, reviewId);
 //    }
     @GetMapping("/scrap-reviews")
-    public List<DetailSnsReviewResponse> getReviewScrapListOfUser(@AuthenticationPrincipal User user){
-        return snsReviewService.getReviewsInUserScrap(user);
+    public List<DetailSnsReviewResponse> getReviewScrapListOfUser(
+            @AuthenticationPrincipal User user,
+            @RequestParam(required = false) Long reviewId,
+            @RequestParam int size){
+        return snsReviewService.getReviewsInUserScrap(user, reviewId, size);
     }
 
     @PostMapping("/scrap-reviews/{reviewId}")
