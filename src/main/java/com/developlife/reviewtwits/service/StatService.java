@@ -15,9 +15,9 @@ import com.developlife.reviewtwits.message.response.statistics.VisitInfoResponse
 import com.developlife.reviewtwits.message.response.statistics.VisitTotalGraphResponse;
 import com.developlife.reviewtwits.message.response.statistics.SaveStatResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
-import com.developlife.reviewtwits.repository.project.ProjectRepository;
-import com.developlife.reviewtwits.repository.project.StatInfoRepository;
-import com.developlife.reviewtwits.type.project.ChartPeriodUnit;
+import com.developlife.reviewtwits.repository.ProjectRepository;
+import com.developlife.reviewtwits.repository.statistics.StatInfoRepository;
+import com.developlife.reviewtwits.type.ChartPeriodUnit;
 import com.developlife.reviewtwits.type.project.Device;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

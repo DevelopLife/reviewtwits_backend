@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.type.project;
+package com.developlife.reviewtwits.type;
 
 import com.querydsl.core.types.dsl.NumberExpression;
 
@@ -66,23 +66,6 @@ public enum ChartPeriodUnit {
         }else{
             return toReturnDateTime.withDayOfMonth(1).withDayOfMonth(1);
         }
-    }
-
-    public static NumberExpression<Integer> getExpressionOfInterval(ChartPeriodUnit interval){
-        String dayMonthYear = getPeriodUnit(interval);
-        int numberValue = getNumberValue(interval);
-
-        if(dayMonthYear.equals("d")){
-            return statInfo.createdDate.dayOfYear().divide(numberValue);
-        }
-        if(dayMonthYear.equals("mo")){
-            return statInfo.createdDate.month().divide(numberValue);
-        }
-        if(dayMonthYear.equals("y")){
-            return statInfo.createdDate.year().divide(numberValue);
-        }
-
-        return null;
     }
 
     private static int getNumberValue(ChartPeriodUnit interval) {

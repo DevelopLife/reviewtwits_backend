@@ -1,10 +1,10 @@
-package com.developlife.reviewtwits.repository.project;
+package com.developlife.reviewtwits.repository.statistics;
 
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.StatInfo;
 import com.developlife.reviewtwits.message.response.project.RecentVisitInfoResponse;
 import com.developlife.reviewtwits.message.response.statistics.VisitInfoResponse;
-import com.developlife.reviewtwits.type.project.ChartPeriodUnit;
+import com.developlife.reviewtwits.type.ChartPeriodUnit;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
@@ -108,12 +108,6 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
         }
 
         return response;
-    }
-    private boolean isDifferenceValid(String previousDate, String presentDate, ChartPeriodUnit interval){
-        LocalDate present = LocalDate.parse(presentDate);
-        LocalDate previous = LocalDate.parse(previousDate);
-        LocalDate toCompareDate = ChartPeriodUnit.getTimeRangeBefore(present.atTime(LocalTime.now()),ChartPeriodUnit.FIVE_YEAR,interval).toLocalDate();
-        return toCompareDate.isEqual(previous);
     }
 
     private List<VisitInfoResponse> makeVisitInfoResponseInit(LocalDate startDate, LocalDate endDate, ChartPeriodUnit interval){
