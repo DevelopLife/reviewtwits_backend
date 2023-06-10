@@ -178,7 +178,7 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
     private List<VisitInfoResponse> makeVisitInfoResponseInit(LocalDate startDate, LocalDate endDate, ChartPeriodUnit interval){
         List<VisitInfoResponse> initList = new ArrayList<>();
         LocalDate date = startDate;
-        while(date.isBefore(endDate)){
+        while(date.isBefore(endDate) || date.isEqual(endDate)){
             initList.add(VisitInfoResponse.builder()
                     .timeStamp(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
                     .visitCount(0)

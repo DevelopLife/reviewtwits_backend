@@ -45,7 +45,7 @@ public enum ChartPeriodUnit {
         return null;
     }
 
-    public static LocalDateTime getTimeRangeBefore(LocalDateTime compareDateTime,ChartPeriodUnit range, ChartPeriodUnit interval) {
+    public static LocalDateTime getTimeRangeBefore(LocalDateTime compareDateTime, ChartPeriodUnit range, ChartPeriodUnit interval) {
         String unitOfRange = getPeriodUnit(range);
         String unitOfInterval = getPeriodUnit(interval);
         int numberValue = getNumberValue(range);
