@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author ghdic
@@ -45,10 +46,5 @@ public class ProjectController {
                                                     @RequestBody @Valid FixProjectRequest fixProjectRequest,
                                                     @AuthenticationPrincipal User user) {
         return projectService.updateProject(projectId, fixProjectRequest, user);
-    }
-
-    private String getTokenOwner() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
     }
 }

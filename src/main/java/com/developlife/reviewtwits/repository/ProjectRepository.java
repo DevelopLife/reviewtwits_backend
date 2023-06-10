@@ -20,4 +20,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     Optional<Project> findFirstByUser_AccountId(String accountId);
     Optional<Project> findByProjectName(String projectName);
 
+
+
 }

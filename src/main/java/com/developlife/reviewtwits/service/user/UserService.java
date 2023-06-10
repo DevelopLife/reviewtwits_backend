@@ -63,6 +63,9 @@ public class UserService {
     @Transactional(readOnly = true)
     public User login(LoginUserRequest loginUserRequest) {
         User user = getUser(loginUserRequest.accountId());
+        if (user.getAccountPw() == null) {
+            throw new AccountPasswordWrongException(String.format("OAuth(%s)로 생성된 계정입니다. 해당 SNS로 로그인을 진행해주세요", user.getProvider().name()));
+        }
         if (!passwordEncoder.matches(loginUserRequest.accountPw(), user.getAccountPw())) {
             throw new AccountPasswordWrongException("비밀번호가 일치하지 않습니다.");
         }

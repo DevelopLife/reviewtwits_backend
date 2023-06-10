@@ -43,6 +43,6 @@ public class StatInfo {
     private Device device;
 
     @CreatedDate
-    @Column(updatable = false, columnDefinition = "TIMESTAMP")
+    @Column(updatable = false, columnDefinition = "TIMESTAMP DEFAULT '0000-00-00 00:00:00'")
     private LocalDateTime createdDate;
 }

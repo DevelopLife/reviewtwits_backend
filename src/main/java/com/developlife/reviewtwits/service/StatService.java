@@ -13,7 +13,9 @@ import com.developlife.reviewtwits.message.response.statistics.DailyVisitInfoRes
 import com.developlife.reviewtwits.message.response.project.RecentVisitInfoResponse;
 import com.developlife.reviewtwits.message.response.statistics.VisitInfoResponse;
 import com.developlife.reviewtwits.message.response.statistics.VisitTotalGraphResponse;
+import com.developlife.reviewtwits.message.response.project.*;
 import com.developlife.reviewtwits.message.response.statistics.SaveStatResponse;
+import com.developlife.reviewtwits.message.response.statistics.SimpleProjectInfoResponse;
 import com.developlife.reviewtwits.repository.ProductRepository;
 import com.developlife.reviewtwits.repository.ProjectRepository;
 import com.developlife.reviewtwits.repository.statistics.StatInfoRepository;
@@ -100,5 +102,35 @@ public class StatService {
             throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
         }
         return project;
+    }
+
+    public SimpleProjectInfoResponse getSimpleProjectInfo(Long projectId, User user) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("해당 프로젝트가 존재하지 않습니다."));
+
+        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
+            throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
+        }
+        return statInfoRepository.findSimpleProjectInfo(project);
+    }
+
+    public List<ProductStatisticsResponse> getProductStatisticsInfo(Long projectId, User user) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("해당 프로젝트가 존재하지 않습니다."));
+
+        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
+            throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
+        }
+        return statInfoRepository.findProductStatistics(project);
+    }
+
+    public SearchFlowResponse getRequestSearchFlowInfos(Long projectId, User user) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("해당 프로젝트가 존재하지 않습니다."));
+
+        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
+            throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
+        }
+        return statInfoRepository.findSearchFlow(project);
     }
 }

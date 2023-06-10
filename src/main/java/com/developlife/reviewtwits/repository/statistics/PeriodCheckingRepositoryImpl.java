@@ -1,10 +1,17 @@
 package com.developlife.reviewtwits.repository.statistics;
 
+import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
+import com.developlife.reviewtwits.entity.QReview;
 import com.developlife.reviewtwits.entity.StatInfo;
+import com.developlife.reviewtwits.message.response.project.ProductStatisticsResponse;
 import com.developlife.reviewtwits.message.response.project.RecentVisitInfoResponse;
 import com.developlife.reviewtwits.message.response.statistics.VisitInfoResponse;
 import com.developlife.reviewtwits.type.ChartPeriodUnit;
+import com.developlife.reviewtwits.message.response.project.VisitInfoResponse;
+import com.developlife.reviewtwits.type.Gender;
+import com.developlife.reviewtwits.type.project.ChartPeriodUnit;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
@@ -13,10 +20,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.developlife.reviewtwits.entity.QStatInfo.statInfo;
 import static com.querydsl.core.group.GroupBy.groupBy;
@@ -73,6 +80,67 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
                 .build();
     }
 
+    @Override
+    public Map<Integer, Long> readTimeGraphInfo(Project project) {
+        Map<Integer, Long> result = jpaQueryFactory.select(
+                statInfo.createdDate.hour(), statInfo.createdDate.count()
+        ).from(statInfo)
+                .where(statInfo.project.eq(project))
+                        //.and(statInfo.createdDate.after(ChartPeriodUnit.getTimeRangeBefore(ChartPeriodUnit.ONE_MONTH))))
+                .groupBy(statInfo.createdDate.hour())
+                .orderBy(statInfo.createdDate.hour().asc())
+                .transform(groupBy(statInfo.createdDate.hour()).as(statInfo.createdDate.count()));
+
+        IntStream.range(0, 24)
+                .forEach(h -> {
+                    if (!result.containsKey(h)) {
+                        result.put(h, 0L);
+                    }
+                });
+        return new TreeMap<>(result);
+    }
+    // 맵으로 product key로해서 visitCount구하고
+    @Override
+    public List<ProductStatisticsResponse> findProductStatistics(Project project) {
+         Map<Product, List<StatInfo>> result = jpaQueryFactory
+                .selectFrom(statInfo)
+                .where(statInfo.project.eq(project))
+                .transform(groupBy(statInfo.product).as(list(statInfo)));
+         List<ProductStatisticsResponse> response = new ArrayList<>();
+         result.forEach((product, statInfos) -> {
+             Gender gender = statInfos.stream().map(s -> s.getUser().getGender())
+                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                     .entrySet().stream()
+                     .max(Map.Entry.comparingByValue())
+                     .map(Map.Entry::getKey)
+                     .orElse(null);
+
+             Tuple reviewTuple = jpaQueryFactory.select(QReview.review.count(), QReview.review.score.avg())
+                        .from(QReview.review)
+                        .where(QReview.review.productUrl.eq(product.getProductUrl()))
+                        .fetchOne();
+             ProductStatisticsResponse p = ProductStatisticsResponse.builder()
+                     .productName(product.getProductName())
+                     .visitCount(Long.valueOf(statInfos.size()))
+                     .reviewCount(reviewTuple.get(QReview.review.count()))
+                     .mainAge(statInfos.stream().map(s -> s.getUser().getAge() / 10)
+                             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                             .values().stream()
+                             .max(Comparator.comparing(a -> a))
+                             .get() * 10
+                     )
+                     .mainGender(gender.name())
+                     .averageScore(reviewTuple.get(QReview.review.score.avg()))
+                     .build();
+                response.add(p);
+         });
+
+
+        return response;
+    }
+
+    private Map<Integer, List<StatInfo>> getVisitStatInfo(Project project, ChartPeriodUnit range, ChartPeriodUnit interval) {
+        NumberExpression<Integer> intervalExpression = ChartPeriodUnit.getExpressionOfInterval(interval);
     private Map<Integer, List<StatInfo>> getVisitStatInfo(Project project, LocalDate startDate, LocalDate endDate, ChartPeriodUnit interval) {
         NumberExpression<Integer> intervalExpression = statInfo.createdDate.dayOfYear();
 
