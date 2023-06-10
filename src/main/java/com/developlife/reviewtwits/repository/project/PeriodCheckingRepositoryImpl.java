@@ -3,7 +3,7 @@ package com.developlife.reviewtwits.repository.project;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.StatInfo;
 import com.developlife.reviewtwits.message.response.project.RecentVisitInfoResponse;
-import com.developlife.reviewtwits.message.response.project.VisitInfoResponse;
+import com.developlife.reviewtwits.message.response.statistics.VisitInfoResponse;
 import com.developlife.reviewtwits.type.project.ChartPeriodUnit;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -37,15 +37,16 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
 
     @Override
     public List<VisitInfoResponse> findByPeriod(Project project, ChartPeriodUnit range, ChartPeriodUnit interval) {
-
-        Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, range, interval);
-        return mappingVisitInfoResponse(visitStatInfo, interval);
+        LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(LocalDateTime.now(), range, interval).toLocalDate();
+        Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, startDate, LocalDate.now(), interval);
+        return mappingVisitInfoResponse(visitStatInfo, interval, startDate, LocalDate.now());
     }
 
     @Override
     public RecentVisitInfoResponse findRecentVisitInfo(Project project) {
+        LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(LocalDateTime.now(), ChartPeriodUnit.FIVE_YEAR, ChartPeriodUnit.ONE_DAY).toLocalDate();
 
-        Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, ChartPeriodUnit.FIVE_YEAR, ChartPeriodUnit.ONE_DAY);
+        Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, startDate, LocalDate.now(), ChartPeriodUnit.ONE_DAY);
 
         int today = LocalDateTime.now().getDayOfYear();
         int yesterday = LocalDateTime.now().minusDays(1).getDayOfYear();
@@ -72,49 +73,66 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
                 .build();
     }
 
-    private Map<Integer, List<StatInfo>> getVisitStatInfo(Project project, ChartPeriodUnit range, ChartPeriodUnit interval) {
-        NumberExpression<Integer> intervalExpression = ChartPeriodUnit.getExpressionOfInterval(interval);
+    private Map<Integer, List<StatInfo>> getVisitStatInfo(Project project, LocalDate startDate, LocalDate endDate, ChartPeriodUnit interval) {
+        NumberExpression<Integer> intervalExpression = statInfo.createdDate.dayOfYear();
 
         return jpaQueryFactory.select(
-                        statInfo.createdDate.dayOfYear(),
-                        statInfo.createdDate.month(),
-                        statInfo.createdDate.year()
+                        statInfo.createdDate.dayOfYear()
                 ).from(statInfo)
                 .where(statInfo.project.eq(project)
-                    .and(statInfo.createdDate.after(ChartPeriodUnit.getTimeRangeBefore(LocalDateTime.now(),range))))
+                    .and(statInfo.createdDate.after(startDate.atStartOfDay()))
+                    .and(statInfo.createdDate.before(endDate.atTime(LocalTime.MAX))))
                 .transform(groupBy(intervalExpression).as(list(statInfo)));
     }
 
-    private List<VisitInfoResponse> mappingVisitInfoResponse(Map<Integer, List<StatInfo>> transform, ChartPeriodUnit interval){
+    private List<VisitInfoResponse> mappingVisitInfoResponse(Map<Integer, List<StatInfo>> transform, ChartPeriodUnit interval, LocalDate startDate, LocalDate endDate){
 
         Map<Integer, List<StatInfo>> sortedMap = new TreeMap<>(transform);
-        List<VisitInfoResponse> response = new ArrayList<>();
+        List<VisitInfoResponse> response = makeVisitInfoResponseInit(startDate, endDate, interval);
+
+        int visitInfoIndex = 0;
 
         for(Map.Entry<Integer, List<StatInfo>> entry : sortedMap.entrySet()){
-            String date = entry.getValue().get(0).getCreatedDate().toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
-            int visitCount = entry.getValue().size();
-            int previousCompare = 0;
-
-            if(!response.isEmpty()){
-                VisitInfoResponse previousDate = response.get(response.size() - 1);
-                if (isDifferenceValid(previousDate.timeStamp(),date, interval)){
-                    previousCompare = visitCount - previousDate.visitCount();
-                }else{
-                    previousCompare = visitCount;
-                }
+            LocalDate entryDate = entry.getValue().get(0).getCreatedDate().toLocalDate();
+            while(visitInfoIndex + 1 < response.size() && isDaysBefore(response.get(visitInfoIndex+1).getTimeStamp(), entryDate)){
+                visitInfoIndex++; // response 에 찍혀 있는 시간이 entry 의 시간보다 뒤에 올 때까지, response 의 index 하나씩 추가
             }
-            response.add(VisitInfoResponse.builder()
-                    .timeStamp(date)
-                    .visitCount(visitCount)
-                    .previousCompare(previousCompare)
-                    .build());
+
+            int visitCount = entry.getValue().size();
+            int currentCount = response.get(visitInfoIndex).getVisitCount();
+            response.get(visitInfoIndex).setVisitCount(currentCount + visitCount);
         }
+
+        for(int i = 1; i < response.size(); i++){
+            response.get(i).setPreviousCompare(response.get(i).getVisitCount() - response.get(i-1).getVisitCount());
+        }
+
         return response;
     }
     private boolean isDifferenceValid(String previousDate, String presentDate, ChartPeriodUnit interval){
         LocalDate present = LocalDate.parse(presentDate);
         LocalDate previous = LocalDate.parse(previousDate);
-        LocalDate toCompareDate = ChartPeriodUnit.getTimeRangeBefore(present.atTime(LocalTime.now()),interval).toLocalDate();
+        LocalDate toCompareDate = ChartPeriodUnit.getTimeRangeBefore(present.atTime(LocalTime.now()),ChartPeriodUnit.FIVE_YEAR,interval).toLocalDate();
         return toCompareDate.isEqual(previous);
+    }
+
+    private List<VisitInfoResponse> makeVisitInfoResponseInit(LocalDate startDate, LocalDate endDate, ChartPeriodUnit interval){
+        List<VisitInfoResponse> initList = new ArrayList<>();
+        LocalDate date = startDate;
+        while(date.isBefore(endDate)){
+            initList.add(VisitInfoResponse.builder()
+                    .timeStamp(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                    .visitCount(0)
+                    .previousCompare(0)
+                    .build());
+            date = ChartPeriodUnit.getTimeRangeAfter(date, interval);
+        }
+
+        return initList;
+    }
+
+    private boolean isDaysBefore(String responseTimeStamp, LocalDate compareDate){
+        LocalDate responseStampDate = LocalDate.parse(responseTimeStamp);
+        return responseStampDate.isBefore(compareDate) || responseStampDate.isEqual(compareDate);
     }
 }
