@@ -55,18 +55,19 @@ public class ReviewMappingRepositoryImpl implements ReviewMappingRepository{
     private final UserMapper userMapper;
 
     @Override
-    public List<DetailSnsReviewResponse> findMappingReviewScrappedByUser(User user, Pageable pageable) {
+    public List<DetailSnsReviewResponse> findMappingReviewScrappedByUser(User user, Long reviewId, Pageable pageable) {
         // 유저가 스크랩한 리뷰를 모두 매핑해서 가져와야 한다.
         BooleanExpression scrappedByUser = reviewScrap.user.eq(user);
+        BooleanExpression lessThanReviewId = getExpressionOfId(reviewId, pageable);
         QBean<ReviewMappingDTO> bean = getReviewMappingDTOQBean(reviewScrap.review);
 
-        Pageable realPageable = getRealPageable(pageable, scrappedByUser, reviewScrap.review, reviewScrap);
+        Pageable realPageable = getRealPageable(pageable, scrappedByUser.and(lessThanReviewId), reviewScrap.review, reviewScrap);
 
         Supplier<JPAQuery<ReviewMappingDTO>> codeSupplier = () -> jpaQueryFactory.select(bean)
                 .from(review,reviewScrap, fileInfo, fileManager)
                 .leftJoin(reaction).on(review.eq(reaction.review))
                 .leftJoin(reviewScrap).on(reviewScrap.review.eq(review).and(scrappedByUser))
-                .where(fileExpressionWithInsertion(scrappedByUser, reviewScrap.review));
+                .where(fileExpressionWithInsertion(scrappedByUser.and(lessThanReviewId), reviewScrap.review));
 
         return findMappingReview(codeSupplier, user, realPageable, reviewScrap.review);
     }
