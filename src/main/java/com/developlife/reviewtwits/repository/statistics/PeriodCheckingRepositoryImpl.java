@@ -8,9 +8,7 @@ import com.developlife.reviewtwits.message.response.project.ProductStatisticsRes
 import com.developlife.reviewtwits.message.response.project.RecentVisitInfoResponse;
 import com.developlife.reviewtwits.message.response.statistics.VisitInfoResponse;
 import com.developlife.reviewtwits.type.ChartPeriodUnit;
-import com.developlife.reviewtwits.message.response.project.VisitInfoResponse;
 import com.developlife.reviewtwits.type.Gender;
-import com.developlife.reviewtwits.type.project.ChartPeriodUnit;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -45,7 +43,7 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
     @Override
     public List<VisitInfoResponse> findByPeriod(Project project, ChartPeriodUnit range, ChartPeriodUnit interval) {
         LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(LocalDateTime.now(), range, interval).toLocalDate();
-        Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, startDate, LocalDate.now(), interval);
+        Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, startDate, LocalDate.now());
         return mappingVisitInfoResponse(visitStatInfo, interval, startDate, LocalDate.now());
     }
 
@@ -53,7 +51,7 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
     public RecentVisitInfoResponse findRecentVisitInfo(Project project) {
         LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(LocalDateTime.now(), ChartPeriodUnit.FIVE_YEAR, ChartPeriodUnit.ONE_DAY).toLocalDate();
 
-        Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, startDate, LocalDate.now(), ChartPeriodUnit.ONE_DAY);
+        Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, startDate, LocalDate.now());
 
         int today = LocalDateTime.now().getDayOfYear();
         int yesterday = LocalDateTime.now().minusDays(1).getDayOfYear();
@@ -139,9 +137,8 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
         return response;
     }
 
-    private Map<Integer, List<StatInfo>> getVisitStatInfo(Project project, ChartPeriodUnit range, ChartPeriodUnit interval) {
-        NumberExpression<Integer> intervalExpression = ChartPeriodUnit.getExpressionOfInterval(interval);
-    private Map<Integer, List<StatInfo>> getVisitStatInfo(Project project, LocalDate startDate, LocalDate endDate, ChartPeriodUnit interval) {
+    private Map<Integer, List<StatInfo>> getVisitStatInfo(Project project, LocalDate startDate, LocalDate endDate) {
+
         NumberExpression<Integer> intervalExpression = statInfo.createdDate.dayOfYear();
 
         return jpaQueryFactory.select(

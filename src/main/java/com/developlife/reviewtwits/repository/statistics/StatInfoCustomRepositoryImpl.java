@@ -1,13 +1,9 @@
-package com.developlife.reviewtwits.repository.project;
+package com.developlife.reviewtwits.repository.statistics;
 
 import com.developlife.reviewtwits.entity.*;
 import com.developlife.reviewtwits.message.response.project.SearchFlowResponse;
 import com.developlife.reviewtwits.message.response.statistics.SimpleProjectInfoResponse;
 import com.developlife.reviewtwits.type.review.ReviewStatus;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringTemplate;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 
@@ -15,8 +11,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author ghdic
