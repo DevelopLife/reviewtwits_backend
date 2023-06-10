@@ -1117,15 +1117,22 @@ public class SnsReviewApiTest extends ApiTest {
     @Test
     void 유저_리뷰_스크랩정보_찾기_성공_200(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
-        Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test");
-        SNS_리뷰_스크랩_추가(token, registeredReviewId);
+        for(int i = 0; i < 3; i++){
+            Long registeredReviewId = SNS_리뷰_작성(token, "write review for comment test " + i);
+            SNS_리뷰_스크랩_추가(token, registeredReviewId);
+        }
+
+        int size = 2;
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "유저 정보를 기준으로 스크랩 정보를 찾아 보여주는 API 입니다." +
                         "<br> 올바른 X-AUTH-TOKEN 을 header 에 넣어 주면, 해당 유저가 스크랩한 모든 리뷰 정보가 반환됩니다." +
-                        "<br> 올바르지 않은 X-AUTH-TOKEN 을 입력할 경우, 403 에러가 반환됩니다.","리뷰스크랩정보찾기",
-                        UserDocument.AccessTokenHeader, SnsReviewDocument.SnsReviewFeedResponseField))
+                        "<br> 올바르지 않은 X-AUTH-TOKEN 을 입력할 경우, 401 에러가 반환됩니다.","리뷰스크랩정보찾기",
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdAndSizeField,
+                        SnsReviewDocument.SnsReviewFeedResponseField))
                 .header("X-AUTH-TOKEN", token)
+                .param("size", size)
                 .when()
                 .get("/sns/scrap-reviews")
                 .then()
@@ -1135,6 +1142,28 @@ public class SnsReviewApiTest extends ApiTest {
 
         JsonPath jsonPath = response.jsonPath();
         assertThat(jsonPath.getBoolean("[0].isScrapped")).isTrue();
+        assertThat(jsonPath.getBoolean("[1].isScrapped")).isTrue();
+
+        Long reviewIdForSecondResponse = jsonPath.getLong("[1].reviewId");
+
+        ExtractableResponse<Response> secondResponse = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH,
+                        UserDocument.AccessTokenHeader,
+                        SnsReviewDocument.ReviewIdAndSizeField,
+                        SnsReviewDocument.SnsReviewFeedResponseField))
+                .header("X-AUTH-TOKEN", token)
+                .param("size", size)
+                .param("reviewId", reviewIdForSecondResponse)
+                .when()
+                .get("/sns/scrap-reviews")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath secondPath = secondResponse.jsonPath();
+        assertThat(secondPath.getList("").size()).isEqualTo(1);
+        assertThat(secondPath.getBoolean("[0].isScrapped")).isTrue();
     }
 
     @Test
