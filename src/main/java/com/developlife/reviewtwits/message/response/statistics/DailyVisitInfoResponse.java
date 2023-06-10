@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.message.response.project;
+package com.developlife.reviewtwits.message.response.statistics;
 
 import lombok.Builder;
 

@@ -10,7 +10,7 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.project.ProjectInfoResponse;
 import com.developlife.reviewtwits.project.ProjectSteps;
 import com.developlife.reviewtwits.repository.ProductRepository;
-import com.developlife.reviewtwits.repository.project.ProjectRepository;
+import com.developlife.reviewtwits.repository.ProjectRepository;
 import com.developlife.reviewtwits.service.ProjectService;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;

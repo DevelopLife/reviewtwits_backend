@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.repository.project;
+package com.developlife.reviewtwits.repository.statistics;
 
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.message.response.project.SearchFlowResponse;

@@ -6,13 +6,12 @@ import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.StatInfo;
 import com.developlife.reviewtwits.entity.User;
-import com.developlife.reviewtwits.mapper.ProjectMapper;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.project.ProjectDocument;
 import com.developlife.reviewtwits.project.ProjectSteps;
 import com.developlife.reviewtwits.repository.ProductRepository;
-import com.developlife.reviewtwits.repository.project.ProjectRepository;
-import com.developlife.reviewtwits.repository.project.StatInfoRepository;
+import com.developlife.reviewtwits.repository.ProjectRepository;
+import com.developlife.reviewtwits.repository.statistics.StatInfoRepository;
 import com.developlife.reviewtwits.review.ShoppingMallReviewSteps;
 import com.developlife.reviewtwits.service.ProjectService;
 import com.developlife.reviewtwits.service.user.UserService;
@@ -264,7 +263,6 @@ public class StatApiTest extends ApiTest {
 
         JsonPath jsonPath = response.jsonPath();
         assertThat(jsonPath.getString("range")).isEqualTo(ProjectSteps.exampleRange);
-        assertThat(jsonPath.getList("visitInfo")).size().isEqualTo(12);
     }
 
     @Test

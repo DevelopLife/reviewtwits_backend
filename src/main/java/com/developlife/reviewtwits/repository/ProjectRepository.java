@@ -1,4 +1,4 @@
-package com.developlife.reviewtwits.repository.project;
+package com.developlife.reviewtwits.repository;
 
 import com.developlife.reviewtwits.entity.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
