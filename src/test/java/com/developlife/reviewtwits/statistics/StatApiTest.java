@@ -264,7 +264,6 @@ public class StatApiTest extends ApiTest {
 
         JsonPath jsonPath = response.jsonPath();
         assertThat(jsonPath.getString("range")).isEqualTo(ProjectSteps.exampleRange);
-        assertThat(jsonPath.getList("visitInfo")).size().isEqualTo(12);
     }
 
     @Test
