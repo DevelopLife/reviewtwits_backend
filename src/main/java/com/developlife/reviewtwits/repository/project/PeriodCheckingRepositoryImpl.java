@@ -105,7 +105,14 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
                 .transform(groupBy(statInfo.product).as(list(statInfo)));
          List<ProductStatisticsResponse> response = new ArrayList<>();
          result.forEach((product, statInfos) -> {
-             Gender gender = statInfos.stream().map(s -> s.getUser().getGender())
+             Collection<Long> mainAgeValues = statInfos.stream().filter(s -> s.getUser() != null && s.getUser().getProvider() != null)
+                     .map(s -> s.getUser().getAge() / 10)
+                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                     .values();
+
+             Gender gender = statInfos.stream().filter(s -> s.getUser() != null
+                             && s.getUser().getProvider() != null && s.getUser().getGender() != null)
+                     .map(s -> s.getUser().getGender())
                      .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                      .entrySet().stream()
                      .max(Map.Entry.comparingByValue())
@@ -116,18 +123,20 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
                         .from(QReview.review)
                         .where(QReview.review.productUrl.eq(product.getProductUrl()))
                         .fetchOne();
+             Long reviewCount = reviewTuple.get(QReview.review.count());
+             Double averageScore = reviewTuple.get(QReview.review.score.avg());
+
              ProductStatisticsResponse p = ProductStatisticsResponse.builder()
                      .productName(product.getProductName())
                      .visitCount(Long.valueOf(statInfos.size()))
-                     .reviewCount(reviewTuple.get(QReview.review.count()))
-                     .mainAge(statInfos.stream().map(s -> s.getUser().getAge() / 10)
-                             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                             .values().stream()
-                             .max(Comparator.comparing(a -> a))
-                             .get() * 10
+                     .reviewCount(reviewCount)
+                     .mainAge(mainAgeValues.size() == 0 ? null
+                             : mainAgeValues.stream()
+                                 .max(Comparator.comparing(a -> a))
+                                 .get() * 10
                      )
-                     .mainGender(gender.name())
-                     .averageScore(reviewTuple.get(QReview.review.score.avg()))
+                     .mainGender(gender == null ? null: gender.name())
+                     .averageScore(reviewCount == 0 ? 0.0 : averageScore)
                      .build();
                 response.add(p);
          });

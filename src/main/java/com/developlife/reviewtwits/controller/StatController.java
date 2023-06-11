@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author WhalesBob
@@ -75,5 +76,11 @@ public class StatController {
     public SearchFlowResponse getRequestSearchFlowInfos(@AuthenticationPrincipal User user,
                                                     @RequestParam @Min(value = 1, message = "프로젝트 아이디는 1 이상의 수로 입력해야 합니다.") Long projectId) {
         return statService.getRequestSearchFlowInfos(projectId, user);
+    }
+
+    @GetMapping("/readtime-info")
+    public Map<Integer, Long> getReadTimeInfo(@AuthenticationPrincipal User user,
+                                     @RequestParam @Min(value = 1, message = "프로젝트 아이디는 1 이상의 수로 입력해야 합니다.") Long projectId) {
+        return statService.getReadTimeInfo(projectId, user);
     }
 }
