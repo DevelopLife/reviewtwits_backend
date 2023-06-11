@@ -1147,10 +1147,6 @@ public class SnsReviewApiTest extends ApiTest {
         Long reviewIdForSecondResponse = jsonPath.getLong("[1].reviewId");
 
         ExtractableResponse<Response> secondResponse = given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH,
-                        UserDocument.AccessTokenHeader,
-                        SnsReviewDocument.ReviewIdAndSizeField,
-                        SnsReviewDocument.SnsReviewFeedResponseField))
                 .header("X-AUTH-TOKEN", token)
                 .param("size", size)
                 .param("reviewId", reviewIdForSecondResponse)
