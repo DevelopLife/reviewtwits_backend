@@ -46,7 +46,7 @@ public class ProductApiTest extends ApiTest {
         userService.register(registerOtherUserRequest, UserSteps.일반유저권한_생성());
         User user = userService.getUser(UserSteps.accountId);
 
-        String projectIdString = projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(), user).projectId();
+        String projectIdString = projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(0), user).projectId();
         projectId = Long.parseLong(projectIdString);
     }
 
@@ -64,7 +64,7 @@ public class ProductApiTest extends ApiTest {
                         ProductDocument.ProductUrlRegisterRequestFields,
                         ProductDocument.ProductRegisterResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("projectName", ProjectSteps.projectName)
+                .pathParam("projectName", ProjectSteps.projectName + " 0")
                 .body(ProductSteps.제품URL등록요청_생성())
                 .when()
                 .post("/products/register/{projectName}")
@@ -98,7 +98,7 @@ public class ProductApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("projectName", ProjectSteps.projectName)
+                .pathParam("projectName", ProjectSteps.projectName + " 0")
                 .body(ProductSteps.제품URL등록요청_생성())
                 .when()
                 .post("/products/register/{projectName}")
@@ -144,7 +144,7 @@ public class ProductApiTest extends ApiTest {
     private void 제품_URL_등록_요청() {
         given(this.spec)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .pathParam("projectName", ProjectSteps.projectName)
+                .pathParam("projectName", ProjectSteps.projectName + " 0")
                 .body(ProductSteps.제품URL등록요청_생성())
                 .when()
                 .post("/products/register/{projectName}")

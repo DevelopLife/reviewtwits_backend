@@ -33,9 +33,9 @@ public class ProjectSteps {
     public static final long notExistProjectId = 11111L;
     public static final String wrongProjectName = "잘못된 이름";
 
-    public static RegisterProjectRequest 프로젝트생성요청_생성() {
+    public static RegisterProjectRequest 프로젝트생성요청_생성(int index) {
         return RegisterProjectRequest.builder()
-                .projectName(projectName)
+                .projectName(projectName + " " + index)
                 .projectDescription(projectDescription)
                 .uriPattern(uriPattern)
                 .category(category.toString())

@@ -81,7 +81,7 @@ public class StatApiTest extends ApiTest {
         final String userToken = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         추가회원가입정보_입력(userToken, SnsSteps.userNickname);
 
-        projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(), user);
+        projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(0), user);
         project = projectRepository.findAll().get(0);
 
         product = 임시_상품정보_생성(project, productRepository);
