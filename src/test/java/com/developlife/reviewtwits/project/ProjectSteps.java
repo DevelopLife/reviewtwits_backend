@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  * @since 2023/03/09
  */
 public class ProjectSteps {
-    public static final String projectName = "프로젝트 이름";
+    public static final String projectName = "project-name";
     public static final String projectDescription = "프로젝트 설명";
     public static final String uriPattern = "/products";
     public static final ProjectCategory category = ProjectCategory.쇼핑;
@@ -35,7 +35,7 @@ public class ProjectSteps {
 
     public static RegisterProjectRequest 프로젝트생성요청_생성(int index) {
         return RegisterProjectRequest.builder()
-                .projectName(projectName + " " + index)
+                .projectName(projectName + "_" + index)
                 .projectDescription(projectDescription)
                 .uriPattern(uriPattern)
                 .category(category.toString())
