@@ -60,6 +60,8 @@ public interface ReviewMapper {
                 .score(review.getScore())
                 .reviewImageUrlList(mapImageUuidToUrlList(review.getReviewImageUuidList()))
                 .status(review.getStatus())
+                .isLiked(review.isLiked())
+                .reactionCount(review.getReactionCount())
                 .build();
     }
 

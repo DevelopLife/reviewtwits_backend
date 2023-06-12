@@ -69,7 +69,7 @@ public class ReviewManageApiTest extends ApiTest {
 
         User user = userService.getUser(UserSteps.accountId);
 
-        ProjectInfoResponse projectInfoResponse = projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(), user);
+        ProjectInfoResponse projectInfoResponse = projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(0), user);
         project = projectRepository.findByProjectId(Long.parseLong(projectInfoResponse.projectId())).get();
         product = 임시_상품정보_생성(project, productRepository);
     }

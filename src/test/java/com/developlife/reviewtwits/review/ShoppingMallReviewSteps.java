@@ -100,7 +100,7 @@ public class ShoppingMallReviewSteps {
     }
 
     public static Project 임시_프로젝트정보_생성(ProjectMapper mapper, ProjectRepository repository){
-        Project project = mapper.toProject(ProjectSteps.프로젝트생성요청_생성());
+        Project project = mapper.toProject(ProjectSteps.프로젝트생성요청_생성(0));
         repository.save(project);
         return project;
     }

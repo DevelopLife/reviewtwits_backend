@@ -58,14 +58,14 @@ public class ProjectApiTest extends ApiTest {
 
         IntStream.range(1, 3)
                 .forEach(
-                    i -> projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(), user));
+                    i -> projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(i), user));
     }
 
 
     @Test
     @DisplayName("프로젝트 생성")
     public void 프로젝트생성_프로젝트정보_200() {
-        final var request = ProjectSteps.프로젝트생성요청_생성();
+        final var request = ProjectSteps.프로젝트생성요청_생성(0);
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         ExtractableResponse<Response> response = given(this.spec)
@@ -96,17 +96,22 @@ public class ProjectApiTest extends ApiTest {
     public void 프로젝트리스트_프로젝트정보_200() {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
-        given(this.spec)
-            .filter(document(DEFAULT_RESTDOC_PATH, "유저의 프로젝트를 리스트를 반환합니다", "프로젝트리스트", CommonDocument.AccessTokenHeader, ProjectDocument.ProjectInfoListResponseField))
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("X-AUTH-TOKEN", token)
-            .when()
-            .get("/projects")
-            .then()
-            .assertThat()
-            .body("find{it.projectName == '%s".formatted(ProjectSteps.projectName) + "'}", notNullValue())
-            .statusCode(HttpStatus.OK.value())
-            .log().all();
+        ExtractableResponse<Response> response = given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "유저의 프로젝트를 리스트를 반환합니다", "프로젝트리스트", CommonDocument.AccessTokenHeader, ProjectDocument.ProjectInfoListResponseField))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .when()
+                .get("/projects")
+                .then()
+                .assertThat()
+//            .body("find{it.projectName == '%s".formatted(ProjectSteps.projectName) + "'}", notNullValue())
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getList("").size()).isEqualTo(2);
+        assertThat(jsonPath.getString("[0].projectName")).contains(ProjectSteps.projectName);
+        assertThat(jsonPath.getString("[1].projectName")).contains(ProjectSteps.projectName);
     }
 
     @Test

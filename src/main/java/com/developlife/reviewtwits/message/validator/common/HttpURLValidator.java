@@ -1,10 +1,10 @@
 package com.developlife.reviewtwits.message.validator.common;
 
 import com.developlife.reviewtwits.message.annotation.common.HttpURL;
+import com.developlife.reviewtwits.type.UrlChecker;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.regex.Pattern;
 
 /**
  * @author WhalesBob
@@ -16,6 +16,6 @@ public class HttpURLValidator implements ConstraintValidator<HttpURL, String>{
         if(value == null || value.isEmpty()){
             return false;
         }
-        return Pattern.matches("(http(s)?:\\/\\/|www.)([a-z0-9\\w]+\\.*)+[a-z0-9]{2,4}(:\\d+)?([\\/a-z0-9-%#?&=\\w])+(\\.[a-z0-9]{2,4}(\\?[\\/a-z0-9-%#?&=\\w]+)*)*", value);
+        return UrlChecker.isValidUrl(value);
     }
 }
