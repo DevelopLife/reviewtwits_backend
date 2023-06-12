@@ -575,6 +575,9 @@ public class ShoppingMallReviewApiTest extends ApiTest {
 
         Review review = reviewRepository.findById(reviewId).get();
         assertThat(review.getReactionCount()).isEqualTo(1);
+
+        boolean isLiked = 쇼핑몰리뷰_리스트_맨첫번째_좋아요여부_가져오기(token);
+        assertThat(isLiked).isTrue();
     }
 
     @Test
@@ -600,6 +603,9 @@ public class ShoppingMallReviewApiTest extends ApiTest {
 
         Review review = reviewRepository.findById(reviewId).get();
         assertThat(review.getReactionCount()).isEqualTo(0);
+
+        boolean isLiked = 쇼핑몰리뷰_리스트_맨첫번째_좋아요여부_가져오기(token);
+        assertThat(isLiked).isFalse();
     }
     @Test
     void 쇼핑몰리뷰_좋아요_리뷰아이디음수_400(){
@@ -658,5 +664,21 @@ public class ShoppingMallReviewApiTest extends ApiTest {
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .log().all().extract();
+    }
+
+    boolean 쇼핑몰리뷰_리스트_맨첫번째_좋아요여부_가져오기(String token){
+        ExtractableResponse<Response> response = given(this.spec)
+                .header("X-AUTH-TOKEN", token)
+                .header("productURL", "http://www.example.com/123")
+                .param("sort","NEWEST")
+                .when()
+                .get("/reviews/shopping/list")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        return jsonPath.getBoolean("[0].isLiked");
     }
 }
