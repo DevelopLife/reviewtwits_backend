@@ -3,6 +3,7 @@ package com.developlife.reviewtwits.project;
 import com.developlife.reviewtwits.entity.Product;
 import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.StatInfo;
+import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.project.FixProjectRequest;
 import com.developlife.reviewtwits.message.request.project.RegisterProjectRequest;
 import com.developlife.reviewtwits.type.project.Language;
@@ -57,9 +58,12 @@ public class ProjectSteps {
                 .productUrl(productUrl)
                 .build();
     }
-    public static StatInfo 통계정보_생성(Project project, int year, int month, int day, int hour){
+    public static StatInfo 통계정보_생성(Project project, Product product, User user, int year, int month, int day, int hour){
         return StatInfo.builder()
+                .product(product)
+                .user(project.getUser())
                 .project(project)
+                .user(user)
                 .createdDate(LocalDateTime.of(year, month, day, hour, 0,0,0))
                 .build();
     }
