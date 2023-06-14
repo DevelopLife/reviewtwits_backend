@@ -34,6 +34,10 @@ public class StatDocument {
             RequestDocumentation.parameterWithName("interval").attributes(required()).description("요청하는 통계 기준 구간")
     );
 
+    public static final Snippet projectIdRequestParamField = requestParameters(
+            RequestDocumentation.parameterWithName("projectId").attributes(required()).description("프로젝트 아이디")
+    );
+
     public static final Snippet savedStatResponseField = responseFields(
             fieldWithPath("statId").type(JsonFieldType.NUMBER).description("통계정보 아이디"),
             fieldWithPath("createdDate").type(JsonFieldType.STRING).description("통계 생성 날짜"),
@@ -77,5 +81,13 @@ public class StatDocument {
             fieldWithPath("visitInfo[].timeStamp").type(JsonFieldType.STRING).description("방문 날짜"),
             fieldWithPath("visitInfo[].visitCount").type(JsonFieldType.NUMBER).description("방문 수"),
             fieldWithPath("visitInfo[].previousCompare").type(JsonFieldType.NUMBER).description("어제 방문과의 비교")
+    );
+    public static final Snippet productStatisticsResponseFields = responseFields(
+            fieldWithPath("[].productName").type(JsonFieldType.VARIES).description("상품 이름"),
+            fieldWithPath("[].visitCount").type(JsonFieldType.NUMBER).description("상품 방문 수"),
+            fieldWithPath("[].reviewCount").type(JsonFieldType.NUMBER).description("상품 리뷰 수"),
+            fieldWithPath("[].mainAge").type(JsonFieldType.NUMBER).description("방문 유저 주요 연령대"),
+            fieldWithPath("[].mainGender").type(JsonFieldType.STRING).description("방문 유저 주요 성별"),
+            fieldWithPath("[].averageScore").type(JsonFieldType.NUMBER).description("상품 평균 리뷰 점수")
     );
 }

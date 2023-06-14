@@ -66,6 +66,7 @@ public class StatApiTest extends ApiTest {
     private RegisterUserRequest registerOtherUserRequest;
 
     private User user;
+    private User otherUser;
     private Product product;
     private Project project;
 
@@ -76,7 +77,7 @@ public class StatApiTest extends ApiTest {
         registerOtherUserRequest = userSteps.상대유저_회원가입정보_생성();
 
         user = userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
-        userService.register(registerOtherUserRequest, UserSteps.일반유저권한_생성());
+        otherUser = userService.register(registerOtherUserRequest, UserSteps.일반유저권한_생성());
 
         final String userToken = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         추가회원가입정보_입력(userToken, SnsSteps.userNickname);
@@ -575,15 +576,106 @@ public class StatApiTest extends ApiTest {
                 .log().all();
     }
 
+    @Test
+    void 대시보드_상품정보_통계_요청_성공_200(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "상품정보 통계 자료를 요청하는 API 입니다." +
+                        "<br>프로젝트 아이디를 통해 해당 프로젝트의 상품정보 통계 자료를 요청합니다." +
+                        "<br>프로젝트 아이디를 입력하지 않거나, 음수 값을 입력하면 400 Bad Request 가 반환됩니다." +
+                        "<br>헤더에 유저 정보를 입력하지 않으면 401 Unauthorized 가 반환됩니다." +
+                        "<br>해당 프로젝트 아이디로 된 프로젝트에, 유저가 접근할 권한이 없으면 403 Forbidden 이 반환됩니다." +
+                        "<br>해당 프로젝트 아이디로 된 프로젝트가 존재하지 않으면 404 Not Found 가 반환됩니다.", "대시보드 상품정보 통계 요청",
+                        CommonDocument.AccessTokenHeader,
+                        StatDocument.projectIdRequestParamField,
+                        StatDocument.productStatisticsResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/statistics/dashboard/product-statistics")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 대시보드_상품정보_통계_헤더정보없음_401(){
+        Project project = 통계_사전작업();
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/statistics/dashboard/product-statistics")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 대시보드_상품정보_통계_접근권한없음_403(){
+        Project project = 통계_사전작업();
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", otherToken)
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/statistics/dashboard/product-statistics")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 대시보드_상품정보_통계_프로젝트아이디_등록안됨_404(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", 9999L)
+                .when()
+                .get("/statistics/dashboard/product-statistics")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 대시보드_상품정보_통계_프로젝트아이디_음수_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", ProjectSteps.wrongProjectId)
+                .when()
+                .get("/statistics/dashboard/product-statistics")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all().extract();
+    }
+
+
     Project 통계_사전작업() {
         Project existedProject = projectRepository.findAll().get(0);
 
         ArrayList<StatInfo> statInfos = new ArrayList<>();
         for (int day = 1; day <= 10; day++) {
-            statInfos.add(ProjectSteps.통계정보_생성(existedProject, 2023, 3, day, 1));
+            statInfos.add(ProjectSteps.통계정보_생성(existedProject, product,user,2023, 3, day, 1));
         }
         for (int day = 1; day <= 5; day++) {
-            statInfos.add(ProjectSteps.통계정보_생성(existedProject, 2023, 3, day, 2));
+            statInfos.add(ProjectSteps.통계정보_생성(existedProject, product,user,2023, 3, day, 2));
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -591,13 +683,13 @@ public class StatApiTest extends ApiTest {
         int testMonth = now.getMonthValue();
         int testDay = now.getDayOfMonth();
         for (int hour = 1; hour <= 3; hour++) {
-            statInfos.add(ProjectSteps.통계정보_생성(existedProject, testYear, testMonth, testDay, hour));
+            statInfos.add(ProjectSteps.통계정보_생성(existedProject, product,user,testYear, testMonth, testDay, hour));
         }
 
         int yesterday = LocalDateTime.now().minusDays(1).getDayOfMonth();
         int yesterdayMonth = LocalDateTime.now().minusDays(1).getMonthValue();
         for (int hour = 1; hour <= 2; hour++) {
-            statInfos.add(ProjectSteps.통계정보_생성(existedProject, testYear, yesterdayMonth, yesterday, hour));
+            statInfos.add(ProjectSteps.통계정보_생성(existedProject, product, user, testYear, yesterdayMonth, yesterday, hour));
         }
         saveAll(statInfos);
         return existedProject;
@@ -606,11 +698,12 @@ public class StatApiTest extends ApiTest {
     void saveAll(List<StatInfo> statInfos) {
         int index = 1;
         for (StatInfo statInfo : statInfos) {
-            jdbcTemplate.update("insert into stat_info (stat_id,project_project_id,created_date) values (?,?,?)",
+            jdbcTemplate.update("insert into stat_info (stat_id,project_project_id,created_date,product_product_id,user_user_id) values (?,?,?,?,?)",
                     index,
                     statInfo.getProject().getProjectId(),
-                    Timestamp.valueOf(statInfo.getCreatedDate()));
-
+                    Timestamp.valueOf(statInfo.getCreatedDate()),
+                    statInfo.getProduct().getProductId(),
+                    statInfo.getUser().getUserId());
             index++;
         }
     }
