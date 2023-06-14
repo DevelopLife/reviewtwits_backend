@@ -90,4 +90,14 @@ public class StatDocument {
             fieldWithPath("[].mainGender").type(JsonFieldType.STRING).description("방문 유저 주요 성별"),
             fieldWithPath("[].averageScore").type(JsonFieldType.NUMBER).description("상품 평균 리뷰 점수")
     );
+    public static final Snippet requestInflowInfosResponseFields = responseFields(
+            fieldWithPath("total").type(JsonFieldType.NUMBER).description("검색 유입 총 수"),
+            fieldWithPath("naver").type(JsonFieldType.NUMBER).description("네이버 검색 유입 수"),
+            fieldWithPath("google").type(JsonFieldType.NUMBER).description("구글 검색 유입 수"),
+            fieldWithPath("daum").type(JsonFieldType.NUMBER).description("다음 검색 유입 수"),
+            fieldWithPath("zoom").type(JsonFieldType.NUMBER).description("줌 검색 유입 수"),
+            fieldWithPath("bing").type(JsonFieldType.NUMBER).description("빙 검색 유입 수"),
+            fieldWithPath("yahoo").type(JsonFieldType.NUMBER).description("야후 검색 유입 수"),
+            fieldWithPath("etc").type(JsonFieldType.NUMBER).description("기타 검색 유입 수")
+    );
 }
