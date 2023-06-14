@@ -85,7 +85,7 @@ public class StatInfoCustomRepositoryImpl implements StatInfoCustomRepository {
             boolean matched = false;
 
             for (String site : sites) {
-                if (referer.contains(site)) {
+                if (referer != null && referer.contains(site)) {
                     result.put(site, result.get(site) + 1);
                     matched = true;
                     break;
