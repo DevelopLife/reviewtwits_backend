@@ -824,6 +824,22 @@ public class StatApiTest extends ApiTest {
                 .log().all().extract();
     }
 
+    @Test
+    void 프로젝트_요약_통계_프로젝트아이디_음수_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", -1L)
+                .when()
+                .get("/statistics/dashboard/simple-project-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all().extract();
+    }
+
 
 
     Project 통계_사전작업() {
