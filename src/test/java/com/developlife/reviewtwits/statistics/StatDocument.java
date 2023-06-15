@@ -100,4 +100,10 @@ public class StatDocument {
             fieldWithPath("yahoo").type(JsonFieldType.NUMBER).description("야후 검색 유입 수"),
             fieldWithPath("etc").type(JsonFieldType.NUMBER).description("기타 검색 유입 수")
     );
+    public static final Snippet simpleProjectInfoResponseFields = responseFields(
+            fieldWithPath("monthlyVisitCount").type(JsonFieldType.NUMBER).description("월간 방문 수"),
+            fieldWithPath("dailyReviewCount").type(JsonFieldType.NUMBER).description("일간 리뷰 수"),
+            fieldWithPath("pendingReviewCount").type(JsonFieldType.NUMBER).description("대기중인 리뷰 수"),
+            fieldWithPath("registeredProductCount").type(JsonFieldType.NUMBER).description("등록된 상품 수")
+    );
 }

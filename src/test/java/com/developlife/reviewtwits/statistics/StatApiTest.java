@@ -753,8 +753,178 @@ public class StatApiTest extends ApiTest {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .log().all().extract();
     }
+    @Test
+    void 프로젝트_요약_통계_요청_성공_200(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트의 요약 통계 정보를 요청하는 API 입니다." +
+                        "<br>프로젝트 아이디를 통해 해당 프로젝트의 요약 통계 정보를 요청합니다." +
+                        "<br>헤더에 유저 정보가 존재하지 않으면 401 Unauthorized 가 반환됩니다." +
+                        "<br>해당 프로젝트 아이디로 된 프로젝트에, 유저가 접근할 권한이 없으면 403 Forbidden 이 반환됩니다." +
+                        "<br>해당 프로젝트 아이디로 된 프로젝트가 존재하지 않으면 404 Not Found 가 반환됩니다.", "프로젝트 요약 통계 요청",
+                        CommonDocument.AccessTokenHeader,
+                        StatDocument.projectIdRequestParamField,
+                        StatDocument.simpleProjectInfoResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/statistics/dashboard/simple-project-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+    }
 
+    @Test
+    void 프로젝트_요약_통계_헤더정보없음_401(){
+        Project project = 통계_사전작업();
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/statistics/dashboard/simple-project-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 프로젝트_요약_통계_접근권한없음_403(){
+        Project project = 통계_사전작업();
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", otherToken)
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/statistics/dashboard/simple-project-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 프로젝트_요약_통계_프로젝트아이디_등록안됨_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", 9999L)
+                .when()
+                .get("/statistics/dashboard/simple-project-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 프로젝트_요약_통계_프로젝트아이디_음수_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", -1L)
+                .when()
+                .get("/statistics/dashboard/simple-project-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all().extract();
+    }
+    @Test
+    void 리드타임_통계_요청_성공_200(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트의 리드타임 통계 정보를 요청하는 API 입니다." +
+                        "<br>프로젝트 아이디를 통해 해당 프로젝트의 리드타임 통계 정보를 요청합니다." +
+                        "<br>헤더에 유저 정보가 존재하지 않으면 401 Unauthorized 가 반환됩니다." +
+                        "<br>해당 프로젝트 아이디로 된 프로젝트에, 유저가 접근할 권한이 없으면 403 Forbidden 이 반환됩니다." +
+                        "<br>해당 프로젝트 아이디로 된 프로젝트가 존재하지 않으면 404 Not Found 가 반환됩니다.", "리드타임 통계 요청",
+                        CommonDocument.AccessTokenHeader,
+                        StatDocument.projectIdRequestParamField))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/statistics/readtime-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 리드타임_통계_요청_헤더정보없음_401(){
+        Project project = 통계_사전작업();
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/statistics/readtime-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 리드타임_통계_요청_접근권한없음_403(){
+        Project project = 통계_사전작업();
+        final String otherToken = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", otherToken)
+                .param("projectId", project.getProjectId())
+                .when()
+                .get("/statistics/readtime-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 리드타임_통계_요청_프로젝트아이디_등록안됨_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", 9999L)
+                .when()
+                .get("/statistics/readtime-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 리드타임_통계_요청_프로젝트아이디_음수_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", -1L)
+                .when()
+                .get("/statistics/readtime-info")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all().extract();
+    }
 
     Project 통계_사전작업() {
         Project existedProject = projectRepository.findAll().get(0);
