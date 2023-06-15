@@ -64,7 +64,7 @@ public class ProjectApiTest extends ApiTest {
 
     @Test
     @DisplayName("프로젝트 생성")
-    public void 프로젝트생성_프로젝트정보_200() {
+    public void 프로젝트생성_성공_200() {
         final var request = ProjectSteps.프로젝트생성요청_생성(0);
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
@@ -89,6 +89,40 @@ public class ProjectApiTest extends ApiTest {
         assertThat(jsonPath.getString("projectDescription")).isEqualTo(request.projectDescription());
         assertThat(jsonPath.getString("projectColor")).isEqualTo(request.projectColor());
         assertThat(jsonPath.getString("category")).isEqualTo(request.category());
+    }
+
+    @Test
+    void 프로젝트생성_헤더정보없음_401(){
+        final var request = ProjectSteps.프로젝트생성요청_생성(0);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(request)
+                .when()
+                .post("/projects")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 프로젝트생성_이미존재하는이름_409(){
+        final var request = ProjectSteps.프로젝트생성요청_생성(1);
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(request)
+                .when()
+                .post("/projects")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .log().all().extract();
     }
 
     @Test
