@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.entity.User;
+import com.developlife.reviewtwits.message.annotation.common.DateFormat;
 import com.developlife.reviewtwits.message.annotation.project.ChartPeriod;
 import com.developlife.reviewtwits.message.request.StatMessageRequest;
 import com.developlife.reviewtwits.message.response.statistics.DailyVisitInfoResponse;
@@ -45,9 +46,10 @@ public class StatController {
                                                       @RequestParam
                                                       @Min(value = 1, message = "프로젝트 아이디는 1 이상의 수로 입력해야 합니다.") Long projectId,
                                                       @RequestParam @ChartPeriod String range,
-                                                      @RequestParam @ChartPeriod String interval){
+                                                      @RequestParam @ChartPeriod String interval,
+                                                      @RequestParam(required = false) @DateFormat String endDate){
 
-        return statService.getVisitGraphInfos(projectId, range, interval, user);
+        return statService.getVisitGraphInfos(projectId, range, interval, user, endDate);
     }
     @GetMapping("/daily-visit-graph-infos")
     public DailyVisitInfoResponse getDailyVisitInfos(@AuthenticationPrincipal User user,
