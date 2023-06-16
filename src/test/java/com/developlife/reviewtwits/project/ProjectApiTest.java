@@ -69,7 +69,15 @@ public class ProjectApiTest extends ApiTest {
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         ExtractableResponse<Response> response = given(this.spec)
-                .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트를 생성합니다", "프로젝트생성",
+                .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트 생성을 요청하는 API 입니다." +
+                                "<br>프로젝트 이름은 영어, 숫자, '-', '_' 4가지로만 작성할 수 있으며, 30자 이내로 작성해야 합니다." +
+                                "<br>프로젝트 설명은 100 자 이내로 입력할 수 있습니다." +
+                                "<br>URI Pattern 은 기존 HTTP URL 에서의 URI 식으로 입력해야 합니다." +
+                                "<br>프로젝트 언어는 '한국어', 'ENGLISH' 두 개만 허용되어 있습니다." +
+                                "<br>프로젝트 색상은 '#123456' 과 같이 입력해야 합니다." +
+                                "<br>프로젝트 가격 플랜은 FREE_PLAN, PLUS_PLAN, PRO_PLAN, BUSINESS_PLAN 중 하나의 값으로 입력해야 합니다." +
+                                "<br>헤더에 유저 토큰은 필수로 입력해야 합니다. 미입력 시 401 Unauthorized 가 반환됩니다." +
+                                "<br>이미 존재하는 프로젝트 이름을 입력했을 경우, 409 Conflict 가 반환됩니다.", "프로젝트생성",
                         CommonDocument.AccessTokenHeader,
                         ProjectDocument.RegisterProjectRequestField,
                         ProjectDocument.ProjectInfoResponseField))
