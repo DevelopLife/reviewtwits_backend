@@ -92,6 +92,42 @@ public class ProjectApiTest extends ApiTest {
     }
 
     @Test
+    void 프로젝트생성_프로젝트명_영어숫자이외_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        final var wrongRequest = ProjectSteps.프로젝트생성요청_잘못된이름_생성(0);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .body(wrongRequest)
+                .when()
+                .post("/projects")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all().extract();
+    }
+
+    @Test
+    void 프로젝트생성_URI_패턴_형식아님_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+        final var wrongRequest = ProjectSteps.프로젝트생성요청_잘못된URI_생성(0);
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("X-AUTH-TOKEN", token)
+                .body(wrongRequest)
+                .when()
+                .post("/projects")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all().extract();
+    }
+
+    @Test
     void 프로젝트생성_헤더정보없음_401(){
         final var request = ProjectSteps.프로젝트생성요청_생성(0);
 
