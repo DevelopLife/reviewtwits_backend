@@ -33,6 +33,7 @@ public class ProjectSteps {
     public static final long wrongProjectId = -1L;
     public static final long notExistProjectId = 11111L;
     public static final String wrongProjectName = "잘못된 이름";
+    public static final String exampleEndDate = "2023-04-01";
 
     public static RegisterProjectRequest 프로젝트생성요청_생성(int index) {
         return RegisterProjectRequest.builder()

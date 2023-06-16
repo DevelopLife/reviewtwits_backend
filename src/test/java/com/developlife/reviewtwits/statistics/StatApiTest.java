@@ -30,6 +30,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -444,7 +445,6 @@ public class StatApiTest extends ApiTest {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .log().all();
     }
-
     @Test
     void 방문수_그래프_정보_요청_성공_200(){
         Project project = 통계_사전작업();
@@ -456,6 +456,8 @@ public class StatApiTest extends ApiTest {
                                 "<br>해당 유저가 프로젝트를 소유하지 않을 경우, 403 Forbidden 이 반환됩니다." +
                                 "<br>입력받은 프로젝트 아이디로 된 프로젝트를 찾을 수 없을 경우, 404 Not Found 가 반환됩니다." +
                                 "<br>해당 유저가 가지고 있는 프로젝트의 아이디를 입력해야 합니다." +
+                                "<br>요청 마지막 날짜(endDate)는 yyyy-mm-dd 형식으로 입력해야 하며, 선택적으로 입력할 수 있습니다." +
+                                "<br>입력하지 않았을 시 현재 날짜 기준으로 그래프 정보가 반환되며, 현재 날짜 이후의 날짜를 입력할 수 없습니다." +
                                 "<br>또한 통계 범위와 구간을 입력해야 하며, 범위로써 입력할 수 있는 정보는 아래와 같습니다." +
                                 "<br><br> 1d,3d,5d,7d,15d" +
                                 "<br> 1mo,3mo,6mo,1y,3y,5y" +
@@ -464,6 +466,38 @@ public class StatApiTest extends ApiTest {
                         CommonDocument.AccessTokenHeader,
                         StatDocument.VisitGraphInfoRequestParamFields,
                         StatDocument.VisitGraphStatResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectId", project.getProjectId())
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("range", ProjectSteps.exampleRange)
+                .param("endDate", ProjectSteps.exampleEndDate)
+                .when()
+                .get("/statistics/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .log().all().extract();
+
+        JsonPath jsonPath = response.jsonPath();
+        assertThat(jsonPath.getString("interval")).isEqualTo(ProjectSteps.exampleInterval);
+        assertThat(jsonPath.getString("range")).isEqualTo(ProjectSteps.exampleRange);
+        assertThat(jsonPath.getInt("todayVisit")).isEqualTo(3);
+        assertThat(jsonPath.getInt("yesterdayVisit")).isEqualTo(2);
+        assertThat(jsonPath.getList("visitInfo.timeStamp")).isNotEmpty();
+        assertThat(jsonPath.getList("visitInfo.visitCount")).isNotEmpty();
+        assertThat(jsonPath.getList("visitInfo.previousCompare")).isNotEmpty();
+
+        String lastTimeStamp = jsonPath.getList("visitInfo.timeStamp").get(jsonPath.getList("visitInfo.timeStamp").size()-1).toString();
+        LocalDate lastDate = LocalDate.parse(lastTimeStamp);
+        assertThat(lastDate.isBefore(LocalDate.parse(ProjectSteps.exampleEndDate))).isTrue();
+    }
+
+    @Test
+    void 방문수_그래프_정보_요청_성공_endDate_없음_200(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        ExtractableResponse<Response> response = given(this.spec)
                 .header("X-AUTH-TOKEN", token)
                 .param("projectId", project.getProjectId())
                 .param("interval", ProjectSteps.exampleInterval)
