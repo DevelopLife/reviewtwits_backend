@@ -9,7 +9,6 @@ import com.developlife.reviewtwits.message.request.project.RegisterProjectReques
 import com.developlife.reviewtwits.type.project.Language;
 import com.developlife.reviewtwits.type.project.ProjectCategory;
 import com.developlife.reviewtwits.type.project.ProjectPricePlan;
-import org.springframework.restdocs.snippet.Snippet;
 
 import java.time.LocalDateTime;
 
@@ -31,8 +30,7 @@ public class ProjectSteps {
     public static final String exampleRange = "6mo";
     public static final String exampleInterval = "3d";
     public static final String wrongRange = "3s";
-    public static final long wrongProjectId = -1L;
-    public static final long notExistProjectId = 11111L;
+    public static final String notExistProjectName = "not_existed_project_name";
     public static final String wrongProjectName = "잘못된 이름";
     public static final String exampleEndDate = "2023-04-01";
 
