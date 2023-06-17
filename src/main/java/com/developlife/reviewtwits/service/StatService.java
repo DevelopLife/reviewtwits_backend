@@ -61,8 +61,8 @@ public class StatService {
         return statMapper.mapStatInfoToSaveStatResponse(savedInfo);
     }
 
-    public VisitTotalGraphResponse getVisitGraphInfos(Long projectId, String inputRange, String inputInterval, User user, String inputEndDate) {
-        Project project = getProject(projectId, user);
+    public VisitTotalGraphResponse getVisitGraphInfos(String projectName, String inputRange, String inputInterval, User user, String inputEndDate) {
+        Project project = getProject(projectName, user);
         ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
         ChartPeriodUnit interval = ChartPeriodUnit.findByInputValue(inputInterval);
         LocalDate endDate = getLocalDateFromInput(inputEndDate);
@@ -80,9 +80,9 @@ public class StatService {
                 .build();
     }
 
-    public DailyVisitInfoResponse getDailyVisitInfos(Long projectId, String inputRange, User user) {
+    public DailyVisitInfoResponse getDailyVisitInfos(String projectName, String inputRange, User user) {
 
-        Project project = getProject(projectId, user);
+        Project project = getProject(projectName, user);
         ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
 
         List<VisitInfoResponse> visitInfo = statInfoRepository.findByPeriod(project, LocalDate.now(), range, ChartPeriodUnit.ONE_DAY);
@@ -92,59 +92,39 @@ public class StatService {
                 .visitInfo(visitInfo)
                 .build();
     }
-    public RecentVisitInfoResponse getRecentVisitCounts(Long projectId, User user) {
-        Project project = getProject(projectId, user);
+    public RecentVisitInfoResponse getRecentVisitCounts(String projectName, User user) {
+        Project project = getProject(projectName, user);
         return statInfoRepository.findRecentVisitInfo(project);
     }
 
-    private Project getProject(Long projectId, User user) {
-        Project project = projectRepository.findById(projectId)
+    public SimpleProjectInfoResponse getSimpleProjectInfo(String projectName, User user) {
+        Project project = getProject(projectName, user);
+        return statInfoRepository.findSimpleProjectInfo(project);
+    }
+
+    public List<ProductStatisticsResponse> getProductStatisticsInfo(String projectName, User user) {
+        Project project = getProject(projectName, user);
+        return statInfoRepository.findProductStatistics(project);
+    }
+
+    public SearchFlowResponse getRequestSearchFlowInfos(String projectName, User user) {
+        Project project = getProject(projectName, user);
+        return statInfoRepository.findSearchFlow(project);
+    }
+
+    public Map<Integer, Long> getReadTimeInfo(String projectName, User user) {
+        Project project = getProject(projectName, user);
+        return statInfoRepository.readTimeGraphInfo(project);
+    }
+
+    private Project getProject(String projectName, User user) {
+        Project project = projectRepository.findByProjectName(projectName)
                 .orElseThrow(() -> new ProjectNotFoundException("해당 프로젝트가 존재하지 않습니다."));
 
         if (!project.getUser().getAccountId().equals(user.getAccountId())) {
             throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
         }
         return project;
-    }
-
-    public SimpleProjectInfoResponse getSimpleProjectInfo(Long projectId, User user) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("해당 프로젝트가 존재하지 않습니다."));
-
-        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
-            throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
-        }
-        return statInfoRepository.findSimpleProjectInfo(project);
-    }
-
-    public List<ProductStatisticsResponse> getProductStatisticsInfo(Long projectId, User user) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("해당 프로젝트가 존재하지 않습니다."));
-
-        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
-            throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
-        }
-        return statInfoRepository.findProductStatistics(project);
-    }
-
-    public SearchFlowResponse getRequestSearchFlowInfos(Long projectId, User user) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("해당 프로젝트가 존재하지 않습니다."));
-
-        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
-            throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
-        }
-        return statInfoRepository.findSearchFlow(project);
-    }
-
-    public Map<Integer, Long> getReadTimeInfo(Long projectId, User user) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("해당 프로젝트가 존재하지 않습니다."));
-
-        if (!project.getUser().getAccountId().equals(user.getAccountId())) {
-            throw new AccessDeniedException("해당 프로젝트 통계정보에 접근할 수 있는 권한이 없습니다.");
-        }
-        return statInfoRepository.readTimeGraphInfo(project);
     }
 
     private LocalDate getLocalDateFromInput(String inputDate) {
