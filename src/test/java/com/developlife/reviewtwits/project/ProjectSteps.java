@@ -21,6 +21,7 @@ public class ProjectSteps {
     public static final String projectName = "project-name";
     public static final String projectDescription = "프로젝트 설명";
     public static final String uriPattern = "/products";
+    public static final String wrongUriPattern = "\\products";
     public static final ProjectCategory category = ProjectCategory.쇼핑;
     public static final Language language = Language.한국어;
     public static final String projectColor = "#FFFFFF";
@@ -39,6 +40,28 @@ public class ProjectSteps {
                 .projectName(projectName + "_" + index)
                 .projectDescription(projectDescription)
                 .uriPattern(uriPattern)
+                .category(category.toString())
+                .language(language.toString())
+                .projectColor(projectColor)
+                .build();
+    }
+
+    public static RegisterProjectRequest 프로젝트생성요청_잘못된이름_생성(int index){
+        return RegisterProjectRequest.builder()
+                .projectName(wrongProjectName + "_" + index)
+                .projectDescription(projectDescription)
+                .uriPattern(uriPattern)
+                .category(category.toString())
+                .language(language.toString())
+                .projectColor(projectColor)
+                .build();
+    }
+
+    public static RegisterProjectRequest 프로젝트생성요청_잘못된URI_생성(int index) {
+        return RegisterProjectRequest.builder()
+                .projectName(projectName + "_" + index)
+                .projectDescription(projectDescription)
+                .uriPattern(wrongUriPattern)
                 .category(category.toString())
                 .language(language.toString())
                 .projectColor(projectColor)

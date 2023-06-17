@@ -1,5 +1,6 @@
 package com.developlife.reviewtwits.handler;
 
+import com.developlife.reviewtwits.exception.project.ProjectNameDuplicateException;
 import com.developlife.reviewtwits.exception.project.ProjectNotFoundException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -21,5 +22,11 @@ public class ProjectExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public List<ErrorResponse> projectIdNotFoundExceptionHandler(ProjectNotFoundException e){
         return makeErrorResponse(e, "projectId");
+    }
+
+    @ExceptionHandler(ProjectNameDuplicateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public List<ErrorResponse> projectNameDuplicateExceptionHandler(ProjectNameDuplicateException e){
+        return makeErrorResponse(e, "projectName");
     }
 }
