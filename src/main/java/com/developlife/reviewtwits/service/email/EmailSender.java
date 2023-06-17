@@ -41,7 +41,7 @@ public abstract class EmailSender {
 
     @Transactional
     public String storageVerifyInfo(String to, EmailType type) {
-        String key = creatUniqueKey();
+        String key = createUniqueKey();
         emailVerifyRepository.findByEmailAndType(to, type).ifPresentOrElse(
                 emailVerify -> {
                     emailVerify.setVerifyCode(key);
@@ -63,7 +63,7 @@ public abstract class EmailSender {
         return key;
     }
 
-    private String creatUniqueKey() {
+    private String createUniqueKey() {
         String key;
         do {
             key = UUID.randomUUID().toString().substring(0, 8);
