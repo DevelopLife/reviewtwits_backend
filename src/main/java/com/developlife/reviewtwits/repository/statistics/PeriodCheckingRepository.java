@@ -6,12 +6,13 @@ import com.developlife.reviewtwits.message.response.project.RecentVisitInfoRespo
 import com.developlife.reviewtwits.message.response.statistics.VisitInfoResponse;
 import com.developlife.reviewtwits.type.ChartPeriodUnit;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 
 public interface PeriodCheckingRepository {
-    List<VisitInfoResponse> findByPeriod(Project project, ChartPeriodUnit range, ChartPeriodUnit interval);
+    List<VisitInfoResponse> findByPeriod(Project project, LocalDate endDate, ChartPeriodUnit range, ChartPeriodUnit interval);
     RecentVisitInfoResponse findRecentVisitInfo(Project project);
     Map<Integer, Long> readTimeGraphInfo(Project project);
 
