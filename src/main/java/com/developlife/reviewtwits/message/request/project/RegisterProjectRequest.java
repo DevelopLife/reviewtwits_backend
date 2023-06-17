@@ -4,13 +4,12 @@ import com.developlife.reviewtwits.message.annotation.project.*;
 import lombok.Builder;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 public record RegisterProjectRequest(
     @NotBlank(message = "프로젝트 이름을 입력해주세요")
     @Size(min = 2, max = 30, message = "프로젝트 이름은 2자 이상 30자 이하로 입력해주세요")
-    @Pattern(regexp = "[a-zA-Z0-9-_]+", message = "프로젝트 이름은 영어, 숫자, '-', '_'만 입력 가능합니다")
+    @ProjectName
     String projectName,
     @NotBlank(message = "프로젝트 설명을 입력해주세요")
     @Size(max = 100, message = "프로젝트 설명은 100자 이하로 입력해주세요")
