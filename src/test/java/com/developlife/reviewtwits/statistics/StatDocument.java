@@ -25,18 +25,18 @@ public class StatDocument {
     );
 
     public static final Snippet DailyVisitStatRequestParam = requestParameters(
-            RequestDocumentation.parameterWithName("projectId").attributes(required()).description("프로젝트 아이디"),
+            RequestDocumentation.parameterWithName("projectName").attributes(required()).description("프로젝트 이름"),
             RequestDocumentation.parameterWithName("range").attributes(required()).description("요청하는 통계 범위 구간")
     );
     public static final Snippet VisitGraphInfoRequestParamFields = requestParameters(
-            RequestDocumentation.parameterWithName("projectId").attributes(required()).description("프로젝트 아이디"),
+            RequestDocumentation.parameterWithName("projectName").attributes(required()).description("프로젝트 이름"),
             RequestDocumentation.parameterWithName("range").attributes(required()).description("요청하는 통계 범위 구간"),
             RequestDocumentation.parameterWithName("interval").attributes(required()).description("요청하는 통계 기준 구간"),
             RequestDocumentation.parameterWithName("endDate").description("요청 통계의 마지막 날짜").optional()
     );
 
-    public static final Snippet projectIdRequestParamField = requestParameters(
-            RequestDocumentation.parameterWithName("projectId").attributes(required()).description("프로젝트 아이디")
+    public static final Snippet projectNameRequestParamField = requestParameters(
+            RequestDocumentation.parameterWithName("projectName").attributes(required()).description("프로젝트 이름")
     );
 
     public static final Snippet savedStatResponseField = responseFields(

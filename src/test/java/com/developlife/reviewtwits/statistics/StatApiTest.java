@@ -240,7 +240,7 @@ public class StatApiTest extends ApiTest {
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "일간 방문 통계정보를 검색하면, 올바른 입력값일 경우 200 OK 와 함께 정보가 반환됩니다.." +
-                                "<br>해당 유저가 가지고 있는 프로젝트의 아이디를 입력해야 합니다." +
+                                "<br>해당 유저가 가지고 있는 프로젝트의 이름을 입력해야 합니다. 영어, 숫자, '-', '_' 만 포함되어 있는 문자열만 입력해야 합니다." +
                                 "<br>그리고 일간 방문 통계정보의 범위를 입력해야 합니다. " +
                                 "<br>범위로써 입력할 수 있는 정보는 아래와 같습니다." +
                                 "<br><br> 1d,3d,5d,7d,15d" +
@@ -254,7 +254,7 @@ public class StatApiTest extends ApiTest {
                         StatDocument.DailyVisitInfoResponseFields
                 ))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .param("range", ProjectSteps.exampleRange)
                 .when()
                 .get("/statistics/daily-visit-graph-infos")
@@ -273,7 +273,7 @@ public class StatApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .param("range", ProjectSteps.exampleRange)
                 .when()
                 .get("/statistics/daily-visit-graph-infos")
@@ -291,7 +291,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .param("range", ProjectSteps.exampleRange)
                 .when()
                 .get("/statistics/daily-visit-graph-infos")
@@ -308,7 +308,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", ProjectSteps.notExistProjectId)
+                .param("projectName", ProjectSteps.notExistProjectName)
                 .param("range", ProjectSteps.exampleRange)
                 .when()
                 .get("/statistics/daily-visit-graph-infos")
@@ -325,7 +325,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", ProjectSteps.wrongProjectId)
+                .param("projectName", ProjectSteps.wrongProjectName)
                 .param("range", ProjectSteps.exampleRange)
                 .when()
                 .get("/statistics/daily-visit-graph-infos")
@@ -342,7 +342,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .param("range", ProjectSteps.wrongRange)
                 .when()
                 .get("/statistics/daily-visit-graph-infos")
@@ -359,16 +359,16 @@ public class StatApiTest extends ApiTest {
 
         ExtractableResponse<Response> response = given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "최근 방문 통계정보를 검색하면, 올바른 입력값일 경우 200 OK 와 함께 정보가 반환됩니다.." +
-                                "<br>해당 유저가 가지고 있는 프로젝트의 아이디를 입력해야 합니다. 음수로 입력할 경우 400 Bad Request 가 반환됩니다." +
+                                "<br>해당 유저가 가지고 있는 프로젝트의 이름을 입력해야 합니다. 영어, 숫자, '-', '_' 만 포함되어 있는 문자열만 입력해야 합니다." +
                                 "<br>헤더에 토큰 정보가 누락되었을 경우, 401 Unauthorized 가 반환됩니다." +
                                 "<br>해당 유저가 프로젝트를 소유하지 않을 경우, 403 Forbidden 이 반환됩니다." +
                                 "<br>입력받은 프로젝트 아이디로 된 프로젝트를 찾을 수 없을 경우, 404 Not Found 가 반환됩니다.",
                         "최근방문통계정보요청",
                         CommonDocument.AccessTokenHeader,
-                        ProjectDocument.ProjectIdRequestParam,
+                        ProjectDocument.ProjectNameRequestParam,
                         StatDocument.RecentVisitStatResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/recent-visit-counts")
                 .then()
@@ -388,7 +388,7 @@ public class StatApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/recent-visit-counts")
                 .then()
@@ -405,7 +405,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/recent-visit-counts")
                 .then()
@@ -421,7 +421,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", ProjectSteps.notExistProjectId)
+                .param("projectName", ProjectSteps.notExistProjectName)
                 .when()
                 .get("/statistics/recent-visit-counts")
                 .then()
@@ -431,13 +431,13 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 최근방문_통계정보_요청_프로젝트아이디음수_400(){
+    void 최근방문_통계정보_요청_프로젝트이름_형식오류_400(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", ProjectSteps.wrongProjectId)
+                .param("projectName", ProjectSteps.wrongProjectName)
                 .when()
                 .get("/statistics/recent-visit-counts")
                 .then()
@@ -454,8 +454,8 @@ public class StatApiTest extends ApiTest {
                 .filter(document(DEFAULT_RESTDOC_PATH, "방문수 그래프 정보를 요청하면, 올바른 입력값일 경우 200 OK 와 함께 통걔 정보가 반환됩니다." +
                                 "<br>헤더에 토큰 정보가 누락되었을 경우, 401 Unauthorized 가 반환됩니다." +
                                 "<br>해당 유저가 프로젝트를 소유하지 않을 경우, 403 Forbidden 이 반환됩니다." +
-                                "<br>입력받은 프로젝트 아이디로 된 프로젝트를 찾을 수 없을 경우, 404 Not Found 가 반환됩니다." +
-                                "<br>해당 유저가 가지고 있는 프로젝트의 아이디를 입력해야 합니다." +
+                                "<br>해당 유저가 가지고 있는 프로젝트의 이름을 입력해야 합니다. 영어, 숫자, '-', '_' 만 포함되어 있는 문자열만 입력해야 합니다." +
+                                "<br>입력받은 프로젝트 이름으로 된 프로젝트를 찾을 수 없을 경우, 404 Not Found 가 반환됩니다." +
                                 "<br>요청 마지막 날짜(endDate)는 yyyy-mm-dd 형식으로 입력해야 하며, 선택적으로 입력할 수 있습니다." +
                                 "<br>입력하지 않았을 시 현재 날짜 기준으로 그래프 정보가 반환되며, 현재 날짜 이후의 날짜를 입력할 수 없습니다." +
                                 "<br>또한 통계 범위와 구간을 입력해야 하며, 범위로써 입력할 수 있는 정보는 아래와 같습니다." +
@@ -467,7 +467,7 @@ public class StatApiTest extends ApiTest {
                         StatDocument.VisitGraphInfoRequestParamFields,
                         StatDocument.VisitGraphStatResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .param("interval", ProjectSteps.exampleInterval)
                 .param("range", ProjectSteps.exampleRange)
                 .param("endDate", ProjectSteps.exampleEndDate)
@@ -499,7 +499,7 @@ public class StatApiTest extends ApiTest {
 
         ExtractableResponse<Response> response = given(this.spec)
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .param("interval", ProjectSteps.exampleInterval)
                 .param("range", ProjectSteps.exampleRange)
                 .when()
@@ -525,7 +525,7 @@ public class StatApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .param("interval", ProjectSteps.exampleInterval)
                 .param("range", ProjectSteps.exampleRange)
                 .when()
@@ -544,7 +544,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .param("interval", ProjectSteps.exampleInterval)
                 .param("range", ProjectSteps.exampleRange)
                 .when()
@@ -562,7 +562,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", ProjectSteps.notExistProjectId)
+                .param("projectName", ProjectSteps.notExistProjectName)
                 .param("interval", ProjectSteps.exampleInterval)
                 .param("range", ProjectSteps.exampleRange)
                 .when()
@@ -574,13 +574,13 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 방문수_그래프_정보_요청_프로젝트아이디_음수_400(){
+    void 방문수_그래프_정보_요청_프로젝트이름_형식오류_400(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", ProjectSteps.wrongProjectId)
+                .param("projectName", ProjectSteps.wrongProjectName)
                 .param("interval", ProjectSteps.exampleInterval)
                 .param("range", ProjectSteps.exampleRange)
                 .when()
@@ -599,7 +599,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .param("interval", ProjectSteps.exampleInterval)
                 .param("range", ProjectSteps.wrongRange)
                 .when()
@@ -617,16 +617,17 @@ public class StatApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "상품정보 통계 자료를 요청하는 API 입니다." +
-                        "<br>프로젝트 아이디를 통해 해당 프로젝트의 상품정보 통계 자료를 요청합니다." +
-                        "<br>프로젝트 아이디를 입력하지 않거나, 음수 값을 입력하면 400 Bad Request 가 반환됩니다." +
+                        "<br>프로젝트 이름을 통해 해당 프로젝트의 상품정보 통계 자료를 요청합니다." +
+                        "<br>해당 유저가 가지고 있는 프로젝트의 이름을 입력해야 합니다. 영어, 숫자, '-', '_' 만 포함되어 있는 문자열만 입력해야 합니다." +
+                        "<br>프로젝트 이름을 입력하지 않거나, 잘못된 형식의 값을 입력하면 400 Bad Request 가 반환됩니다." +
                         "<br>헤더에 유저 정보를 입력하지 않으면 401 Unauthorized 가 반환됩니다." +
                         "<br>해당 프로젝트 아이디로 된 프로젝트에, 유저가 접근할 권한이 없으면 403 Forbidden 이 반환됩니다." +
                         "<br>해당 프로젝트 아이디로 된 프로젝트가 존재하지 않으면 404 Not Found 가 반환됩니다.", "대시보드 상품정보 통계 요청",
                         CommonDocument.AccessTokenHeader,
-                        StatDocument.projectIdRequestParamField,
+                        StatDocument.projectNameRequestParamField,
                         StatDocument.productStatisticsResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/dashboard/product-statistics")
                 .then()
@@ -641,7 +642,7 @@ public class StatApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/dashboard/product-statistics")
                 .then()
@@ -658,7 +659,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", otherToken)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/dashboard/product-statistics")
                 .then()
@@ -668,14 +669,13 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 대시보드_상품정보_통계_프로젝트아이디_등록안됨_404(){
-        Project project = 통계_사전작업();
+    void 대시보드_상품정보_통계_프로젝트이름_등록안됨_404(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", 9999L)
+                .param("projectName", ProjectSteps.notExistProjectName)
                 .when()
                 .get("/statistics/dashboard/product-statistics")
                 .then()
@@ -685,13 +685,13 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 대시보드_상품정보_통계_프로젝트아이디_음수_400(){
+    void 대시보드_상품정보_통계_프로젝트이름_형식오류_400(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", ProjectSteps.wrongProjectId)
+                .param("projectName", ProjectSteps.wrongProjectName)
                 .when()
                 .get("/statistics/dashboard/product-statistics")
                 .then()
@@ -707,15 +707,16 @@ public class StatApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "어떤 유입경로로 사람들이 들어오는지 정보를 주는 API 입니다." +
-                        "<br>프로젝트 아이디를 통해 해당 프로젝트의 유입경로 통계 자료를 요청합니다." +
+                        "<br>프로젝트 이름을 통해 해당 프로젝트의 유입경로 통계 자료를 요청합니다." +
+                        "<br>해당 유저가 가지고 있는 프로젝트의 이름을 입력해야 합니다. 영어, 숫자, '-', '_' 만 포함되어 있는 문자열만 입력해야 합니다." +
                         "<br>헤더에 유저 정보가 존재하지 않으면 401 Unauthorized 가 반환됩니다." +
                         "<br>해당 프로젝트 아이디로 된 프로젝트에, 유저가 접근할 권한이 없으면 403 Forbidden 이 반환됩니다." +
                         "<br>해당 프로젝트 아이디로 된 프로젝트가 존재하지 않으면 404 Not Found 가 반환됩니다.", "유입경로 통계 요청",
                         CommonDocument.AccessTokenHeader,
-                        StatDocument.projectIdRequestParamField,
+                        StatDocument.projectNameRequestParamField,
                         StatDocument.requestInflowInfosResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/request-inflow-infos")
                 .then()
@@ -730,7 +731,7 @@ public class StatApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/request-inflow-infos")
                 .then()
@@ -747,7 +748,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", otherToken)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/request-inflow-infos")
                 .then()
@@ -757,13 +758,13 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 유입경로_통계_프로젝트아이디_등록안됨_404(){
+    void 유입경로_통계_프로젝트이름_등록안됨_404(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", 9999L)
+                .param("projectName", ProjectSteps.notExistProjectName)
                 .when()
                 .get("/statistics/request-inflow-infos")
                 .then()
@@ -773,13 +774,13 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 유입경로_통계_프로젝트아이디_음수_400(){
+    void 유입경로_통계_프로젝트이름_형식오류_400(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", -1L)
+                .param("projectName", ProjectSteps.wrongProjectName)
                 .when()
                 .get("/statistics/request-inflow-infos")
                 .then()
@@ -794,15 +795,16 @@ public class StatApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트의 요약 통계 정보를 요청하는 API 입니다." +
-                        "<br>프로젝트 아이디를 통해 해당 프로젝트의 요약 통계 정보를 요청합니다." +
+                        "<br>프로젝트 이름을 통해 해당 프로젝트의 요약 통계 정보를 요청합니다." +
+                        "<br>해당 유저가 가지고 있는 프로젝트의 이름을 입력해야 합니다. 영어, 숫자, '-', '_' 만 포함되어 있는 문자열만 입력해야 합니다." +
                         "<br>헤더에 유저 정보가 존재하지 않으면 401 Unauthorized 가 반환됩니다." +
                         "<br>해당 프로젝트 아이디로 된 프로젝트에, 유저가 접근할 권한이 없으면 403 Forbidden 이 반환됩니다." +
                         "<br>해당 프로젝트 아이디로 된 프로젝트가 존재하지 않으면 404 Not Found 가 반환됩니다.", "프로젝트 요약 통계 요청",
                         CommonDocument.AccessTokenHeader,
-                        StatDocument.projectIdRequestParamField,
+                        StatDocument.projectNameRequestParamField,
                         StatDocument.simpleProjectInfoResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/dashboard/simple-project-info")
                 .then()
@@ -816,7 +818,7 @@ public class StatApiTest extends ApiTest {
         Project project = 통계_사전작업();
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/dashboard/simple-project-info")
                 .then()
@@ -833,7 +835,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", otherToken)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/dashboard/simple-project-info")
                 .then()
@@ -843,13 +845,13 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 프로젝트_요약_통계_프로젝트아이디_등록안됨_404(){
+    void 프로젝트_요약_통계_프로젝트이름_등록안됨_404(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", 9999L)
+                .param("projectName", ProjectSteps.notExistProjectName)
                 .when()
                 .get("/statistics/dashboard/simple-project-info")
                 .then()
@@ -859,13 +861,13 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 프로젝트_요약_통계_프로젝트아이디_음수_400(){
+    void 프로젝트_요약_통계_프로젝트이름_형식오류_400(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", -1L)
+                .param("projectName", ProjectSteps.wrongProjectName)
                 .when()
                 .get("/statistics/dashboard/simple-project-info")
                 .then()
@@ -880,14 +882,15 @@ public class StatApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, "프로젝트의 리드타임 통계 정보를 요청하는 API 입니다." +
-                        "<br>프로젝트 아이디를 통해 해당 프로젝트의 리드타임 통계 정보를 요청합니다." +
+                        "<br>프로젝트 이름을 통해 해당 프로젝트의 리드타임 통계 정보를 요청합니다." +
+                        "<br>해당 유저가 가지고 있는 프로젝트의 이름을 입력해야 합니다. 영어, 숫자, '-', '_' 만 포함되어 있는 문자열만 입력해야 합니다." +
                         "<br>헤더에 유저 정보가 존재하지 않으면 401 Unauthorized 가 반환됩니다." +
                         "<br>해당 프로젝트 아이디로 된 프로젝트에, 유저가 접근할 권한이 없으면 403 Forbidden 이 반환됩니다." +
                         "<br>해당 프로젝트 아이디로 된 프로젝트가 존재하지 않으면 404 Not Found 가 반환됩니다.", "리드타임 통계 요청",
                         CommonDocument.AccessTokenHeader,
-                        StatDocument.projectIdRequestParamField))
+                        StatDocument.projectNameRequestParamField))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/readtime-info")
                 .then()
@@ -902,7 +905,7 @@ public class StatApiTest extends ApiTest {
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH))
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/readtime-info")
                 .then()
@@ -919,7 +922,7 @@ public class StatApiTest extends ApiTest {
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", otherToken)
-                .param("projectId", project.getProjectId())
+                .param("projectName", project.getProjectName())
                 .when()
                 .get("/statistics/readtime-info")
                 .then()
@@ -929,13 +932,13 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 리드타임_통계_요청_프로젝트아이디_등록안됨_404(){
+    void 리드타임_통계_요청_프로젝트이름_등록안됨_404(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", 9999L)
+                .param("projectName", ProjectSteps.notExistProjectName)
                 .when()
                 .get("/statistics/readtime-info")
                 .then()
@@ -945,13 +948,13 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
-    void 리드타임_통계_요청_프로젝트아이디_음수_400(){
+    void 리드타임_통계_요청_프로젝트이름_형식오류_400(){
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
 
         given(this.spec)
                 .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
                 .header("X-AUTH-TOKEN", token)
-                .param("projectId", -1L)
+                .param("projectName", ProjectSteps.wrongProjectName)
                 .when()
                 .get("/statistics/readtime-info")
                 .then()
