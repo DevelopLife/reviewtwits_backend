@@ -1,7 +1,6 @@
 package com.developlife.reviewtwits.handler;
 
 import com.developlife.reviewtwits.exception.item.CrawlingFailedException;
-import com.developlife.reviewtwits.exception.mail.MailSendException;
 import com.developlife.reviewtwits.message.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
