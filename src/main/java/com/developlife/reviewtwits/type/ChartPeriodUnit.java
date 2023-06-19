@@ -1,11 +1,7 @@
 package com.developlife.reviewtwits.type;
 
-import com.querydsl.core.types.dsl.NumberExpression;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import static com.developlife.reviewtwits.entity.QStatInfo.statInfo;
 
 public enum ChartPeriodUnit {
 
