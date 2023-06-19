@@ -7,7 +7,6 @@ package com.developlife.reviewtwits.mapper;
 
 import com.developlife.reviewtwits.exception.common.DateParseException;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.text.ParseException;

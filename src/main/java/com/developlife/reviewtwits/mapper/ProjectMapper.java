@@ -1,10 +1,8 @@
 package com.developlife.reviewtwits.mapper;
 
 import com.developlife.reviewtwits.entity.Project;
-import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.project.FixProjectRequest;
 import com.developlife.reviewtwits.message.request.project.RegisterProjectRequest;
-import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
 import com.developlife.reviewtwits.message.response.project.ProjectInfoResponse;
 import com.developlife.reviewtwits.message.response.project.ProjectSettingInfoResponse;
 import org.mapstruct.*;
