@@ -1,9 +1,6 @@
 package com.developlife.reviewtwits.message.request.user;
 
-import com.developlife.reviewtwits.message.annotation.user.Password;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
-import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
