@@ -1,7 +1,6 @@
 package com.developlife.reviewtwits.controller;
 
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
-import com.developlife.reviewtwits.entity.FileInfo;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.exception.user.TokenInvalidException;
 import com.developlife.reviewtwits.message.request.ImageUpdateRequest;
@@ -14,7 +13,6 @@ import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
 import com.developlife.reviewtwits.service.FileStoreService;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.type.JwtProvider;
-import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
