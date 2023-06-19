@@ -1,6 +1,5 @@
 package com.developlife.reviewtwits.message.response.review;
 
-import com.developlife.reviewtwits.type.ReactionType;
 import lombok.Builder;
 
 /**

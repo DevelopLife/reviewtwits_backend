@@ -5,7 +5,6 @@ import com.developlife.reviewtwits.message.response.review.*;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
 import com.developlife.reviewtwits.message.response.sns.SnsReviewResponse;
 import com.developlife.reviewtwits.message.response.user.UserInfoResponse;
-import com.developlife.reviewtwits.repository.review.CommentMappingDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 

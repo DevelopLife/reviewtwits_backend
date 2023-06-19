@@ -3,7 +3,6 @@ package com.developlife.reviewtwits.entity;
 import com.developlife.reviewtwits.type.EmailType;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

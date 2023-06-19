@@ -1,7 +1,6 @@
 package com.developlife.reviewtwits.message.annotation.project;
 
 import com.developlife.reviewtwits.message.validator.project.ColorValidator;
-import com.developlife.reviewtwits.message.validator.project.URIValidator;
 
 import javax.validation.Constraint;
 import java.lang.annotation.ElementType;

@@ -3,7 +3,6 @@ package com.developlife.reviewtwits.repository;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.type.JwtProvider;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;

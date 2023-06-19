@@ -4,7 +4,6 @@ import com.developlife.reviewtwits.entity.Reaction;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

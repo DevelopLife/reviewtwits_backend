@@ -1,6 +1,5 @@
 package com.developlife.reviewtwits.service.email;
 
-import com.developlife.reviewtwits.entity.EmailVerify;
 import com.developlife.reviewtwits.repository.EmailVerifyRepository;
 import com.developlife.reviewtwits.type.EmailType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Component;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 
 /**
