@@ -40,11 +40,7 @@ public class SnsService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
-    private final ReactionRepository reactionRepository;
     private final ItemDetailRepository itemDetailRepository;
-    private final ReviewScrapRepository reviewScrapRepository;
-    private final UserService userService;
-    private final SnsReviewService snsReviewService;
     private final ReviewUtils reviewUtils;
     private final UserMapper userMapper;
     private final SnsMapper snsMapper;

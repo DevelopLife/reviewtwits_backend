@@ -8,7 +8,4 @@ import java.util.Optional;
 
 @Repository
 public interface RelatedProductRepository extends JpaRepository<RelatedProduct, Long> {
-    boolean existsByNameLike(String name);
-
-    Optional<RelatedProduct> findByNameLike(String productName);
 }

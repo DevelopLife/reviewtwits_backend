@@ -31,8 +31,6 @@ import java.util.List;
 public class ReviewManageService {
 
     private final ReviewRepository reviewRepository;
-    private final ReviewMapper reviewMapper;
-    private final ReviewUtils reviewUtils;
 
     @Transactional
     public ReviewApproveResponse reviewAuthorizeProcess(User user, ReviewApproveRequest request) {

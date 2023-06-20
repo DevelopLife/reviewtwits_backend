@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+    <div style="margin:20px;">
+        <h1> 안녕하세요 ReviewTwit의 회원가입 인증메일입니다 </h1>
+        <br>
+        <p>아래 코드를 복사해 입력해주세요<p>
+        <br>
+        <p>감사합니다.<p>
+        <br>
+        <div align='center' style="border:1px solid black; font-family:verdana">
+            <h3 style="color:blue;">회원가입 인증 코드입니다.</h3>
+            <div style='font-size:130%'>
+                CODE : <b th:text="${code}"></b>
+            </div>
+        </div>
+        <br>
+    </div>
+</body>
+</html>

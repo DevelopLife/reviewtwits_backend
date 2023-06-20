@@ -15,6 +15,7 @@ import com.developlife.reviewtwits.message.response.email.FindIdsEmailResponse;
 import com.developlife.reviewtwits.repository.EmailVerifyRepository;
 import com.developlife.reviewtwits.repository.UserRepository;
 import com.developlife.reviewtwits.type.EmailType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ import java.util.List;
  * @since 2023/02/28
  */
 @Service
+@RequiredArgsConstructor
 public class EmailService {
     final UserRepository userRepository;
     final UserMapper userMapper;
@@ -37,16 +39,6 @@ public class EmailService {
     final EmailCodeSender emailCodeSender;
     final EmailLinkSender emailLinkSender;
     final PasswordEncoder passwordEncoder;
-
-    public EmailService(UserRepository userRepository, UserMapper userMapper, CommonMapper commonMapper, EmailVerifyRepository emailVerifyRepository, EmailCodeSender emailCodeSender, EmailLinkSender emailLinkSender, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.commonMapper = commonMapper;
-        this.emailVerifyRepository = emailVerifyRepository;
-        this.emailCodeSender = emailCodeSender;
-        this.emailLinkSender = emailLinkSender;
-        this.passwordEncoder = passwordEncoder;
-    }
 
 
     public void verifyCodeMessage(String email) {
