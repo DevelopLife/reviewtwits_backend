@@ -3,9 +3,7 @@ package com.developlife.reviewtwits.controller;
 import com.developlife.reviewtwits.config.security.JwtTokenProvider;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.user.RegisterOauthUserRequest;
-import com.developlife.reviewtwits.message.response.oauth.GoogleUserInfo;
-import com.developlife.reviewtwits.message.response.oauth.KakaoUserInfo;
-import com.developlife.reviewtwits.message.response.oauth.NaverUserInfo;
+import com.developlife.reviewtwits.message.response.oauth.OauthUserInfo;
 import com.developlife.reviewtwits.message.response.user.JwtTokenResponse;
 import com.developlife.reviewtwits.service.OauthService;
 import com.developlife.reviewtwits.type.JwtProvider;
@@ -16,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -34,40 +33,33 @@ public class OauthController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @PostMapping("/kakao")
-    public ResponseEntity<Object> kakao(@RequestHeader("Authorization") String accessToken,
-                                  HttpServletResponse response) {
-        KakaoUserInfo kakaoUserInfo = KakaoOauth2Utils.getUserInfo(accessToken);
-        User user = oauthService.authenticateToken(kakaoUserInfo, JwtProvider.KAKAO);
+    @PostMapping({"/kakao","/google", "/naver"})
+    public ResponseEntity<Object> login(@RequestHeader("Authorization") String accessToken,
+                                        HttpServletRequest request, HttpServletResponse response) {
+        String requestURI = request.getRequestURI();
+        JwtProvider provider = JwtProvider.getJwtProvider(requestURI);
+
+        OauthUserInfo userInfo = getOauthUserInfo(provider, accessToken);
+
+        User user = oauthService.authenticateToken(userInfo, provider);
         if(user == null) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(kakaoUserInfo);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(userInfo);
         }
         jwtTokenProvider.setRefreshTokenForClient(response, user);
         return ResponseEntity.ok(jwtTokenProvider.issueJwtTokenResponse(user));
     }
 
-    @PostMapping("/google")
-    public ResponseEntity<Object> google(@RequestHeader("Authorization") String accessToken,
-                                   HttpServletResponse response) {
-        GoogleUserInfo googleUserInfo = GoogleOAuth2Utils.getUserInfo(accessToken);
-        User user = oauthService.authenticateToken(googleUserInfo, JwtProvider.GOOGLE);
-        if(user == null) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(googleUserInfo);
+    private OauthUserInfo getOauthUserInfo(JwtProvider provider, String accessToken){
+        switch (provider) {
+            case KAKAO:
+                return KakaoOauth2Utils.getUserInfo(accessToken);
+            case GOOGLE:
+                return GoogleOAuth2Utils.getUserInfo(accessToken);
+            case NAVER:
+                return NaverOauth2Utils.getUserInfo(accessToken);
+            default:
+                throw new IllegalArgumentException("잘못된 요청입니다");
         }
-        jwtTokenProvider.setRefreshTokenForClient(response, user);
-        return ResponseEntity.ok(jwtTokenProvider.issueJwtTokenResponse(user));
-    }
-
-    @PostMapping("/naver")
-    public ResponseEntity<Object> naver(@RequestHeader("Authorization") String accessToken,
-                                  HttpServletResponse response) {
-        NaverUserInfo naverUserInfo = NaverOauth2Utils.getUserInfo(accessToken);
-        User user = oauthService.authenticateToken(naverUserInfo, JwtProvider.NAVER);
-        if(user == null) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(naverUserInfo);
-        }
-        jwtTokenProvider.setRefreshTokenForClient(response, user);
-        return ResponseEntity.ok(jwtTokenProvider.issueJwtTokenResponse(user));
     }
 
     @PostMapping("/register")
