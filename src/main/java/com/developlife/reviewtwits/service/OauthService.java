@@ -16,6 +16,7 @@ import com.developlife.reviewtwits.utils.oauth.GoogleOAuth2Utils;
 import com.developlife.reviewtwits.utils.oauth.KakaoOauth2Utils;
 import com.developlife.reviewtwits.utils.oauth.NaverOauth2Utils;
 import com.github.javafaker.Faker;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,19 +31,13 @@ import java.util.Set;
  * @since 2023/03/15
  */
 @Service
+@RequiredArgsConstructor
 public class OauthService {
 
-    UserRepository userRepository;
-    UserMapper userMapper;
-    FileStoreService fileStoreService;
-    Faker faker;
-
-    public OauthService(UserRepository userRepository, UserMapper userMapper, FileStoreService fileStoreService) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.fileStoreService = fileStoreService;
-        this.faker = new Faker();
-    }
+    final UserRepository userRepository;
+    final UserMapper userMapper;
+    final FileStoreService fileStoreService;
+    Faker faker = new Faker();
 
     @Transactional
     public User authenticateToken(OauthUserInfo oauthUserInfo, JwtProvider jwtProvider) {
@@ -56,34 +51,15 @@ public class OauthService {
 
     @Transactional
     public User registerNeedInfo(String accessToken, RegisterOauthUserRequest registerOauthUserRequest) {
-        OauthUserInfo oauthUserInfo;
-        JwtProvider jwtProvider = JwtProvider.valueOf(registerOauthUserRequest.provider());
-        switch (jwtProvider) {
-            case KAKAO:
-                oauthUserInfo = KakaoOauth2Utils.getUserInfo(accessToken);
-                break;
-            case GOOGLE:
-                oauthUserInfo = GoogleOAuth2Utils.getUserInfo(accessToken);
-                break;
-            case NAVER:
-                oauthUserInfo = NaverOauth2Utils.getUserInfo(accessToken);
-                break;
-            default:
-                throw new ProviderNotSupportedException("지원하지 않는 provider 입니다");
-        }
+        OauthUserInfo oauthUserInfo = getOauthUserInfo(accessToken, registerOauthUserRequest);
 
+        checkDuplicateInfo(registerOauthUserRequest, oauthUserInfo);
 
-        // 이미 회원가입이 된 경우 확인
-        userRepository.findByUuid(oauthUserInfo.sub())
-                .ifPresent((u) -> {throw new AccountIdAlreadyExistsException("이미 회원가입된 계정입니다");});
-        // 이메일 중복 확인
-        userRepository.findByAccountId(oauthUserInfo.email())
-                .ifPresent((u) -> {throw new AccountIdAlreadyExistsException("이미 회원가입된 이메일입니다");});
-        // 전화번호 중복 확인
-        if(userRepository.existsByPhoneNumber(registerOauthUserRequest.phoneNumber())) {
-            throw new AccountIdAlreadyExistsException("이미 회원가입된 전화번호입니다");
-        }
+        User user = registerOauthUser(registerOauthUserRequest, oauthUserInfo);
+        return user;
+    }
 
+    private User registerOauthUser(RegisterOauthUserRequest registerOauthUserRequest, OauthUserInfo oauthUserInfo) {
         String nickname;
         do {
             nickname = faker.name().username();
@@ -115,5 +91,37 @@ public class OauthService {
             user.setProfileImageUuid(fileInfo.getRealFilename());
         }
         return user;
+    }
+
+    private void checkDuplicateInfo(RegisterOauthUserRequest registerOauthUserRequest, OauthUserInfo oauthUserInfo) {
+        // 이미 회원가입이 된 경우 확인
+        userRepository.findByUuid(oauthUserInfo.sub())
+                .ifPresent((u) -> {throw new AccountIdAlreadyExistsException("이미 회원가입된 계정입니다");});
+        // 이메일 중복 확인
+        userRepository.findByAccountId(oauthUserInfo.email())
+                .ifPresent((u) -> {throw new AccountIdAlreadyExistsException("이미 회원가입된 이메일입니다");});
+        // 전화번호 중복 확인
+        if(userRepository.existsByPhoneNumber(registerOauthUserRequest.phoneNumber())) {
+            throw new AccountIdAlreadyExistsException("이미 회원가입된 전화번호입니다");
+        }
+    }
+
+    private static OauthUserInfo getOauthUserInfo(String accessToken, RegisterOauthUserRequest registerOauthUserRequest) {
+        OauthUserInfo oauthUserInfo;
+        JwtProvider jwtProvider = JwtProvider.valueOf(registerOauthUserRequest.provider());
+        switch (jwtProvider) {
+            case KAKAO:
+                oauthUserInfo = KakaoOauth2Utils.getUserInfo(accessToken);
+                break;
+            case GOOGLE:
+                oauthUserInfo = GoogleOAuth2Utils.getUserInfo(accessToken);
+                break;
+            case NAVER:
+                oauthUserInfo = NaverOauth2Utils.getUserInfo(accessToken);
+                break;
+            default:
+                throw new ProviderNotSupportedException("지원하지 않는 provider 입니다");
+        }
+        return oauthUserInfo;
     }
 }

@@ -19,6 +19,7 @@ import com.developlife.reviewtwits.type.ReferenceType;
 import com.developlife.reviewtwits.type.JwtProvider;
 import com.developlife.reviewtwits.type.UserRole;
 import com.github.javafaker.Faker;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +36,7 @@ import java.util.Set;
  */
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final EmailVerifyRepository emailVerifyRepository;
@@ -43,18 +45,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final FileStoreService fileStoreService;
-    private final Faker faker;
-
-    @Autowired
-    public UserService(UserRepository userRepository, EmailVerifyRepository emailVerifyRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, FileStoreService fileStoreService) {
-        this.userRepository = userRepository;
-        this.emailVerifyRepository = emailVerifyRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userMapper = userMapper;
-        this.fileStoreService = fileStoreService;
-        this.faker = new Faker();
-    }
+    private Faker faker = new Faker();
 
     @Transactional(readOnly = true)
     public User login(LoginUserRequest loginUserRequest) {
