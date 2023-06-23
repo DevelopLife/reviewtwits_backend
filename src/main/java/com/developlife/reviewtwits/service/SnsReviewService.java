@@ -164,7 +164,6 @@ public class SnsReviewService {
             toUpdateReaction = foundReaction.get();
             if(toUpdateReaction.getReactionType().equals(ReactionType.valueOf(inputReaction))){
                 reactionRepository.delete(toUpdateReaction);
-                modifyReactionCountOnReview(review,-1);
                 return mapper.toDetailReactionResponse(toUpdateReaction);
             }
 
@@ -175,8 +174,6 @@ public class SnsReviewService {
                     .review(review)
                     .user(user)
                     .build();
-
-            modifyReactionCountOnReview(review,1);
         }
 
         reactionRepository.save(toUpdateReaction);
@@ -198,14 +195,6 @@ public class SnsReviewService {
 //
 //        return mapper.toDetailReactionResponse(reaction);
 //    }
-
-
-    private void modifyReactionCountOnReview(Review review, int count) {
-        int reactionCount = review.getReactionCount();
-        review.setReactionCount(reactionCount + count);
-        reviewRepository.save(review);
-    }
-
 
     @Transactional
     public DetailSnsReviewResponse deleteSnsReview(Long reviewId) {

@@ -30,4 +30,12 @@ public class Reaction extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private ReactionType reactionType;
 
+    @PrePersist
+    public void preMakingReaction() {
+        this.review.setReactionCount(this.review.getReactionCount() + 1);
+    }
+    @PreRemove
+    public void preRemovingReaction() {
+        this.review.setReactionCount(this.review.getReactionCount() - 1);
+    }
 }

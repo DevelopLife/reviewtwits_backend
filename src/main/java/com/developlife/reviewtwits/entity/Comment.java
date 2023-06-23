@@ -37,12 +37,12 @@ public class Comment extends BaseEntity {
     private int commentLike = 0;
 
     @PrePersist
-    public void postMakingComment() {
+    public void preMakingComment() {
         this.review.setCommentCount(this.review.getCommentCount() + 1);
     }
 
     @PreRemove
-    public void postRemovingComment() {
+    public void preRemovingComment() {
         this.review.setCommentCount(this.review.getCommentCount() - 1);
     }
 }
