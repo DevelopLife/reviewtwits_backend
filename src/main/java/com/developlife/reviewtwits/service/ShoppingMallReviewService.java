@@ -214,13 +214,10 @@ public class ShoppingMallReviewService {
                     .user(user)
                     .reactionType(ReactionType.GOOD)
                     .build());
-            review.setReactionCount(review.getReactionCount() + 1);
         }else{
             reaction = foundReaction.get();
             reactionRepository.delete(reaction);
-            review.setReactionCount(review.getReactionCount() - 1);
         }
-        reviewRepository.save(review);
         return mapper.toDetailReactionResponse(reaction);
     }
 }
