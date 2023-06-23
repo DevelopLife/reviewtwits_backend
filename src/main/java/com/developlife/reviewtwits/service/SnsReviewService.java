@@ -120,11 +120,6 @@ public class SnsReviewService {
         }
         commentRepository.save(newComment);
 
-        int currentCommentCount = review.getCommentCount();
-        review.setCommentCount(currentCommentCount + 1);
-
-        reviewRepository.save(review);
-
         return mapper.toCommentResponse(newComment);
     }
 
@@ -139,11 +134,6 @@ public class SnsReviewService {
 
         commentLikeRepository.deleteAllByComment(foundComment);
         commentRepository.delete(foundComment);
-
-        Review review = foundComment.getReview();
-        int currentCommentCount = review.getCommentCount();
-        review.setCommentCount(currentCommentCount - 1);
-        reviewRepository.save(review);
 
         return mapper.toCommentResponse(foundComment);
     }

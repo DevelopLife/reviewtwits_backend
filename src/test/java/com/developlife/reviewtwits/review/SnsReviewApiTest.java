@@ -733,6 +733,9 @@ public class SnsReviewApiTest extends ApiTest {
 
         List<CommentResponse> commentList = commentRepository.findByReview_ReviewId(registeredReviewId, null);
         assertThat(commentList).isEmpty();
+
+        Review review = reviewRepository.findById(registeredReviewId).get();
+        assertThat(review.getCommentCount()).isEqualTo(0);
     }
 
     @Test
