@@ -306,9 +306,6 @@ public class SnsReviewService {
                 .build();
 
         commentLikeRepository.save(commentLike);
-
-        saveLikeCount(comment, 1);
-
         return mapper.toCommentLikeResultResponse(commentLike);
     }
 
@@ -321,15 +318,7 @@ public class SnsReviewService {
                 .orElseThrow(() -> new CommentLikeAlreadyProcessedException("해당 댓글에 좋아요를 누르지 않으셨거나, 이미 취소한 좋아요입니다."));
 
         commentLikeRepository.delete(commentLike);
-        saveLikeCount(comment, -1);
-
         return mapper.toCommentLikeResultResponse(commentLike);
-    }
-
-    private void saveLikeCount(Comment comment, int count){
-        int commentLike = comment.getCommentLike();
-        comment.setCommentLike(commentLike + count);
-        commentRepository.save(comment);
     }
 
     public DetailSnsReviewResponse getOneSnsReview(User user, long reviewId) {
