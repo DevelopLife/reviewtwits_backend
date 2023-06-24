@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.*;
+import com.developlife.reviewtwits.exception.product.ProductNotRegisteredException;
 import com.developlife.reviewtwits.exception.review.*;
 import com.developlife.reviewtwits.exception.user.AccessDeniedException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
@@ -53,15 +54,20 @@ public class SnsReviewService {
     private final ReviewScrapRepository reviewScrapRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
     private final ReviewUtils reviewUtils;
 
     @Transactional
     public DetailSnsReviewResponse saveSnsReview(SnsReviewWriteRequest writeRequest, User user){
 
+        Product product = productRepository.findProductByProductUrl(writeRequest.productURL())
+                .orElseThrow(() -> new ProductNotRegisteredException("해당 상품이 존재하지 않습니다."));
+
         Review review = Review.builder()
                 .user(user)
                 .content(writeRequest.content())
+                .project(product.getProject())
                 .productUrl(writeRequest.productURL())
                 .score(Integer.parseInt(writeRequest.score()))
                 .productName(writeRequest.productName())

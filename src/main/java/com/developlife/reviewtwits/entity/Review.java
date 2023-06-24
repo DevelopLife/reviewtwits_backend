@@ -66,4 +66,13 @@ public class Review extends BaseEntity {
     @Transient
     @Setter
     private boolean isLiked;
+
+    @PrePersist
+    public void preMakingReview(){
+        this.project.setReviewCount(this.project.getReviewCount() + 1);
+    }
+    @PreRemove
+    public void preRemoveReview(){
+        this.project.setReviewCount(this.project.getReviewCount() - 1);
+    }
 }
