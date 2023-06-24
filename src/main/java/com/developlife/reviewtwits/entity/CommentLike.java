@@ -27,12 +27,12 @@ public class CommentLike {
     private Comment comment;
 
     @PrePersist
-    public void preMakingCommentLike() {
+    private void preMakingCommentLike() {
         this.comment.setCommentLike(this.comment.getCommentLike() + 1);
     }
 
     @PreRemove
-    public void preRemovingCommentLike() {
+    private void preRemovingCommentLike() {
         this.comment.setCommentLike(this.comment.getCommentLike() - 1);
     }
 }

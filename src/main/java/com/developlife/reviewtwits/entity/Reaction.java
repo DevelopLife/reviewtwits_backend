@@ -31,11 +31,11 @@ public class Reaction extends BaseEntity {
     private ReactionType reactionType;
 
     @PrePersist
-    public void preMakingReaction() {
+    private void preMakingReaction() {
         this.review.setReactionCount(this.review.getReactionCount() + 1);
     }
     @PreRemove
-    public void preRemovingReaction() {
+    private void preRemovingReaction() {
         this.review.setReactionCount(this.review.getReactionCount() - 1);
     }
 }
