@@ -3,12 +3,18 @@ package com.developlife.reviewtwits.sns;
 import com.developlife.reviewtwits.ApiTest;
 import com.developlife.reviewtwits.CommonDocument;
 import com.developlife.reviewtwits.entity.Follow;
+import com.developlife.reviewtwits.entity.Product;
+import com.developlife.reviewtwits.entity.Project;
 import com.developlife.reviewtwits.entity.User;
 import com.developlife.reviewtwits.message.request.sns.FollowRequest;
 import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
+import com.developlife.reviewtwits.project.ProjectSteps;
+import com.developlife.reviewtwits.repository.ProductRepository;
+import com.developlife.reviewtwits.repository.ProjectRepository;
 import com.developlife.reviewtwits.repository.follow.FollowRepository;
 import com.developlife.reviewtwits.review.ShoppingMallReviewSteps;
 import com.developlife.reviewtwits.review.SnsReviewSteps;
+import com.developlife.reviewtwits.service.ProjectService;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.user.UserDocument;
 import com.developlife.reviewtwits.user.UserSteps;
@@ -26,6 +32,7 @@ import org.springframework.http.MediaType;
 import java.io.IOException;
 import java.util.Optional;
 
+import static com.developlife.reviewtwits.review.ShoppingMallReviewSteps.임시_상품정보_생성;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,17 +47,25 @@ public class SnsApiTest extends ApiTest {
     @Autowired
     private UserService userService;
     @Autowired
+    private ProjectService projectService;
+    @Autowired
     private UserSteps userSteps;
     @Autowired
     private SnsSteps snsSteps;
     @Autowired
     private FollowRepository followRepository;
     @Autowired
+    private ProjectRepository projectRepository;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
     private SnsReviewSteps snsReviewSteps;
 
     private RegisterUserRequest registerUserRequest;
     private User user;
     private User targetUser;
+    private Project project;
+    private Product product;
 
     @BeforeEach
     void settings() throws IOException {
@@ -66,6 +81,11 @@ public class SnsApiTest extends ApiTest {
         추가회원가입정보_입력(targetUserToken, SnsSteps.targetUserNickname);
 
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(0), user);
+        project = projectRepository.findAll().get(0);
+
+        product = 임시_상품정보_생성(project, productRepository);
 
         snsReviewSteps.아이템정보생성();
         Long reviewId = snsReviewSteps.SNS_리뷰_작성(token, "페로로쉐 초콜릿 좋아요");
