@@ -69,10 +69,14 @@ public class Review extends BaseEntity {
 
     @PrePersist
     private void preMakingReview(){
-        this.project.setReviewCount(this.project.getReviewCount() + 1);
+        if(this.project != null){
+            this.project.setReviewCount(this.project.getReviewCount() + 1);
+        }
     }
     @PreRemove
     private void preRemoveReview(){
-        this.project.setReviewCount(this.project.getReviewCount() - 1);
+        if(this.project != null){
+            this.project.setReviewCount(this.project.getReviewCount() - 1);
+        }
     }
 }
