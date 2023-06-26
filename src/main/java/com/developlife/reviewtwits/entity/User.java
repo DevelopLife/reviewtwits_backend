@@ -27,7 +27,7 @@ public class User extends BaseEntity implements UserDetails {
     @Setter
     @Column(unique = true, length = 20)
     private String nickname;
-    @Column(unique = true, length = 255)
+    @Column(unique = true)
     private String accountId;
     @Setter
     private String accountPw;

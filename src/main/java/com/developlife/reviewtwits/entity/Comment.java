@@ -35,4 +35,14 @@ public class Comment extends BaseEntity {
     @Builder.Default
     @ColumnDefault(value = "0")
     private int commentLike = 0;
+
+    @PrePersist
+    private void preMakingComment() {
+        this.review.setCommentCount(this.review.getCommentCount() + 1);
+    }
+
+    @PreRemove
+    private void preRemovingComment() {
+        this.review.setCommentCount(this.review.getCommentCount() - 1);
+    }
 }

@@ -2,10 +2,7 @@ package com.developlife.reviewtwits.entity;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 /**
  * @author WhalesBob
@@ -29,4 +26,13 @@ public class CommentLike {
     @ManyToOne
     private Comment comment;
 
+    @PrePersist
+    private void preMakingCommentLike() {
+        this.comment.setCommentLike(this.comment.getCommentLike() + 1);
+    }
+
+    @PreRemove
+    private void preRemovingCommentLike() {
+        this.comment.setCommentLike(this.comment.getCommentLike() - 1);
+    }
 }

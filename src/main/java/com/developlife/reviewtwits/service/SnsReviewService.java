@@ -1,6 +1,7 @@
 package com.developlife.reviewtwits.service;
 
 import com.developlife.reviewtwits.entity.*;
+import com.developlife.reviewtwits.exception.product.ProductNotRegisteredException;
 import com.developlife.reviewtwits.exception.review.*;
 import com.developlife.reviewtwits.exception.user.AccessDeniedException;
 import com.developlife.reviewtwits.mapper.ReviewMapper;
@@ -53,15 +54,20 @@ public class SnsReviewService {
     private final ReviewScrapRepository reviewScrapRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
     private final ReviewUtils reviewUtils;
 
     @Transactional
     public DetailSnsReviewResponse saveSnsReview(SnsReviewWriteRequest writeRequest, User user){
 
+        Product product = productRepository.findProductByProductUrl(writeRequest.productURL())
+                .orElseThrow(() -> new ProductNotRegisteredException("해당 상품이 존재하지 않습니다."));
+
         Review review = Review.builder()
                 .user(user)
                 .content(writeRequest.content())
+                .project(product.getProject())
                 .productUrl(writeRequest.productURL())
                 .score(Integer.parseInt(writeRequest.score()))
                 .productName(writeRequest.productName())
@@ -120,11 +126,6 @@ public class SnsReviewService {
         }
         commentRepository.save(newComment);
 
-        int currentCommentCount = review.getCommentCount();
-        review.setCommentCount(currentCommentCount + 1);
-
-        reviewRepository.save(review);
-
         return mapper.toCommentResponse(newComment);
     }
 
@@ -139,11 +140,6 @@ public class SnsReviewService {
 
         commentLikeRepository.deleteAllByComment(foundComment);
         commentRepository.delete(foundComment);
-
-        Review review = foundComment.getReview();
-        int currentCommentCount = review.getCommentCount();
-        review.setCommentCount(currentCommentCount - 1);
-        reviewRepository.save(review);
 
         return mapper.toCommentResponse(foundComment);
     }
@@ -174,7 +170,6 @@ public class SnsReviewService {
             toUpdateReaction = foundReaction.get();
             if(toUpdateReaction.getReactionType().equals(ReactionType.valueOf(inputReaction))){
                 reactionRepository.delete(toUpdateReaction);
-                modifyReactionCountOnReview(review,-1);
                 return mapper.toDetailReactionResponse(toUpdateReaction);
             }
 
@@ -185,37 +180,12 @@ public class SnsReviewService {
                     .review(review)
                     .user(user)
                     .build();
-
-            modifyReactionCountOnReview(review,1);
         }
 
         reactionRepository.save(toUpdateReaction);
 
         return mapper.toDetailReactionResponse(toUpdateReaction);
     }
-
-//    @Transactional
-//    public DetailReactionResponse deleteReactionOnReview(User user, long reviewId) {
-//        Review review = reviewRepository.findById(reviewId)
-//                .orElseThrow(() -> new ReviewNotFoundException("삭제하려는 리액션의 리뷰가 존재하지 않습니다."));
-//
-//        Reaction reaction = reactionRepository.findByReview_ReviewIdAndUser(reviewId, user)
-//                .orElseThrow(() -> new ReactionNotFoundException("삭제하려는 리액션이 존재하지 않습니다."));
-//
-//        reactionRepository.delete(reaction);
-//
-//        modifyReactionCountOnReview(review, -1);
-//
-//        return mapper.toDetailReactionResponse(reaction);
-//    }
-
-
-    private void modifyReactionCountOnReview(Review review, int count) {
-        int reactionCount = review.getReactionCount();
-        review.setReactionCount(reactionCount + count);
-        reviewRepository.save(review);
-    }
-
 
     @Transactional
     public DetailSnsReviewResponse deleteSnsReview(Long reviewId) {
@@ -327,9 +297,6 @@ public class SnsReviewService {
                 .build();
 
         commentLikeRepository.save(commentLike);
-
-        saveLikeCount(comment, 1);
-
         return mapper.toCommentLikeResultResponse(commentLike);
     }
 
@@ -342,15 +309,7 @@ public class SnsReviewService {
                 .orElseThrow(() -> new CommentLikeAlreadyProcessedException("해당 댓글에 좋아요를 누르지 않으셨거나, 이미 취소한 좋아요입니다."));
 
         commentLikeRepository.delete(commentLike);
-        saveLikeCount(comment, -1);
-
         return mapper.toCommentLikeResultResponse(commentLike);
-    }
-
-    private void saveLikeCount(Comment comment, int count){
-        int commentLike = comment.getCommentLike();
-        comment.setCommentLike(commentLike + count);
-        commentRepository.save(comment);
     }
 
     public DetailSnsReviewResponse getOneSnsReview(User user, long reviewId) {

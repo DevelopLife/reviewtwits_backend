@@ -8,9 +8,11 @@ import com.developlife.reviewtwits.message.request.user.RegisterUserRequest;
 import com.developlife.reviewtwits.message.response.review.CommentResponse;
 import com.developlife.reviewtwits.message.response.review.ReactionResponse;
 import com.developlife.reviewtwits.message.response.sns.DetailSnsReviewResponse;
+import com.developlife.reviewtwits.project.ProjectSteps;
 import com.developlife.reviewtwits.repository.*;
 import com.developlife.reviewtwits.repository.CommentRepository;
 import com.developlife.reviewtwits.repository.review.ReviewRepository;
+import com.developlife.reviewtwits.service.ProjectService;
 import com.developlife.reviewtwits.service.user.UserService;
 import com.developlife.reviewtwits.sns.SnsSteps;
 import com.developlife.reviewtwits.type.review.ReviewStatus;
@@ -22,6 +24,7 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.RequestSpecification;
+import org.bouncycastle.pqc.math.ntru.polynomial.ProductFormPolynomial;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.developlife.reviewtwits.review.ShoppingMallReviewSteps.임시_상품정보_생성;
 import static com.developlife.reviewtwits.review.SnsReviewSteps.*;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 import static io.restassured.RestAssured.config;
@@ -52,6 +56,9 @@ public class SnsReviewApiTest extends ApiTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ProjectService projectService;
 
     @Autowired
     private UserSteps userSteps;
@@ -74,6 +81,12 @@ public class SnsReviewApiTest extends ApiTest {
     @Autowired
     private ReactionRepository reactionRepository;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
 //    @Autowired
 //    private AmazonS3 s3Client;
 
@@ -82,15 +95,24 @@ public class SnsReviewApiTest extends ApiTest {
     @Autowired
     private SnsReviewSteps snsReviewSteps;
 
+    private Project project;
+    private User user;
+    private Product product;
+
     @BeforeEach
     void settings() throws IOException {
         registerUserRequest = userSteps.회원가입정보_생성();
-        userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
+        user = userService.register(registerUserRequest, UserSteps.일반유저권한_생성());
         final String userToken = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
         추가회원가입정보_입력(userToken, SnsSteps.userNickname);
 
         registerOtherUserRequest = userSteps.상대유저_회원가입정보_생성();
         userService.register(registerOtherUserRequest, UserSteps.일반유저권한_생성());
+
+        projectService.registerProject(ProjectSteps.프로젝트생성요청_생성(0), user);
+        project = projectRepository.findAll().get(0);
+
+        product = 임시_상품정보_생성(project, productRepository);
     }
 
 
@@ -733,6 +755,9 @@ public class SnsReviewApiTest extends ApiTest {
 
         List<CommentResponse> commentList = commentRepository.findByReview_ReviewId(registeredReviewId, null);
         assertThat(commentList).isEmpty();
+
+        Review review = reviewRepository.findById(registeredReviewId).get();
+        assertThat(review.getCommentCount()).isEqualTo(0);
     }
 
     @Test
