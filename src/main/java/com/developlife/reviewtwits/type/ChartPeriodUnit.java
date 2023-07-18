@@ -41,11 +41,23 @@ public enum ChartPeriodUnit {
         return null;
     }
 
+
+    public static LocalDateTime getTimeRangeBefore(LocalDateTime compareDateTime, Integer tickCount, ChartPeriodUnit interval){
+        String unitOfInterval = getPeriodUnit(interval);
+        int numberValue = (getNumberValue(interval) * tickCount) - 1;
+
+        return getLocalDateTime(compareDateTime, unitOfInterval, unitOfInterval, numberValue);
+    }
+
     public static LocalDateTime getTimeRangeBefore(LocalDateTime compareDateTime, ChartPeriodUnit range, ChartPeriodUnit interval) {
         String unitOfRange = getPeriodUnit(range);
         String unitOfInterval = getPeriodUnit(interval);
         int numberValue = getNumberValue(range);
 
+        return getLocalDateTime(compareDateTime, unitOfRange, unitOfInterval, numberValue);
+    }
+
+    private static LocalDateTime getLocalDateTime(LocalDateTime compareDateTime, String unitOfRange, String unitOfInterval, int numberValue) {
         LocalDateTime toReturnDateTime;
         if(unitOfRange.equals("d")){
             toReturnDateTime = compareDateTime.minusDays(numberValue);
