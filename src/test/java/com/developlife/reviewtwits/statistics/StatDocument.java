@@ -34,6 +34,12 @@ public class StatDocument {
             RequestDocumentation.parameterWithName("interval").attributes(required()).description("요청하는 통계 기준 구간"),
             RequestDocumentation.parameterWithName("endDate").description("요청 통계의 마지막 날짜").optional()
     );
+    public static final Snippet VisitGraphInfoUsingCountRequestParamFields = requestParameters(
+            RequestDocumentation.parameterWithName("projectName").attributes(required()).description("프로젝트 이름"),
+            RequestDocumentation.parameterWithName("count").attributes(required()).description("요청하는 통계 정보 갯수"),
+            RequestDocumentation.parameterWithName("interval").attributes(required()).description("요청하는 통계 기준 구간"),
+            RequestDocumentation.parameterWithName("endDate").description("요청 통계의 마지막 날짜").optional()
+    );
 
     public static final Snippet projectNameRequestParamField = requestParameters(
             RequestDocumentation.parameterWithName("projectName").attributes(required()).description("프로젝트 이름")
@@ -73,7 +79,7 @@ public class StatDocument {
             fieldWithPath("totalVisit").type(JsonFieldType.NUMBER).description("총 방문 수")
     );
     public static final Snippet VisitGraphStatResponseFields = responseFields(
-            fieldWithPath("range").type(JsonFieldType.STRING).description("요청한 통계 범위"),
+            fieldWithPath("range").type(JsonFieldType.VARIES).description("요청한 통계 범위"),
             fieldWithPath("interval").type(JsonFieldType.STRING).description("요청한 통계 기준"),
             fieldWithPath("todayVisit").type(JsonFieldType.NUMBER).description("오늘 방문 수"),
             fieldWithPath("yesterdayVisit").type(JsonFieldType.NUMBER).description("어제 방문 수"),

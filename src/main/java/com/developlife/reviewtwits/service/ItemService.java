@@ -77,10 +77,4 @@ public class ItemService {
             crawlingCoupang.closeDriver(driver);
         }
     }
-
-
-
-
-
-
 }
