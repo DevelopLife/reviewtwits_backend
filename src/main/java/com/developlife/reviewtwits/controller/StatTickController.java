@@ -40,6 +40,11 @@ public class StatTickController {
         return statService.getVisitGraphInfos(projectName, count, interval, user, endDate );
     }
 
-
-
+    @GetMapping("/daily-visit-graph-infos")
+    public DailyVisitInfoResponse getDailyVisitInfos(@AuthenticationPrincipal User user,
+                                                     @RequestParam
+                                                     @ProjectName String projectName,
+                                                     @RequestParam @Min(value = 1, message = "통계에서 받을 정보의 갯수는 1개 이상이어야 합니다.") Integer count){
+        return statService.getDailyVisitInfos(projectName, count, user);
+    }
 }

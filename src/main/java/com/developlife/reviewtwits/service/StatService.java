@@ -96,18 +96,25 @@ public class StatService {
         return getVisitGraphInfos(projectName, null, startDate, inputInterval, user, inputEndDate);
     }
 
-    public DailyVisitInfoResponse getDailyVisitInfos(String projectName, String inputRange, User user) {
-
+    public DailyVisitInfoResponse getDailyVisitInfos(String projectName, String inputRange, LocalDate startDate, User user){
         Project project = getProject(projectName, user);
-        ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
-
-        LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(LocalDate.now().atTime(LocalTime.MIN), range, ChartPeriodUnit.ONE_DAY).toLocalDate();
         List<VisitInfoResponse> visitInfo = statInfoRepository.findByPeriod(project, LocalDate.now(), startDate, ChartPeriodUnit.ONE_DAY);
 
         return DailyVisitInfoResponse.builder()
                 .range(inputRange)
                 .visitInfo(visitInfo)
                 .build();
+    }
+
+    public DailyVisitInfoResponse getDailyVisitInfos(String projectName, Integer tickCounts, User user) {
+        LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(LocalDate.now().atTime(LocalTime.MIN), tickCounts, ChartPeriodUnit.ONE_DAY).toLocalDate();
+        return getDailyVisitInfos(projectName, null, startDate, user);
+    }
+
+    public DailyVisitInfoResponse getDailyVisitInfos(String projectName, String inputRange, User user) {
+        ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
+        LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(LocalDate.now().atTime(LocalTime.MIN), range, ChartPeriodUnit.ONE_DAY).toLocalDate();
+        return getDailyVisitInfos(projectName, inputRange, startDate, user);
     }
     public RecentVisitInfoResponse getRecentVisitCounts(String projectName, User user) {
         Project project = getProject(projectName, user);
