@@ -12,7 +12,7 @@ import java.util.Map;
 
 
 public interface PeriodCheckingRepository {
-    List<VisitInfoResponse> findByPeriod(Project project, LocalDate endDate, ChartPeriodUnit range, ChartPeriodUnit interval);
+    List<VisitInfoResponse> findByPeriod(Project project, LocalDate endDate, LocalDate startDate, ChartPeriodUnit interval);
     RecentVisitInfoResponse findRecentVisitInfo(Project project);
     Map<Integer, Long> readTimeGraphInfo(Project project);
 

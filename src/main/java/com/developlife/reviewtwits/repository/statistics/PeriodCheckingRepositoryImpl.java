@@ -41,8 +41,7 @@ public class PeriodCheckingRepositoryImpl implements PeriodCheckingRepository {
     }
 
     @Override
-    public List<VisitInfoResponse> findByPeriod(Project project, LocalDate endDate, ChartPeriodUnit range, ChartPeriodUnit interval) {
-        LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(endDate.atTime(LocalTime.MIN), range, interval).toLocalDate();
+    public List<VisitInfoResponse> findByPeriod(Project project, LocalDate endDate, LocalDate startDate, ChartPeriodUnit interval) {
         Map<Integer, List<StatInfo>> visitStatInfo = getVisitStatInfo(project, startDate, endDate);
         return mappingVisitInfoResponse(visitStatInfo, interval, startDate, endDate);
     }
