@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -60,15 +61,13 @@ public class StatService {
         StatInfo savedInfo = statInfoRepository.save(statInfo);
         return statMapper.mapStatInfoToSaveStatResponse(savedInfo);
     }
-
-    public VisitTotalGraphResponse getVisitGraphInfos(String projectName, String inputRange, String inputInterval, User user, String inputEndDate) {
+    public VisitTotalGraphResponse getVisitGraphInfos(String projectName, String inputRange, LocalDate startDate, String inputInterval, User user, String inputEndDate) {
         Project project = getProject(projectName, user);
-        ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
         ChartPeriodUnit interval = ChartPeriodUnit.findByInputValue(inputInterval);
         LocalDate endDate = getLocalDateFromInput(inputEndDate);
 
         RecentVisitInfoResponse recentInfo = statInfoRepository.findRecentVisitInfo(project);
-        List<VisitInfoResponse> visitInfo = statInfoRepository.findByPeriod(project, endDate, range, interval);
+        List<VisitInfoResponse> visitInfo = statInfoRepository.findByPeriod(project, endDate, startDate, interval);
 
         return VisitTotalGraphResponse.builder()
                 .range(inputRange)
@@ -80,12 +79,30 @@ public class StatService {
                 .build();
     }
 
+    public VisitTotalGraphResponse getVisitGraphInfos(String projectName, String inputRange, String inputInterval, User user, String inputEndDate) {
+        ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
+        ChartPeriodUnit interval = ChartPeriodUnit.findByInputValue(inputInterval);
+        LocalDate endDate = getLocalDateFromInput(inputEndDate);
+        LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(endDate.atTime(LocalTime.MIN), range, interval).toLocalDate();
+
+        return getVisitGraphInfos(projectName, inputRange, startDate, inputInterval, user, inputEndDate);
+    }
+
+    public VisitTotalGraphResponse getVisitGraphInfos(String projectName, Integer tickCount, String inputInterval, User user, String inputEndDate){
+        ChartPeriodUnit interval = ChartPeriodUnit.findByInputValue(inputInterval);
+        LocalDate endDate = getLocalDateFromInput(inputEndDate);
+        LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(endDate.atTime(LocalTime.MIN), tickCount, interval).toLocalDate();
+
+        return getVisitGraphInfos(projectName, null, startDate, inputInterval, user, inputEndDate);
+    }
+
     public DailyVisitInfoResponse getDailyVisitInfos(String projectName, String inputRange, User user) {
 
         Project project = getProject(projectName, user);
         ChartPeriodUnit range = ChartPeriodUnit.findByInputValue(inputRange);
 
-        List<VisitInfoResponse> visitInfo = statInfoRepository.findByPeriod(project, LocalDate.now(), range, ChartPeriodUnit.ONE_DAY);
+        LocalDate startDate = ChartPeriodUnit.getTimeRangeBefore(LocalDate.now().atTime(LocalTime.MIN), range, ChartPeriodUnit.ONE_DAY).toLocalDate();
+        List<VisitInfoResponse> visitInfo = statInfoRepository.findByPeriod(project, LocalDate.now(), startDate, ChartPeriodUnit.ONE_DAY);
 
         return DailyVisitInfoResponse.builder()
                 .range(inputRange)

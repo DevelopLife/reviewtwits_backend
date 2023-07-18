@@ -3,6 +3,7 @@ package com.developlife.reviewtwits.repository.follow;
 import com.developlife.reviewtwits.entity.User;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,13 +16,11 @@ import static com.developlife.reviewtwits.entity.QUser.user;
  * @since 2023/04/09
  */
 @Repository
+@RequiredArgsConstructor
 public class FollowCustomRepositoryImpl implements FollowCustomRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public FollowCustomRepositoryImpl(JPAQueryFactory jpaQueryFactory) {
-        this.jpaQueryFactory = jpaQueryFactory;
-    }
     /*
    // 최근에 만들어진 계정 중에 팔로우 하지 않은 계정을 추천
     SELECT user_id From User
