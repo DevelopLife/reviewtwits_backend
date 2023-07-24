@@ -766,6 +766,97 @@ public class StatApiTest extends ApiTest {
     }
 
     @Test
+    void 방문수_그래프_정보_요청_count_버전_프로젝트이름_형식오류_400(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectName", ProjectSteps.wrongProjectName)
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("count", ProjectSteps.exampleCount)
+                .when()
+                .get("/statistics/tick-counts/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all();
+    }
+
+    @Test
+    void 방문수_그래프_정보_요청_count_버전_count_음수_400(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectName", project.getProjectName())
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("count", -1)
+                .when()
+                .get("/statistics/tick-counts/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all();
+    }
+
+    @Test
+    void 방문수_그래프_정보_요청_count_버전_토큰정보_누락_401(){
+        Project project = 통계_사전작업();
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH))
+                .param("projectName", project.getProjectName())
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("count", ProjectSteps.exampleCount)
+                .when()
+                .get("/statistics/tick-counts/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .log().all();
+    }
+
+    @Test
+    void 방문수_그래프_정보_요청_count_버전_프로젝트_접근권한_없음_403(){
+        Project project = 통계_사전작업();
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.상대유저_로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectName", project.getProjectName())
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("count", ProjectSteps.exampleCount)
+                .when()
+                .get("/statistics/tick-counts/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .log().all();
+    }
+
+    @Test
+    void 방문수_그래프_정보_요청_count_버전_프로젝트이름_찾을수없음_404(){
+        final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
+
+        given(this.spec)
+                .filter(document(DEFAULT_RESTDOC_PATH, CommonDocument.ErrorResponseFields))
+                .header("X-AUTH-TOKEN", token)
+                .param("projectName", "wrongProjectName")
+                .param("interval", ProjectSteps.exampleInterval)
+                .param("count", ProjectSteps.exampleCount)
+                .when()
+                .get("/statistics/tick-counts/visit-graph-infos")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .log().all();
+    }
+
+    @Test
     void 대시보드_상품정보_통계_요청_성공_200(){
         Project project = 통계_사전작업();
         final String token = userSteps.로그인액세스토큰정보(UserSteps.로그인요청생성());
