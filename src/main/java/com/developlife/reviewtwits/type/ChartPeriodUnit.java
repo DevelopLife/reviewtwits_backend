@@ -1,7 +1,9 @@
 package com.developlife.reviewtwits.type;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 
 public enum ChartPeriodUnit {
 
@@ -51,27 +53,24 @@ public enum ChartPeriodUnit {
     }
 
     private static LocalDateTime getLocalDateTime(LocalDateTime compareDateTime, String unitOfRange, String unitOfInterval, int numberValue) {
-        LocalDateTime toReturnDateTime;
-        if(unitOfRange.equals("d")){
-            toReturnDateTime = compareDateTime.minusDays(numberValue);
-        } else if(unitOfRange.equals("mo")){
-            toReturnDateTime = compareDateTime.minusMonths(numberValue);
-        } else{
-            toReturnDateTime = compareDateTime.minusYears(numberValue);
-        }
+        LocalDateTime toReturnDateTime = switch (unitOfRange) {
+            case "d" -> compareDateTime.minusDays(numberValue);
+            case "w" -> compareDateTime.minusWeeks(numberValue);
+            case "mo" -> compareDateTime.minusMonths(numberValue);
+            default -> compareDateTime.minusYears(numberValue);
+        };
 
-        if(unitOfInterval.equals("d")){
-            return toReturnDateTime;
-        }else if (unitOfInterval.equals("mo")){
-            return toReturnDateTime.withDayOfMonth(1);
-        }else{
-            return toReturnDateTime.withDayOfMonth(1).withDayOfMonth(1);
-        }
+        return switch (unitOfInterval) {
+            case "d" -> toReturnDateTime;
+            case "w" -> toReturnDateTime.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            case "mo" -> toReturnDateTime.withDayOfMonth(1);
+            default -> toReturnDateTime.withDayOfMonth(1).withDayOfMonth(1);
+        };
     }
 
     private static int getNumberValue(ChartPeriodUnit interval) {
         String input = interval.inputValue;
-        if(input.endsWith("d") || input.endsWith("y")){
+        if(input.endsWith("d") || input.endsWith("y") || input.endsWith("w")){
             return Integer.parseInt(input.substring(0,input.length()-1));
         }
         if(input.endsWith("mo")){
@@ -82,7 +81,7 @@ public enum ChartPeriodUnit {
 
     private static String getPeriodUnit(ChartPeriodUnit unit){
         String input = unit.inputValue;
-        if(input.endsWith("d") || input.endsWith("y")){
+        if(input.endsWith("d") || input.endsWith("y") || input.endsWith("w")){
             return input.substring(input.length()-1);
         }
         if(input.endsWith("mo")){
@@ -104,6 +103,9 @@ public enum ChartPeriodUnit {
         }
         if(dayMonthYear.equals("y")){
             return localDate.plusYears(numberValue);
+        }
+        if(dayMonthYear.equals("w")){
+            return localDate.plusWeeks(numberValue);
         }
 
         return null;
