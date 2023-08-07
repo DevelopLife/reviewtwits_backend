@@ -244,8 +244,7 @@ public class StatApiTest extends ApiTest {
                                 "<br>해당 유저가 가지고 있는 프로젝트의 이름을 입력해야 합니다. 영어, 숫자, '-', '_' 만 포함되어 있는 문자열만 입력해야 합니다." +
                                 "<br>그리고 일간 방문 통계정보의 범위를 입력해야 합니다. " +
                                 "<br>범위로써 입력할 수 있는 정보는 아래와 같습니다." +
-                                "<br><br> 1d,3d,5d,7d,15d" +
-                                "<br> 1mo,3mo,6mo,1y,3y,5y" +
+                                "<br><br>1d,1w,1mo,1y,5y" +
                                 "<br><br>위의 규칙에 맞지 않는 입력값일 경우, 400 Bad Request 가 반환됩니다." +
                                 "<br>헤더에 토큰 정보가 누락되었을 경우, 401 Unauthorized 가 반환됩니다." +
                                 "<br>해당 유저가 프로젝트를 소유하지 않을 경우, 403 Forbidden 이 반환됩니다." +
@@ -577,8 +576,7 @@ public class StatApiTest extends ApiTest {
                                 "<br>요청 마지막 날짜(endDate)는 yyyy-mm-dd 형식으로 입력해야 하며, 선택적으로 입력할 수 있습니다." +
                                 "<br>입력하지 않았을 시 현재 날짜 기준으로 그래프 정보가 반환되며, 현재 날짜 이후의 날짜를 입력할 수 없습니다." +
                                 "<br>또한 통계 범위와 구간을 입력해야 하며, 범위로써 입력할 수 있는 정보는 아래와 같습니다." +
-                                "<br><br> 1d,3d,5d,7d,15d" +
-                                "<br> 1mo,3mo,6mo,1y,3y,5y" +
+                                "<br><br>1d,1w,1mo,1y,5y" +
                                 "<br><br>위의 규칙에 맞지 않는 입력값일 경우, 400 Bad Request 가 반환됩니다.",
                         "방문수그래프정보요청",
                         CommonDocument.AccessTokenHeader,
@@ -743,8 +741,7 @@ public class StatApiTest extends ApiTest {
                                 "<br>요청 마지막 날짜(endDate)는 yyyy-mm-dd 형식으로 입력해야 하며, 선택적으로 입력할 수 있습니다." +
                                 "<br>입력하지 않았을 시 현재 날짜 기준으로 그래프 정보가 반환되며, 현재 날짜 이후의 날짜를 입력할 수 없습니다." +
                                 "<br>또한 통계 interval 을 입력해야 하며, 범위로써 입력할 수 있는 정보는 아래와 같습니다." +
-                                "<br><br> 1d,3d,5d,7d,15d" +
-                                "<br> 1mo,3mo,6mo,1y,3y,5y" +
+                                "<br><br>1d,1w,1mo,1y,5y" +
                                 "<br><br>위의 규칙에 맞지 않는 입력값일 경우, 400 Bad Request 가 반환됩니다.",
                         "방문수그래프정보요청-count-version",
                         CommonDocument.AccessTokenHeader,

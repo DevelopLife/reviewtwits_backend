@@ -27,8 +27,8 @@ public class ProjectSteps {
     public static final ProjectPricePlan pricePlan = ProjectPricePlan.FREE_PLAN;
 
     public static final String productUrl = "http://www.example.com/123";
-    public static final String exampleRange = "6mo";
-    public static final String exampleInterval = "3d";
+    public static final String exampleRange = "1y";
+    public static final String exampleInterval = "1w";
     public static final String wrongRange = "3s";
     public static final String notExistProjectName = "not_existed_project_name";
     public static final String wrongProjectName = "잘못된 이름";
